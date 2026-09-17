@@ -1,0 +1,15 @@
+import { defineConfig } from 'vitest/config';
+import { playwright } from '@vitest/browser-playwright';
+
+export default defineConfig({
+  test: {
+    include: ['tests/browser.test.ts'],
+    browser: {
+      enabled: true,
+      headless: true,
+      screenshotDirectory: './test-results/screenshots',
+      provider: playwright(),
+      instances: [{ browser: 'chromium' }, { browser: 'firefox' }, { browser: 'webkit' }],
+    },
+  },
+});

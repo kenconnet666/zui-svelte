@@ -19,7 +19,8 @@
     "changeset": "changeset",
     "generate": "node scripts/generate-css.mjs",
     "generate:check": "node scripts/generate-css.mjs --check",
-    "test:core": "pnpm --filter @zui/core run test"
+    "test:core": "pnpm --filter @zui/core run test",
+    "test:core:browser": "pnpm --filter @zui/core run test:browser"
   },
   "devDependencies": {
     "@changesets/cli": "catalog:",

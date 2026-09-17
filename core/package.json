@@ -19,13 +19,16 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "check": "tsc -p tsconfig.check.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:browser": "vitest run --config vitest.browser.config.ts"
   },
   "dependencies": {
     "csstype": "catalog:",
     "stylis": "catalog:"
   },
   "devDependencies": {
+    "@vitest/browser-playwright": "catalog:",
+    "playwright": "catalog:",
     "@types/stylis": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",

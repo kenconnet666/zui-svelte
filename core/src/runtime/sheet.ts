@@ -42,7 +42,9 @@ export class BrowserStyleSheet extends MemoryStyleSheet {
     this.#document = target.nodeType === 9 ? (target as Document) : target.ownerDocument!;
     this.#parent = target.nodeType === 9 ? this.#document.head : (target as ShadowRoot);
     if (!this.#parent) throw new Error('The target document has no head.');
-    for (const element of this.#parent.querySelectorAll<HTMLStyleElement>('style[data-zui]')) {
+    for (const element of this.#parent.querySelectorAll<HTMLStyleElement>(
+      'style[data-zui][data-z-ssr]',
+    )) {
       if (element.parentNode !== this.#parent || element.dataset.zui !== namespace) continue;
       const key = element.dataset.zKey;
       const order = Number(element.dataset.zOrder);
@@ -50,6 +52,7 @@ export class BrowserStyleSheet extends MemoryStyleSheet {
       if (this.#nodes.has(key)) throw new Error('Duplicate server style: ' + key);
       this.#nodes.set(key, element);
       super.set(key, element.textContent ?? '', order);
+      delete element.dataset.zSsr;
     }
   }
 

@@ -76,7 +76,7 @@ export class StyleRegistry {
       .entries()
       .map(
         (entry) =>
-          '<style data-zui="' +
+          '<style data-z-ssr="" data-zui="' +
           attribute(this.namespace) +
           '" data-z-key="' +
           attribute(entry.key) +

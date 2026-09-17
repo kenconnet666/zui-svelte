@@ -13,3 +13,4 @@ export type { StyleSnapshot, BindingOptions } from './runtime/binding.js';
 export { bindElement } from './runtime/element.js';
 export { MemoryStyleSheet, BrowserStyleSheet } from './runtime/sheet.js';
 export type { StyleSheet, StyleEntry } from './runtime/sheet.js';
+export { ThemeScope, themeVariables, bindTheme } from './theme/scope.js';
