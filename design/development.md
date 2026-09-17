@@ -6,18 +6,18 @@
 
 ## 命令
 
-| 命令                           | 作用                                    |
-| ------------------------------ | --------------------------------------- |
-| pnpm install                   | 安装工作区依赖                          |
-| pnpm install --frozen-lockfile | 按已保存的锁文件重装                    |
-| pnpm dev                       | 启动 Docs 开发服务器                    |
-| pnpm build                     | 按依赖顺序构建 core、svelte、docs       |
-| pnpm preview                   | 预览 Docs 构建产物                      |
-| pnpm check                     | 检查三个工作区的类型与 Svelte 模板      |
-| pnpm lint                      | ESLint 与格式检查                       |
-| pnpm format                    | 格式化源码和设计文档                    |
-| pnpm test                      | Docs 浏览器集成测试                     |
-| pnpm changeset                 | 编写版本变更记录；需要初始化 Git 后使用 |
+| 命令                           | 作用                               |
+| ------------------------------ | ---------------------------------- |
+| pnpm install                   | 安装工作区依赖                     |
+| pnpm install --frozen-lockfile | 按已保存的锁文件重装               |
+| pnpm dev                       | 启动 Docs 开发服务器               |
+| pnpm build                     | 按依赖顺序构建 core、svelte、docs  |
+| pnpm preview                   | 预览 Docs 构建产物                 |
+| pnpm check                     | 检查三个工作区的类型与 Svelte 模板 |
+| pnpm lint                      | ESLint 与格式检查                  |
+| pnpm format                    | 格式化源码和设计文档               |
+| pnpm test                      | Docs 浏览器集成测试                |
+| pnpm changeset                 | 编写版本变更记录                   |
 
 ## 构建方式
 
@@ -34,13 +34,15 @@
 
 Docs 测试覆盖导航、刷新、未知页面、代码高亮、浏览器异常和窄屏溢出。默认使用已安装的 Chrome；其他机器缺少浏览器时，可先安装 Chrome 或按需修改 Playwright 配置。
 
+GitHub CI 使用 Playwright 管理的 Chromium、Firefox、WebKit，测试构建后的 Docs，并上传测试报告与验证通过的构建产物。配置见 [CI 与产物交付](ci.md)。
+
 core 第一批实现后加入算法测试，首个组件实现后加入组件浏览器测试。不要把无测试执行报告为功能验证。
 
 ## 发布准备
 
 所有包保持 private。正式发布前需要确定 npm scope、许可证、Git 主分支和版本策略，并验证实际 tarball 的外部消费。
 
-Changesets 暂按 main 配置，仓库尚未初始化 Git时不执行版本发布。未配置自动发布命令或工作流。
+仓库已连接 kenconnet666/zui-svelte，主分支为 master，Changesets 已使用相同基线。已配置 CI 和构建产物上传，未配置 npm 自动发布或文档站部署。
 
 ## 清理规则
 

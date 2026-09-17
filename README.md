@@ -1,5 +1,7 @@
 # ZUI
 
+[![CI](https://github.com/kenconnet666/zui-svelte/actions/workflows/ci.yml/badge.svg)](https://github.com/kenconnet666/zui-svelte/actions/workflows/ci.yml)
+
 由 pnpm 管理的三个工作区：框架无关的运行时 CSS 核心、Svelte 组件库、普通 Svelte 文档网站。
 
 ## 当前状态
@@ -42,6 +44,7 @@ pnpm test
 - [类型生成与主题](design/core-types-theme.md)
 - [依赖说明](design/dependencies.md)
 - [开发与构建](design/development.md)
+- [GitHub CI 与产物交付](design/ci.md)
 - [文档站约定](design/documentation.md)
 
 `@zui/core`、`@zui/svelte` 目前只是本地工作区名称，所有包保持 private。正式发布名称、版本策略和许可证在发布前确定。
