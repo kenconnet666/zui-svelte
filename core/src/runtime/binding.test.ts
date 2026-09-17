@@ -2,6 +2,20 @@ import { describe, expect, it } from 'vitest';
 import { createRuntime } from './runtime.js';
 
 describe('runtime promotion', () => {
+  it('releases source bookkeeping during repeated mount and dispose', () => {
+    const runtime = createRuntime();
+    for (let i = 0; i < 1000; i++) {
+      const binding = runtime.binding();
+      binding.evaluate((s) => {
+        s.width.px(i);
+      });
+      binding.dispose();
+    }
+    expect(runtime.bindingCount).toBe(0);
+    expect(runtime.registry.size).toBe(0);
+    expect(runtime.registry.sourceCount).toBe(0);
+    runtime.dispose();
+  });
   it('starts static, promotes only changed declarations and stabilizes rules', () => {
     const runtime = createRuntime();
     const binding = runtime.binding({ id: 'panel' });

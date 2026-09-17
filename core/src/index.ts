@@ -14,3 +14,8 @@ export { bindElement } from './runtime/element.js';
 export { MemoryStyleSheet, BrowserStyleSheet } from './runtime/sheet.js';
 export type { StyleSheet, StyleEntry } from './runtime/sheet.js';
 export { ThemeScope, themeVariables, bindTheme } from './theme/scope.js';
+export type {
+  StyleResource,
+  AnimationResource,
+  PropertyRegistration,
+} from './runtime/resources.js';

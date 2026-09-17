@@ -4,7 +4,7 @@ import { overrideTheme } from './theme.js';
 import type { Theme, ThemePatch, TokenSchema, WidenTokens } from './types.js';
 
 export class ThemeScope<T extends TokenSchema> {
-  readonly #listeners = new Set<(theme: Theme<WidenTokens<T>>) => void>();
+  readonly #listeners = new Map<(theme: Theme<WidenTokens<T>>) => void, (() => void) | undefined>();
   readonly #children = new Set<ThemeScope<T>>();
   #base: Theme<T>;
   #patch: ThemePatch<T>;
@@ -33,7 +33,7 @@ export class ThemeScope<T extends TokenSchema> {
   }
   #refresh() {
     this.#theme = overrideTheme((this.parent?.theme ?? this.#base) as Theme<T>, this.#patch);
-    for (const listener of this.#listeners) listener(this.#theme);
+    for (const listener of this.#listeners.keys()) listener(this.#theme);
     for (const child of this.#children) child.#refresh();
   }
   get theme(): Theme<WidenTokens<T>> {
@@ -62,12 +62,13 @@ export class ThemeScope<T extends TokenSchema> {
     this.#patch = copied;
     this.#refresh();
   }
-  subscribe(listener: (theme: Theme<WidenTokens<T>>) => void): () => void {
+  subscribe(listener: (theme: Theme<WidenTokens<T>>) => void, cleanup?: () => void): () => void {
     this.#alive();
-    this.#listeners.add(listener);
-    listener(this.#theme);
+    const notify = (theme: Theme<WidenTokens<T>>) => listener(theme);
+    this.#listeners.set(notify, cleanup);
+    notify(this.#theme);
     return () => {
-      this.#listeners.delete(listener);
+      if (this.#listeners.delete(notify)) cleanup?.();
     };
   }
   dispose(): void {
@@ -75,6 +76,7 @@ export class ThemeScope<T extends TokenSchema> {
     this.#disposed = true;
     for (const child of this.#children) child.dispose();
     this.#children.clear();
+    for (const cleanup of this.#listeners.values()) cleanup?.();
     this.#listeners.clear();
     if (this.parent) this.parent.#children.delete(this);
   }
@@ -98,9 +100,8 @@ export function bindTheme<T extends TokenSchema>(
   scope: ThemeScope<T>,
 ): () => void {
   const binding = createVariableBinding(node);
-  const stop = scope.subscribe((theme) => binding.update(themeVariables(theme)));
-  return () => {
-    stop();
-    binding.dispose();
-  };
+  return scope.subscribe(
+    (theme) => binding.update(themeVariables(theme)),
+    () => binding.dispose(),
+  );
 }

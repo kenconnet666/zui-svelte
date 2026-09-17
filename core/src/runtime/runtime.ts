@@ -5,6 +5,7 @@ import type { Theme, TokenSchema } from '../theme/types.js';
 import { StyleBinding } from './binding.js';
 import { StyleRegistry, type RuleRecord } from './registry.js';
 import { BrowserStyleSheet, MemoryStyleSheet, type StyleSheet } from './sheet.js';
+import { createResources } from './resources.js';
 
 export interface RuntimeOptions<T extends TokenSchema> {
   theme?: Theme<T>;
@@ -26,6 +27,7 @@ export function createRuntime<T extends TokenSchema = DefaultTokens>(
       : new MemoryStyleSheet());
   const registry = new StyleRegistry(sheet, namespace, options.prefix);
   const theme = options.theme ?? (lightTheme as unknown as Theme<T>);
+  const resources = createResources(registry, theme);
   const bindings = new Map<string, StyleBinding<T>>();
   const staticRules = new Map<string, RuleRecord>();
   let sequence = 0;
@@ -40,6 +42,11 @@ export function createRuntime<T extends TokenSchema = DefaultTokens>(
   return {
     registry,
     theme,
+    global: resources.global,
+    themeStyle: resources.theme,
+    keyframes: resources.keyframes,
+    fontFace: resources.fontFace,
+    property: resources.property,
     css(factory: StyleFactory<T>, source = 'static'): string {
       alive();
       const record = registry.acquire(buildStyle(factory, theme), source);
@@ -82,6 +89,7 @@ export function createRuntime<T extends TokenSchema = DefaultTokens>(
       for (const binding of bindings.values()) binding.dispose();
       bindings.clear();
       staticRules.clear();
+      resources.dispose();
       registry.dispose();
     },
   };

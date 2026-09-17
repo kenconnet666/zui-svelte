@@ -23,4 +23,18 @@ describe('theme scopes', () => {
     expect(scope.theme).toBe(before);
     scope.dispose();
   });
+  it('releases subscribers when an ancestor scope is disposed', () => {
+    const parent = new ThemeScope(defineTheme({ color: { primary: 'red' } }));
+    const child = parent.fork({});
+    let cleanups = 0;
+    const stop = child.subscribe(
+      () => {},
+      () => {
+        cleanups++;
+      },
+    );
+    parent.dispose();
+    stop();
+    expect(cleanups).toBe(1);
+  });
 });

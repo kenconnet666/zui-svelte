@@ -20,6 +20,7 @@ export function hashText(text: string): string {
 }
 
 export function serializeProgram(program: StyleProgram, selector: string, prefix = true): string {
+  validateQuery(selector, true);
   const body = (nodes: StyleProgram): string =>
     nodes
       .map((node) =>

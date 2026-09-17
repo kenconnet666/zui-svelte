@@ -1,0 +1,69 @@
+import { describe, expect, it } from 'vitest';
+import { createRuntime } from './runtime.js';
+import type { StyleFactory } from '../css/builder.js';
+
+describe('scoped style resources', () => {
+  it('deduplicates animations and releases them only after their last owner', () => {
+    const runtime = createRuntime();
+    const frames: Record<string, StyleFactory> = {
+      from: (s) => {
+        s.opacity(0);
+      },
+      to: (s) => {
+        s.opacity(1);
+      },
+    };
+    const first = runtime.keyframes(frames);
+    const second = runtime.keyframes(frames);
+    expect(first.name).toBe(second.name);
+    expect(runtime.registry.size).toBe(1);
+    first.dispose();
+    expect(runtime.cssText()).toContain('@keyframes');
+    second.dispose();
+    expect(runtime.cssText()).toBe('');
+    second.dispose();
+  });
+  it('registers global, theme and font rules with explicit lifetimes', () => {
+    const runtime = createRuntime();
+    const reset = runtime.global('body', (s) => {
+      s.margin.px(0);
+    });
+    const theme = runtime.themeStyle(':root');
+    const font = runtime.fontFace({
+      fontFamily: 'Example',
+      src: 'url("/example.woff2") format("woff2")',
+      fontDisplay: 'swap',
+    });
+    expect(runtime.cssText()).toContain('body{margin:0px;}');
+    expect(runtime.cssText()).toContain('--z-color-primary:');
+    expect(runtime.cssText()).toContain('@font-face');
+    reset.dispose();
+    theme.dispose();
+    font.dispose();
+    expect(runtime.registry.size).toBe(0);
+  });
+  it('rejects conflicting typed properties and invalid keyframe structures', () => {
+    const runtime = createRuntime();
+    const property = runtime.property('--progress', {
+      syntax: '<number>',
+      inherits: false,
+      initialValue: 0,
+    });
+    expect(runtime.cssText()).toContain('@property --progress');
+    expect(() =>
+      runtime.property('--progress', { syntax: '<color>', inherits: false, initialValue: 'red' }),
+    ).toThrow();
+    expect(() => runtime.keyframes({ '101%': () => {} })).toThrow();
+    expect(() =>
+      runtime.keyframes({
+        from: (s) => {
+          s._hover((s) => {
+            s.opacity(1);
+          });
+        },
+      }),
+    ).toThrow();
+    property.dispose();
+    runtime.dispose();
+  });
+});

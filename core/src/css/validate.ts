@@ -38,8 +38,7 @@ export function validateValue(value: string): string {
 }
 
 export function validateQuery(query: string, atRule = false): string {
-  if (!query.trim() || /[{};]/u.test(query) || /\/\*/u.test(query))
-    throw new TypeError('Invalid CSS query.');
+  validateValue(query);
   if (!atRule && !query.includes('&')) throw new TypeError('A local selector must contain &.');
   return query;
 }

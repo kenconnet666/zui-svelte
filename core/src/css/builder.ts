@@ -18,6 +18,7 @@ export interface StyleHelpers<T extends TokenSchema> {
   _after(factory: StyleFactory<T>): void;
   _important(factory: StyleFactory<T>): void;
   custom(name: `--${string}`, value: string | number | null | undefined): void;
+  raw(property: string, value: string | number | null | undefined): void;
   set<P extends keyof CSS.Properties>(property: P, value: CSS.Properties[P] | null): void;
 }
 
@@ -87,6 +88,11 @@ export function buildStyle<T extends TokenSchema = DefaultTokens>(
         const entry = Object.hasOwn(metadata, property) ? metadata[property] : undefined;
         if (!entry) throw new TypeError('Unknown CSS property: ' + property);
         append(entry.name, value);
+      },
+      raw(property, value) {
+        if (!/^-?[a-z][a-z0-9-]*$/u.test(property))
+          throw new TypeError('Invalid CSS property name.');
+        append(property, value);
       },
     };
 
