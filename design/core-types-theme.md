@@ -2,7 +2,7 @@
 
 状态：生产目标下的讨论稿，2026-09-17。本文 API 尚未实现，最终命名和泛型需要类型原型验证。
 
-已确认：默认静态，检测变化后自动提升，不分析响应式来源；首版支持 SSR。类型生成是本库构建时生成元数据，不是分析使用者响应式表达式的编译插件。
+已确认：默认静态，检测变化后自动提升，不分析响应式来源；首版支持 SSR。类型生成是本库构建时生成元数据；class 绑定编译是另一条工具链，后者补齐内联变量与 SSR，并不分析使用者响应式表达式的来源。
 
 ## 1. 类型与运行时必须描述同一套能力
 
@@ -150,7 +150,7 @@ s.gridTemplateColumns('repeat(3, minmax(0, 1fr))');
 - 错误单位、错误参数个数。
 - 不存在的 Token、类别错误的 Token。
 - 扩展 Token 后保留基础 Token。
-- recipe 选项、compound 条件、part 名称错误。
+- recipe 选项、compound 条件、slotProps 子项名称错误。
 - 属性转发时的事件、ARIA 与 ref 类型。
 - 包外消费生成后的 .d.ts，不靠仓库内路径映射通过。
 - Svelte 模板中的推导，不仅普通 .ts 文件里的推导。
@@ -322,7 +322,7 @@ hydrate 前不能因为客户端初始偏好与服务器不同而重建全部结
 
 Token 表达稳定的设计决策：控件高度、语义色、焦点环、圆角、层级等。
 组件 props 表达实例状态与业务选择：disabled、loading、selected、size、variant 等。
-css 回调表达局部定制。
+class 表达根元素样式；slotProps 转发子元素/组件参数、class 与 style。每个 css() 都独立返回字符串。
 临时拖动位置、测量宽度、滚动进度等不强行加入主题。
 
 组件 Token 的默认值从全局语义 Token 派生；应用可以覆盖。避免每个组件复制一套完全独立的全局颜色，也避免所有组件只共用一个没有语义的 spacing.small。
@@ -367,3 +367,13 @@ css 回调表达局部定制。
 - [MUI CSS 主题变量](https://mui.com/material-ui/customization/css-theme-variables/overview/)
 - [CSS Properties and Values API](https://www.w3.org/TR/css-properties-values-api-1/)
 - 本地参考：zui-old/scripts/generate-properties.mjs、packages/core/src/types/carrier.ts、packages/core/src/theme/types.ts。参考已有经验，不复制通用 fr 单位或简单类型交叉等不适合新合同的细节。
+
+## 22. class 字符串与 slotProps 的类型补充
+
+- css() 返回原始 string，可带 erased brand，但用户不需要 StyleHandle 或 parts 对象。
+- Svelte 组件 class 接受 ClassValue，不限制为 ZUI 自己的字符串类型。
+- slotProps 的 DOM 子项使用相应 HTML/SVG 属性，子组件子项使用 ComponentProps，排除明确的受控项。
+- 重复项子项可为普通 TS 工厂函数，参数从组件 item 泛型与公开状态推导。
+- slotProps 不使用 Record<string, any>；类型需要验证 class 数组/对象、原生 style 和事件参数。
+- 应用级 createStyling 若保留，其 css 返回的仍是 string；编译集成需要识别该入口或通过最终 class 消费协议接入，不能让类型化封装绕过变量桥接。
+- 类型生成器、class 绑定编译器和 runtime 版本合同分别验证；不能仅靠 d.ts brand 恢复实例变量。

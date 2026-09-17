@@ -1,424 +1,401 @@
-# Core 生产级组合设计
+# Core class 字符串、编译绑定与 slotProps
 
-状态：讨论稿，2026-09-17。本文的 API 都是候选写法，尚未实现。
+状态：讨论稿，2026-09-17。已按用户新的公开 API 边界重写；本文 API 示例尚未实现。
 
-已确认：默认静态，观察同一绑定的输出变化后自动提升；复杂变化切换规则；不追踪响应式来源，不要求手动 dynamic/getter。首版支持 SvelteKit/SSR 消费，Docs 仍是普通 Svelte + Vite。
+## 1. 已确认的公开边界
 
-类型生成与主题的详细合同见 [类型与主题设计](core-types-theme.md)。
+- css() 返回原始字符串，可以直接放进 class。
+- 每个元素独立绑定，不提供 css.parts 或统一命名样式部位模型。
+- 使用者不写 panel.props()、StyleHandle、attachment 或生成的 CSS 变量绑定。
+- 编译阶段补齐变量、原生元素绑定、SSR 输出与生命周期。
+- 普通值初次保持静态，运行时观察变化后提升；结构或语义复杂变化切换哈希规则。
+- 多个 class 可以正常并列、条件选择和拼接，不强制先组合成一个 StyleProgram。
+- 参数复用优先普通 TS 函数。
+- 组件 class 控制根元素；slotProps 转发子元素或子组件的参数、class、style 等。
+- 首版支持 SvelteKit/SSR；Docs 仍是普通 Svelte + Vite。
 
-## 1. 首版生产目标
+这里接受的是 class 绑定编译，并未重新引入响应式来源分析。类型生成仍是另一个独立的构建步骤。
 
-首版至少能正确支撑 Button、Input/Field、Select/Combobox、Dialog/Drawer、虚拟列表行、嵌套主题和 SSR，并非只支持单元素的 width 演示。
+## 2. 推荐的用户写法
 
-生产可用不要求所有声明都变量化。不能证明提升保持原有语义时，自动回退到普通哈希规则更新，功能仍然完整。
+优先直接在模板 class 内调用 css()，局部样式与元素放在一起。只有需要复用或逻辑明显较长时，再提取普通 TS 函数。
 
-不把 API 限制扩大为 CSS 能力限制：任意有效选择器、复杂值、动态条件可经标准 CSS 入口表达；优化路径只覆盖能保证正确的情况。
+```svelte
+<button
+  class={css((s) => {
+    s.display.inlineFlex;
+    s.alignItems.center;
+    s.width.px(width);
+    s.gap.px(12);
+  })}>保存</button
+>
+```
 
-## 2. 一套描述，两种执行环境
+这种写法不要求额外的 $derived。本机 Svelte 5.57.0 已验证其 client/server 语法编译均通过；客户端生成的模板响应式计算包含 width 读取。此验证仅覆盖 Svelte 编译路径，不代表尚未实现的 ZUI runtime 或编译桥已经完成。
 
-建议核心分为：
+编译优化优先处理稳定消费身份、隐藏变量桥、已证明安全的静态描述复用与无变化时跳过提交。不得为了优化把常量提前变量化，或把 switch/函数调用的控制流改成不同语义。
 
-- 有序样式描述与组合：纯计算，不访问 DOM。
-- 规则编译与注册：按样式作用域和逻辑顺序管理。
-- 实例绑定：比较历史、自动提升、管理变量和引用。
-- 服务端收集：请求级生成首屏规则与渲染快照。
-- Svelte 适配：参数读取、响应式订阅、渲染属性和挂载提交。
-
-渲染阶段只准备可复现的结果，客户端 DOM 提交阶段才取得活动引用与写入。尚未挂载或放弃的渲染不能产生永久绑定。SSR 请求结束时销毁请求容器。
-
-## 3. SSR 使原生元素入口需要升级
-
-单独的 {@attach panel} 不能输出服务器首屏 class/style。
-
-| 候选         | 用户写法                                                           | 评价                               |
-| ------------ | ------------------------------------------------------------------ | ---------------------------------- |
-| 分开输出     | class={panel.className} style={panel.style} {@attach panel.attach} | 最显式，但易漏项和重复合并         |
-| 统一属性载体 | {...panel.props()}                                                 | 推荐深入验证，可统一首屏和挂载     |
-| 包装组件     | <ZBox css={...}>                                                   | 使用简单，但不适合所有原生语义元素 |
-| 编译插件     | 自动改写原生模板                                                   | 当前不作为必需条件                 |
-
-候选主入口：
+参数复用示例：
 
 ```svelte
 <script lang="ts">
   let width = $state(240);
-  const panel = css((s) => {
-    s.width.px(width);
-    s.gap.px(12);
-  });
+  let iconSize = $state(16);
+
+  function rootClass(value: number) {
+    return css((s) => {
+      s.display.inlineFlex;
+      s.width.px(value);
+      s.gap.px(12);
+    });
+  }
+
+  function iconClass(value: number) {
+    return css((s) => {
+      s.width.px(value);
+      s.height.px(value);
+    });
+  }
 </script>
 
-<div {...panel.props()}>...</div>
-```
-
-props() 输出当前渲染快照的 class、必要的 style，以及 Svelte createAttachmentKey 对应的 attachment。这只是实现方向，不能只返回一个可变对象就认为响应式和 SSR 已完成。
-
-用户已有属性通过同一入口合并：
-
-```svelte
-<div {...panel.props({ class: className, style: userStyle, onclick })}>...</div>
-```
-
-- 不要求用户手写 CSS 变量或动态声明。
-- class/style 必须由单一协调者输出并更新，避免 Svelte 重写属性后丢失 runtime 内容。
-- 原生事件和 ARIA 继续正常传递；css 工具不接管业务事件。
-- 不推荐 <div {...a.props()} {...b.props()}>，原生对象展开不会自动合并 class/style。
-- 同一 StyleHandle 默认对应一个渲染绑定位置；在多个位置复用时，必须创建独立绑定。复用的是样式函数/定义，避免同一可变 handle 混用多个 DOM。
-- 重复行由每个行组件或 keyed block 的实例持有自己的绑定。
-
-SSR 必须同步得到首次静态结果；客户端从相同初始状态接管，挂载后再学习动态值。不能把客户端历史提升掩码依赖于服务器不存在的执行次数。
-
-## 4. 选择器：标准入口 + 少量便利入口
-
-以当前元素为锚点的 & 表达标准 CSS 关系：
-
-```ts
-css((s) => {
-  s.display.flex;
-
-  s._hover((s) => {
-    s.backgroundColor._surfaceHover;
-  });
-
-  s._selector('&[data-state="open"]', (s) => {
-    s.borderColor._primary;
-  });
-
-  s._selector('& > [data-z-part="icon"]', (s) => {
-    s.marginInlineEnd.px(8);
-  });
-
-  s._selector('&:has(input:invalid)', (s) => {
-    s.borderColor._danger;
-  });
-});
-```
-
-候选通用入口只有 _selector、_media、_supports、_container；hover/focusVisible/before 等高频入口由 metadata 描述或薄包装提供。不为每一种 CSS 语法创建新概念。
-
-| 类型                                            | 支持方式               | 自动提升目标                                   |
-| ----------------------------------------------- | ---------------------- | ---------------------------------------------- |
-| &:hover、&:focus-visible、&[data-*]             | 同元素状态选择器       | 当前元素                                       |
-| &::before、&::after、&::placeholder             | 伪元素选择器           | 必须验证变量继承与适用属性                     |
-| & > .child、& .descendant                       | 子级/后代              | 优先让目标元素独立绑定；普通选择器保留规则更新 |
-| & + .peer、& ~ .peer                            | 兄弟关系               | 当前元素变量不能直接到达，默认规则更新         |
-| .ancestor &                                     | 祖先条件、当前元素目标 | 能证明目标仍是当前绑定时可提升                 |
-| &:is(...)、&:not(...)、&:where(...)、&:has(...) | 标准 CSS               | 不把函数内部被匹配元素误认为声明目标           |
-| :nth-child(...)、复杂列表及组合器               | 标准 CSS               | 分类不明时回退到规则更新                       |
-| @media / @supports / @container 内声明          | 保留嵌套条件           | 条件不变且目标明确时可提升                     |
-| 条件字符串或选择器变化                          | 新结构                 | 切换规则                                       |
-
-不得用一次正则检测是否包含 & 就认定声明作用于当前元素。可以让明确的 helper 携带目标信息；通用字符串选择器在没有可靠语法分类时走保守路径。
-
-默认局部 selector 要有明确锚点；全局规则使用单独的 globalStyles 注册入口，防止一次局部配置意外污染页面。全局规则也要有作用域、释放和 SSR 收集合同。
-
-CSS 浏览器支持仍遵循宿主浏览器。现代选择器可以在 @supports 中提供降级；不会通过 JS 模拟所有新选择器。
-
-## 5. 子 class 与命名部位
-
-复杂组件需要让每个有独立样式和生命周期的 DOM 部位拥有绑定。
-
-候选：
-
-```ts
-const button = css.parts({
-  root: (s) => {
-    s.display.inlineFlex;
-    s.alignItems.center;
-    s.gap.px(gap);
-  },
-  icon: (s) => {
-    s.width.px(iconSize);
-    s.height.px(iconSize);
-  },
-  label: (s) => {
-    s.whiteSpace.nowrap;
-  },
-});
-```
-
-```svelte
-<button {...button.root.props({ type: 'button', disabled })}>
-  <span {...button.icon.props()}>...</span>
-  <span {...button.label.props()}>保存</span>
+<button class={rootClass(width)}>
+  <span class={iconClass(iconSize)}>...</span>
+  <span
+    class={css((s) => {
+      s.whiteSpace.nowrap;
+    })}>保存</span
+  >
 </button>
 ```
 
-root、icon、label 是样式部位，不等于 Svelte 的内容插槽。命名集合在定义时固定，支持类型补全与未知部位报错。
+每个 class 值都是字符串，底层 DOM 写入由编译产物协调。s.gap.px(12) 始终保持静态，除非该声明位置的输出确实变化。
 
-每个 part 有独立 class/变量/挂载引用，允许某个 part 不存在，也允许 root 外的 Portal part。不应一次让每个 option 使用同一份可变 part handle；重复项需要实例级绑定。
+公开返回类型可以有 erased brand 提供工具识别，但 typeof 仍必须是 string，不是 String 对象、可调用对象或代理对象。brand 不能代替运行时元数据传递。
 
-三种选择器身份必须区分：
+## 3. 响应式求值遵循普通 Svelte
 
-1. 哈希类：规则的内部身份，不能成为稳定的外部 API。
-2. 稳定标记：如 data-z-part="icon"，用于调试及声明过的语义定制。
-3. 实例归属：需要严格区分嵌套同类组件时，由绑定组管理，不能只靠全局 .icon 名称。
+推荐将动态调用放在 class 表达式或普通 TS 函数中，由模板在相关状态变化时重新求值。
 
-.root .icon 会匹配内部嵌套组件的 icon，这是 CSS 的正常含义。原始 selector 保留该含义，不暗中改成“属于当前组件的所有图标”。
-
-对于组件内强隔离的样式：
-
-- 优先在目标 part 自己的回调里定义样式。
-- 已知直接子级可以使用 > 关系。
-- 跨多层归属关系需要明确的 owner scope 或受支持的 @scope 实现；不能假设它天然存在。
-- 如果采用实例 owner 选择器，关系规则可能无法跨实例共享；允许以少量规则换正确隔离。
-- @scope 不是未经浏览器矩阵验证就依赖的唯一隔离机制。
-
-不查询所有匹配后代再给它们批量写变量；这会引入 MutationObserver、清理竞态和不清楚的 DOM 所有权。
-
-## 6. 变量必须写到合适的元素
-
-root 自身 width 变化：变量写 root。
-icon 自身尺寸变化：变量写 icon。
-Portal popup 宽度变化：变量写 popup。
-伪元素不能直接绑定 DOM：由其来源元素传递变量，并验证同名覆盖。
-
-避免把所有变量都写根节点：
-
-- 兄弟或 Portal 不继承根节点变量。
-- 嵌套同类组件可能覆盖相同变量。
-- 将包含 var(--theme-token) 的表达式从子节点移到祖先，可能改变变量解析所处的主题环境。
-- 后代上的主题覆盖必须在后代继续生效。
-
-内部变量按规则及位置隔离。所有使用变量规则的元素必须拥有自己的必要值，不能通过变量缺失借用祖先实例的值。
-
-## 7. 多个 class：身份组合与样式组合分开
-
-浏览器不按 class="a b" 中 a/b 的文本顺序决定同优先级规则谁覆盖谁。决定因素仍是层叠层、重要性、specificity 和规则顺序。
-
-推荐在生成规则之前组合样式：
-
-```ts
-function surface(s: StyleBuilder) {
-  s.backgroundColor._surface;
-}
-
-function compactLayout(s: StyleBuilder) {
-  s.gap.px(8);
-}
-
-const panel = css((s) => {
-  surface(s);
-  if (compact) compactLayout(s);
-  localCss?.(s);
-});
+```svelte
+<div
+  class={css((s) => {
+    s.width.px(width);
+  })}
+></div>
+<div class={rootClass(width)}></div>
 ```
 
-普通函数调用就能复用和传参，不需要先创造大量 recipe/mixin 包装类型。
+需要命名响应式结果时，可以使用 Svelte 正常的 $derived：
 
-处理原则：
+```ts
+const panelClass = $derived(rootClass(width));
+```
 
-- 同一通道内按执行顺序保留声明与嵌套块。
-- 同条件、同优先级的冲突遵守正常 CSS 顺序。
-- 不使用对象最后赋值直接丢掉前面的回退声明。
-- shorthand、longhand、important、不同 selector 不被一个简单“后者覆盖前者”算法扁平化。
-- 若提供数组组合，数组顺序成为明确的组合输入，不等于 HTML class 顺序。
-- 用户给定的外部 class 保留正常 CSS 行为，不解析第三方样式表，不承诺数组后项一定压过它。
+这是整个计算的标准响应式声明，不是要求为每个 CSS 值写 dynamic 标记。
 
-同一元素的组件样式和用户 css 可输出多个 class，但逻辑优先级由固定通道决定，不靠碰巧的挂载顺序。
+普通 const panelClass = rootClass(width) 默认仍是一次求值的快照。不能承诺返回的原始字符串会自行变异。
 
-## 8. 覆盖合同与规则位置
+如果将来要自动改写 const panelClass = css(...) 为持续响应式计算，需要定义显式的编译合同、引用传播范围与诊断；当前不默默改变任意 TS const 的语义。
 
-候选正常声明层：
+## 4. 编译阶段与运行时的分工
+
+编译阶段：
+
+1. 识别受管 class 消费点、class/style 指令与属性展开。
+2. 为消费点生成稳定的实例/调用位置身份。
+3. 在客户端连接 class 对应的变量更新与清理。
+4. 在 SSR 生成初始 class/style 并收集规则。
+5. 在组件边界或最终 DOM 消费点恢复变量绑定。
+6. 保留 source map、HMR 和重复转换保护。
+
+运行时：
+
+1. 执行完整同步 JS/TS 回调，包括函数、switch 和循环。
+2. 收集有序 CSS 描述，比较结构和值。
+3. 默认静态，检测变化后安全提升。
+4. 编译/哈希/注册规则并管理引用。
+5. 生成元素变量差量，协调多个受管 class。
+6. 提交到客户端或请求级 SSR 收集器。
+
+编译器不需要把整个 JS 程序翻译成 CSS，也不根据是不是 $state 预先变量化普通值。
+
+## 5. 字符串与绑定元数据的核心难题
+
+两个实例可以在提升后拥有相同的规则模板：
 
 ```css
-@layer zui.reset, zui.theme, zui.components, zui.overrides;
+width: var(--internal-width);
 ```
 
-- reset 显式启用，避免库导入就重置整页。
-- theme 输出主题作用域与基础变量。
-- components 包含基础、选中变体和复合变体的有序结果。
-- overrides 包含应用级组件定制和本地 css，二者仍需确定内部顺序。
-- 外部未分层样式对正常声明有自己的原生优先级。
-- important 的层顺序与正常声明不同，不承诺上述箭头对 important 同样成立。
-- 原生 style="width:..." 保留其正常层叠语义；自动生成的是 --z-* 内部变量。
-- CSS 覆盖不改变 disabled 等真实交互状态。
+但一个值为 240px，另一个为 360px。仅有“规则哈希 → 当前变量值”的全局 Map 会互相覆盖。
 
-通道内部若依赖规则先后，registry 必须保留稳定的逻辑位置。首次提升时不能把新规则无条件追加到末尾。
+必须分离：
 
-去重 key 应包含必要的优先级/放置上下文。两个文本相同但处于不同必要顺序位置的规则，不一定可以合并成同一物理记录；不能为了最大化共享破坏层叠。
+- 规则身份：描述可共享的规则。
+- 样式实例身份：描述一份独立的结果及其版本。
+- DOM 消费身份：描述哪个元素正在消费哪些 class。
 
-一个受管组合输出一份有序程序，比多个互不知情的 attachment 竞争同一属性更容易保证稳定。因此默认每个元素一个样式协调者。低层多绑定必须明确顺序与共享所有权，不默认承诺“后挂载胜出”。
+候选 A：纯哈希字符串 + 编译器传递旁路元数据。
+优点：字符串简洁。代价：任意拼接、跨函数、组件包装、slotProps 对象重建会丢失值与元数据之间的关联；只能支持有明确合同的传递路径，不能只附加一个 Symbol 就宣称所有路径都支持。
 
-## 9. 参数与复用
+候选 B：字符串包含规则 class 与内部绑定标记 class。
+例如 "z-r-a31 z-b-17"。标记本身不承载视觉样式，最终 DOM 消费桥可从标准 class 字符串找到实例记录。
+优点：保留普通字符串和常规拼接转发。代价：多一个内部标记、实例记录、SSR identity 和释放管理。
 
-推荐普通 TS 参数，在被追踪的样式回调内部读取：
+推荐验证 B，但是否接受该返回值形式仍待用户选择。此标记不等于要求使用者创建命名样式部位。
 
-```ts
-interface SurfaceOptions {
-  padding: number;
-  muted: boolean;
-}
+不得使用全局 document.querySelectorAll 扫描元素补写变量。绑定发生在编译产生的 DOM 消费点。
 
-function surface(s: StyleBuilder, options: SurfaceOptions) {
-  s.padding.px(options.padding);
-  if (options.muted) s.opacity(0.6);
-}
+## 6. class 不变时变量仍然要更新
 
-const panel = css((s) => {
-  surface(s, { padding, muted });
-  s.width.px(width);
-});
+提升后 width 从 240 到 241，规则 class 可能完全不变。
+
+Svelte 的派生值如果仍是相同字符串，下游 class 属性更新可能被跳过。因此变量更新不能只监听字符串是否改变。
+
+需要独立的内部结果版本/提交通知：class 相同但变量不同，已挂载消费点仍收到差量。此版本不暴露为用户必须传的 prop。
+
+求值、记录更新和 DOM 提交分离；不能在 $derived 或服务端纯渲染阶段写 DOM。放弃的渲染不留下永久记录。
+
+## 7. 多个独立 class 是正式能力
+
+应支持：
+
+```svelte
+<div class={[baseClass, active && activeClass, extraClass]}></div>
+<div class={baseClass + ' ' + extraClass}></div>
+<div class={{ [baseClass]: true, selected }}></div>
 ```
 
-- 不要求用户提供动态值 getter。
-- 不按参数对象引用作为 CSS 缓存 key；比较规范化的样式结果。
-- 在组件初始化时把 width 复制进普通对象，不会自动保持后续响应式关系；文档需要说明取值时机。
-- 支持纯同步函数、switch、循环；不把 async 回调加入样式合同。
-- 循环项顺序/数量改变属于结构变化。稳定 key 用于组件或绑定实例，不通过参数对象深 hash 猜生命周期。
-- DOM 测量在挂载之后执行，结果进入响应式状态；SSR 的样式回调本身不能依赖 getComputedStyle。
+兼容 Svelte ClassValue 规范。不要重新发明一套与 Svelte 不同的 false/null/array/object 处理规则。重复 class token 按 class 语义去重，引用不能被重复计数。
 
-## 10. Recipe 与复杂组件
+受管 class、普通字符串 class、Svelte scoped class 可以共存。普通 class 不要求参与 ZUI 编译元数据。
 
-Recipe 是可选的类型化变体组织方式，不替代普通 JS：
+不强制预先合并。可选的样式函数复用或 compose 只是工具，不是合法使用前提。
 
-- base
-- variants
-- compoundVariants
-- defaultVariants
-- parts
+覆盖仍遵循原生 CSS；class 字符串或数组的位置不自动表示样式优先级。库基础样式和业务样式可使用明确的层级合同，但不改变第三方 class 的语义。
 
-变体选项和 part 名称应从定义推导。候选执行顺序为 base → 定义顺序的 variants → compound 列表 → 应用定制 → 实例 css。不要依赖调用方参数对象的键顺序。
+## 8. 多 class 的变量命名冲突
 
-状态表达有两类：
+只按结构哈希命名变量并不总是安全。
 
-- 浏览器状态：hover、focus-visible、disabled 等，用原生伪类或真实属性。
-- 组件状态：selected、open、invalid、loading 等，用经过定义的 data/ARIA 属性。
+假设两个独立 class 在同一元素上都设置 width，并且都提升了动态值。若它们共享 --z-width 或同一个模板变量名，元素级 inline 变量会让两条规则读取同一个值，破坏各自声明的意义。
 
-相同结构的变体输出可以自然被提升；改变声明或选择器的变体走规则切换，不强制将所有变体编码为变量。
+需要两种可评估策略：
 
-组件外部定制备选：
+- 变量命名包含样式实例/独立声明来源的命名空间；规则模板仍可缓存，具体变量化规则可能需要按实例物化。
+- 若某种共享优化无法保证多 class 同元素时的语义，相关声明回退到普通带具体值的哈希规则，保留两个独立 class。
 
-| 方案                       | 优点                                  | 代价                                 |
-| -------------------------- | ------------------------------------- | ------------------------------------ |
-| css + partCss + classNames | 样式职责直观                          | 参数数量较多，扩展原生属性需再加入口 |
-| 根 css + partProps         | 每个部位集中 css/class/style/安全属性 | 需要精确约束允许覆盖的属性           |
-| 只公开深层 selector        | 最少 props                            | 耦合 DOM，Portal 和嵌套隔离困难      |
+建议以正确隔离优先。静态规则共享、编译模板共享和物理动态规则共享是三件不同的事；不能承诺有实例变量的所有规则仍能全局合并为一条。
 
-推荐继续讨论根 css + 类型化 partProps，root 原生属性仍直接传组件；避免同时有两个不同的 root 定制入口。
+一个元素需要内部协调者管理所有受管 class 的变量集合。删除一个 class，只清理它独有且无人消费的变量，不清掉其他 class 或用户 style。
 
-例如：
+这不要求使用者组合 class，协调由编译产物完成。
+
+## 9. class 的可传递范围
+
+| 路径                                       | 目标                                       |
+| ------------------------------------------ | ------------------------------------------ |
+| 原生 class 内直接 css()                    | 首版必需                                   |
+| TS helper 返回 css() 字符串，在模板调用    | 首版必需                                   |
+| Svelte 字符串、数组、对象、条件 class      | 首版必需                                   |
+| ZUI 组件根 class                           | 首版必需                                   |
+| ZUI slotProps 中 class                     | 首版必需                                   |
+| 第一方包装组件转发 class/rest props        | 首版必需                                   |
+| 多个 keyed 重复项                          | 首版必需，绑定历史按实例隔离               |
+| 动态 style、style: 指令与 class 共存       | 首版必需                                   |
+| 未经过集成的第三方组件内部 DOM             | 不能无条件承诺自动变量注入                 |
+| 截断、重命名、持久化后跨请求恢复内部 class | 不属于可靠的活绑定传递                     |
+| 原生 DOM className 赋值，绕过编译消费点    | 保留完整静态规则能力；自动提升需要明确集成 |
+
+对无法接入变量消费的边界，必须保持完整 class 规则路径，或提供可定位诊断，不能输出一个依赖缺失变量的 class。尤其是同一结果同时被已集成和未集成目标使用时，不允许提升一个目标就使另一目标失效。
+
+普通 JS 任意变化不必被全部静态分析。存在不可靠 identity 时可以放弃提升而继续生成正确哈希规则，不能拿另一个实例的历史来猜测。
+
+## 10. 组件根 class 和 slotProps
+
+根 class 直接控制组件根元素，库内部 class 与用户 class 并列保留：
 
 ```svelte
 <ZSelect
-  css={(s) => {
-    s.width.px(320);
-  }}
-  partProps={{
-    popup: {
-      css: (s) => {
-        s.maxHeight.px(360);
-      },
+  class={rootClass(width)}
+  slotProps={{
+    input: {
+      placeholder: '搜索',
+      class: inputClass(fontSize),
     },
-    option: { class: 'app-option' },
+    popup: {
+      class: popupClass(maxHeight),
+      style: 'min-width: 280px',
+    },
+    clearButton: {
+      title: '清空',
+      'aria-label': '清空选择',
+    },
   }}
 />
 ```
 
-重复 option 的 css 在每个实际 option 绑定中执行，可额外接收公开的只读状态，如 selected/disabled。不要把组件全部内部状态作为样式上下文公开。
+slotProps 是组件参数转发合同，不是 core 的样式部位定义。每个内部节点仍有独立 class。
 
-partProps 不能绕过组件控制的 role、id、aria 关系和内部事件合同。事件是否可阻止默认内部行为由组件 API 明确规定，不由 CSS 合并器猜测。
+某个 slot 可以是真实 DOM，也可以是子组件：
 
-## 11. Select 与 Dialog 的首版验收样例
+- DOM slot 的类型来自对应 HTML/SVG 属性。
+- 子组件 slot 的类型来自其公开 ComponentProps。
+- 参数、class、style、事件各自保留明确含义。
+- 不把任意 slot 参数传播到组件根元素。
+- 不为样式强制增加 wrapper 元素。
+- 当前组件没有的 slot key 在类型层报错。
 
-Select：
+slotProps 中的 class 到达最终元素后，与直接写在该元素上的 class 使用相同消费桥。不能因为它经过了对象或 Portal 就退化成不更新的静态字符串。
 
-- trigger、value、icon、popup、list、option、empty、loading 分开绑定。
-- popup 进入 Portal 后仍获得正确主题作用域和自身变量。
-- option 重复项使用独立实例，虚拟化回收后清理旧变量。
-- selected/disabled/active 状态与交互模块协调。
-- matchWidth 的测量结果只更新 popup 宽度，不影响其他 Select。
+## 11. 重复子元素与 slotProps 回调
 
-Dialog：
+Select option、Table row/cell 的参数可能依赖具体项。建议允许对象与工厂两种形式：
 
-- overlay、content、header、body、footer、close 分开绑定。
-- 动画结束前保留需要的样式引用，避免 DOM 尚在退出动画但规则被删掉。
-- 外层主题与 body Portal 的主题同步，嵌套 Dialog 不能串值。
-- 样式 core 不负责焦点锁、滚动锁、键盘事件或业务关闭策略。
-- 多 Document/iframe 的目标 realm 使用正确样式表。
+```svelte
+<ZSelect
+  slotProps={{
+    option: ({ item, selected, disabled }) => ({
+      title: item.label,
+      class: optionClass({ selected, disabled }),
+    }),
+  }}
+/>
+```
 
-这些样例应在首版实现过程中成为真实消费验收，不靠一批字符串快照代替。
+这是普通参数函数，不是 CSS 动态 getter。
 
-## 12. SSR、hydration、CSP 与 HMR
+每个实际项在自己的生命周期和响应式上下文中解析，CSS 比较历史不能在所有 option 之间共用。虚拟化回收需清理旧记录；key 变化必须重建对应绑定身份。
 
-SSR：
+上下文只暴露稳定的公开数据，例如 item/index/selected/disabled，不把内部引用、缓存或所有状态公开。
 
-- registry、主题选择和收集缓冲区按请求隔离。
-- 收集首屏规则并在内容展示前提供，不依赖客户端 effect。
-- 哈希由规范化内容与必要的版本/上下文决定，不依赖模块导入或请求执行顺序。
-- 首次结果保持静态；服务端与客户端同状态生成同样规则。
-- 服务器输出需要正确转义 style 标签终止序列和 HTML 属性，不能直接拼接未经处理的字符串。
-- 流式输出需要增量去重与规则先于内容的策略；首版至少保证普通 SSR 正确，对流式消费明确支持范围。
-- 实际消费测试包含普通 svelte/server 和 SvelteKit；SvelteKit 可作为验收 fixture，不改变 docs 的架构。
+函数可以按当前状态返回新对象，缓存基于样式和参数语义，不以对象引用相等作为正确性的前提。
 
-Hydration：
+## 12. slotProps 合并规则
 
-- 识别和接管已存在的规则，避免重复插入。
-- 保留声明优先级、主题 scheme、首屏状态。
-- 接管完成后再开始学习动态位置。
-- 浏览器测量导致的更新属于挂载后的正常变化，不能在 hydration 前伪造服务端不存在的尺寸。
+| 内容                                      | 处理原则                                         |
+| ----------------------------------------- | ------------------------------------------------ |
+| 普通可覆盖参数                            | 组件默认值后应用用户值                           |
+| class                                     | 保留内部与用户 class，遵守 CSS 层叠              |
+| style                                     | 按明确顺序合并，不覆盖掉 runtime 内部变量        |
+| style: 指令                               | 保留 Svelte 自身优先级与 important 语义          |
+| 事件                                      | 组件 API 指定执行顺序及是否尊重 defaultPrevented |
+| 内部 ref/节点引用                         | 与用户回调协调，不能覆盖组件自身引用             |
+| role/id/ARIA 关系/value/disabled 等受控项 | 按具体 slot 声明哪些允许覆盖，不能盲目展开       |
+| Portal 定位所需 style                     | 明确哪些是受控值、哪些可以自定义                 |
 
-CSP：
+style 不能用简单按分号切割的解析器处理复杂 CSS 值。保留标准 style 字符串能力，内部变量通过独立保留命名区差量处理。
 
-- stylesheet nonce 支持与 SSR style 属性策略分开。
-- 若策略不允许某种变量写入路径，应自动保留规则更新路径，不能默认要求 unsafe-inline。
-- 按具体策略测试 CSSOM 写入和序列化 HTML，不能把一种浏览器行为推广到全部。
-- CSP 下仍能呈现正确内容，变量提升是可降级优化。
+用户直接写原生 style="width:..." 具有原生覆盖语义，可能覆盖 class 中的 width；runtime 不应为了“生效”偷偷增加 important。
 
-HMR：
+事件不能承诺永远两边都执行：会改变组件行为的事件，需要明确 defaultPrevented 的合同和例外。类型与运行时都应约束重要受控属性。
 
-- 以模块/作用域/绑定生命周期释放资源。
-- 首先保证旧规则与监听清理，保留提升历史属于可选优化。
-- 不强制普通使用者手动传 import.meta。
+## 13. 参数优先普通 TS 函数
 
-## 13. 动画与其他全局资源
+```ts
+function panelClass(options: { width: number; compact: boolean }): string {
+  return css((s) => {
+    s.width.px(options.width);
+    s.gap.px(options.compact ? 8 : 16);
+  });
+}
+```
 
-- keyframes 使用共享注册与引用计数，不能每帧生成一组新名称。
-- 高频动画参数可以通过消费元素变量表达；结构变化才更新 keyframes 定义。
-- @font-face、@property、全局 reset 分别有注册语义，不能混进普通元素声明 diff。
-- 原生 transition/animation 的延续与首次提升是否产生额外过渡，要在真实浏览器验证。
-- reduced-motion 属于主题/用户偏好策略，组件需实际响应。
-- @property 只在需要明确类型、继承或动画插值时显式注册，不为每个内部变量自动生成全局注册。
+```svelte
+<div class={panelClass({ width, compact })}></div>
+```
 
-## 14. 必须建立的生产合同
+不按 options 对象地址生成规则 key。样式回调支持同步函数、switch、循环和普通计算。
 
-| 范围     | 验收要求                                               |
-| -------- | ------------------------------------------------------ |
-| 自动提升 | 常量不参数化；首次变化提升；后续值更新不增规则         |
-| 多实例   | 一实例提升不影响另一实例；嵌套同类不串值               |
-| 选择器   | 状态、伪元素、子级、兄弟、祖先条件、复杂列表与条件块   |
-| 层叠     | 组合顺序、层、specificity、important、提升前后计算样式 |
-| 删除     | 撤销声明后外部样式接管，不遗留 var 声明                |
-| 多部位   | 独立变量、重复项、可选 part、Portal、嵌套与虚拟化      |
-| 参数     | 普通函数、条件、循环、参数值相同不多写 DOM             |
-| 生命周期 | 挂载卸载、转移目标、HMR、退出动画、错误回滚            |
-| SSR      | 请求隔离、首屏 CSS、hydrate 去重、主题一致             |
-| 运行环境 | Chromium、Firefox、WebKit，以及声明支持的 WebView      |
-| 包发布   | 两个真实 tarball、纯 Svelte/Vite 与 SvelteKit 消费     |
-| 类型     | 生成器一致性、公开声明、未知属性/Token/part 的负向检查 |
-| 性能     | 高频更新、千级重复项、切换结构、回收后的内存与规则数量 |
+css 调用如果出现在复杂 helper 中，编译/运行时需要明确其所属求值上下文。能稳定关联调用位置时学习历史；不能稳定关联时退回完整规则更新。不能把函数字符串或堆栈当成生产身份。
 
-编译和插入新规则失败时，保留最后有效样式；错误需要可定位的属性/条件/组件信息，不吞错。不能先释放旧规则再发现新规则不可用。
+异步回调与随机副作用不属于推荐样式函数合同；普通不可分析的同步计算仍应能按执行结果生成正确 CSS。
 
-性能目标使用实际测量，不提前承诺固定倍数。稳定值更新仍有回调执行、比较和浏览器样式计算成本。
+## 14. 选择器与独立子元素
 
-## 15. 待讨论，不提前锁死的 API
+继续保留 _selector、_media、_supports、_container，以及高频状态 helper。
 
-1. 原生元素是否采用 panel.props(existingProps) 作为兼顾 SSR 的统一入口。
-2. 多部位是否采用 css.parts，组件对外是否使用根 css + partProps。
-3. 可复用样式优先普通函数；是否需要额外的数组 compose 入口。
-4. 库正常样式是否采用固定 @layer 通道，外部 CSS 的覆盖规则如何文档化。
-5. 关系 selector 使用原生语义，严格“本组件所属 part”是否提供高层 scope 能力。
+- & 指向当前 class 对应的元素。
+- 子级、兄弟、祖先条件保持标准 CSS 语义。
+- 同元素状态和明确可安全处理的伪元素值可以提升。
+- 作用于其他元素的规则不能把变量随意写到当前元素；可独立绑定目标，或保持普通规则更新。
+- 不需要 css.parts 才能表达 child selector。
+- 外部稳定 class 可用于选择器；自动哈希 class 会变化，不建议截取并持久化。
+- 若允许选择器引用另一个动态 class 字符串，必须跟随引用更新；字符串包含多个 token 时不能简单加一个点拼接，且内部绑定标记不能泄漏成错误的复合选择器。
+- 嵌套同类组件的后代选择器仍然按 CSS 匹配，不暗中解释为“只属于本组件”。
 
-类型与主题的决定单独在 core-types-theme.md 讨论。已确认的自动提升方向和 SSR 范围不再重复请求确认。
+样式组、ref selector 或 helper 可以以后讨论，不作为独立 class 能力的前提。
 
-## 16. 来源与参考
+## 15. 覆盖、顺序与规则回收
 
-- [CSS Cascade 5](https://www.w3.org/TR/css-cascade-5/)
-- [Selectors 4](https://www.w3.org/TR/selectors-4/)
-- [CSS Variables](https://www.w3.org/TR/css-variables-1/)
-- [CSS Cascade 6 / scope](https://www.w3.org/TR/css-cascade-6/)
-- [Svelte attachments](https://svelte.dev/docs/svelte/@attach)
-- [Svelte createAttachmentKey](https://svelte.dev/docs/svelte/svelte-attachments)
-- [MUI 定制与部位](https://mui.com/material-ui/customization/how-to-customize/)
-- 本地参考：zadmin/ui/zui/src/recipes/define.ts 与 slots.ts。参考其组织方式，不继承所有 API、计数器 identity 或固定分支上限。
+多 class 的自由组合保留 CSS 层叠。库可以定义 components/overrides 等正常声明层，但 important 和未分层样式仍按浏览器规则处理。
+
+首次提升或结构切换不能因为把新规则追加到末尾而改变无关规则之间的覆盖结果。registry 需要稳定的逻辑顺序，去重考虑必要的放置上下文。
+
+同文本规则在不同必要优先级位置未必可共享物理记录。缓存优化必须服从层叠正确性。
+
+释放分为样式求值记录、DOM 消费引用、规则引用。字符串暂时没有被消费时不能无限累积注册记录；分支退出、虚拟项复用、组件销毁和 HMR 都需要回收。常量 class 若长期复用，需要模块或明确 runtime scope 持有，不依赖永不回收的全局 Map。
+
+## 16. SSR 与编译发布链路
+
+- client/server 使用同一套 class 变换规则。
+- 服务端请求级记录、主题与样式收集，不共享当前变量值。
+- 第一轮静态规则与客户端初值一致，hydrate 后才开始学习。
+- 内部绑定 ID 使用可复现或可接管的生成方案，不用全局随机数/进程计数器。
+- class 不变时的内部版本同步在 hydration 后正常工作。
+- class 与 style 属性和 style 标签内容正确转义。
+- SvelteKit 实际消费验证 nonce、首屏、并发请求、Portal 与主题一致。
+- 内部桥接版本写入编译契约，编译插件与 runtime 不兼容时给明确错误。
+- 第一方库包预处理自己的 .svelte 源文件，消费项目再处理自身代码；需要去重标记，避免双重转换。
+- 未编译第三方组件须有明确正确回退，不声称插件可以恢复所有已编译 DOM 语义。
+
+实现应基于 Svelte AST 与公开 preprocess/compiler 能力，并保留 source map；不能用字符串正则替换 HTML class。
+
+三个 workspace 不变。编译入口可放在 svelte 包的工具子路径中；具体位置需避免将 Node 构建依赖带入浏览器入口。
+
+## 17. 类型合同
+
+- css() 对用户始终返回 string，可用编译期 brand，但不携带公开对象方法。
+- 组件 class 使用 Svelte ClassValue，接受合法字符串/数组/对象。
+- slotProps 的 key 来自组件自己的公开转发定义，不来自 core 样式系统。
+- DOM slot 继承适当的 HTMLAttributes，组件 slot 继承 ComponentProps，再精确排除内部受控项。
+- option 工厂的参数从组件 item 泛型和公开状态推导。
+- 不使用 Record<string, any> 容纳所有 slot。
+- CSS 属性、关键词、单位、主题 Token 继续走共用 metadata 生成。
+- 需验证 class 字符串经过 TS helper、数组、组件 props、slotProps 后的类型和实际行为，两者缺一不可。
+
+## 18. 首版验证重点
+
+1. 原始字符串返回类型与常规 class 语法。
+2. 常量不参数化，变化后提升，复杂结构换规则。
+3. 两实例同规则不同变量不串值。
+4. class 字符串不变时，变量仍正确更新。
+5. 同元素两个独立受管 class 的变量不冲突。
+6. 删除一个 class 不删除另一个的变量与用户 style。
+7. wrapper、slotProps、Portal、重复项和虚拟化的转发。
+8. scoped CSS、普通外部 class、动态 style 和 style: 指令共存。
+9. SSR、hydration、请求隔离和稳定绑定身份。
+10. 未集成第三方边界保持完整规则或明确诊断，不能静默失效。
+11. 规则位置、important 和动态迁移前后的计算样式。
+12. 编译 source map、HMR、双重处理和包外消费。
+13. 编译期无需推断任意 JS 的响应式来源或把用户函数改写成 CSS。
+
+先做这些契约的可验证原型，再定最终 compiler/runtime 数据结构；当前只讨论，不把未验证的字符串元数据方案描述成已经可用。
+
+## 19. 尚待定的重点
+
+1. 返回字符串是否允许内部绑定标记；推荐方向已询问用户，未答复前保持候选。
+2. class 根覆盖与 slotProps 事件/受控属性的具体优先级。
+3. 单纯 const css(...) 是否保持普通快照语义；推荐保持，动态调用放模板或正常 $derived。
+4. 针对第三方未编译组件的正确回退与集成方式。
+5. 动态规则变量隔离与物理规则共享的平衡，需要真实原型验证。
+
+## 20. 参考
+
+- [Svelte class / ClassValue](https://svelte.dev/docs/svelte/class)
+- [Svelte derived](https://svelte.dev/docs/svelte/$derived)
+- [Svelte compiler](https://svelte.dev/docs/svelte/svelte-compiler)
+- [Svelte style 指令](https://svelte.dev/docs/svelte/style)
+- [CSS cascade](https://www.w3.org/TR/css-cascade-5/)
+- [MUI slotProps 与内部结构](https://mui.com/material-ui/customization/overriding-component-structure/)
+- 本地参考：zadmin/ui/zui/src/compiler 与 runtime/foundation/compiler-bridge.ts。其编译 carrier 和组件边界回退可提供经验，不直接复制其动态值来源分析。
