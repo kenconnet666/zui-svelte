@@ -1,0 +1,35 @@
+{
+  "name": "zui-workspace",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "packageManager": "pnpm@11.22.0",
+  "engines": {
+    "node": "^24.0.0",
+    "pnpm": ">=11.22.0 <12"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @zui/docs dev",
+    "build": "pnpm -r build",
+    "preview": "pnpm --filter @zui/docs preview",
+    "check": "pnpm -r check",
+    "lint": "eslint . && prettier --check .",
+    "format": "prettier --write .",
+    "test": "pnpm --filter @zui/docs test",
+    "changeset": "changeset"
+  },
+  "devDependencies": {
+    "@changesets/cli": "catalog:",
+    "@eslint/js": "catalog:",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "eslint-config-prettier": "catalog:",
+    "eslint-plugin-svelte": "catalog:",
+    "globals": "catalog:",
+    "prettier": "catalog:",
+    "prettier-plugin-svelte": "catalog:",
+    "svelte": "catalog:",
+    "typescript": "catalog:",
+    "typescript-eslint": "catalog:"
+  }
+}

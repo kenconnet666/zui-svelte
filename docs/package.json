@@ -1,0 +1,29 @@
+{
+  "name": "@zui/docs",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "@lucide/svelte": "catalog:",
+    "@zui/core": "workspace:^",
+    "@zui/svelte": "workspace:^",
+    "shiki": "catalog:",
+    "svelte": "catalog:",
+    "svelte-spa-router": "catalog:"
+  },
+  "devDependencies": {
+    "@playwright/test": "catalog:",
+    "@sveltejs/vite-plugin-svelte": "catalog:",
+    "@types/node": "catalog:",
+    "svelte-check": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}

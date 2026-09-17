@@ -1,0 +1,45 @@
+{
+  "name": "@zui/svelte",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Svelte components and reactive styling integration for ZUI.",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    ".": {
+      "zui-source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "svelte-package --input src",
+    "check": "svelte-check --tsconfig ./tsconfig.json"
+  },
+  "dependencies": {
+    "@zui/core": "workspace:^",
+    "@lucide/svelte": "catalog:"
+  },
+  "peerDependencies": {
+    "svelte": "^5.57.0"
+  },
+  "devDependencies": {
+    "@sveltejs/package": "catalog:",
+    "@sveltejs/vite-plugin-svelte": "catalog:",
+    "@vitest/browser-playwright": "catalog:",
+    "playwright": "catalog:",
+    "svelte": "catalog:",
+    "svelte-check": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:",
+    "vitest-browser-svelte": "catalog:"
+  }
+}

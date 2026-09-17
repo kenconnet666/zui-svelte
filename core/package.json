@@ -1,0 +1,33 @@
+{
+  "name": "@zui/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Framework-independent runtime styling foundation for ZUI.",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "zui-source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "csstype": "catalog:",
+    "stylis": "catalog:"
+  },
+  "devDependencies": {
+    "@types/stylis": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}
