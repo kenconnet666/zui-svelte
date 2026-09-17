@@ -48,6 +48,12 @@ jobs:
       - name: Type and Svelte checks
         run: pnpm run check
 
+      - name: Verify generated CSS metadata
+        run: pnpm run generate:check
+
+      - name: Test core contracts
+        run: pnpm run test:core
+
       - name: Build all workspaces
         run: pnpm run build
 

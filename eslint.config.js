@@ -4,6 +4,7 @@ import prettier from 'eslint-config-prettier';
 import svelte from 'eslint-plugin-svelte';
 import globals from 'globals';
 import ts from 'typescript-eslint';
+import icss from './scripts/eslint-icss.mjs';
 
 export default defineConfig(
   globalIgnores([
@@ -18,8 +19,13 @@ export default defineConfig(
   ts.configs.recommended,
   svelte.configs.recommended,
   {
-    files: ['**/*.js', '**/*.ts', '**/*.svelte'],
+    files: ['**/*.js', '**/*.mjs', '**/*.ts', '**/*.svelte'],
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
+    plugins: { zui: icss },
+    rules: {
+      '@typescript-eslint/no-unused-expressions': 'off',
+      'zui/no-unused-expressions': 'error',
+    },
   },
   {
     files: ['**/*.svelte'],

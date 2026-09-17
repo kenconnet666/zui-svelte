@@ -16,7 +16,10 @@
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
     "test": "pnpm --filter @zui/docs test",
-    "changeset": "changeset"
+    "changeset": "changeset",
+    "generate": "node scripts/generate-css.mjs",
+    "generate:check": "node scripts/generate-css.mjs --check",
+    "test:core": "pnpm --filter @zui/core run test"
   },
   "devDependencies": {
     "@changesets/cli": "catalog:",
