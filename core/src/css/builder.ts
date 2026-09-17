@@ -40,12 +40,7 @@ function invoke<T extends TokenSchema>(factory: StyleFactory<T>, s: StyleBuilder
     throw new TypeError('A style callback must be synchronous and return void.');
 }
 
-export function buildStyle<T extends TokenSchema>(
-  factory: StyleFactory<T>,
-  theme: Theme<T>,
-): StyleProgram;
-export function buildStyle(factory: StyleFactory): StyleProgram;
-export function buildStyle<T extends TokenSchema>(
+export function buildStyle<T extends TokenSchema = DefaultTokens>(
   factory: StyleFactory<T>,
   theme: Theme<T> = lightTheme as unknown as Theme<T>,
 ): StyleProgram {

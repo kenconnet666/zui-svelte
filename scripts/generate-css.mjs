@@ -54,9 +54,7 @@ for (const property of properties.sort((a, b) => a.name.localeCompare(b.name, 'e
     .replace(/[A-Z]/gu, (letter) => '-' + letter.toLowerCase())
     .replace(/^ms-/u, '-ms-');
   metadata[name] = { name: cssName, group, ...options };
-  const keywordType = Object.keys(keywords)
-    .map((key) => JSON.stringify(key))
-    .join(' | ');
+  const keywordType = 'keyof (typeof keywordGroups)[' + group + ']';
   const unitType = options.units ? JSON.stringify(options.units) : 'never';
   const doc = ts
     .displayPartsToString(property.getDocumentationComment(checker))
@@ -97,7 +95,7 @@ const outputs = {
     ' as const;\n',
   'core/src/css/properties.generated.ts':
     header +
-    "import type { Carrier } from './carrier.js';\nimport type { TokenSchema } from '../theme/types.js';\nimport type { DefaultTokens } from '../theme/presets.js';\nexport interface StyleProperties<T extends TokenSchema = DefaultTokens> {\n" +
+    "import type { Carrier } from './carrier.js';\nimport type { keywordGroups } from './metadata.generated.js';\nimport type { TokenSchema } from '../theme/types.js';\nimport type { DefaultTokens } from '../theme/presets.js';\nexport interface StyleProperties<T extends TokenSchema = DefaultTokens> {\n" +
     typeLines.join('\n') +
     '\n}\n',
 };

@@ -76,7 +76,11 @@ export function overrideTheme<T extends TokenSchema>(
     for (const [key, value] of Object.entries(values ?? {})) {
       if (!Object.hasOwn(merged[category]!, key))
         throw new TypeError('Unknown theme token: ' + category + '.' + key);
-      if (value !== undefined) merged[category]![key] = value;
+      if (value === undefined) continue;
+      if (typeof value !== 'string' && typeof value !== 'number') {
+        throw new TypeError('Invalid theme override: ' + category + '.' + key);
+      }
+      merged[category]![key] = value;
     }
   }
   return defineTheme(merged as T, { namespace: theme.namespace });

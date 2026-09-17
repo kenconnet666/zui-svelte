@@ -1,0 +1,139 @@
+import { describe, expect, it } from 'vitest';
+import { createRuntime } from './runtime.js';
+
+describe('runtime promotion', () => {
+  it('starts static, promotes only changed declarations and stabilizes rules', () => {
+    const runtime = createRuntime();
+    const binding = runtime.binding({ id: 'panel' });
+    let width = 240;
+    const render = () =>
+      binding.evaluate((s) => {
+        s.width.px(width);
+        s.gap.px(12);
+      });
+    const first = render();
+    expect(runtime.cssText()).toContain('width:240px;gap:12px;');
+    expect(binding.snapshot.variables).toEqual({});
+    width = 241;
+    const promoted = render();
+    expect(promoted).not.toBe(first);
+    expect(runtime.cssText()).toContain('gap:12px;');
+    expect(binding.snapshot.variables).toEqual({ '--z-b-panel-0': '241px' });
+    for (let i = 0; i < 1000; i++) {
+      width = i;
+      expect(render()).toBe(promoted);
+    }
+    expect(runtime.registry.size).toBe(1);
+    runtime.dispose();
+    expect(runtime.cssText()).toBe('');
+  });
+  it('isolates shared static rules and dynamically promoted instances', () => {
+    const runtime = createRuntime();
+    const a = runtime.binding({ id: 'a', source: 'same-source' });
+    const b = runtime.binding({ id: 'b', source: 'same-source' });
+    const first = a.evaluate((s) => {
+      s.width.px(10);
+    });
+    expect(
+      b.evaluate((s) => {
+        s.width.px(10);
+      }),
+    ).toBe(first);
+    expect(runtime.registry.size).toBe(1);
+    a.evaluate((s) => {
+      s.width.px(20);
+    });
+    expect(b.snapshot.className).toBe(first);
+    b.evaluate((s) => {
+      s.width.px(30);
+    });
+    expect(Object.keys(a.snapshot.variables)).not.toEqual(Object.keys(b.snapshot.variables));
+    runtime.release(a);
+    expect(runtime.registry.size).toBe(1);
+    runtime.release(b);
+    expect(runtime.registry.size).toBe(0);
+  });
+  it('removes declarations, bounds structural history and preserves last valid output', () => {
+    const runtime = createRuntime();
+    const binding = runtime.binding({ maxStructures: 2 });
+    binding.evaluate((s) => {
+      s.width.px(10);
+    });
+    binding.evaluate((s) => {
+      s.width.px(20);
+    });
+    binding.evaluate((s) => {
+      s.height.px(10);
+    });
+    expect(binding.snapshot.variables).toEqual({});
+    binding.evaluate((s) => {
+      s.opacity(0.5);
+    });
+    expect(binding.cachedStructures).toBe(2);
+    const snapshot = binding.snapshot;
+    expect(() =>
+      binding.evaluate((s) => {
+        s.width('10px;color:red');
+      }),
+    ).toThrow();
+    expect(binding.snapshot).toBe(snapshot);
+    binding.evaluate((s) => {
+      s.width(null);
+    });
+    expect(binding.snapshot.className).toBe('');
+    runtime.dispose();
+  });
+  it('does not promote unsafe targets, global keywords or duplicate fallback declarations', () => {
+    const runtime = createRuntime();
+    const binding = runtime.binding();
+    for (const value of [10, 20])
+      binding.evaluate((s) => {
+        s._selector('& + .other', (s) => {
+          s.width.px(value);
+        });
+        s.width.px(value);
+        s.width.auto;
+      });
+    expect(binding.snapshot.variables).toEqual({});
+    binding.evaluate((s) => {
+      s.width.px(10);
+    });
+    binding.evaluate((s) => {
+      s.width.inherit;
+    });
+    expect(binding.snapshot.variables).toEqual({});
+  });
+  it('notifies variable updates even when the class string stays identical', () => {
+    const runtime = createRuntime();
+    const binding = runtime.binding();
+    const revisions: number[] = [];
+    const stop = binding.subscribe((value) => revisions.push(value.revision));
+    binding.evaluate((s) => {
+      s.opacity(0.5);
+    });
+    binding.evaluate((s) => {
+      s.opacity(0.6);
+    });
+    const className = binding.snapshot.className;
+    binding.evaluate((s) => {
+      s.opacity(0.7);
+    });
+    expect(binding.snapshot.className).toBe(className);
+    expect(revisions).toEqual([0, 1, 2, 3]);
+    stop();
+    runtime.dispose();
+  });
+  it('keeps SSR scopes independent and escapes style tag terminators', () => {
+    const a = createRuntime({ nonce: 'x"y' });
+    const b = createRuntime();
+    const name = a.css((s) => {
+      s.content('"</style><script>"');
+    });
+    expect(name).toMatch(/^z-r-/u);
+    expect(a.styleTags()).not.toContain('"</style>');
+    expect(a.styleTags()).toContain('nonce="x&quot;y"');
+    expect(b.styleTags()).toBe('');
+    a.dispose();
+    b.dispose();
+  });
+});
