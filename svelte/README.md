@@ -2,7 +2,7 @@
 
 Svelte 5 组件库工作区，依赖 @zui/core，使用官方 svelte-package 生成发布产物。
 
-当前入口保持为空，组件 API 与响应式 CSS 绑定尚未实现。组件自身的交互由本项目实现，不引入无样式组件库。
+当前仅实现验证 core 所需的 class 编译插件、运行时桥和 SSR 收集原型，没有业务组件库。完整接入尚待 CI 验证，继续工作前读 [换机交接](../design/handoff.md)。
 
 - 构建：`pnpm --filter @zui/svelte build`
 - 类型检查：`pnpm --filter @zui/svelte check`

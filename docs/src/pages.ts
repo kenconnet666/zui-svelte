@@ -2,6 +2,7 @@ import Home from './pages/Home.svelte';
 import Core from './pages/Core.svelte';
 import Components from './pages/Components.svelte';
 import NotFound from './pages/NotFound.svelte';
+import CoreProbe from '../../svelte/tests/fixtures/CoreProbe.svelte';
 
 export const pages = [
   { path: '/', title: '概览', component: Home },
@@ -10,6 +11,7 @@ export const pages = [
 ];
 
 export const routes = {
+  '/__core-test': CoreProbe,
   ...Object.fromEntries(pages.map((page) => [page.path, page.component])),
   '*': NotFound,
 };

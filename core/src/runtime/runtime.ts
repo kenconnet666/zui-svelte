@@ -55,7 +55,7 @@ export function createRuntime<T extends TokenSchema = DefaultTokens>(
       return record.className;
     },
     binding(
-      settings: { id?: string; source?: string; maxStructures?: number } = {},
+      settings: { id?: string; source?: string; maxStructures?: number; promote?: boolean } = {},
     ): StyleBinding<T> {
       alive();
       const id = settings.id ?? 'b' + sequence++;
@@ -64,6 +64,7 @@ export function createRuntime<T extends TokenSchema = DefaultTokens>(
         id,
         source: settings.source ?? id,
         maxStructures: settings.maxStructures,
+        promote: settings.promote,
         onDispose: () => {
           bindings.delete(id);
         },

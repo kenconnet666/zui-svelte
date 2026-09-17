@@ -54,6 +54,9 @@ jobs:
       - name: Test core contracts
         run: pnpm run test:core
 
+      - name: Test class compiler contracts
+        run: pnpm --filter @zui/svelte run test
+
       - name: Build all workspaces
         run: pnpm run build
 

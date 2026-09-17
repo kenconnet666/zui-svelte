@@ -10,6 +10,9 @@ export interface RuleRecord {
   readonly css: string;
   readonly order: number;
   readonly source: string;
+  program?: StyleProgram;
+  variables: Readonly<Record<string, string>>;
+  readonly listeners: Set<() => void>;
   references: number;
 }
 
@@ -55,7 +58,17 @@ export class StyleRegistry {
       order: this.#hydratedOrders.get(key) ?? this.#sequence++,
       references: 0,
     };
-    const record = { key, className, canonical, css, order: position.order, source, references: 1 };
+    const record: RuleRecord = {
+      key,
+      className,
+      canonical,
+      css,
+      order: position.order,
+      source,
+      references: 1,
+      variables: Object.freeze({}),
+      listeners: new Set(),
+    };
     if (css) this.sheet.set(key, css, position.order);
     position.references++;
     this.#orders.set(source, position);
@@ -64,11 +77,47 @@ export class StyleRegistry {
   }
 
   acquire(program: StyleProgram, source: string): RuleRecord {
-    return this.#retain(JSON.stringify([source, canonicalize(program)]), source, (key) => {
+    const record = this.#retain(JSON.stringify([source, canonicalize(program)]), source, (key) => {
       const className = this.namespace + '-r-' + key;
       const css = program.length ? serializeProgram(program, '.' + className, this.prefix) : '';
       return { css, className: css ? className : '' };
     });
+    record.program ??= program;
+    return record;
+  }
+
+  lookup(className: string): RuleRecord | undefined {
+    const prefix = this.namespace + '-r-';
+    return className.startsWith(prefix)
+      ? this.#records.get(className.slice(prefix.length))
+      : undefined;
+  }
+
+  updateValues(
+    record: RuleRecord,
+    variables: Readonly<Record<string, string>>,
+    program: StyleProgram,
+  ): void {
+    record.program = program;
+    if (JSON.stringify(record.variables) === JSON.stringify(variables)) return;
+    record.variables = Object.freeze({ ...variables });
+    for (const notify of record.listeners) notify();
+  }
+
+  subscribe(record: RuleRecord, notify: () => void): () => void {
+    if (this.#disposed || this.#records.get(record.key) !== record)
+      throw new Error('Unknown CSS record.');
+    record.references++;
+    this.#orders.get(record.source)!.references++;
+    const listener = () => notify();
+    record.listeners.add(listener);
+    let stopped = false;
+    return () => {
+      if (stopped) return;
+      stopped = true;
+      record.listeners.delete(listener);
+      this.release(record);
+    };
   }
 
   resource(css: string, source: string): RuleRecord {

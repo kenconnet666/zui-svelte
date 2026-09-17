@@ -1,0 +1,42 @@
+import { describe, expect, it } from 'vitest';
+import { compile } from 'svelte/compiler';
+import { transformClasses } from '../src/compiler/preprocess.js';
+
+describe('class compiler', () => {
+  it('reuses an existing props id and does not use each keys in the fallback branch', () => {
+    const source =
+      '<script>const id=$props.id();let rows=[];</script>{#each rows as row (row.id)}<div class={row.class}/>{:else}<div class={"empty"}/>{/each}';
+    const result = transformClasses(source, '/app/Existing.svelte')!;
+    expect(result.code.match(/\$props\.id\(\)/gu)).toHaveLength(1);
+    expect(result.code.match(/\[row\.id\]/gu)).toHaveLength(1);
+    expect(() => compile(result.code, { filename: 'Existing.svelte' })).not.toThrow();
+  });
+  it('compiles native inline CSS for client and server with a source map', () => {
+    const source =
+      '<script lang="ts">import { css } from "@zui/core"; let width = $state(100);</script><button onclick={() => width++} class={css((s) => {s.width.px(width);s.gap.px(12);})}>test</button>';
+    const result = transformClasses(source, '/app/Test.svelte', { root: '/app' })!;
+    expect(result.code).toContain('__zuiScope.attrs');
+    expect(result.map.sourcesContent).toEqual([source]);
+    for (const generate of ['client', 'server'] as const)
+      expect(() => compile(result.code, { generate, filename: 'Test.svelte' })).not.toThrow();
+    expect(transformClasses(result.code, '/app/Test.svelte')).toBeUndefined();
+  });
+  it('keeps stable identities for keyed and unkeyed iterations', () => {
+    const source =
+      '<script>let rows=[];</script>{#each rows as row (row.id)}<div class={row.class}/>{/each}{#each rows as row}<div {...row.props}/>{/each}';
+    const result = transformClasses(source, '/app/List.svelte')!;
+    expect(result.code).toContain('[row.id]');
+    expect(result.code).toContain('__zuiIndex');
+    expect(() => compile(result.code, { filename: 'List.svelte' })).not.toThrow();
+  });
+  it('preserves ordinary TS helpers and component slotProps', () => {
+    const source =
+      '<script lang="ts">import {css as styles} from "@zui/core"; import Child from "./Child.svelte"; function make(n:number){return styles((s)=>{s.width.px(n);});}</script><Child class={make(20)} slotProps={{input:{class:make(10)}}}/>';
+    const result = transformClasses(source, '/app/Parent.svelte')!;
+    expect(result.code).toContain('const styles = __zuiScope.css');
+    expect(result.code).toContain('__zuiScope.component');
+    expect(() =>
+      compile(result.code, { generate: 'server', filename: 'Parent.svelte' }),
+    ).not.toThrow();
+  });
+});

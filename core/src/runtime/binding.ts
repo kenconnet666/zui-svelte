@@ -15,6 +15,7 @@ export interface BindingOptions {
   readonly maxStructures?: number;
   readonly supports?: (property: string, value: string) => boolean;
   readonly onDispose?: () => void;
+  readonly promote?: boolean;
 }
 interface History {
   program: StyleProgram;
@@ -56,6 +57,11 @@ export class StyleBinding<T extends TokenSchema> {
   evaluate(factory: StyleFactory<T>): string {
     if (this.#disposed) throw new Error('Style binding is disposed.');
     const program = buildStyle(factory, this.theme());
+    return this.update(program);
+  }
+
+  update(program: StyleProgram): string {
+    if (this.#disposed) throw new Error('Style binding is disposed.');
     const structure = structureOf(program);
     const current = declarationsOf(program);
     const history = this.#history.get(structure);
@@ -72,6 +78,7 @@ export class StyleBinding<T extends TokenSchema> {
       const { declaration, path } = current[i]!;
       const before = previous[i]?.declaration;
       const safe =
+        this.options.promote !== false &&
         counts.get(JSON.stringify([path, declaration.property])) === 1 &&
         canPromote(declaration, path, this.options.supports);
       if (promoted.has(i) && !safe) {
@@ -120,6 +127,7 @@ export class StyleBinding<T extends TokenSchema> {
       });
       for (const listener of this.#listeners) listener(this.#snapshot);
     }
+    this.registry.updateValues(record, variables, program);
     return this.#snapshot.className;
   }
 

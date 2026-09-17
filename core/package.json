@@ -23,6 +23,7 @@
     "test:browser": "vitest run --config vitest.browser.config.ts"
   },
   "dependencies": {
+    "clsx": "catalog:",
     "csstype": "catalog:",
     "stylis": "catalog:"
   },

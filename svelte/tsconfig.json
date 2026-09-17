@@ -5,7 +5,7 @@
     "checkJs": true,
     "noEmit": true,
     "customConditions": ["zui-source"],
-    "types": ["svelte"]
+    "types": ["svelte", "node"]
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte"]
 }

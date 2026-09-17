@@ -6,7 +6,7 @@
 
 ## 当前状态
 
-基础目录、依赖、构建、检查与 Docs 页面已建立。core 和 svelte 的公开入口暂为空，自动变量提升与组件尚未实现。下一步先讨论 [core 设计草案](design/core.md)。
+core 已实现生成式 CSS 类型、主题、样式 runtime、自动提升与资源回收；Svelte class 编译与 SSR 接入处于验证阶段，尚未宣称生产完成。换机继续请先读 [交接文档](design/handoff.md) 和 [实施进度](design/implementation.md)。
 
 ## 目录
 
@@ -34,7 +34,7 @@ pnpm test
 
 `pnpm dev` 启动 Docs；库包使用本地源码联调，不需要先构建。构建产物位于各工作区的 `dist/`。
 
-`pnpm test` 当前检查文档路由、源码高亮和窄屏布局，使用本机 Chrome。后续 core 和组件测试随实际实现加入。
+`pnpm test` 检查文档路由与最小 core 接入，使用本机 Chrome。完整类型、构建、core Node/三浏览器和 SSR 验证默认交给 CI；本地只做改动相关的关键检查。
 
 ## 设计
 

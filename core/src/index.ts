@@ -1,4 +1,11 @@
 export { buildStyle } from './css/builder.js';
+export {
+  css,
+  createCss,
+  ClassController,
+  normalizeClass,
+  hasCssEvaluation,
+} from './runtime/classes.js';
 export type { StyleBuilder, StyleFactory } from './css/builder.js';
 export type { StyleProgram, Instruction, Declaration, Rule } from './css/program.js';
 export { serializeProgram, serializeTheme, canonicalize, hashText } from './css/serialize.js';

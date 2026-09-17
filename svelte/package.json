@@ -12,6 +12,21 @@
     "**/*.css"
   ],
   "exports": {
+    "./compiler": {
+      "zui-source": "./src/compiler/preprocess.ts",
+      "types": "./dist/compiler/preprocess.d.ts",
+      "default": "./dist/compiler/preprocess.js"
+    },
+    "./internal": {
+      "zui-source": "./src/runtime/scope.ts",
+      "types": "./dist/runtime/scope.d.ts",
+      "default": "./dist/runtime/scope.js"
+    },
+    "./server": {
+      "zui-source": "./src/server.ts",
+      "types": "./dist/server.d.ts",
+      "default": "./dist/server.js"
+    },
     ".": {
       "zui-source": "./src/index.ts",
       "types": "./dist/index.d.ts",
@@ -21,9 +36,11 @@
   },
   "scripts": {
     "build": "svelte-package --input src",
-    "check": "svelte-check --tsconfig ./tsconfig.json"
+    "check": "svelte-check --tsconfig ./tsconfig.check.json",
+    "test": "vitest run"
   },
   "dependencies": {
+    "magic-string": "catalog:",
     "@zui/core": "workspace:^",
     "@lucide/svelte": "catalog:"
   },

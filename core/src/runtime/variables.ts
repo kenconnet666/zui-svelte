@@ -1,4 +1,4 @@
-export function createVariableBinding(node: HTMLElement | SVGElement) {
+export function createVariableBinding(node: HTMLElement | SVGElement, preserveInitial = true) {
   const originals = new Map<string, { value: string; priority: string }>();
   const applied = new Map<string, string>();
   function restore(name: string) {
@@ -17,8 +17,8 @@ export function createVariableBinding(node: HTMLElement | SVGElement) {
       for (const [name, value] of Object.entries(variables)) {
         if (!originals.has(name))
           originals.set(name, {
-            value: node.style.getPropertyValue(name),
-            priority: node.style.getPropertyPriority(name),
+            value: preserveInitial ? node.style.getPropertyValue(name) : '',
+            priority: preserveInitial ? node.style.getPropertyPriority(name) : '',
           });
         if (node.style.getPropertyValue(name) !== value) node.style.setProperty(name, value);
         applied.set(name, node.style.getPropertyValue(name));
