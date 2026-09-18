@@ -1,14 +1,33 @@
 <script lang="ts">
-  import { onDestroy } from 'svelte';
-  import { css, createRuntime } from '@zui/core';
+  import { onDestroy, onMount } from 'svelte';
+  import { css, createRuntime, bindTheme, lightTheme, overrideTheme, ThemeScope } from '@zui/core';
   import { provideStyleRuntime } from '@zui/svelte';
 
   const runtime = createRuntime({ target: document, variables: 'stylesheet', nonce: 'zui-probe' });
   runtime.themeStyle(':root');
   provideStyleRuntime(runtime);
   onDestroy(() => runtime.dispose());
+  const theme = new ThemeScope(lightTheme);
+  let themed: HTMLDivElement | undefined;
+  onMount(() => {
+    if (themed) return bindTheme(themed, theme, runtime);
+  });
+  onDestroy(() => theme.dispose());
   let width = $state(100);
 </script>
+
+<button onclick={() => theme.update(overrideTheme(lightTheme, { color: { primary: 'red' } }))}
+  >Switch theme</button
+>
+<div
+  bind:this={themed}
+  data-testid="csp-theme"
+  class={css((s) => {
+    s.color._primary;
+  })}
+>
+  Theme
+</div>
 
 <button
   onclick={() => {

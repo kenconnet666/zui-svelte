@@ -73,3 +73,9 @@ b6e3196 的完整 CI 已通过（35297002200），含严格 CSP 生产构建三�
 新增统一入口 tokenRef、类型化 theme.variable/ref、只读 definition/resolved。别名按最终覆盖后的定义解析，检测循环、缺失和跨类别引用；类型推导深度有界，已知类别的值约束由类型/运行时共用表维护。覆盖和扩展保持已有值种类，ThemeScope 先计算整棵子树再提交，单个订阅者异常不阻断其余通知。局部主题/模块 12 项测试及正反类型用例通过，定向 ESLint 通过，WebStorm 对主题核心文件检查无错误。
 
 9faf98f 的 CI 35298060285 已通过之前各项并到达 Kit 构建，但自定义 resolve.conditions 丢失 browser 默认条件，误解析服务端代码。fixture 改为追加 Vite 官方默认 client/server conditions；本批交给 CI 继续验证，尚未宣布真实 Kit 验收完成。
+
+## 主题样式表通道与 Kit CSP 边界
+
+bindTheme 增加可选 runtime，严格 CSP 模式下复用普通绑定写主题变量规则，保持无 style 属性并按 scope/消费者回收；加入 DOM 与真实 CSP 主题切换用例，交给 CI。聚焦类型、ESLint 与 WebStorm 检查通过。
+
+a31eed1 的 CI 35298784160 已通过 core/Docs 与 Kit 构建；Kit 六项测试中四项通过，Chromium/Firefox 报框架自带 #svelte-announcer 的 style-src-attr 违规。核对锁定 Kit 的 write_root.js 确认固定内联样式来源，fixture 改为仅许可其精确 SHA-256 hash；ZUI 独立测试继续要求 style-src-attr none，不过滤违规、不放开 unsafe-inline。此宿主限制已同步生产规划。

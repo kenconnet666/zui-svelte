@@ -26,6 +26,32 @@ function runtime(namespace: string) {
 }
 
 describe('real DOM style bindings', () => {
+  it('binds and switches theme scopes through the stylesheet channel', () => {
+    const owner = createRuntime({
+      target: document,
+      namespace: 'sheet-theme',
+      variables: 'stylesheet',
+    });
+    cleanup.push(() => owner.dispose());
+    const theme = defineTheme({ color: { primary: 'red' } });
+    const scope = new ThemeScope(theme);
+    cleanup.push(() => scope.dispose());
+    const node = element();
+    const color = owner.binding();
+    color.evaluate((s) => {
+      s.color._primary;
+    });
+    cleanup.push(bindElement(node, color));
+    const stop = bindTheme(node, scope, owner);
+    cleanup.push(stop);
+    expect(getComputedStyle(node).color).toBe('rgb(255, 0, 0)');
+    scope.update(overrideTheme(theme, { color: { primary: 'blue' } }));
+    expect(getComputedStyle(node).color).toBe('rgb(0, 0, 255)');
+    expect(node.getAttribute('style')).toBeNull();
+    stop();
+    expect(owner.bindingCount).toBe(1);
+    expect(node.className).toBe(color.snapshot.className);
+  });
   it('updates promoted stylesheet variables without adding a style attribute', () => {
     const owner = createRuntime({
       target: document,

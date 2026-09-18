@@ -1,4 +1,6 @@
 import { createVariableBinding } from '../runtime/variables.js';
+import { bindElement } from '../runtime/element.js';
+import type { StyleRuntime } from '../runtime/runtime.js';
 import { validateValue } from '../css/validate.js';
 import { overrideTheme, tokenRef, isReference } from './theme.js';
 import type { Theme, ThemePatch, TokenSchema, WidenTokens } from './types.js';
@@ -138,10 +140,31 @@ export function themeVariables<T extends TokenSchema>(
   );
 }
 
-export function bindTheme<T extends TokenSchema>(
+export function bindTheme<T extends TokenSchema, U extends TokenSchema = TokenSchema>(
   node: HTMLElement | SVGElement,
   scope: ThemeScope<T>,
+  runtime?: StyleRuntime<U>,
 ): () => void {
+  if (runtime?.registry.variables === 'stylesheet') {
+    const binding = runtime.binding({ source: 'theme-scope', promote: false });
+    const detach = bindElement(node, binding);
+    return scope.subscribe(
+      (theme) => {
+        binding.update(
+          Object.entries(themeVariables(theme)).map(([property, value]) => ({
+            kind: 'declaration',
+            property,
+            value,
+            important: false,
+          })),
+        );
+      },
+      () => {
+        detach();
+        binding.dispose();
+      },
+    );
+  }
   const binding = createVariableBinding(node);
   return scope.subscribe(
     (theme) => binding.update(themeVariables(theme)),

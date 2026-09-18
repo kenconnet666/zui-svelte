@@ -42,6 +42,9 @@ test('stylesheet variables update under a nonce policy that forbids style attrib
   await expect(target).toHaveCSS('width', '140px');
   await expect(target).toHaveAttribute('class', promoted!);
   expect(await target.getAttribute('style')).toBeNull();
+  await page.getByRole('button', { name: 'Switch theme', exact: true }).click();
+  await expect(page.getByTestId('csp-theme')).toHaveCSS('color', 'rgb(255, 0, 0)');
+  expect(await page.getByTestId('csp-theme').getAttribute('style')).toBeNull();
   expect(await page.evaluate(() => Reflect.get(window, 'cspViolations'))).toEqual([]);
   await page.getByRole('navigation').getByRole('link', { name: '概览' }).click();
   await expect(page.locator('style[data-zui="z"]')).toHaveCount(0);

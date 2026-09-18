@@ -373,6 +373,8 @@ nonce 由宿主逐请求提供，与实际 CSP 响应头和 SvelteKit CSP 配置
 
 按 [CSP3](https://www.w3.org/TR/CSP3/#directive-style-src-attr)，style 标签与 style 属性属于不同控制范围。真实浏览器测试使用实际响应头并收集 violation，不能只断言 style 元素有 nonce。作者主动写入被策略禁止的 style 属性不由 ZUI 自动放宽。
 
+2026-09-18 实施发现：锁定的 SvelteKit 2.70.3 会为自身的 `#svelte-announcer` 写入固定 style 属性。ZUI 独立三浏览器验收继续使用 `style-src-attr 'none'`；Kit fixture 仅为该固定上游片段提供精确 hash 许可，不能把此结果描述为整个 Kit 应用在完全禁止 style 属性时无违规。升级 Kit 后重新核对该例外，禁止扩大为 unsafe-inline 或过滤违规事件。
+
 ## 10. 生成、诊断、健壮性与性能
 
 ### 10.1 生成和类型
