@@ -23,7 +23,7 @@ export type {
   TokenReference,
 } from './theme/types.js';
 export { createRuntime } from './runtime/runtime.js';
-export type { StyleRuntime, RuntimeOptions } from './runtime/runtime.js';
+export type { StyleRuntime, RuntimeOptions, RuntimeStats } from './runtime/runtime.js';
 export { StyleBinding } from './runtime/binding.js';
 export type { StyleSnapshot, BindingOptions } from './runtime/binding.js';
 export { bindElement } from './runtime/element.js';

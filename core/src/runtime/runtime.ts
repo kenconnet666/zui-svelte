@@ -6,6 +6,8 @@ import { StyleBinding } from './binding.js';
 import { StyleRegistry, type RuleRecord } from './registry.js';
 import { BrowserStyleSheet, MemoryStyleSheet, type StyleSheet } from './sheet.js';
 import { createResources } from './resources.js';
+import type { StyleResource, AnimationResource, PropertyRegistration } from './resources.js';
+import type * as CSS from 'csstype';
 
 export interface RuntimeOptions<T extends TokenSchema> {
   theme?: Theme<T>;
@@ -17,9 +19,50 @@ export interface RuntimeOptions<T extends TokenSchema> {
   variables?: 'inline' | 'stylesheet';
 }
 
+export interface RuntimeStats {
+  readonly bindings: number;
+  readonly rules: number;
+  readonly sources: number;
+  readonly styleEntries: number;
+  readonly ruleCompilations: number;
+}
+
+export interface StyleRuntime<T extends TokenSchema = DefaultTokens> {
+  /** @internal 编译接入暂用；业务通过其他方法管理样式。 */
+  readonly registry: StyleRegistry;
+  readonly theme: Theme<T>;
+  readonly bindingCount: number;
+  readonly stats: RuntimeStats;
+  global(selector: string, factory: StyleFactory<T>): StyleResource;
+  themeStyle(selector: string, theme?: Theme<T>): StyleResource;
+  keyframes(frames: Readonly<Record<string, StyleFactory<T>>>): AnimationResource;
+  fontFace(descriptors: CSS.AtRule.FontFace): StyleResource;
+  property(name: `--${string}`, options: PropertyRegistration): StyleResource;
+  css(factory: StyleFactory<T>, source?: string): string;
+  binding(settings?: {
+    id?: string;
+    source?: string;
+    maxStructures?: number;
+    promote?: boolean;
+  }): StyleBinding<T>;
+  release(binding: StyleBinding<T>): void;
+  cssText(): string;
+  styleTags(): string;
+  finishHydration(): void;
+  dispose(): void;
+}
+
 export function createRuntime<T extends TokenSchema = DefaultTokens>(
   options: RuntimeOptions<T> = {},
-) {
+): StyleRuntime<T> {
+  if (options.target && options.sheet)
+    throw new TypeError('Choose a target or a stylesheet, not both.');
+  if (
+    options.variables !== undefined &&
+    options.variables !== 'inline' &&
+    options.variables !== 'stylesheet'
+  )
+    throw new TypeError('Unknown variable output channel.');
   const namespace = options.namespace ?? 'z';
   const sheet =
     options.sheet ??
@@ -85,6 +128,15 @@ export function createRuntime<T extends TokenSchema = DefaultTokens>(
     get bindingCount() {
       return bindings.size;
     },
+    get stats() {
+      return Object.freeze({
+        bindings: bindings.size,
+        rules: registry.size,
+        sources: registry.sourceCount,
+        styleEntries: registry.styleEntries,
+        ruleCompilations: registry.ruleCompilations,
+      });
+    },
     dispose(): void {
       if (disposed) return;
       disposed = true;
@@ -96,6 +148,3 @@ export function createRuntime<T extends TokenSchema = DefaultTokens>(
     },
   };
 }
-export type StyleRuntime<T extends TokenSchema = DefaultTokens> = ReturnType<
-  typeof createRuntime<T>
->;

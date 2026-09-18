@@ -29,6 +29,7 @@ export class StyleRegistry {
   readonly #hydratedOrders = new Map<string, number>();
   #sequence = 0;
   #disposed = false;
+  #compilations = 0;
   constructor(
     readonly sheet: StyleSheet,
     readonly namespace = 'z',
@@ -47,6 +48,7 @@ export class StyleRegistry {
     source: string,
     render: (key: string) => { css: string; className: string },
   ): RuleRecord {
+    if (this.#disposed) throw new Error('Style registry is disposed.');
     if (this.#disposed) throw new Error('Style registry is disposed.');
     // 同一来源的各个版本保持逻辑顺序，不能因提升改变与其他来源的覆盖关系。
     const key = hashText(canonical);
@@ -83,6 +85,7 @@ export class StyleRegistry {
 
   acquire(program: StyleProgram, source: string): RuleRecord {
     const record = this.#retain(JSON.stringify([source, canonicalize(program)]), source, (key) => {
+      this.#compilations++;
       const className = this.namespace + '-r-' + key;
       const css = program.length ? serializeProgram(program, '.' + className, this.prefix) : '';
       return { css, className: css ? className : '' };
@@ -96,10 +99,13 @@ export class StyleRegistry {
   }
 
   acquireDefinition(definition: StyleDefinition): RuleRecord {
-    const record = this.#retain(definition.canonical, definition.source, () => ({
-      className: definition.className,
-      css: serializeProgram(definition.program, '.' + definition.className, this.prefix),
-    }));
+    const record = this.#retain(definition.canonical, definition.source, () => {
+      this.#compilations++;
+      return {
+        className: definition.className,
+        css: serializeProgram(definition.program, '.' + definition.className, this.prefix),
+      };
+    });
     record.releaseDefinition ??= retainDefinition(definition);
     return record;
   }
@@ -174,6 +180,12 @@ export class StyleRegistry {
   }
   get sourceCount(): number {
     return this.#orders.size;
+  }
+  get ruleCompilations(): number {
+    return this.#compilations;
+  }
+  get styleEntries(): number {
+    return this.sheet.entries().length;
   }
   cssText(): string {
     return this.sheet

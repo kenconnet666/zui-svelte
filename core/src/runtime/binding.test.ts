@@ -33,11 +33,13 @@ describe('runtime promotion', () => {
     expect(promoted).not.toBe(first);
     expect(runtime.cssText()).toContain('gap:12px;');
     expect(binding.snapshot.variables).toEqual({ '--z-b-panel-0': '241px' });
+    const compilations = runtime.stats.ruleCompilations;
     for (let i = 0; i < 1000; i++) {
       width = i;
       expect(render()).toBe(promoted);
     }
     expect(runtime.registry.size).toBe(1);
+    expect(runtime.stats.ruleCompilations).toBe(compilations);
     runtime.dispose();
     expect(runtime.cssText()).toBe('');
   });

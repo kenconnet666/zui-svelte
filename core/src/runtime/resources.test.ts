@@ -3,6 +3,28 @@ import { createRuntime } from './runtime.js';
 import type { StyleFactory } from '../css/builder.js';
 
 describe('scoped style resources', () => {
+  it('rejects new resources after runtime disposal', () => {
+    const runtime = createRuntime();
+    runtime.dispose();
+    expect(() =>
+      runtime.global('body', (s) => {
+        s.margin.px(0);
+      }),
+    ).toThrow('disposed');
+    expect(() => runtime.themeStyle(':root')).toThrow('disposed');
+    expect(() =>
+      runtime.keyframes({
+        from: (s) => {
+          s.opacity(0);
+        },
+      }),
+    ).toThrow('disposed');
+    expect(() => runtime.fontFace({ fontFamily: 'test', src: 'url(test.woff2)' })).toThrow(
+      'disposed',
+    );
+    expect(() => runtime.property('--test', { syntax: '*', inherits: true })).toThrow('disposed');
+    expect(runtime.stats.rules).toBe(0);
+  });
   it('deduplicates animations and releases them only after their last owner', () => {
     const runtime = createRuntime();
     const frames: Record<string, StyleFactory> = {

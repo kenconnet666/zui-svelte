@@ -79,3 +79,9 @@ b6e3196 的完整 CI 已通过（35297002200），含严格 CSP 生产构建三�
 bindTheme 增加可选 runtime，严格 CSP 模式下复用普通绑定写主题变量规则，保持无 style 属性并按 scope/消费者回收；加入 DOM 与真实 CSP 主题切换用例，交给 CI。聚焦类型、ESLint 与 WebStorm 检查通过。
 
 a31eed1 的 CI 35298784160 已通过 core/Docs 与 Kit 构建；Kit 六项测试中四项通过，Chromium/Firefox 报框架自带 #svelte-announcer 的 style-src-attr 违规。核对锁定 Kit 的 write_root.js 确认固定内联样式来源，fixture 改为仅许可其精确 SHA-256 hash；ZUI 独立测试继续要求 style-src-attr none，不过滤违规、不放开 unsafe-inline。此宿主限制已同步生产规划。
+
+## Runtime 接口与性能基线
+
+0b604d1 的完整 CI 已通过（35299148400），包含主题 stylesheet 通道、ZUI 严格 CSP 以及真实 Kit 流式/接管三浏览器验收（Kit 固定播报样式使用精确 hash 例外）。StyleRuntime 改为显式公共 interface，增加只读 stats；规则编译计数用于验证持续更新不反复调用本地规则编译。补上 registry 销毁后拒绝新增资源，以及互斥 target/sheet、变量通道校验。局部 runtime 14 项、聚焦类型和 WebStorm 检查通过。
+
+CI 新增构建产物基准：10,000 次稳定更新、1,000 实例各 100 次更新、100 轮挂载销毁；规则共享、无额外编译和全部活动计数归零作为硬门槛，耗时输出 core/test-results/benchmark.json。首份真实基线尚待本次 CI，不提前给出性能完成结论。
