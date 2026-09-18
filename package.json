@@ -19,6 +19,8 @@
     "changeset": "changeset",
     "generate": "node scripts/generate-css.mjs",
     "generate:check": "node scripts/generate-css.mjs --check",
+    "contracts:check": "node scripts/verify-contracts.mjs",
+    "contracts:update": "node scripts/verify-contracts.mjs --update",
     "test:core": "pnpm --filter @zui/core run test",
     "test:core:browser": "pnpm --filter @zui/core run test:browser",
     "test:packages": "node scripts/verify-packages.mjs"

@@ -6,6 +6,7 @@ export { createStyleModule } from './runtime/definitions.js';
 export { styleProtocol } from './runtime/protocol.js';
 export type { CssOptions } from './runtime/evaluation.js';
 export { css, createCss } from './runtime/evaluation.js';
+export { StyleError, type StyleErrorCode } from './css/errors.js';
 /** @internal 仅供同版本框架编译桥使用。 */
 export {
   ClassController,
@@ -25,6 +26,7 @@ export { baseTheme, lightTheme, darkTheme } from './theme/presets.js';
 export type { DefaultTokens } from './theme/presets.js';
 export type {
   Theme,
+  ThemeOptions,
   TokenSchema,
   ThemePatch,
   TokenValue,

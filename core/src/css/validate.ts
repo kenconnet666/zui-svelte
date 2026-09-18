@@ -1,3 +1,4 @@
+import { StyleError } from './errors.js';
 // 只校验声明边界，不尝试用不完整的正则重写浏览器的 CSS 值语法。
 export function validateValue(value: string): string {
   let quote = '';
@@ -16,7 +17,7 @@ export function validateValue(value: string): string {
     if (quote) {
       // CSS 字符串不能包含未转义换行，否则浏览器会提前终止字符串边界。
       if (c === '\n' || c === '\r' || c === '\f')
-        throw new TypeError('Unescaped newline in CSS string.');
+        throw new StyleError('css.value', 'Unescaped newline in CSS string.');
       if (c === quote) quote = '';
       continue;
     }
@@ -25,18 +26,19 @@ export function validateValue(value: string): string {
       continue;
     }
     if (c === '/' && value[i + 1] === '*')
-      throw new TypeError('CSS comments are not declaration values.');
+      throw new StyleError('css.value', 'CSS comments are not declaration values.');
     if (c === '(' || c === '[') stack.push(c);
     else if (c === ')' || c === ']') {
-      if (stack.pop() !== (c === ')' ? '(' : '[')) throw new TypeError('Unbalanced CSS value.');
+      if (stack.pop() !== (c === ')' ? '(' : '['))
+        throw new StyleError('css.value', 'Unbalanced CSS value.');
     } else if (c === '{' || c === '}' || (c === ';' && stack.length === 0)) {
-      throw new TypeError('A CSS value cannot contain another declaration.');
+      throw new StyleError('css.value', 'A CSS value cannot contain another declaration.');
     }
   }
   if (quote || stack.length || escaped || /!\s*important\s*$/iu.test(value)) {
-    throw new TypeError('Invalid CSS value; use _important for priority.');
+    throw new StyleError('css.value', 'Invalid CSS value; use _important for priority.');
   }
-  if (!value.trim()) throw new TypeError('CSS value cannot be empty.');
+  if (!value.trim()) throw new StyleError('css.value', 'CSS value cannot be empty.');
   return value;
 }
 
@@ -49,7 +51,10 @@ export function validateQuery(query: string, atRule = false): string {
   let anchored = false;
   const requireAnchor = () => {
     if (!anchored)
-      throw new TypeError('Each local selector branch needs & outside functions and attributes.');
+      throw new StyleError(
+        'css.selector',
+        'Each local selector branch needs & outside functions and attributes.',
+      );
   };
   // 字符串、属性和函数里的 & 不能证明分支被当前根约束，如 :not(&) 或 :is(&, body)。
   for (const c of query) {

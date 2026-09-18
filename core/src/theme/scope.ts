@@ -2,8 +2,13 @@ import { createVariableBinding } from '../runtime/variables.js';
 import { bindElement } from '../runtime/element.js';
 import type { StyleRuntime } from '../runtime/runtime.js';
 import { runAll } from '../runtime/callbacks.js';
-import { validateValue } from '../css/validate.js';
-import { overrideTheme, tokenRef, isReference, assertThemeCompatible } from './theme.js';
+import {
+  overrideTheme,
+  tokenRef,
+  isReference,
+  assertThemeCompatible,
+  themeDeclarations,
+} from './theme.js';
 import type { Theme, ThemePatch, TokenSchema, WidenTokens } from './types.js';
 
 export class ThemeScope<T extends TokenSchema> {
@@ -127,18 +132,7 @@ export class ThemeScope<T extends TokenSchema> {
   }
 }
 
-export function themeVariables<T extends TokenSchema>(
-  theme: Theme<T>,
-): Readonly<Record<string, string>> {
-  return Object.fromEntries(
-    Object.entries(theme.resolved).flatMap(([category, tokens]) =>
-      Object.entries(tokens).map(([key, value]) => [
-        theme.variable(category, key),
-        validateValue(String(value)),
-      ]),
-    ),
-  );
-}
+export { themeVariables } from './theme.js';
 
 interface ThemeBinding {
   scope: object;
@@ -153,6 +147,7 @@ export function bindTheme<T extends TokenSchema, U extends TokenSchema = TokenSc
   scope: ThemeScope<T>,
   runtime?: StyleRuntime<U>,
 ): () => void {
+  if (runtime) assertThemeCompatible(runtime.defaultTheme, scope.theme);
   const namespace = scope.theme.namespace;
   let bindings = themesByNode.get(node);
   if (!bindings) themesByNode.set(node, (bindings = new Map()));
@@ -177,8 +172,9 @@ export function bindTheme<T extends TokenSchema, U extends TokenSchema = TokenSc
         releases.push(() => binding.dispose());
         releases.push(bindElement(node, binding));
         entry.stop = scope.subscribe((theme) => {
+          assertThemeCompatible(runtime.defaultTheme, theme);
           binding.update(
-            Object.entries(themeVariables(theme)).map(([property, value]) => ({
+            Object.entries(themeDeclarations(theme)).map(([property, value]) => ({
               kind: 'declaration',
               property,
               value,
@@ -189,7 +185,10 @@ export function bindTheme<T extends TokenSchema, U extends TokenSchema = TokenSc
       } else {
         const binding = createVariableBinding(node);
         releases.push(() => binding.dispose());
-        entry.stop = scope.subscribe((theme) => binding.update(themeVariables(theme)), dispose);
+        entry.stop = scope.subscribe((theme) => {
+          if (runtime) assertThemeCompatible(runtime.defaultTheme, theme);
+          binding.update(themeDeclarations(theme));
+        }, dispose);
       }
     } catch (error) {
       runAll(

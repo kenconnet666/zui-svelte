@@ -1,3 +1,4 @@
+import { StyleError } from '../css/errors.js';
 import type { StyleProgram } from '../css/program.js';
 import type { Theme, TokenSchema } from './types.js';
 import { matchesTokenKind } from './types.js';
@@ -24,10 +25,16 @@ export function tokenUses(program: StyleProgram): readonly TokenUse[] {
 export function assertTokenUses(uses: readonly TokenUse[], theme: Theme<TokenSchema>): void {
   for (const use of uses) {
     if (use.namespace !== theme.namespace)
-      throw new Error('Theme namespace mismatch: ' + use.namespace + ' / ' + theme.namespace);
+      throw new StyleError(
+        'theme.namespace',
+        'Theme namespace mismatch: ' + use.namespace + ' / ' + theme.namespace,
+      );
     if (!Object.hasOwn(theme.resolved[use.category] ?? {}, use.token))
-      throw new Error('Missing theme token: ' + use.category + '.' + use.token);
+      throw new StyleError('theme.token', 'Missing theme token: ' + use.category + '.' + use.token);
     if (!matchesTokenKind(use.category, theme.resolved[use.category]![use.token], use.kind))
-      throw new Error('Incompatible theme token: ' + use.category + '.' + use.token);
+      throw new StyleError(
+        'theme.token',
+        'Incompatible theme token: ' + use.category + '.' + use.token,
+      );
   }
 }

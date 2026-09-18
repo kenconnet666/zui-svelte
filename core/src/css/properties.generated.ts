@@ -50,7 +50,7 @@ export interface StyleProperties<
   /** **Syntax**: `none | all | <dashed-ident>#` */
   readonly anchorScope: Carrier<'anchorScope', keyof (typeof keywordGroups)[7], never, 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly animation: Carrier<'animation', keyof (typeof keywordGroups)[8], never, 1, '', T, M>;
+  readonly animation: Carrier<'animation', keyof (typeof keywordGroups)[8], 'time', 1, '', T, M>;
   /** Since July 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
   readonly animationComposition: Carrier<
     'animationComposition',
@@ -135,7 +135,7 @@ export interface StyleProperties<
   readonly animationRange: Carrier<
     'animationRange',
     keyof (typeof keywordGroups)[15],
-    never,
+    'length',
     1,
     '',
     T,
@@ -145,7 +145,7 @@ export interface StyleProperties<
   readonly animationRangeEnd: Carrier<
     'animationRangeEnd',
     keyof (typeof keywordGroups)[15],
-    never,
+    'length',
     1,
     '',
     T,
@@ -155,7 +155,7 @@ export interface StyleProperties<
   readonly animationRangeStart: Carrier<
     'animationRangeStart',
     keyof (typeof keywordGroups)[15],
-    never,
+    'length',
     1,
     '',
     T,
@@ -214,7 +214,15 @@ export interface StyleProperties<
     M
   >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly background: Carrier<'background', keyof (typeof keywordGroups)[20], never, 1, '', T, M>;
+  readonly background: Carrier<
+    'background',
+    keyof (typeof keywordGroups)[20],
+    'length',
+    1,
+    '',
+    T,
+    M
+  >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
   readonly backgroundAttachment: Carrier<
     'backgroundAttachment',
@@ -279,7 +287,7 @@ export interface StyleProperties<
   readonly backgroundPosition: Carrier<
     'backgroundPosition',
     keyof (typeof keywordGroups)[26],
-    never,
+    'length',
     1,
     '',
     T,
@@ -289,7 +297,7 @@ export interface StyleProperties<
   readonly backgroundPositionX: Carrier<
     'backgroundPositionX',
     keyof (typeof keywordGroups)[27],
-    never,
+    'length',
     1,
     '',
     T,
@@ -299,7 +307,7 @@ export interface StyleProperties<
   readonly backgroundPositionY: Carrier<
     'backgroundPositionY',
     keyof (typeof keywordGroups)[28],
-    never,
+    'length',
     1,
     '',
     T,
@@ -319,7 +327,7 @@ export interface StyleProperties<
   readonly backgroundSize: Carrier<
     'backgroundSize',
     keyof (typeof keywordGroups)[30],
-    never,
+    'length',
     1,
     '',
     T,
@@ -329,7 +337,7 @@ export interface StyleProperties<
   readonly baselineShift: Carrier<
     'baselineShift',
     keyof (typeof keywordGroups)[31],
-    never,
+    'length',
     1,
     '',
     T,
@@ -346,12 +354,12 @@ export interface StyleProperties<
     M
   >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly border: Carrier<'border', keyof (typeof keywordGroups)[33], never, 1, '', T, M>;
+  readonly border: Carrier<'border', keyof (typeof keywordGroups)[33], 'length', 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
   readonly borderBlock: Carrier<
     'borderBlock',
     keyof (typeof keywordGroups)[33],
-    never,
+    'length',
     1,
     '',
     T,
@@ -371,7 +379,7 @@ export interface StyleProperties<
   readonly borderBlockEnd: Carrier<
     'borderBlockEnd',
     keyof (typeof keywordGroups)[33],
-    never,
+    'length',
     1,
     '',
     T,
@@ -401,7 +409,7 @@ export interface StyleProperties<
   readonly borderBlockEndWidth: Carrier<
     'borderBlockEndWidth',
     keyof (typeof keywordGroups)[35],
-    never,
+    'length',
     1,
     '',
     T,
@@ -411,7 +419,7 @@ export interface StyleProperties<
   readonly borderBlockStart: Carrier<
     'borderBlockStart',
     keyof (typeof keywordGroups)[33],
-    never,
+    'length',
     1,
     '',
     T,
@@ -441,7 +449,7 @@ export interface StyleProperties<
   readonly borderBlockStartWidth: Carrier<
     'borderBlockStartWidth',
     keyof (typeof keywordGroups)[35],
-    never,
+    'length',
     1,
     '',
     T,
@@ -461,7 +469,7 @@ export interface StyleProperties<
   readonly borderBlockWidth: Carrier<
     'borderBlockWidth',
     keyof (typeof keywordGroups)[35],
-    never,
+    'length',
     1,
     '',
     T,
@@ -471,7 +479,7 @@ export interface StyleProperties<
   readonly borderBottom: Carrier<
     'borderBottom',
     keyof (typeof keywordGroups)[33],
-    never,
+    'length',
     1,
     '',
     T,
@@ -581,7 +589,7 @@ export interface StyleProperties<
   readonly borderImageOutset: Carrier<
     'borderImageOutset',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -621,7 +629,7 @@ export interface StyleProperties<
   readonly borderImageWidth: Carrier<
     'borderImageWidth',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -631,7 +639,7 @@ export interface StyleProperties<
   readonly borderInline: Carrier<
     'borderInline',
     keyof (typeof keywordGroups)[33],
-    never,
+    'length',
     1,
     '',
     T,
@@ -651,7 +659,7 @@ export interface StyleProperties<
   readonly borderInlineEnd: Carrier<
     'borderInlineEnd',
     keyof (typeof keywordGroups)[33],
-    never,
+    'length',
     1,
     '',
     T,
@@ -681,7 +689,7 @@ export interface StyleProperties<
   readonly borderInlineEndWidth: Carrier<
     'borderInlineEndWidth',
     keyof (typeof keywordGroups)[35],
-    never,
+    'length',
     1,
     '',
     T,
@@ -691,7 +699,7 @@ export interface StyleProperties<
   readonly borderInlineStart: Carrier<
     'borderInlineStart',
     keyof (typeof keywordGroups)[33],
-    never,
+    'length',
     1,
     '',
     T,
@@ -721,7 +729,7 @@ export interface StyleProperties<
   readonly borderInlineStartWidth: Carrier<
     'borderInlineStartWidth',
     keyof (typeof keywordGroups)[35],
-    never,
+    'length',
     1,
     '',
     T,
@@ -741,14 +749,22 @@ export interface StyleProperties<
   readonly borderInlineWidth: Carrier<
     'borderInlineWidth',
     keyof (typeof keywordGroups)[35],
-    never,
+    'length',
     1,
     '',
     T,
     M
   >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderLeft: Carrier<'borderLeft', keyof (typeof keywordGroups)[33], never, 1, '', T, M>;
+  readonly borderLeft: Carrier<
+    'borderLeft',
+    keyof (typeof keywordGroups)[33],
+    'length',
+    1,
+    '',
+    T,
+    M
+  >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
   readonly borderLeftColor: Carrier<
     'borderLeftColor',
@@ -793,7 +809,7 @@ export interface StyleProperties<
   readonly borderRight: Carrier<
     'borderRight',
     keyof (typeof keywordGroups)[33],
-    never,
+    'length',
     1,
     '',
     T,
@@ -833,7 +849,7 @@ export interface StyleProperties<
   readonly borderSpacing: Carrier<
     'borderSpacing',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -870,7 +886,7 @@ export interface StyleProperties<
     M
   >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderTop: Carrier<'borderTop', keyof (typeof keywordGroups)[33], never, 1, '', T, M>;
+  readonly borderTop: Carrier<'borderTop', keyof (typeof keywordGroups)[33], 'length', 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
   readonly borderTopColor: Carrier<
     'borderTopColor',
@@ -1132,7 +1148,15 @@ export interface StyleProperties<
     M
   >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly columnRule: Carrier<'columnRule', keyof (typeof keywordGroups)[33], never, 1, '', T, M>;
+  readonly columnRule: Carrier<
+    'columnRule',
+    keyof (typeof keywordGroups)[33],
+    'length',
+    1,
+    '',
+    T,
+    M
+  >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
   readonly columnRuleColor: Carrier<
     'columnRuleColor',
@@ -1157,21 +1181,21 @@ export interface StyleProperties<
   readonly columnRuleWidth: Carrier<
     'columnRuleWidth',
     keyof (typeof keywordGroups)[35],
-    never,
+    'length',
     1,
     '',
     T,
     M
   >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly columns: Carrier<'columns', keyof (typeof keywordGroups)[11], never, 1, '', T, M>;
+  readonly columns: Carrier<'columns', keyof (typeof keywordGroups)[11], 'length', 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2020. */
   readonly columnSpan: Carrier<'columnSpan', keyof (typeof keywordGroups)[7], never, 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since November 2016. */
   readonly columnWidth: Carrier<
     'columnWidth',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -1205,7 +1229,7 @@ export interface StyleProperties<
   readonly containIntrinsicBlockSize: Carrier<
     'containIntrinsicBlockSize',
     keyof (typeof keywordGroups)[6],
-    never,
+    'length',
     1,
     '',
     T,
@@ -1215,7 +1239,7 @@ export interface StyleProperties<
   readonly containIntrinsicHeight: Carrier<
     'containIntrinsicHeight',
     keyof (typeof keywordGroups)[6],
-    never,
+    'length',
     1,
     '',
     T,
@@ -1225,7 +1249,7 @@ export interface StyleProperties<
   readonly containIntrinsicInlineSize: Carrier<
     'containIntrinsicInlineSize',
     keyof (typeof keywordGroups)[6],
-    never,
+    'length',
     1,
     '',
     T,
@@ -1235,7 +1259,7 @@ export interface StyleProperties<
   readonly containIntrinsicSize: Carrier<
     'containIntrinsicSize',
     keyof (typeof keywordGroups)[6],
-    never,
+    'length',
     1,
     '',
     T,
@@ -1245,7 +1269,7 @@ export interface StyleProperties<
   readonly containIntrinsicWidth: Carrier<
     'containIntrinsicWidth',
     keyof (typeof keywordGroups)[6],
-    never,
+    'length',
     1,
     '',
     T,
@@ -1288,9 +1312,9 @@ export interface StyleProperties<
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since December 2021. */
   readonly cursor: Carrier<'cursor', keyof (typeof keywordGroups)[64], never, 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2020. */
-  readonly cx: Carrier<'cx', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
+  readonly cx: Carrier<'cx', keyof (typeof keywordGroups)[5], 'length', 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2020. */
-  readonly cy: Carrier<'cy', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
+  readonly cy: Carrier<'cy', keyof (typeof keywordGroups)[5], 'length', 1, '', T, M>;
   /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
   readonly d: Carrier<'d', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
@@ -1328,7 +1352,7 @@ export interface StyleProperties<
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2016. */
   readonly filter: Carrier<'filter', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly flex: Carrier<'flex', keyof (typeof keywordGroups)[71], never, 1, '', T, M>;
+  readonly flex: Carrier<'flex', keyof (typeof keywordGroups)[71], 'length', 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
   readonly flexBasis: Carrier<
     'flexBasis',
@@ -1462,7 +1486,15 @@ export interface StyleProperties<
     M
   >;
   /** The **`font-smooth`** CSS property controls the application of anti-aliasing when fonts are rendered. */
-  readonly fontSmooth: Carrier<'fontSmooth', keyof (typeof keywordGroups)[82], never, 1, '', T, M>;
+  readonly fontSmooth: Carrier<
+    'fontSmooth',
+    keyof (typeof keywordGroups)[82],
+    'length',
+    1,
+    '',
+    T,
+    M
+  >;
   /** The **`font-stretch`** CSS property selects a normal, condensed, or expanded face from a font. */
   readonly fontStretch: Carrier<
     'fontStretch',
@@ -1657,7 +1689,7 @@ export interface StyleProperties<
   readonly gridAutoColumns: Carrier<
     'gridAutoColumns',
     keyof (typeof keywordGroups)[96],
-    never,
+    'length',
     1,
     '',
     T,
@@ -1677,7 +1709,7 @@ export interface StyleProperties<
   readonly gridAutoRows: Carrier<
     'gridAutoRows',
     keyof (typeof keywordGroups)[96],
-    never,
+    'length',
     1,
     '',
     T,
@@ -1699,7 +1731,7 @@ export interface StyleProperties<
   readonly gridColumnGap: Carrier<
     'gridColumnGap',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -1716,13 +1748,21 @@ export interface StyleProperties<
     M
   >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2017. */
-  readonly gridGap: Carrier<'gridGap', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
+  readonly gridGap: Carrier<'gridGap', keyof (typeof keywordGroups)[5], 'length', 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2017. */
   readonly gridRow: Carrier<'gridRow', keyof (typeof keywordGroups)[11], never, 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2017. */
   readonly gridRowEnd: Carrier<'gridRowEnd', keyof (typeof keywordGroups)[11], never, 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2017. */
-  readonly gridRowGap: Carrier<'gridRowGap', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
+  readonly gridRowGap: Carrier<
+    'gridRowGap',
+    keyof (typeof keywordGroups)[5],
+    'length',
+    1,
+    '',
+    T,
+    M
+  >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2017. */
   readonly gridRowStart: Carrier<
     'gridRowStart',
@@ -1757,7 +1797,7 @@ export interface StyleProperties<
   readonly gridTemplateColumns: Carrier<
     'gridTemplateColumns',
     keyof (typeof keywordGroups)[98],
-    never,
+    'length',
     1,
     '',
     T,
@@ -1767,7 +1807,7 @@ export interface StyleProperties<
   readonly gridTemplateRows: Carrier<
     'gridTemplateRows',
     keyof (typeof keywordGroups)[98],
-    never,
+    'length',
     1,
     '',
     T,
@@ -2135,7 +2175,7 @@ export interface StyleProperties<
   readonly lineHeightStep: Carrier<
     'lineHeightStep',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -2294,7 +2334,7 @@ export interface StyleProperties<
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
   readonly markerStart: Carrier<'markerStart', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
   /** Since December 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly mask: Carrier<'mask', keyof (typeof keywordGroups)[119], never, 1, '', T, M>;
+  readonly mask: Carrier<'mask', keyof (typeof keywordGroups)[119], 'length', 1, '', T, M>;
   /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
   readonly maskBorder: Carrier<'maskBorder', keyof (typeof keywordGroups)[120], never, 1, '', T, M>;
   /** The **`mask-border-mode`** CSS property specifies the blending mode used in a mask border. */
@@ -2311,7 +2351,7 @@ export interface StyleProperties<
   readonly maskBorderOutset: Carrier<
     'maskBorderOutset',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -2351,7 +2391,7 @@ export interface StyleProperties<
   readonly maskBorderWidth: Carrier<
     'maskBorderWidth',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -2379,7 +2419,7 @@ export interface StyleProperties<
   readonly maskPosition: Carrier<
     'maskPosition',
     keyof (typeof keywordGroups)[26],
-    never,
+    'length',
     1,
     '',
     T,
@@ -2388,7 +2428,7 @@ export interface StyleProperties<
   /** Since December 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
   readonly maskRepeat: Carrier<'maskRepeat', keyof (typeof keywordGroups)[29], never, 1, '', T, M>;
   /** Since December 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly maskSize: Carrier<'maskSize', keyof (typeof keywordGroups)[30], never, 1, '', T, M>;
+  readonly maskSize: Carrier<'maskSize', keyof (typeof keywordGroups)[30], 'length', 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
   readonly maskType: Carrier<'maskType', keyof (typeof keywordGroups)[121], never, 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2017. */
@@ -2500,12 +2540,12 @@ export interface StyleProperties<
     M
   >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2022. */
-  readonly motion: Carrier<'motion', keyof (typeof keywordGroups)[136], never, 1, '', T, M>;
+  readonly motion: Carrier<'motion', keyof (typeof keywordGroups)[136], 'length', 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2022. */
   readonly motionDistance: Carrier<
     'motionDistance',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -2527,7 +2567,7 @@ export interface StyleProperties<
   readonly MozAnimation: Carrier<
     'MozAnimation',
     keyof (typeof keywordGroups)[8],
-    never,
+    'time',
     1,
     '',
     T,
@@ -2537,7 +2577,7 @@ export interface StyleProperties<
   readonly MozAnimationDelay: Carrier<
     'MozAnimationDelay',
     keyof (typeof keywordGroups)[5],
-    never,
+    'time',
     1,
     '',
     T,
@@ -2557,7 +2597,7 @@ export interface StyleProperties<
   readonly MozAnimationDuration: Carrier<
     'MozAnimationDuration',
     keyof (typeof keywordGroups)[11],
-    never,
+    'time',
     1,
     '',
     T,
@@ -2657,7 +2697,7 @@ export interface StyleProperties<
   readonly MozBackgroundSize: Carrier<
     'MozBackgroundSize',
     keyof (typeof keywordGroups)[30],
-    never,
+    'length',
     1,
     '',
     T,
@@ -2699,7 +2739,7 @@ export interface StyleProperties<
   readonly MozBorderEndWidth: Carrier<
     'MozBorderEndWidth',
     keyof (typeof keywordGroups)[35],
-    never,
+    'length',
     1,
     '',
     T,
@@ -2729,7 +2769,7 @@ export interface StyleProperties<
   readonly MozBorderRadius: Carrier<
     'MozBorderRadius',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -2739,7 +2779,7 @@ export interface StyleProperties<
   readonly MozBorderRadiusBottomleft: Carrier<
     'MozBorderRadiusBottomleft',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -2749,7 +2789,7 @@ export interface StyleProperties<
   readonly MozBorderRadiusBottomright: Carrier<
     'MozBorderRadiusBottomright',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -2759,7 +2799,7 @@ export interface StyleProperties<
   readonly MozBorderRadiusTopleft: Carrier<
     'MozBorderRadiusTopleft',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -2769,7 +2809,7 @@ export interface StyleProperties<
   readonly MozBorderRadiusTopright: Carrier<
     'MozBorderRadiusTopright',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -2903,7 +2943,7 @@ export interface StyleProperties<
   readonly MozColumnRule: Carrier<
     'MozColumnRule',
     keyof (typeof keywordGroups)[33],
-    never,
+    'length',
     1,
     '',
     T,
@@ -2933,19 +2973,27 @@ export interface StyleProperties<
   readonly MozColumnRuleWidth: Carrier<
     'MozColumnRuleWidth',
     keyof (typeof keywordGroups)[35],
-    never,
+    'length',
     1,
     '',
     T,
     M
   >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly MozColumns: Carrier<'MozColumns', keyof (typeof keywordGroups)[11], never, 1, '', T, M>;
+  readonly MozColumns: Carrier<
+    'MozColumns',
+    keyof (typeof keywordGroups)[11],
+    'length',
+    1,
+    '',
+    T,
+    M
+  >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since November 2016. */
   readonly MozColumnWidth: Carrier<
     'MozColumnWidth',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -3007,7 +3055,7 @@ export interface StyleProperties<
   readonly MozMarginEnd: Carrier<
     'MozMarginEnd',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -3017,7 +3065,7 @@ export interface StyleProperties<
   readonly MozMarginStart: Carrier<
     'MozMarginStart',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -3031,14 +3079,22 @@ export interface StyleProperties<
   readonly MozOsxFontSmoothing: Carrier<
     'MozOsxFontSmoothing',
     keyof (typeof keywordGroups)[82],
-    never,
+    'length',
     1,
     '',
     T,
     M
   >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2023. */
-  readonly MozOutline: Carrier<'MozOutline', keyof (typeof keywordGroups)[144], never, 1, '', T, M>;
+  readonly MozOutline: Carrier<
+    'MozOutline',
+    keyof (typeof keywordGroups)[144],
+    'length',
+    1,
+    '',
+    T,
+    M
+  >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
   readonly MozOutlineColor: Carrier<
     'MozOutlineColor',
@@ -3053,7 +3109,7 @@ export interface StyleProperties<
   readonly MozOutlineRadius: Carrier<
     'MozOutlineRadius',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -3063,7 +3119,7 @@ export interface StyleProperties<
   readonly MozOutlineRadiusBottomleft: Carrier<
     'MozOutlineRadiusBottomleft',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -3073,7 +3129,7 @@ export interface StyleProperties<
   readonly MozOutlineRadiusBottomright: Carrier<
     'MozOutlineRadiusBottomright',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -3083,7 +3139,7 @@ export interface StyleProperties<
   readonly MozOutlineRadiusTopleft: Carrier<
     'MozOutlineRadiusTopleft',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -3093,7 +3149,7 @@ export interface StyleProperties<
   readonly MozOutlineRadiusTopright: Carrier<
     'MozOutlineRadiusTopright',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -3113,7 +3169,7 @@ export interface StyleProperties<
   readonly MozOutlineWidth: Carrier<
     'MozOutlineWidth',
     keyof (typeof keywordGroups)[35],
-    never,
+    'length',
     1,
     '',
     T,
@@ -3123,7 +3179,7 @@ export interface StyleProperties<
   readonly MozPaddingEnd: Carrier<
     'MozPaddingEnd',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -3133,7 +3189,7 @@ export interface StyleProperties<
   readonly MozPaddingStart: Carrier<
     'MozPaddingStart',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -3143,7 +3199,7 @@ export interface StyleProperties<
   readonly MozPerspective: Carrier<
     'MozPerspective',
     keyof (typeof keywordGroups)[6],
-    never,
+    'length',
     1,
     '',
     T,
@@ -3153,7 +3209,7 @@ export interface StyleProperties<
   readonly MozPerspectiveOrigin: Carrier<
     'MozPerspectiveOrigin',
     keyof (typeof keywordGroups)[26],
-    never,
+    'length',
     1,
     '',
     T,
@@ -3170,7 +3226,15 @@ export interface StyleProperties<
     M
   >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since August 2021. */
-  readonly MozTabSize: Carrier<'MozTabSize', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
+  readonly MozTabSize: Carrier<
+    'MozTabSize',
+    keyof (typeof keywordGroups)[5],
+    'length',
+    1,
+    '',
+    T,
+    M
+  >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2022. */
   readonly MozTextAlignLast: Carrier<
     'MozTextAlignLast',
@@ -3245,7 +3309,7 @@ export interface StyleProperties<
   readonly MozTransformOrigin: Carrier<
     'MozTransformOrigin',
     keyof (typeof keywordGroups)[26],
-    never,
+    'length',
     1,
     '',
     T,
@@ -3265,7 +3329,7 @@ export interface StyleProperties<
   readonly MozTransition: Carrier<
     'MozTransition',
     keyof (typeof keywordGroups)[152],
-    never,
+    'time',
     1,
     '',
     T,
@@ -3275,7 +3339,7 @@ export interface StyleProperties<
   readonly MozTransitionDelay: Carrier<
     'MozTransitionDelay',
     keyof (typeof keywordGroups)[5],
-    never,
+    'time',
     1,
     '',
     T,
@@ -3285,7 +3349,7 @@ export interface StyleProperties<
   readonly MozTransitionDuration: Carrier<
     'MozTransitionDuration',
     keyof (typeof keywordGroups)[5],
-    never,
+    'time',
     1,
     '',
     T,
@@ -3474,7 +3538,7 @@ export interface StyleProperties<
   /** **Syntax**: `<string>` */
   readonly msFilter: Carrier<'msFilter', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly msFlex: Carrier<'msFlex', keyof (typeof keywordGroups)[71], never, 1, '', T, M>;
+  readonly msFlex: Carrier<'msFlex', keyof (typeof keywordGroups)[71], 'length', 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
   readonly msFlexDirection: Carrier<
     'msFlexDirection',
@@ -3503,14 +3567,22 @@ export interface StyleProperties<
   readonly msGridColumns: Carrier<
     'msGridColumns',
     keyof (typeof keywordGroups)[163],
-    never,
+    'length',
     1,
     '',
     T,
     M
   >;
   /** **Syntax**: `none | <track-list> | <auto-track-list>` */
-  readonly msGridRows: Carrier<'msGridRows', keyof (typeof keywordGroups)[163], never, 1, '', T, M>;
+  readonly msGridRows: Carrier<
+    'msGridRows',
+    keyof (typeof keywordGroups)[163],
+    'length',
+    1,
+    '',
+    T,
+    M
+  >;
   /** **Syntax**: `auto | none` */
   readonly msHighContrastAdjust: Carrier<
     'msHighContrastAdjust',
@@ -3545,7 +3617,7 @@ export interface StyleProperties<
   readonly msHyphenateLimitZone: Carrier<
     'msHyphenateLimitZone',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -3703,7 +3775,7 @@ export interface StyleProperties<
   readonly msScrollLimitXMax: Carrier<
     'msScrollLimitXMax',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -3713,7 +3785,7 @@ export interface StyleProperties<
   readonly msScrollLimitXMin: Carrier<
     'msScrollLimitXMin',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -3723,7 +3795,7 @@ export interface StyleProperties<
   readonly msScrollLimitYMax: Carrier<
     'msScrollLimitYMax',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -3733,7 +3805,7 @@ export interface StyleProperties<
   readonly msScrollLimitYMin: Carrier<
     'msScrollLimitYMin',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -3865,7 +3937,7 @@ export interface StyleProperties<
   readonly msTransformOrigin: Carrier<
     'msTransformOrigin',
     keyof (typeof keywordGroups)[26],
-    never,
+    'length',
     1,
     '',
     T,
@@ -3875,7 +3947,7 @@ export interface StyleProperties<
   readonly msTransition: Carrier<
     'msTransition',
     keyof (typeof keywordGroups)[152],
-    never,
+    'time',
     1,
     '',
     T,
@@ -3885,7 +3957,7 @@ export interface StyleProperties<
   readonly msTransitionDelay: Carrier<
     'msTransitionDelay',
     keyof (typeof keywordGroups)[5],
-    never,
+    'time',
     1,
     '',
     T,
@@ -3895,7 +3967,7 @@ export interface StyleProperties<
   readonly msTransitionDuration: Carrier<
     'msTransitionDuration',
     keyof (typeof keywordGroups)[5],
-    never,
+    'time',
     1,
     '',
     T,
@@ -3947,7 +4019,7 @@ export interface StyleProperties<
   readonly msWrapMargin: Carrier<
     'msWrapMargin',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -3974,12 +4046,12 @@ export interface StyleProperties<
     M
   >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly OAnimation: Carrier<'OAnimation', keyof (typeof keywordGroups)[8], never, 1, '', T, M>;
+  readonly OAnimation: Carrier<'OAnimation', keyof (typeof keywordGroups)[8], 'time', 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
   readonly OAnimationDelay: Carrier<
     'OAnimationDelay',
     keyof (typeof keywordGroups)[5],
-    never,
+    'time',
     1,
     '',
     T,
@@ -3999,7 +4071,7 @@ export interface StyleProperties<
   readonly OAnimationDuration: Carrier<
     'OAnimationDuration',
     keyof (typeof keywordGroups)[11],
-    never,
+    'time',
     1,
     '',
     T,
@@ -4059,7 +4131,7 @@ export interface StyleProperties<
   readonly OBackgroundSize: Carrier<
     'OBackgroundSize',
     keyof (typeof keywordGroups)[30],
-    never,
+    'length',
     1,
     '',
     T,
@@ -4071,7 +4143,7 @@ export interface StyleProperties<
   readonly objectPosition: Carrier<
     'objectPosition',
     keyof (typeof keywordGroups)[26],
-    never,
+    'length',
     1,
     '',
     T,
@@ -4098,12 +4170,12 @@ export interface StyleProperties<
     M
   >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2022. */
-  readonly offset: Carrier<'offset', keyof (typeof keywordGroups)[136], never, 1, '', T, M>;
+  readonly offset: Carrier<'offset', keyof (typeof keywordGroups)[136], 'length', 1, '', T, M>;
   /** Since August 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
   readonly offsetAnchor: Carrier<
     'offsetAnchor',
     keyof (typeof keywordGroups)[181],
-    never,
+    'length',
     1,
     '',
     T,
@@ -4113,7 +4185,7 @@ export interface StyleProperties<
   readonly offsetBlock: Carrier<
     'offsetBlock',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -4123,7 +4195,7 @@ export interface StyleProperties<
   readonly offsetBlockEnd: Carrier<
     'offsetBlockEnd',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -4133,7 +4205,7 @@ export interface StyleProperties<
   readonly offsetBlockStart: Carrier<
     'offsetBlockStart',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -4143,7 +4215,7 @@ export interface StyleProperties<
   readonly offsetDistance: Carrier<
     'offsetDistance',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -4153,7 +4225,7 @@ export interface StyleProperties<
   readonly offsetInline: Carrier<
     'offsetInline',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -4163,7 +4235,7 @@ export interface StyleProperties<
   readonly offsetInlineEnd: Carrier<
     'offsetInlineEnd',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -4173,7 +4245,7 @@ export interface StyleProperties<
   readonly offsetInlineStart: Carrier<
     'offsetInlineStart',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -4185,7 +4257,7 @@ export interface StyleProperties<
   readonly offsetPosition: Carrier<
     'offsetPosition',
     keyof (typeof keywordGroups)[182],
-    never,
+    'length',
     1,
     '',
     T,
@@ -4217,7 +4289,7 @@ export interface StyleProperties<
   readonly OObjectPosition: Carrier<
     'OObjectPosition',
     keyof (typeof keywordGroups)[26],
-    never,
+    'length',
     1,
     '',
     T,
@@ -4230,7 +4302,7 @@ export interface StyleProperties<
   /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
   readonly orphans: Carrier<'orphans', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since August 2021. */
-  readonly OTabSize: Carrier<'OTabSize', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
+  readonly OTabSize: Carrier<'OTabSize', keyof (typeof keywordGroups)[5], 'length', 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
   readonly OTextOverflow: Carrier<
     'OTextOverflow',
@@ -4247,7 +4319,7 @@ export interface StyleProperties<
   readonly OTransformOrigin: Carrier<
     'OTransformOrigin',
     keyof (typeof keywordGroups)[26],
-    never,
+    'length',
     1,
     '',
     T,
@@ -4257,7 +4329,7 @@ export interface StyleProperties<
   readonly OTransition: Carrier<
     'OTransition',
     keyof (typeof keywordGroups)[152],
-    never,
+    'time',
     1,
     '',
     T,
@@ -4267,7 +4339,7 @@ export interface StyleProperties<
   readonly OTransitionDelay: Carrier<
     'OTransitionDelay',
     keyof (typeof keywordGroups)[5],
-    never,
+    'time',
     1,
     '',
     T,
@@ -4277,7 +4349,7 @@ export interface StyleProperties<
   readonly OTransitionDuration: Carrier<
     'OTransitionDuration',
     keyof (typeof keywordGroups)[5],
-    never,
+    'time',
     1,
     '',
     T,
@@ -4304,7 +4376,7 @@ export interface StyleProperties<
     M
   >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2023. */
-  readonly outline: Carrier<'outline', keyof (typeof keywordGroups)[144], never, 1, '', T, M>;
+  readonly outline: Carrier<'outline', keyof (typeof keywordGroups)[144], 'length', 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
   readonly outlineColor: Carrier<
     'outlineColor',
@@ -4381,7 +4453,7 @@ export interface StyleProperties<
   readonly overflowClipMargin: Carrier<
     'overflowClipMargin',
     keyof (typeof keywordGroups)[25],
-    never,
+    'length',
     1,
     '',
     T,
@@ -4608,12 +4680,20 @@ export interface StyleProperties<
   /** Since March 2024, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
   readonly paintOrder: Carrier<'paintOrder', keyof (typeof keywordGroups)[189], never, 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly perspective: Carrier<'perspective', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
+  readonly perspective: Carrier<
+    'perspective',
+    keyof (typeof keywordGroups)[6],
+    'length',
+    1,
+    '',
+    T,
+    M
+  >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
   readonly perspectiveOrigin: Carrier<
     'perspectiveOrigin',
     keyof (typeof keywordGroups)[26],
-    never,
+    'length',
     1,
     '',
     T,
@@ -4728,7 +4808,7 @@ export interface StyleProperties<
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
   readonly quotes: Carrier<'quotes', keyof (typeof keywordGroups)[16], never, 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2020. */
-  readonly r: Carrier<'r', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
+  readonly r: Carrier<'r', keyof (typeof keywordGroups)[5], 'length', 1, '', T, M>;
   /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
   readonly resize: Carrier<'resize', keyof (typeof keywordGroups)[195], never, 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
@@ -4770,9 +4850,9 @@ export interface StyleProperties<
     M
   >;
   /** Since March 2024, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly rx: Carrier<'rx', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
+  readonly rx: Carrier<'rx', keyof (typeof keywordGroups)[5], 'length', 1, '', T, M>;
   /** Since March 2024, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly ry: Carrier<'ry', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
+  readonly ry: Carrier<'ry', keyof (typeof keywordGroups)[5], 'length', 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since August 2022. */
   readonly scale: Carrier<'scale', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
   /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
@@ -4839,7 +4919,7 @@ export interface StyleProperties<
   readonly scrollMarginBlock: Carrier<
     'scrollMarginBlock',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -4849,7 +4929,7 @@ export interface StyleProperties<
   readonly scrollMarginBlockEnd: Carrier<
     'scrollMarginBlockEnd',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -4859,7 +4939,7 @@ export interface StyleProperties<
   readonly scrollMarginBlockStart: Carrier<
     'scrollMarginBlockStart',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -4879,7 +4959,7 @@ export interface StyleProperties<
   readonly scrollMarginInline: Carrier<
     'scrollMarginInline',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -4889,7 +4969,7 @@ export interface StyleProperties<
   readonly scrollMarginInlineEnd: Carrier<
     'scrollMarginInlineEnd',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -4899,7 +4979,7 @@ export interface StyleProperties<
   readonly scrollMarginInlineStart: Carrier<
     'scrollMarginInlineStart',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -4949,7 +5029,7 @@ export interface StyleProperties<
   readonly scrollPaddingBlock: Carrier<
     'scrollPaddingBlock',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -4959,7 +5039,7 @@ export interface StyleProperties<
   readonly scrollPaddingBlockEnd: Carrier<
     'scrollPaddingBlockEnd',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -4969,7 +5049,7 @@ export interface StyleProperties<
   readonly scrollPaddingBlockStart: Carrier<
     'scrollPaddingBlockStart',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -4989,7 +5069,7 @@ export interface StyleProperties<
   readonly scrollPaddingInline: Carrier<
     'scrollPaddingInline',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -4999,7 +5079,7 @@ export interface StyleProperties<
   readonly scrollPaddingInlineEnd: Carrier<
     'scrollPaddingInlineEnd',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -5009,7 +5089,7 @@ export interface StyleProperties<
   readonly scrollPaddingInlineStart: Carrier<
     'scrollPaddingInlineStart',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -5059,7 +5139,7 @@ export interface StyleProperties<
   readonly scrollSnapCoordinate: Carrier<
     'scrollSnapCoordinate',
     keyof (typeof keywordGroups)[204],
-    never,
+    'length',
     1,
     '',
     T,
@@ -5069,7 +5149,7 @@ export interface StyleProperties<
   readonly scrollSnapDestination: Carrier<
     'scrollSnapDestination',
     keyof (typeof keywordGroups)[26],
-    never,
+    'length',
     1,
     '',
     T,
@@ -5079,7 +5159,7 @@ export interface StyleProperties<
   readonly scrollSnapMargin: Carrier<
     'scrollSnapMargin',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -5089,7 +5169,7 @@ export interface StyleProperties<
   readonly scrollSnapMarginBottom: Carrier<
     'scrollSnapMarginBottom',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -5099,7 +5179,7 @@ export interface StyleProperties<
   readonly scrollSnapMarginLeft: Carrier<
     'scrollSnapMarginLeft',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -5109,7 +5189,7 @@ export interface StyleProperties<
   readonly scrollSnapMarginRight: Carrier<
     'scrollSnapMarginRight',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -5119,7 +5199,7 @@ export interface StyleProperties<
   readonly scrollSnapMarginTop: Carrier<
     'scrollSnapMarginTop',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -5226,7 +5306,15 @@ export interface StyleProperties<
     M
   >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly shapeMargin: Carrier<'shapeMargin', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
+  readonly shapeMargin: Carrier<
+    'shapeMargin',
+    keyof (typeof keywordGroups)[5],
+    'length',
+    1,
+    '',
+    T,
+    M
+  >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
   readonly shapeOutside: Carrier<
     'shapeOutside',
@@ -5277,7 +5365,7 @@ export interface StyleProperties<
   readonly strokeDasharray: Carrier<
     'strokeDasharray',
     keyof (typeof keywordGroups)[6],
-    never,
+    'length',
     1,
     '',
     T,
@@ -5287,7 +5375,7 @@ export interface StyleProperties<
   readonly strokeDashoffset: Carrier<
     'strokeDashoffset',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -5334,7 +5422,15 @@ export interface StyleProperties<
     M
   >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
-  readonly strokeWidth: Carrier<'strokeWidth', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
+  readonly strokeWidth: Carrier<
+    'strokeWidth',
+    keyof (typeof keywordGroups)[5],
+    'length',
+    1,
+    '',
+    T,
+    M
+  >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
   readonly tableLayout: Carrier<
     'tableLayout',
@@ -5346,7 +5442,7 @@ export interface StyleProperties<
     M
   >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since August 2021. */
-  readonly tabSize: Carrier<'tabSize', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
+  readonly tabSize: Carrier<'tabSize', keyof (typeof keywordGroups)[5], 'length', 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
   readonly textAlign: Carrier<'textAlign', keyof (typeof keywordGroups)[214], never, 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2022. */
@@ -5407,7 +5503,7 @@ export interface StyleProperties<
   readonly textDecoration: Carrier<
     'textDecoration',
     keyof (typeof keywordGroups)[220],
-    never,
+    'length',
     1,
     '',
     T,
@@ -5467,7 +5563,7 @@ export interface StyleProperties<
   readonly textDecorationThickness: Carrier<
     'textDecorationThickness',
     keyof (typeof keywordGroups)[223],
-    never,
+    'length',
     1,
     '',
     T,
@@ -5607,7 +5703,7 @@ export interface StyleProperties<
   readonly textUnderlineOffset: Carrier<
     'textUnderlineOffset',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -5683,7 +5779,7 @@ export interface StyleProperties<
   readonly transformOrigin: Carrier<
     'transformOrigin',
     keyof (typeof keywordGroups)[26],
-    never,
+    'length',
     1,
     '',
     T,
@@ -5700,7 +5796,15 @@ export interface StyleProperties<
     M
   >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly transition: Carrier<'transition', keyof (typeof keywordGroups)[152], never, 1, '', T, M>;
+  readonly transition: Carrier<
+    'transition',
+    keyof (typeof keywordGroups)[152],
+    'time',
+    1,
+    '',
+    T,
+    M
+  >;
   /** Since August 2024, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
   readonly transitionBehavior: Carrier<
     'transitionBehavior',
@@ -5752,7 +5856,7 @@ export interface StyleProperties<
     M
   >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since August 2022. */
-  readonly translate: Carrier<'translate', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
+  readonly translate: Carrier<'translate', keyof (typeof keywordGroups)[6], 'length', 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
   readonly unicodeBidi: Carrier<
     'unicodeBidi',
@@ -5779,7 +5883,7 @@ export interface StyleProperties<
   readonly verticalAlign: Carrier<
     'verticalAlign',
     keyof (typeof keywordGroups)[240],
-    never,
+    'length',
     1,
     '',
     T,
@@ -5809,7 +5913,7 @@ export interface StyleProperties<
   readonly viewTimelineInset: Carrier<
     'viewTimelineInset',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -5881,7 +5985,7 @@ export interface StyleProperties<
   readonly WebkitAnimation: Carrier<
     'WebkitAnimation',
     keyof (typeof keywordGroups)[8],
-    never,
+    'time',
     1,
     '',
     T,
@@ -5891,7 +5995,7 @@ export interface StyleProperties<
   readonly WebkitAnimationDelay: Carrier<
     'WebkitAnimationDelay',
     keyof (typeof keywordGroups)[5],
-    never,
+    'time',
     1,
     '',
     T,
@@ -5911,7 +6015,7 @@ export interface StyleProperties<
   readonly WebkitAnimationDuration: Carrier<
     'WebkitAnimationDuration',
     keyof (typeof keywordGroups)[11],
-    never,
+    'time',
     1,
     '',
     T,
@@ -6021,7 +6125,7 @@ export interface StyleProperties<
   readonly WebkitBackgroundSize: Carrier<
     'WebkitBackgroundSize',
     keyof (typeof keywordGroups)[30],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6031,7 +6135,7 @@ export interface StyleProperties<
   readonly WebkitBorderBefore: Carrier<
     'WebkitBorderBefore',
     keyof (typeof keywordGroups)[33],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6061,7 +6165,7 @@ export interface StyleProperties<
   readonly WebkitBorderBeforeWidth: Carrier<
     'WebkitBorderBeforeWidth',
     keyof (typeof keywordGroups)[35],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6071,7 +6175,7 @@ export interface StyleProperties<
   readonly WebkitBorderBottomLeftRadius: Carrier<
     'WebkitBorderBottomLeftRadius',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6081,7 +6185,7 @@ export interface StyleProperties<
   readonly WebkitBorderBottomRightRadius: Carrier<
     'WebkitBorderBottomRightRadius',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6111,7 +6215,7 @@ export interface StyleProperties<
   readonly WebkitBorderRadius: Carrier<
     'WebkitBorderRadius',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6121,7 +6225,7 @@ export interface StyleProperties<
   readonly WebkitBorderTopLeftRadius: Carrier<
     'WebkitBorderTopLeftRadius',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6131,7 +6235,7 @@ export interface StyleProperties<
   readonly WebkitBorderTopRightRadius: Carrier<
     'WebkitBorderTopRightRadius',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6231,7 +6335,7 @@ export interface StyleProperties<
   readonly WebkitBoxReflect: Carrier<
     'WebkitBoxReflect',
     keyof (typeof keywordGroups)[244],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6291,7 +6395,7 @@ export interface StyleProperties<
   readonly WebkitColumnRule: Carrier<
     'WebkitColumnRule',
     keyof (typeof keywordGroups)[33],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6321,7 +6425,7 @@ export interface StyleProperties<
   readonly WebkitColumnRuleWidth: Carrier<
     'WebkitColumnRuleWidth',
     keyof (typeof keywordGroups)[35],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6331,7 +6435,7 @@ export interface StyleProperties<
   readonly WebkitColumns: Carrier<
     'WebkitColumns',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6351,7 +6455,7 @@ export interface StyleProperties<
   readonly WebkitColumnWidth: Carrier<
     'WebkitColumnWidth',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6368,12 +6472,20 @@ export interface StyleProperties<
     M
   >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitFlex: Carrier<'WebkitFlex', keyof (typeof keywordGroups)[71], never, 1, '', T, M>;
+  readonly WebkitFlex: Carrier<
+    'WebkitFlex',
+    keyof (typeof keywordGroups)[71],
+    'length',
+    1,
+    '',
+    T,
+    M
+  >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
   readonly WebkitFlexBasis: Carrier<
     'WebkitFlexBasis',
     keyof (typeof keywordGroups)[72],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6453,7 +6565,7 @@ export interface StyleProperties<
   readonly WebkitFontSmoothing: Carrier<
     'WebkitFontSmoothing',
     keyof (typeof keywordGroups)[82],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6533,7 +6645,7 @@ export interface StyleProperties<
   readonly WebkitLogicalHeight: Carrier<
     'WebkitLogicalHeight',
     keyof (typeof keywordGroups)[32],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6543,7 +6655,7 @@ export interface StyleProperties<
   readonly WebkitLogicalWidth: Carrier<
     'WebkitLogicalWidth',
     keyof (typeof keywordGroups)[107],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6553,7 +6665,7 @@ export interface StyleProperties<
   readonly WebkitMarginEnd: Carrier<
     'WebkitMarginEnd',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6563,14 +6675,22 @@ export interface StyleProperties<
   readonly WebkitMarginStart: Carrier<
     'WebkitMarginStart',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
     M
   >;
   /** Since December 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly WebkitMask: Carrier<'WebkitMask', keyof (typeof keywordGroups)[245], never, 1, '', T, M>;
+  readonly WebkitMask: Carrier<
+    'WebkitMask',
+    keyof (typeof keywordGroups)[245],
+    'length',
+    1,
+    '',
+    T,
+    M
+  >;
   /** **Syntax**: `<attachment>#` */
   readonly WebkitMaskAttachment: Carrier<
     'WebkitMaskAttachment',
@@ -6595,7 +6715,7 @@ export interface StyleProperties<
   readonly WebkitMaskBoxImageOutset: Carrier<
     'WebkitMaskBoxImageOutset',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6635,7 +6755,7 @@ export interface StyleProperties<
   readonly WebkitMaskBoxImageWidth: Carrier<
     'WebkitMaskBoxImageWidth',
     keyof (typeof keywordGroups)[11],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6685,7 +6805,7 @@ export interface StyleProperties<
   readonly WebkitMaskPosition: Carrier<
     'WebkitMaskPosition',
     keyof (typeof keywordGroups)[26],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6695,7 +6815,7 @@ export interface StyleProperties<
   readonly WebkitMaskPositionX: Carrier<
     'WebkitMaskPositionX',
     keyof (typeof keywordGroups)[249],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6705,7 +6825,7 @@ export interface StyleProperties<
   readonly WebkitMaskPositionY: Carrier<
     'WebkitMaskPositionY',
     keyof (typeof keywordGroups)[250],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6745,7 +6865,7 @@ export interface StyleProperties<
   readonly WebkitMaskSize: Carrier<
     'WebkitMaskSize',
     keyof (typeof keywordGroups)[30],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6755,7 +6875,7 @@ export interface StyleProperties<
   readonly WebkitMaxInlineSize: Carrier<
     'WebkitMaxInlineSize',
     keyof (typeof keywordGroups)[131],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6777,7 +6897,7 @@ export interface StyleProperties<
   readonly WebkitPaddingEnd: Carrier<
     'WebkitPaddingEnd',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6787,7 +6907,7 @@ export interface StyleProperties<
   readonly WebkitPaddingStart: Carrier<
     'WebkitPaddingStart',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6797,7 +6917,7 @@ export interface StyleProperties<
   readonly WebkitPerspective: Carrier<
     'WebkitPerspective',
     keyof (typeof keywordGroups)[6],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6807,7 +6927,7 @@ export interface StyleProperties<
   readonly WebkitPerspectiveOrigin: Carrier<
     'WebkitPerspectiveOrigin',
     keyof (typeof keywordGroups)[26],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6847,7 +6967,7 @@ export interface StyleProperties<
   readonly WebkitShapeMargin: Carrier<
     'WebkitShapeMargin',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -6987,7 +7107,7 @@ export interface StyleProperties<
   readonly WebkitTextStroke: Carrier<
     'WebkitTextStroke',
     keyof (typeof keywordGroups)[24],
-    never,
+    'length',
     1,
     '',
     T,
@@ -7007,7 +7127,7 @@ export interface StyleProperties<
   readonly WebkitTextStrokeWidth: Carrier<
     'WebkitTextStrokeWidth',
     keyof (typeof keywordGroups)[5],
-    never,
+    'length',
     1,
     '',
     T,
@@ -7047,7 +7167,7 @@ export interface StyleProperties<
   readonly WebkitTransformOrigin: Carrier<
     'WebkitTransformOrigin',
     keyof (typeof keywordGroups)[26],
-    never,
+    'length',
     1,
     '',
     T,
@@ -7067,7 +7187,7 @@ export interface StyleProperties<
   readonly WebkitTransition: Carrier<
     'WebkitTransition',
     keyof (typeof keywordGroups)[152],
-    never,
+    'time',
     1,
     '',
     T,
@@ -7077,7 +7197,7 @@ export interface StyleProperties<
   readonly WebkitTransitionDelay: Carrier<
     'WebkitTransitionDelay',
     keyof (typeof keywordGroups)[5],
-    never,
+    'time',
     1,
     '',
     T,
@@ -7087,7 +7207,7 @@ export interface StyleProperties<
   readonly WebkitTransitionDuration: Carrier<
     'WebkitTransitionDuration',
     keyof (typeof keywordGroups)[5],
-    never,
+    'time',
     1,
     '',
     T,
@@ -7186,9 +7306,9 @@ export interface StyleProperties<
     M
   >;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2020. */
-  readonly x: Carrier<'x', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
+  readonly x: Carrier<'x', keyof (typeof keywordGroups)[5], 'length', 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2020. */
-  readonly y: Carrier<'y', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
+  readonly y: Carrier<'y', keyof (typeof keywordGroups)[5], 'length', 1, '', T, M>;
   /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
   readonly zIndex: Carrier<'zIndex', keyof (typeof keywordGroups)[11], never, 1, 'zIndex', T, M>;
   /** Since May 2024, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */

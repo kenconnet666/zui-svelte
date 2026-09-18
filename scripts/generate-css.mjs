@@ -1,5 +1,5 @@
 import { createRequire } from 'node:module';
-import { readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
@@ -11,7 +11,24 @@ const require = createRequire(join(root, 'core/package.json'));
 const manifest = require.resolve('csstype/package.json');
 const entry = join(dirname(manifest), 'index.d.ts');
 const version = JSON.parse(await readFile(manifest, 'utf8')).version;
-const program = ts.createProgram([entry], { strict: true, skipLibCheck: true });
+// 用上游泛型的标记值辨认长度/时间位置，补齐人工语义表未列出的标准属性。
+// 虚拟文件只存在于 CompilerHost 中，不向仓库写临时源文件。
+const probePath = join(root, 'core/__css-unit-probe__.ts');
+const probeText =
+  "import type { Properties } from 'csstype'; type Probe = Properties<'__zui_length__', '__zui_time__'>;";
+const compilerOptions = {
+  strict: true,
+  skipLibCheck: true,
+  module: ts.ModuleKind.ESNext,
+  moduleResolution: ts.ModuleResolutionKind.Bundler,
+};
+const host = ts.createCompilerHost(compilerOptions);
+const originalSource = host.getSourceFile.bind(host);
+host.getSourceFile = (path, languageVersion, onError, shouldCreateNewSourceFile) =>
+  resolve(path) === probePath
+    ? ts.createSourceFile(path, probeText, languageVersion, true)
+    : originalSource(path, languageVersion, onError, shouldCreateNewSourceFile);
+const program = ts.createProgram([entry, probePath], compilerOptions, host);
 const checker = program.getTypeChecker();
 const source = program.getSourceFile(entry);
 const declaration = source.statements.find(
@@ -19,11 +36,20 @@ const declaration = source.statements.find(
 );
 if (!declaration) throw new Error('csstype Properties interface not found.');
 const properties = checker.getPropertiesOfType(checker.getTypeAtLocation(declaration));
+const probe = program.getSourceFile(probePath).statements.find(ts.isTypeAliasDeclaration);
+const probeProperties = new Map(
+  checker
+    .getPropertiesOfType(checker.getTypeAtLocation(probe))
+    .map((property) => [property.name, property]),
+);
+if (probeProperties.size !== properties.length)
+  throw new Error('CSS unit probe did not resolve the complete upstream property set.');
 const globals = ['inherit', 'initial', 'revert', 'revert-layer', 'unset'];
 const keywordGroups = [];
 const groupIds = new Map();
 const metadata = {};
 const typeLines = [];
+let inferredUnits = 0;
 
 function keywordName(value) {
   return value.replace(/^-+/u, '').replace(/-([a-z])/gu, (_, letter) => letter.toUpperCase());
@@ -49,7 +75,17 @@ for (const property of properties.sort((a, b) => a.name.localeCompare(b.name, 'e
     groupIds.set(signature, group);
     keywordGroups.push(keywords);
   }
-  const options = propertyOptions[name] ?? {};
+  const probeProperty = probeProperties.get(name);
+  const probeValues = probeProperty
+    ? literals(checker.getTypeOfSymbolAtLocation(probeProperty, probe))
+    : [];
+  const inferred = probeValues.includes('__zui_length__')
+    ? 'length'
+    : probeValues.includes('__zui_time__')
+      ? 'time'
+      : undefined;
+  const options = { ...(inferred ? { units: inferred } : {}), ...propertyOptions[name] };
+  if (inferred && !propertyOptions[name]?.units) inferredUnits++;
   const cssName = name
     .replace(/[A-Z]/gu, (letter) => '-' + letter.toLowerCase())
     .replace(/^ms-/u, '-ms-');
@@ -113,4 +149,24 @@ console.log(
     ' properties, ' +
     keywordGroups.length +
     ' keyword groups.',
+);
+await mkdir(join(root, 'core/test-results'), { recursive: true });
+await writeFile(
+  join(root, 'core/test-results/css-coverage.json'),
+  JSON.stringify(
+    {
+      commit: process.env.GITHUB_SHA ?? null,
+      source: { package: 'csstype', version },
+      properties: properties.length,
+      keywordGroups: keywordGroups.length,
+      inferredUnits,
+      unitProperties: Object.keys(metadata).filter((name) => metadata[name].units),
+      tokenProperties: Object.keys(metadata).filter((name) => metadata[name].tokens),
+      propertiesWithoutUnitOrTokenHelpers: Object.keys(metadata).filter(
+        (name) => !metadata[name].units && !metadata[name].tokens,
+      ),
+    },
+    null,
+    2,
+  ) + '\n',
 );

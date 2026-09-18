@@ -1,3 +1,4 @@
+import { StyleError } from '../css/errors.js';
 import { validateTokenMap, type StyleFactory, type PropertyTokenMap } from '../css/builder.js';
 import type { DefaultTokens } from '../theme/presets.js';
 import type { Theme, TokenSchema } from '../theme/types.js';
@@ -36,7 +37,8 @@ function evaluate<T extends TokenSchema>(
   options?: CssEvaluationOptions,
 ): string {
   if (!activeEvaluation)
-    throw new Error(
+    throw new StyleError(
+      'runtime.context',
       'css() requires the class compiler; use runtime.css() for explicit runtime ownership.',
     );
   return activeEvaluation(factory as unknown as ErasedFactory, options);

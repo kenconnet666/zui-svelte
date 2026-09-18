@@ -16,6 +16,13 @@ createCss(baseTheme)((s) => {
   s.color._primary;
 });
 const customBase = extendTheme(baseTheme, { color: { ink: '#123456' } });
+createCss(baseTheme)((s) => {
+  s.offsetDistance.pct(50);
+  s.strokeWidth.px(2);
+  s.textUnderlineOffset.em(0.2);
+  // @ts-expect-error 上游识别出的长度属性不能使用时间单位。
+  s.offsetDistance.ms(20);
+});
 createCss(customBase)((s) => {
   s.color._ink;
   // @ts-expect-error 自定义主题不偷偷补充亮色 Token。

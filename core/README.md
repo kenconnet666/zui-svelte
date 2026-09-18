@@ -57,6 +57,8 @@ scope.setOverrides({}); // 替换整份覆盖；空对象恢复基础主题。
 
 baseTheme 没有 primary/surface 等系统键；标准属性、关键字、单位与选择器能力不依赖 Token。系统 lightTheme/darkTheme 分别从基础层扩展，默认仍为亮色。显式自定义主题的 runtime/SSR 必须配置兼容 schema，不自动补系统 Token。scope.setTheme(theme) 只在根作用域切换；子级通过 fork 与 setOverrides 保留局部覆盖。
 
+原生颜色方案由可选元数据 `colorScheme: 'light' | 'dark'` 表达，不占用 Token 类别。`defineTheme(values, { colorScheme })` 或 `extendTheme(base, values, { colorScheme })` 可显式声明；override/继续 extend 默认保留。基础主题不声明，亮暗预设分别声明。DOM 绑定、Provider 和 SSR 共用声明生成，切换同步更新原生控件的 color-scheme；themeVariables() 仍只返回自定义变量。
+
 ### 本次 API 迁移
 
 `css(factory, theme)` 改为 `createCss(theme)(factory)`；`theme.tokens` 改为 `theme.resolved`；`scope.update/override` 改为 `scope.setTheme/setOverrides`；`runtime.theme` 改为 `runtime.defaultTheme`；`bindingCount` 改为 `stats.bindings`。根入口标记 @internal 的工具属于同版本编译协议，不是稳定业务扩展 API。高级宿主通过 runtime.binding() 管理动态绑定，runtime.css() 持有静态规则直到 runtime 销毁。
@@ -123,6 +125,8 @@ layoutCss((s) => {
 自动提升只作用于确认安全的属性、值和目标组合。CSS-wide 关键字忽略大小写和前后空白识别；转义值及无法确认语义的值保持完整规则。在没有 `CSS.supports` 的 SSR/其他宿主中使用更保守的属性值白名单，避免把原本应由浏览器丢弃的无效声明变成计算值阶段无效的变量声明。
 
 ## 资源与异常
+
+CSS 声明/选择器/层、主题输入/引用和编译协议等接入错误使用 `StyleError`，可以按 `code` 区分 `css.value`、`css.selector`、`css.layer`、`theme.invalid`、`theme.namespace`、`theme.token`、`theme.reference`、`runtime.context`、`runtime.protocol`。消息保留相关 Token 路径；用户 factory 和样式表后端抛出的错误不包装成另一对象，聚合失败保留 cause。
 
 `runtime.property()` 的同名注册在同一 Document 的 ZUI runtimes 之间协调（含该文档下的 ShadowRoot）。相同定义可共存，不兼容定义立即报错；每个 runtime 保留自己的规则和引用，最后持有者退出后可重新注册。ZUI 不扫描外部 CSS 或 `CSS.registerProperty()`，这些宿主注册需自行避免同名冲突。
 

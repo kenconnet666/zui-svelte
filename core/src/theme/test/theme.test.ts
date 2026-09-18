@@ -5,6 +5,15 @@ import { buildStyle } from '../../css/builder.js';
 import { serializeProgram, serializeTheme } from '../../css/serialize.js';
 
 describe('theme definitions', () => {
+  it('treats prototype-like category names as ordinary own keys during extension', () => {
+    const base = defineTheme({});
+    const extension = JSON.parse('{"__proto__":{"value":"red"},"constructor":{"value":"blue"}}');
+    const theme = extendTheme(base, extension);
+    expect(Object.hasOwn(theme.resolved, '__proto__')).toBe(true);
+    expect(theme.resolved['__proto__']!.value).toBe('red');
+    expect(theme.resolved['constructor']!.value).toBe('blue');
+    expect(Object.hasOwn(Object.prototype, 'value')).toBe(false);
+  });
   it('normalizes numeric token keys through aliases, extensions and overrides', () => {
     const base = defineTheme({ color: { 100: 'red', selected: tokenRef('color', '100') } });
     expect(base.variable('color', '100')).toBe('--z-color-100');

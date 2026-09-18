@@ -1,3 +1,4 @@
+import { StyleError } from './errors.js';
 const reserved = new Set(['initial', 'inherit', 'unset', 'revert', 'revert-layer', 'default']);
 
 export function validateLayer(name: string): string {
@@ -6,7 +7,7 @@ export function validateLayer(name: string): string {
     !/^-?[_a-zA-Z][\w-]*(?:\.-?[_a-zA-Z][\w-]*)*$/u.test(name) ||
     name.split('.').some((part) => reserved.has(part.toLowerCase()))
   )
-    throw new TypeError('Invalid CSS layer: ' + name);
+    throw new StyleError('css.layer', 'Invalid CSS layer: ' + name);
   return name;
 }
 

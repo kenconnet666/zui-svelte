@@ -1,5 +1,15 @@
 # Core 实施进度
 
+## 生产重构：主题声明、诊断与公共合同
+
+主题增加可选原生 colorScheme 元数据：baseTheme 不声明，light/dark 分别声明，extend/override 保留或显式设置。DOM 绑定、Provider 和 SSR 共用主题声明；原生绑定补齐 runtime schema 校验。两个变量通道的原生 color-scheme 切换/恢复局部 Chrome 回归通过，主题 19 项通过。
+
+增加 StyleError 稳定分类，保留用户异常和显式 cause；CSS/主题/上下文诊断与 builder 9 项局部回归通过。类型生成通过 csstype 的长度/时间泛型标记补齐 208 个属性单位方法，现有 857 属性/262 关键字组保持，单位方法覆盖 293 属性，Token 映射 115 属性；覆盖报告随 CI 上传。聚焦类型用例验证 offsetDistance/strokeWidth/textUnderlineOffset 及错误单位。
+
+建立 40 个公开导出及 4 个支撑类型的 API 快照；内部桥接导出不进入稳定快照。构建 core 以检查实际分发后生成快照，完整浏览器 bundle 无外部/Node 导入，当前 JS/gzip/声明字节在首份审阅门槛内。验证脚本与生成器一起纳入 CI。
+
+推送前修复 976afcb 的 CI 35348438713：Kit transformPageChunk 类型可能返回 undefined，新增测试在访问字符串位置前明确断言字符串，并继续验证规则确实存在。原生 LSP 复验 server.test.ts 无错误。
+
 ## 生产重构：开发态行为与 SSR 收集边界
 
 新增真实 Vite/Playwright 开发态验收并接入三浏览器 CI：helper/模块/局部样式热更新与删除恢复、不刷新未修改父组件状态、规则来源计数稳定；与 node_modules 中未经过 ZUI 编译的 Svelte 组件对照 spread getter/事件/bind/class/style 指令；snippet/await 多实例更新和移除归零、真实动态 import 样式。三项本机 Chrome 局部用例通过。Svelte 5 原生 HMR 重建被修改组件，测试明确保留的是未修改父组件状态；不引入额外状态保存系统。

@@ -8,6 +8,7 @@ describe('theme presets', () => {
   it('keeps the CSS-only base free of preset tokens and default values', () => {
     expect(baseTheme.resolved).toEqual({});
     expect(themeVariables(baseTheme)).toEqual({});
+    expect(baseTheme.colorScheme).toBeUndefined();
     const custom = extendTheme(baseTheme, { color: { ink: '#123456' } });
     const runtime = createRuntime({ theme: custom });
     try {
@@ -26,6 +27,9 @@ describe('theme presets', () => {
     expect(baseTheme.resolved).toEqual({});
   });
   it('shares the preset schema and defaults to light without an explicit theme', () => {
+    expect(lightTheme.colorScheme).toBe('light');
+    expect(darkTheme.colorScheme).toBe('dark');
+    expect(extendTheme(darkTheme, {}).colorScheme).toBe('dark');
     const schema = (theme: typeof lightTheme) =>
       Object.entries(theme.resolved).map(([category, values]) => [
         category,

@@ -1,4 +1,8 @@
 export type TokenValue = string | number;
+export interface ThemeOptions {
+  namespace?: string;
+  colorScheme?: 'light' | 'dark';
+}
 export type TokenSchema = Readonly<Record<string, Readonly<Record<string, TokenValue>>>>;
 
 export interface TokenReference<C extends string = string, K extends string = string> {
@@ -145,6 +149,7 @@ export type ExtendedTokens<A extends ThemeDefinition, B extends ThemeDefinition>
 
 export interface Theme<T extends TokenSchema = TokenSchema> {
   readonly namespace: string;
+  readonly colorScheme?: 'light' | 'dark';
   readonly resolved: T;
   readonly definition: ThemeDefinition;
   variable<C extends keyof T & string>(category: C, token: keyof T[C] & string): string;

@@ -42,6 +42,8 @@ describe('SvelteKit response ownership', () => {
         );
         sheet.set('late', '.late{color:red}', '0');
         const html = await transform({ html: '<div class="late">late</div></body>', done: true });
+        if (typeof html !== 'string') throw new Error('Expected completed page HTML.');
+        expect(html).toContain('.late{color:red}');
         expect(html.indexOf('.late{color:red}')).toBeLessThan(html.indexOf('<div class="late">'));
         return new Response(html, { headers: { 'content-type': 'text/html' } });
       },

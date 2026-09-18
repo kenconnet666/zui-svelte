@@ -1,0 +1,124 @@
+{
+  "AnimationResource": [
+    "export interface AnimationResource extends StyleResource {\n    readonly name: string;\n}"
+  ],
+  "baseTheme": ["baseTheme: import(\"./types.js\").Theme<{}>"],
+  "bindElement": [
+    "export declare function bindElement<T extends TokenSchema>(node: HTMLElement | SVGElement, binding: StyleBinding<T>): () => void;"
+  ],
+  "BindingOptions": [
+    "export interface BindingOptions {\n    readonly id: string;\n    readonly source: string;\n    readonly maxStructures?: number;\n    readonly supports?: (property: string, value: string) => boolean;\n    readonly onDispose?: () => void;\n    readonly promote?: boolean;\n    readonly layer?: string;\n}"
+  ],
+  "bindTheme": [
+    "export declare function bindTheme<T extends TokenSchema, U extends TokenSchema = TokenSchema>(node: HTMLElement | SVGElement, scope: ThemeScope<T>, runtime?: StyleRuntime<U>): () => void;"
+  ],
+  "BrowserStyleSheet": [
+    "export declare class BrowserStyleSheet extends MemoryStyleSheet {\n    readonly namespace: string;\n    readonly nonce?: string | undefined;\n    constructor(target: Document | ShadowRoot, namespace: string, nonce?: string | undefined);\n    set(key: string, css: string, order: string): void;\n    remove(key: string): void;\n    dispose(): void;\n}"
+  ],
+  "createCss": [
+    "export declare function createCss<T extends TokenSchema, const M extends PropertyTokenMap<T> = object>(theme: Theme<T>, options?: CssOptions<T, M>): (factory: StyleFactory<T, M>) => string;"
+  ],
+  "createRuntime": [
+    "export declare function createRuntime<T extends TokenSchema = DefaultTokens>(options?: RuntimeOptions<T>): StyleRuntime<T>;"
+  ],
+  "css": ["export declare function css(factory: StyleFactory<DefaultTokens>): string;"],
+  "CssOptions": [
+    "export interface CssOptions<T extends TokenSchema = TokenSchema, M extends PropertyTokenMap<T> = PropertyTokenMap<T>> {\n    readonly layer?: string | null;\n    readonly tokenMap?: M & Record<Exclude<keyof M, keyof PropertyTokenMap<T>>, never>;\n}"
+  ],
+  "darkTheme": [
+    "darkTheme: import(\"./types.js\").Theme<{\n    readonly color: {\n        readonly primary: string;\n        readonly primaryHover: string;\n        readonly primaryActive: string;\n        readonly primarySubtle: string;\n        readonly onPrimary: string;\n        readonly onPrimarySubtle: string;\n        readonly surface: string;\n        readonly surfaceRaised: string;\n        readonly surfaceSunken: string;\n        readonly surfaceHover: string;\n        readonly background: string;\n        readonly text: string;\n        readonly muted: string;\n        readonly textDisabled: string;\n        readonly border: string;\n        readonly borderStrong: string;\n        readonly focus: string;\n        readonly danger: string;\n        readonly onDanger: string;\n        readonly success: string;\n        readonly onSuccess: string;\n        readonly warning: string;\n        readonly onWarning: string;\n        readonly info: string;\n        readonly onInfo: string;\n    };\n    readonly size: {\n        readonly controlSmall: string;\n        readonly control: string;\n        readonly controlLarge: string;\n        readonly icon: string;\n    };\n    readonly duration: {\n        readonly fast: string;\n        readonly normal: string;\n        readonly slow: string;\n    };\n    readonly easing: {\n        readonly standard: string;\n        readonly linear: string;\n    };\n    readonly radius: {\n        readonly small: string;\n        readonly medium: string;\n        readonly large: string;\n        readonly full: string;\n    };\n    readonly borderWidth: {\n        readonly thin: string;\n        readonly focus: string;\n    };\n    readonly spacing: {\n        readonly none: string;\n        readonly xs: string;\n        readonly small: string;\n        readonly medium: string;\n        readonly large: string;\n        readonly xl: string;\n    };\n    readonly shadow: {\n        readonly small: string;\n    };\n    readonly fontFamily: {\n        readonly body: string;\n        readonly mono: string;\n    };\n    readonly fontSize: {\n        readonly small: string;\n        readonly medium: string;\n        readonly large: string;\n    };\n    readonly fontWeight: {\n        readonly normal: import(\"./types.js\").TokenValue;\n        readonly medium: import(\"./types.js\").TokenValue;\n        readonly bold: import(\"./types.js\").TokenValue;\n    };\n    readonly letterSpacing: {\n        readonly normal: string;\n    };\n    readonly lineHeight: {\n        readonly normal: import(\"./types.js\").TokenValue;\n        readonly tight: import(\"./types.js\").TokenValue;\n    };\n    readonly opacity: {\n        readonly disabled: number;\n    };\n    readonly zIndex: {\n        readonly popup: number;\n        readonly overlay: number;\n        readonly notification: number;\n    };\n    readonly breakpoint: {\n        readonly small: string;\n        readonly medium: string;\n        readonly large: string;\n    };\n}>"
+  ],
+  "DefaultTokens": ["export type DefaultTokens = typeof lightTheme.resolved;"],
+  "defineTheme": [
+    "export declare function defineTheme<const T extends ThemeDefinition>(tokens: T & ValidReferences<T>, options?: ThemeOptions): Theme<ResolvedTokens<T>>;"
+  ],
+  "extendTheme": [
+    "export declare function extendTheme<A extends TokenSchema, const B extends ThemeDefinition>(theme: Theme<A>, extension: B & ValidReferences<ExtendedTokens<A, B>, B> & CompatibleExtension<A, B>, options?: Pick<ThemeOptions, 'colorScheme'>): Theme<ResolvedTokens<ExtendedTokens<A, B>>>;"
+  ],
+  "lightTheme": [
+    "lightTheme: import(\"./types.js\").Theme<{\n    readonly color: {\n        readonly primary: string;\n        readonly primaryHover: string;\n        readonly primaryActive: string;\n        readonly primarySubtle: string;\n        readonly onPrimary: string;\n        readonly onPrimarySubtle: string;\n        readonly surface: string;\n        readonly surfaceRaised: string;\n        readonly surfaceSunken: string;\n        readonly surfaceHover: string;\n        readonly background: string;\n        readonly text: string;\n        readonly muted: string;\n        readonly textDisabled: string;\n        readonly border: string;\n        readonly borderStrong: string;\n        readonly focus: string;\n        readonly danger: string;\n        readonly onDanger: string;\n        readonly success: string;\n        readonly onSuccess: string;\n        readonly warning: string;\n        readonly onWarning: string;\n        readonly info: string;\n        readonly onInfo: string;\n    };\n    readonly size: {\n        readonly controlSmall: string;\n        readonly control: string;\n        readonly controlLarge: string;\n        readonly icon: string;\n    };\n    readonly duration: {\n        readonly fast: string;\n        readonly normal: string;\n        readonly slow: string;\n    };\n    readonly easing: {\n        readonly standard: string;\n        readonly linear: string;\n    };\n    readonly radius: {\n        readonly small: string;\n        readonly medium: string;\n        readonly large: string;\n        readonly full: string;\n    };\n    readonly borderWidth: {\n        readonly thin: string;\n        readonly focus: string;\n    };\n    readonly spacing: {\n        readonly none: string;\n        readonly xs: string;\n        readonly small: string;\n        readonly medium: string;\n        readonly large: string;\n        readonly xl: string;\n    };\n    readonly shadow: {\n        readonly small: string;\n    };\n    readonly fontFamily: {\n        readonly body: string;\n        readonly mono: string;\n    };\n    readonly fontSize: {\n        readonly small: string;\n        readonly medium: string;\n        readonly large: string;\n    };\n    readonly fontWeight: {\n        readonly normal: import(\"./types.js\").TokenValue;\n        readonly medium: import(\"./types.js\").TokenValue;\n        readonly bold: import(\"./types.js\").TokenValue;\n    };\n    readonly letterSpacing: {\n        readonly normal: string;\n    };\n    readonly lineHeight: {\n        readonly normal: import(\"./types.js\").TokenValue;\n        readonly tight: import(\"./types.js\").TokenValue;\n    };\n    readonly opacity: {\n        readonly disabled: number;\n    };\n    readonly zIndex: {\n        readonly popup: number;\n        readonly overlay: number;\n        readonly notification: number;\n    };\n    readonly breakpoint: {\n        readonly small: string;\n        readonly medium: string;\n        readonly large: string;\n    };\n}>"
+  ],
+  "MemoryStyleSheet": [
+    "export declare class MemoryStyleSheet implements StyleSheet {\n    set(key: string, css: string, order: string): void;\n    remove(key: string): void;\n    entries(): readonly StyleEntry[];\n    dispose(): void;\n}"
+  ],
+  "overrideTheme": [
+    "export declare function overrideTheme<T extends TokenSchema>(theme: Theme<T>, patch: ThemePatch<T>): Theme<WidenTokens<T>>;"
+  ],
+  "PropertyRegistration": [
+    "export interface PropertyRegistration {\n    syntax: string;\n    inherits: boolean;\n    initialValue?: string | number;\n}"
+  ],
+  "PropertyTokenMap": [
+    "export type PropertyTokenMap<T extends TokenSchema> = Partial<Record<keyof CSS.Properties, keyof T & string>>;"
+  ],
+  "RuntimeOptions": [
+    "export interface RuntimeOptions<T extends TokenSchema> {\n    theme?: Theme<T>;\n    target?: Document | ShadowRoot;\n    sheet?: StyleSheet;\n    namespace?: string;\n    nonce?: string;\n    prefix?: boolean;\n    variables?: 'inline' | 'stylesheet';\n    layers?: readonly string[];\n    layer?: string;\n}"
+  ],
+  "RuntimeStats": [
+    "export interface RuntimeStats {\n    readonly bindings: number;\n    readonly rules: number;\n    readonly sources: number;\n    readonly styleEntries: number;\n    readonly ruleCompilations: number;\n}"
+  ],
+  "StyleBuilder": [
+    "export type StyleBuilder<T extends TokenSchema = DefaultTokens, M extends PropertyTokenMap<T> = object> = StyleProperties<T, M> & StyleHelpers<T, M>;"
+  ],
+  "StyleEntry": [
+    "export interface StyleEntry {\n    readonly key: string;\n    readonly css: string;\n    readonly order: string;\n}"
+  ],
+  "StyleError": [
+    "export declare class StyleError extends Error {\n    readonly code: StyleErrorCode;\n    constructor(code: StyleErrorCode, message: string, options?: ErrorOptions);\n}"
+  ],
+  "StyleErrorCode": [
+    "export type StyleErrorCode = 'css.value' | 'css.selector' | 'css.layer' | 'theme.invalid' | 'theme.namespace' | 'theme.token' | 'theme.reference' | 'runtime.context' | 'runtime.protocol';"
+  ],
+  "StyleFactory": [
+    "export type StyleFactory<T extends TokenSchema = DefaultTokens, M extends PropertyTokenMap<T> = object> = (s: StyleBuilder<T, M>) => void;"
+  ],
+  "StyleResource": ["export interface StyleResource {\n    dispose(): void;\n}"],
+  "StyleRuntime": [
+    "export interface StyleRuntime<T extends TokenSchema = DefaultTokens> {\n    readonly defaultTheme: Theme<T>;\n    readonly layer?: string;\n    readonly stats: RuntimeStats;\n    global(selector: string, factory: StyleFactory<T>): StyleResource;\n    themeStyle(selector: string, theme?: Theme<T>): StyleResource;\n    keyframes(frames: Readonly<Record<string, StyleFactory<T>>>): AnimationResource;\n    fontFace(descriptors: CSS.AtRule.FontFace): StyleResource;\n    property(name: `--${string}`, options: PropertyRegistration): StyleResource;\n    css(factory: StyleFactory<T>, source?: string): string;\n    binding(settings?: {\n        id?: string;\n        source?: string;\n        maxStructures?: number;\n        promote?: boolean;\n    }): StyleBinding<T>;\n    release(binding: StyleBinding<T>): void;\n    cssText(): string;\n    styleTags(): string;\n    finishHydration(): void;\n    dispose(): void;\n}"
+  ],
+  "StyleSheet": [
+    "export interface StyleSheet {\n    set(key: string, css: string, order: string): void;\n    remove(key: string): void;\n    entries(): readonly StyleEntry[];\n    dispose(): void;\n}"
+  ],
+  "StyleSnapshot": [
+    "export interface StyleSnapshot {\n    readonly className: string;\n    readonly variables: Readonly<Record<string, string>>;\n    readonly revision: number;\n}"
+  ],
+  "Theme": [
+    "export interface Theme<T extends TokenSchema = TokenSchema> {\n    readonly namespace: string;\n    readonly colorScheme?: 'light' | 'dark';\n    readonly resolved: T;\n    readonly definition: ThemeDefinition;\n    variable<C extends keyof T & string>(category: C, token: keyof T[C] & string): string;\n    ref<C extends keyof T & string>(category: C, token: keyof T[C] & string): string;\n}"
+  ],
+  "ThemeDefinition": [
+    "export type ThemeDefinition = Readonly<Record<string, Readonly<Record<string, TokenValue | TokenReference>>>>;"
+  ],
+  "ThemeOptions": [
+    "export interface ThemeOptions {\n    namespace?: string;\n    colorScheme?: 'light' | 'dark';\n}"
+  ],
+  "ThemePatch": [
+    "export type ThemePatch<T extends TokenSchema> = {\n    readonly [C in keyof T]?: {\n        readonly [K in keyof T[C]]?: WidenValue<T[C][K]> | TokenReference<C & string, keyof T[C] & string>;\n    };\n};"
+  ],
+  "ThemeScope": [
+    "export declare class ThemeScope<T extends TokenSchema> {\n    readonly parent?: ThemeScope<T> | undefined;\n    constructor(base: Theme<T>, patch?: ThemePatch<T>, parent?: ThemeScope<T> | undefined);\n    get theme(): Theme<WidenTokens<T>>;\n    fork(patch: ThemePatch<T>): ThemeScope<T>;\n    setTheme(theme: Theme<T>): void;\n    setOverrides(patch: ThemePatch<T>): void;\n    subscribe(listener: (theme: Theme<WidenTokens<T>>) => void, cleanup?: () => void): () => void;\n    dispose(): void;\n}"
+  ],
+  "themeVariables": [
+    "export declare function themeVariables<T extends TokenSchema>(theme: Theme<T>): Readonly<Record<string, string>>;"
+  ],
+  "tokenRef": [
+    "export declare function tokenRef<const C extends string, const K extends string>(category: C, token: K): TokenReference<C, K>;"
+  ],
+  "TokenReference": [
+    "export interface TokenReference<C extends string = string, K extends string = string> {\n    readonly kind: 'token-ref';\n    readonly category: C;\n    readonly token: K;\n}"
+  ],
+  "TokenSchema": [
+    "export type TokenSchema = Readonly<Record<string, Readonly<Record<string, TokenValue>>>>;"
+  ],
+  "TokenValue": ["export type TokenValue = string | number;"],
+  "StyleHelpers": [
+    "export interface StyleHelpers<T extends TokenSchema, M extends PropertyTokenMap<T> = object> {\n    _selector(selector: string, factory: StyleFactory<T, M>): void;\n    _media(query: string, factory: StyleFactory<T, M>): void;\n    _supports(query: string, factory: StyleFactory<T, M>): void;\n    _container(query: string, factory: StyleFactory<T, M>): void;\n    _hover(factory: StyleFactory<T, M>): void;\n    _focusVisible(factory: StyleFactory<T, M>): void;\n    _before(factory: StyleFactory<T, M>): void;\n    _after(factory: StyleFactory<T, M>): void;\n    _important(factory: StyleFactory<T, M>): void;\n    custom(name: `--${string}`, value: string | number | null | undefined): void;\n    raw(property: string, value: string | number | null | undefined): void;\n    set<P extends keyof CSS.Properties>(property: P, value: CSS.Properties[P] | null): void;\n}"
+  ],
+  "Carrier": [
+    "export type Carrier<P extends keyof CSS.Properties, K extends string, U extends keyof typeof units | never, N extends 1 | 2 | 4, C extends string, T extends TokenSchema, M extends PropertyTokenMap<T> = object> = ((value: NonNullable<CSS.Properties[P]> | null | undefined) => void) & {\n    readonly [Keyword in K]: void;\n} & {\n    readonly [Unit in (typeof units)[U][number]]: (...values: UnitArguments<N>) => void;\n} & {\n    readonly [Token in TokenCategory<P, C, M> extends keyof T ? keyof T[TokenCategory<P, C, M>] & string : never as `_${Token}`]: void;\n};"
+  ],
+  "ResolvedTokens": [
+    "export type ResolvedTokens<T extends ThemeDefinition> = ResolveDefinition<NormalizeKeys<T>>;"
+  ],
+  "WidenTokens": [
+    "export type WidenTokens<T extends TokenSchema> = {\n    readonly [C in keyof T]: {\n        readonly [K in keyof T[C]]: WidenValue<T[C][K]>;\n    };\n};"
+  ]
+}

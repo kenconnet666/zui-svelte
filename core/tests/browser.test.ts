@@ -9,6 +9,7 @@ import {
   ClassController,
   createCss,
   lightTheme,
+  darkTheme,
   createStyleModule,
   css,
   styleProtocol,
@@ -34,6 +35,26 @@ function runtime(namespace: string) {
 }
 
 describe('real DOM style bindings', () => {
+  it.each(['inline', 'stylesheet'] as const)(
+    'switches the native color scheme through the %s theme channel',
+    (variables) => {
+      const value = createRuntime({ target: document, namespace: 'scheme', variables });
+      cleanup.push(() => value.dispose());
+      const scope = new ThemeScope(lightTheme);
+      cleanup.push(() => scope.dispose());
+      const node = element();
+      if (variables === 'inline') node.style.colorScheme = 'light dark';
+      const stop = bindTheme(node, scope, value);
+      cleanup.push(stop);
+      expect(getComputedStyle(node).colorScheme).toBe('light');
+      scope.setTheme(darkTheme);
+      expect(getComputedStyle(node).colorScheme).toBe('dark');
+      if (variables === 'stylesheet') expect(node.hasAttribute('style')).toBe(false);
+      stop();
+      if (variables === 'inline') expect(node.style.colorScheme).toBe('light dark');
+      expect(value.stats.rules).toBe(0);
+    },
+  );
   it('bounds style nodes and rewrites only the affected chunk for large rule sets', () => {
     const sheet = new BrowserStyleSheet(document, 'chunk-scale');
     cleanup.push(() => sheet.dispose());

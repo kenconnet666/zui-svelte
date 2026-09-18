@@ -1,6 +1,7 @@
 import { compile, middleware, prefixer, serialize, stringify } from 'stylis';
 import type { StyleProgram } from './program.js';
 import type { Theme, TokenSchema } from '../theme/types.js';
+import { themeDeclarations } from '../theme/theme.js';
 import { validateQuery, validateValue } from './validate.js';
 
 export function canonicalize(program: StyleProgram): string {
@@ -35,13 +36,8 @@ export function serializeProgram(program: StyleProgram, selector: string, prefix
 
 export function serializeTheme<T extends TokenSchema>(theme: Theme<T>, selector = ':root'): string {
   validateQuery(selector, true);
-  const declarations = Object.entries(theme.resolved)
-    .flatMap(([category, entries]) =>
-      Object.entries(entries).map(
-        ([token, value]) =>
-          theme.variable(category, token) + ':' + validateValue(String(value)) + ';',
-      ),
-    )
+  const declarations = Object.entries(themeDeclarations(theme))
+    .map(([property, value]) => property + ':' + validateValue(value) + ';')
     .join('');
   return selector + '{' + declarations + '}';
 }
