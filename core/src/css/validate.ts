@@ -14,6 +14,9 @@ export function validateValue(value: string): string {
       continue;
     }
     if (quote) {
+      // CSS 字符串不能包含未转义换行，否则浏览器会提前终止字符串边界。
+      if (c === '\n' || c === '\r' || c === '\f')
+        throw new TypeError('Unescaped newline in CSS string.');
       if (c === quote) quote = '';
       continue;
     }
@@ -39,7 +42,44 @@ export function validateValue(value: string): string {
 
 export function validateQuery(query: string, atRule = false): string {
   validateValue(query);
-  if (!atRule && !query.includes('&')) throw new TypeError('A local selector must contain &.');
+  if (atRule) return query;
+  let quote = '';
+  let escaped = false;
+  let depth = 0;
+  let anchored = false;
+  const requireAnchor = () => {
+    if (!anchored)
+      throw new TypeError('Each local selector branch needs & outside functions and attributes.');
+  };
+  // 字符串、属性和函数里的 & 不能证明分支被当前根约束，如 :not(&) 或 :is(&, body)。
+  for (const c of query) {
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (c === '\\') {
+      escaped = true;
+      continue;
+    }
+    if (quote) {
+      if (c === quote) quote = '';
+      continue;
+    }
+    if (c === '"' || c === "'") {
+      quote = c;
+      continue;
+    }
+    if (c === '(' || c === '[') depth++;
+    else if (c === ')' || c === ']') depth--;
+    else if (depth === 0) {
+      if (c === '&') anchored = true;
+      else if (c === ',') {
+        requireAnchor();
+        anchored = false;
+      }
+    }
+  }
+  requireAnchor();
   return query;
 }
 

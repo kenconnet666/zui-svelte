@@ -32,6 +32,49 @@ function runtime(namespace: string) {
 }
 
 describe('real DOM style bindings', () => {
+  it('keeps inherited values out of variable promotion regardless of spelling', () => {
+    const owner = runtime('wide-keywords');
+    const parent = element();
+    parent.style.width = '240px';
+    const child = document.createElement('div');
+    parent.append(child);
+    const binding = owner.binding();
+    cleanup.push(bindElement(child, binding));
+    for (const value of [' INHERIT ', 'InHeRiT', String.raw`\69 nherit`]) {
+      binding.evaluate((s) => {
+        s.width.px(100);
+      });
+      binding.evaluate((s) => {
+        s.width(value);
+      });
+      expect(binding.snapshot.variables).toEqual({});
+      expect(getComputedStyle(child).width).toBe('240px');
+    }
+  });
+  it('keeps rooted selector branches from selecting unrelated elements', () => {
+    const owner = runtime('selector-boundaries');
+    const root = element();
+    const child = document.createElement('div');
+    child.className = 'selector-label';
+    root.append(child);
+    const outside = element();
+    outside.className = 'selector-label';
+    const original = getComputedStyle(outside).color;
+    const binding = owner.binding();
+    binding.evaluate((s) => {
+      s._selector('& > :is(.selector-label, .selector-icon), &[data-active]', (s) => {
+        s.color('red');
+      });
+    });
+    cleanup.push(bindElement(root, binding));
+    expect(getComputedStyle(child).color).toBe('rgb(255, 0, 0)');
+    expect(getComputedStyle(outside).color).toBe(original);
+    expect(() =>
+      binding.evaluate((s) => {
+        s._selector(':is(&, body)', () => {});
+      }),
+    ).toThrow('Each local selector branch');
+  });
   it('validates all hydration metadata before taking ownership of server styles', () => {
     const server = createRuntime({ namespace: 'invalid-hydration', nonce: 'request' });
     cleanup.push(() => server.dispose());
