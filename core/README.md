@@ -63,6 +63,10 @@ const plainCss = createCss(theme, { layer: null });
 
 同一 Document/ShadowRoot 中的独立 runtime 使用不同 namespace；也可以由多个组件共享一个 runtime。声明相同层根的 runtime 必须使用一致的完整层序。模块 class 在最终消费时会补充目标别名，以隔离不同 runtime 的样式位置；返回值和转发值仍为普通字符串。
 
+同一 runtime 内的来源优先关系由稳定来源标识与数字源码位置决定，不由模块到达、首次挂载或重挂顺序决定；跨文件优先关系不作为业务覆盖 API，需要明确覆盖时使用 layers。相同来源的多个不同值变体没有 class 书写顺序覆盖保证，不应靠拼接它们表达优先级。
+
+自定义 `StyleSheet.set(key, css, order)` 的 `order` 与 `StyleEntry.order` 为字符串排序键；按字符串码元顺序比较，再以 key 打破平局，不能作数字相减或使用依赖系统 locale 的排序。层顺序声明由内部保留键排在最前。
+
 SSR 样式携带内部协议版本，客户端接管前统一校验版本、规则标识、顺序与 nonce；服务端和客户端必须使用相同 nonce。数据不兼容时直接报错并保留原始 SSR 标记，不接管半份样式。编译插件与框架 runtime 也会核对协议，升级时应一起重新构建，不能混用旧编译产物。
 
 ## 自定义 Token 类别

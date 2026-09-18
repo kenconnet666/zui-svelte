@@ -1,7 +1,7 @@
 import type { StyleProgram } from '../css/program.js';
 import { canonicalize, hashText, serializeProgram } from '../css/serialize.js';
 import { escapeStyleText } from '../css/validate.js';
-import type { StyleSheet } from './sheet.js';
+import { sourceOrder, type StyleSheet } from './sheet.js';
 import { retainDefinition, type StyleDefinition } from './definitions.js';
 import { validateLayer, layerProgram } from '../css/layers.js';
 import { runAll } from './callbacks.js';
@@ -24,7 +24,7 @@ export interface RuleRecord {
   readonly className: string;
   readonly canonical: string;
   readonly css: string;
-  readonly order: number;
+  readonly order: string;
   readonly source: string;
   program?: StyleProgram;
   variables: Readonly<Record<string, string>>;
@@ -48,9 +48,7 @@ export class StyleRegistry {
   readonly #records = new Map<string, RuleRecord>();
   readonly #classes = new Map<string, RuleRecord>();
   readonly #moduleClasses = new Map<string, RuleRecord>();
-  readonly #orders = new Map<string, { order: number; references: number }>();
-  readonly #hydratedOrders = new Map<string, number>();
-  #sequence = 0;
+  readonly #orders = new Map<string, { order: string; references: number }>();
   #disposed = false;
   #compilations = 0;
   constructor(
@@ -64,10 +62,6 @@ export class StyleRegistry {
     this.layer = options.layer;
     this.theme = options.theme ?? lightTheme;
     if (!/^[a-zA-Z][\w-]*$/u.test(this.namespace)) throw new TypeError('Invalid style namespace.');
-    for (const entry of sheet.entries()) {
-      this.#hydratedOrders.set(entry.key, entry.order);
-      this.#sequence = Math.max(this.#sequence, entry.order + 1);
-    }
   }
 
   #retain(
@@ -87,7 +81,7 @@ export class StyleRegistry {
     }
     const { css, className } = render(key);
     const position = this.#orders.get(source) ?? {
-      order: this.#hydratedOrders.get(key) ?? this.#sequence++,
+      order: sourceOrder(source),
       references: 0,
     };
     const record: RuleRecord = {
@@ -264,7 +258,7 @@ export class StyleRegistry {
           '" data-z-key="' +
           attribute(entry.key) +
           '" data-z-order="' +
-          entry.order +
+          attribute(entry.order) +
           '"' +
           (nonce ? ' nonce="' + attribute(nonce) + '"' : '') +
           '>' +
@@ -276,7 +270,6 @@ export class StyleRegistry {
   finishHydration(): void {
     for (const entry of this.sheet.entries())
       if (!this.#records.has(entry.key.replace(/:vars$/u, ''))) this.sheet.remove(entry.key);
-    this.#hydratedOrders.clear();
   }
   dispose(): void {
     if (this.#disposed) return;
@@ -288,7 +281,6 @@ export class StyleRegistry {
     this.#classes.clear();
     this.#moduleClasses.clear();
     this.#orders.clear();
-    this.#hydratedOrders.clear();
     runAll([() => this.sheet.dispose(), ...releases], 'Style registry cleanup failed.');
   }
 }

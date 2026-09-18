@@ -32,6 +32,69 @@ function runtime(namespace: string) {
 }
 
 describe('real DOM style bindings', () => {
+  it.each(['inline', 'stylesheet'] as const)(
+    'preserves source precedence after promotion and remount through %s variables',
+    (variables) => {
+      const value = createRuntime({ target: document, namespace: 'stable-order', variables });
+      cleanup.push(() => value.dispose());
+      const node = element();
+      const later = value.binding({ id: 'later', source: 'panel.svelte:20' });
+      const earlier = value.binding({ id: 'earlier', source: 'panel.svelte:3' });
+      later.evaluate((s) => {
+        s.width.px(200);
+      });
+      earlier.evaluate((s) => {
+        s.width.px(100);
+      });
+      const stopLater = bindElement(node, later);
+      const stopEarlier = bindElement(node, earlier);
+      cleanup.push(stopLater, stopEarlier);
+      expect(getComputedStyle(node).width).toBe('200px');
+      earlier.evaluate((s) => {
+        s.width.px(150);
+      });
+      expect(getComputedStyle(node).width).toBe('200px');
+      stopEarlier();
+      earlier.dispose();
+      const remounted = value.binding({ id: 'remounted', source: 'panel.svelte:3' });
+      remounted.evaluate((s) => {
+        s.width.px(250);
+      });
+      cleanup.push(bindElement(node, remounted));
+      expect(getComputedStyle(node).width).toBe('200px');
+    },
+  );
+
+  it('adopts stable SSR ordering when client consumers arrive in reverse order', () => {
+    const server = createRuntime({ namespace: 'stable-ssr' });
+    cleanup.push(() => server.dispose());
+    const earlierSource = 'panel.svelte:3';
+    // 引号和 HTML 字符必须在 metadata 中往返保留，不能改变排序键。
+    const laterSource = 'panel.svelte:20:"<&';
+    const first = server.css((s) => {
+      s.width.px(100);
+    }, earlierSource);
+    const second = server.css((s) => {
+      s.width.px(200);
+    }, laterSource);
+    document.head.insertAdjacentHTML('beforeend', server.styleTags());
+    const nodes = [...document.head.querySelectorAll('style[data-zui="stable-ssr"]')];
+    cleanup.push(() => nodes.forEach((node) => node.remove()));
+    const node = element();
+    node.className = first + ' ' + second;
+    expect(getComputedStyle(node).width).toBe('200px');
+    const client = runtime('stable-ssr');
+    client.css((s) => {
+      s.width.px(200);
+    }, laterSource);
+    client.css((s) => {
+      s.width.px(100);
+    }, earlierSource);
+    client.finishHydration();
+    expect(getComputedStyle(node).width).toBe('200px');
+    expect([...document.head.querySelectorAll('style[data-zui="stable-ssr"]')]).toEqual(nodes);
+  });
+
   it('coordinates property registrations across runtimes and releases document claims', () => {
     const first = runtime('property-first');
     const second = runtime('property-second');
@@ -142,6 +205,11 @@ describe('real DOM style bindings', () => {
     expect(create).toThrow('Duplicate server style');
     expect(nodes.every((node) => node.hasAttribute('data-z-ssr'))).toBe(true);
     nodes[1]!.dataset.zKey = key;
+    const order = nodes[1]!.dataset.zOrder;
+    nodes[1]!.dataset.zOrder = 'invalid';
+    expect(create).toThrow('Invalid server style metadata');
+    expect(nodes.every((node) => node.hasAttribute('data-z-ssr'))).toBe(true);
+    nodes[1]!.dataset.zOrder = order;
     const client = create();
     cleanup.push(() => client.dispose());
     expect(nodes.every((node) => !node.hasAttribute('data-z-ssr'))).toBe(true);

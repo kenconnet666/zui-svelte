@@ -17,7 +17,7 @@ class FailingRemoval extends MemoryStyleSheet {
 describe('stylesheet variables', () => {
   it('preserves both errors and the previous snapshot when write rollback also fails', () => {
     class FailingRollback extends MemoryStyleSheet {
-      override set(key: string, css: string, order: number) {
+      override set(key: string, css: string, order: string) {
         super.set(key, css, order);
         if (key.endsWith(':vars')) throw new Error('write failed');
       }
@@ -100,7 +100,7 @@ describe('stylesheet variables', () => {
   });
   it('preserves the last valid snapshot when the variable sheet rejects an update', () => {
     class FailingSheet extends MemoryStyleSheet {
-      override set(key: string, css: string, order: number) {
+      override set(key: string, css: string, order: string) {
         if (key.endsWith(':vars')) throw new Error('sheet rejected variables');
         super.set(key, css, order);
       }
