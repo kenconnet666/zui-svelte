@@ -11,6 +11,10 @@ import { runAll } from './callbacks.js';
 import { withCssEvaluation, type CssEvaluationOptions } from './evaluation.js';
 
 type ErasedFactory = StyleFactory<TokenSchema>;
+interface RuntimeAccess<T extends TokenSchema> {
+  get(): StyleRuntime<T>;
+  peek(): StyleRuntime<T> | undefined;
+}
 export { css, createCss, hasCssEvaluation, withCssEvaluation } from './evaluation.js';
 
 export function normalizeClass(value: unknown): string {
@@ -19,6 +23,7 @@ export function normalizeClass(value: unknown): string {
 }
 
 export class ClassController<T extends TokenSchema> {
+  #runtime: StyleRuntime<T> | RuntimeAccess<T>;
   readonly #bindings: StyleBinding<T>[] = [];
   readonly #records = new Map<RuleRecord, () => void>();
   readonly #targets = new Set<ReturnType<typeof createVariableBinding>>();
@@ -28,12 +33,22 @@ export class ClassController<T extends TokenSchema> {
   #disposed = false;
 
   constructor(
-    readonly runtime: StyleRuntime<T>,
+    runtime: StyleRuntime<T> | RuntimeAccess<T>,
     readonly identity: string,
     readonly source: string,
     readonly promote = true,
     readonly onChange?: () => void,
-  ) {}
+  ) {
+    this.#runtime = runtime;
+  }
+
+  get runtime(): StyleRuntime<T> {
+    if (!('registry' in this.#runtime)) this.#runtime = this.#runtime.get();
+    return this.#runtime;
+  }
+  #peek(): StyleRuntime<T> | undefined {
+    return 'registry' in this.#runtime ? this.#runtime : this.#runtime.peek();
+  }
 
   #slot(factory: ErasedFactory, options: CssEvaluationOptions = {}): string {
     const layer = options.layer === undefined ? this.runtime.layer : options.layer;
@@ -64,7 +79,10 @@ export class ClassController<T extends TokenSchema> {
     return withCssEvaluation(
       () => {
         const result = read();
-        for (const binding of this.#bindings.splice(this.#cursor)) binding.dispose();
+        runAll(
+          this.#bindings.splice(this.#cursor).map((binding) => () => binding.dispose()),
+          'Unused class bindings failed to dispose.',
+        );
         return result;
       },
       (factory, options) => this.#slot(factory, options),
@@ -84,7 +102,10 @@ export class ClassController<T extends TokenSchema> {
     this.#variables = Object.freeze(values);
     runAll(
       [
-        ...[...this.#targets].map((target) => () => target.update(values)),
+        ...[...this.#targets].map(
+          (target) => () =>
+            target.update(this.#peek()?.registry.variables === 'stylesheet' ? {} : values),
+        ),
         () => {
           if (changed) this.onChange?.();
         },
@@ -102,8 +123,12 @@ export class ClassController<T extends TokenSchema> {
         this.#className
           .split(/\s+/u)
           .map((name) => {
-            const existing = this.runtime.registry.lookup(name);
-            if (existing) return existing;
+            const existing = this.#peek()?.registry.lookup(name);
+            if (existing) {
+              // 只有消费已有规则时才取得宿主引用；普通 class 不创建默认 runtime。
+              void this.runtime;
+              return existing;
+            }
             const definition = findDefinition(name);
             if (!definition) return undefined;
             const record = this.runtime.registry.acquireDefinition(definition);
@@ -144,7 +169,7 @@ export class ClassController<T extends TokenSchema> {
   }
 
   style(authored: string | null | undefined): string | undefined {
-    if (this.runtime.registry.variables === 'stylesheet') return authored ?? undefined;
+    if (this.#peek()?.registry.variables === 'stylesheet') return authored ?? undefined;
     const variables = Object.entries(this.#variables)
       .map(([name, value]) => name + ':' + value)
       .join(';');
@@ -156,7 +181,7 @@ export class ClassController<T extends TokenSchema> {
 
   mount(node: HTMLElement | SVGElement): () => void {
     if (this.#disposed) throw new Error('Class controller is disposed.');
-    if (this.runtime.registry.variables === 'stylesheet') return () => {};
+    if (this.#peek()?.registry.variables === 'stylesheet') return () => {};
     const target = createVariableBinding(node, false);
     try {
       target.update(this.#variables);

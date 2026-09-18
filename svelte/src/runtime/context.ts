@@ -14,7 +14,10 @@ export function provideStyleRuntime<T extends TokenSchema>(runtime: StyleRuntime
   setContext(STYLE_RUNTIME, runtime);
 }
 
-export function captureRuntime(): (() => Runtime) & { assertCollected(): void } {
+export function captureRuntime(): (() => Runtime) & {
+  peek(): Runtime | undefined;
+  assertCollected(): void;
+} {
   const contexts = getAllContexts();
   let selected: Runtime | undefined;
   let fallback = false;
@@ -48,6 +51,14 @@ export function captureRuntime(): (() => Runtime) & { assertCollected(): void } 
     return selected;
   };
   return Object.assign(get, {
+    // 查询只读引用，不计为持有；get() 才增加默认 runtime 的组件引用数。
+    peek() {
+      return (
+        selected ??
+        (contexts.get(STYLE_RUNTIME) as Runtime | undefined) ??
+        (typeof document === 'undefined' ? serverRuntime?.() : defaults.get(document)?.runtime)
+      );
+    },
     assertCollected() {
       if (fallback && selected?.registry.size)
         throw new Error('SSR styles require renderStyled() or the SvelteKit style handle.');

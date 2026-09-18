@@ -29,6 +29,13 @@ afterAll(async () => {
 });
 
 describe('compiled SSR', () => {
+  it('renders ordinary classes without requiring a style collector', async () => {
+    const { default: Probe } = await server.ssrLoadModule('/tests/fixtures/PlainClassProbe.svelte');
+    const { render } = await server.ssrLoadModule('svelte/server');
+    const result = await render(Probe);
+    expect(result.body).toContain('class="ordinary"');
+    expect(result.head).not.toContain('data-zui');
+  });
   it('isolates themes, nonces and rules across 100 interleaved handle requests', async () => {
     const { default: Probe } = await server.ssrLoadModule('/tests/fixtures/CoreProbe.svelte');
     const { createStyleHandle } = await server.ssrLoadModule('/src/server.ts');

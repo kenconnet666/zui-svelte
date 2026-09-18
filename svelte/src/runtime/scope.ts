@@ -61,7 +61,6 @@ export function createStyleScope(owner: () => string, moduleId: string, protocol
     }
     if (branch.entry) return branch.entry;
     const leaf = branch;
-    const runtime = getRuntime();
     const identity = hashText(owner() + ':' + site + ':' + sequence++);
     function dispose() {
       if (entry.disposed) return;
@@ -76,7 +75,7 @@ export function createStyleScope(owner: () => string, moduleId: string, protocol
       if (!root!.entry && root!.children.size === 0) roots.delete(rootKey);
     }
     const controller = new ClassController(
-      runtime,
+      { get: getRuntime, peek: getRuntime.peek },
       identity,
       moduleId + ':' + site,
       promote,

@@ -1,5 +1,18 @@
 import { expect, test } from '@playwright/test';
 
+test('ordinary class bindings do not create a style runtime or inject theme rules', async ({
+  page,
+}) => {
+  await page.goto('/#/__plain-class-test');
+  const target = page.getByTestId('plain-class');
+  await expect(target).toHaveClass('ordinary');
+  await expect(target).toHaveCSS('color', 'rgb(255, 0, 0)');
+  await expect(page.locator('style[data-zui]')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Toggle plain class' }).click();
+  await expect(target).toHaveClass('ordinary active');
+  await expect(page.locator('style[data-zui]')).toHaveCount(0);
+});
+
 test('derived snapshots release old rules while setup constants remain available', async ({
   page,
 }) => {

@@ -199,3 +199,11 @@ f90a0d4 的完整 CI 已通过（35310553071），包括未经过 ZUI 编译的 
 5eb82d0 的完整 CI 已通过（35311178346），包括模块 helper/map/方法 this 的浏览器样式与导航回收。组件 scope 将快照收集提为共用函数，编译器为 setup 调用、state 初始值、derived 表达式和 derived.by 回调补充上下文，支持普通跨文件 helper。Rune 保持原声明位置，顶层 await 不搬进同步闭包；仅实际执行 css 时选择 runtime，避免普通初始化抢占默认实例。新内部能力将协议递增为 4。
 
 LifecycleProbe 改为导入普通 TS helper，覆盖 setup/state/两种 derived、100 次逐次更新、隐藏恢复和卸载；相关编译/SSR 12 项、聚焦 TypeScript、ESLint 与 WebStorm 检查通过，浏览器和自定义 CSP runtime 的初始化顺序交给 CI。
+
+## P7：普通 class 不创建默认 runtime
+
+6783994 的完整 CI 已通过（35311842191），包含普通外部 helper 在 setup/state/derived/by 中的百次更新、隐藏恢复、严格 CSP 自定义 runtime 与包外验收。
+
+ClassController 接受内部 get/peek 访问器，普通 class/style 只规范化值，不创建默认 runtime 或注入主题；真正产生/消费受管规则时才取得组件引用，之后固定使用同一 runtime。惰性挂载在后续选择 stylesheet 通道时不写内部 style 变量。内部接入协议递增为 5。顺带修复批量丢弃无用 binding 时一个清理异常阻断其余释放的问题。
+
+相关 core 10 项、SSR 6 项、聚焦 TypeScript、ESLint 和 WebStorm 检查通过；新增普通 class 页面验证零 data-zui 样式节点，交给 CI。周额度剩余 46%。

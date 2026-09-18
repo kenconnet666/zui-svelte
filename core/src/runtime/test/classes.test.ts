@@ -1,10 +1,79 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { ClassController, css, createCss, withCssEvaluation } from '../classes.js';
 import { createRuntime } from '../runtime.js';
 import { defineTheme } from '../../theme/theme.js';
 import { buildStyle } from '../../css/builder.js';
+import { elementTarget } from './target.js';
+import { createStyleModule } from '../definitions.js';
 
 describe('class-only evaluation', () => {
+  it('acquires a runtime only when a managed definition is consumed', () => {
+    const runtime = createRuntime({ variables: 'stylesheet' });
+    let available = false;
+    const get = vi.fn(() => {
+      available = true;
+      return runtime;
+    });
+    const consumer = new ClassController(
+      { get, peek: () => (available ? runtime : undefined) },
+      'lazy',
+      'lazy',
+    );
+    const { node, values } = elementTarget();
+    expect(consumer.resolve(consumer.run(() => ['ordinary', { active: true }]))).toBe(
+      'ordinary active',
+    );
+    expect(consumer.style('color:red')).toBe('color:red');
+    consumer.mount(node);
+    expect(get).not.toHaveBeenCalled();
+    const module = createStyleModule('lazy-module');
+    const name = module.call('width', css, (s) => {
+      s.width.px(20);
+    });
+    expect(consumer.resolve(name)).toContain(name);
+    for (const width of [100, 120])
+      consumer.resolve(
+        consumer.run(() =>
+          css((s) => {
+            s.width.px(width);
+          }),
+        ),
+      );
+    expect(get).toHaveBeenCalledTimes(1);
+    expect(values.size).toBe(0);
+    expect(runtime.cssText()).toContain('120px');
+    consumer.dispose();
+    module.dispose();
+    runtime.dispose();
+  });
+
+  it('releases every unused binding when one disposal listener throws', () => {
+    const runtime = createRuntime();
+    const created: ReturnType<typeof runtime.binding>[] = [];
+    const original = runtime.binding.bind(runtime);
+    vi.spyOn(runtime, 'binding').mockImplementation((options) => {
+      const binding = original(options);
+      created.push(binding);
+      return binding;
+    });
+    const controller = new ClassController(runtime, 'owner', 'owner');
+    controller.run(() => [
+      css((s) => {
+        s.width.px(10);
+      }),
+      css((s) => {
+        s.height.px(20);
+      }),
+    ]);
+    created[0]!.subscribe((snapshot) => {
+      if (!snapshot.className) throw new Error('consumer failure');
+    });
+    expect(() => controller.run(() => [])).toThrow('Unused class bindings');
+    expect(runtime.stats.bindings).toBe(0);
+    expect(runtime.stats.rules).toBe(0);
+    controller.dispose();
+    runtime.dispose();
+  });
   it('keeps typed theme evaluation and restores nested contexts after errors', () => {
     const theme = defineTheme({ color: { brand: 'red' } }, { namespace: 'app' });
     const typed = createCss(theme);
