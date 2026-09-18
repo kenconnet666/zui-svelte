@@ -32,6 +32,10 @@ test('module style snapshots register in the browser and release on navigation',
 }) => {
   await page.goto('/#/__module-test');
   await expect(page.getByText('module snapshot', { exact: true })).toHaveCSS('width', '173px');
+  await expect(page.getByText('module script snapshot', { exact: true })).toHaveCSS(
+    'width',
+    '193px',
+  );
   await page.getByRole('navigation').getByRole('link', { name: '概览' }).click();
   await expect(page.locator('style[data-zui="z"]')).toHaveCount(0);
 });

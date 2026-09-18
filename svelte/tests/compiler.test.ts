@@ -3,6 +3,19 @@ import { compile } from 'svelte/compiler';
 import { transformClasses } from '../src/compiler/preprocess.js';
 
 describe('class compiler', () => {
+  it('registers module script constants even without an instance script or styled element', () => {
+    for (const template of ['', '<div class={panel}>module</div>']) {
+      const source =
+        '<script module lang="ts">import {css} from "@zui/core"; export const panel=css(s=>{s.width.px(193);});</script>' +
+        template;
+      const result = transformClasses(source, '/app/Module.svelte')!;
+      expect(result.code).toContain('createStyleModule');
+      expect(result.map.sourcesContent).toEqual([source]);
+      for (const generate of ['client', 'server'] as const)
+        expect(() => compile(result.code, { filename: 'Module.svelte', generate })).not.toThrow();
+      expect(transformClasses(result.code, '/app/Module.svelte')).toBeUndefined();
+    }
+  });
   it('reuses an existing props id and does not use each keys in the fallback branch', () => {
     const source =
       '<script>const id=$props.id();let rows=[];</script>{#each rows as row (row.id)}<div class={row.class}/>{:else}<div class={"empty"}/>{/each}';

@@ -71,11 +71,15 @@ try {
         private: true,
         type: 'module',
         dependencies,
-        pnpm: { overrides: { '@zui/core': archive('core') } },
       },
       null,
       2,
     ),
+  );
+  // pnpm 11 从 workspace 配置读取 overrides；临时项目只有根包，不链接源码工作区。
+  await writeFile(
+    join(directory, 'pnpm-workspace.yaml'),
+    JSON.stringify({ packages: ['.'], overrides: { '@zui/core': archive('core') } }, null, 2),
   );
   await cp(join(root, 'svelte/tests/kit/src'), join(directory, 'src'), { recursive: true });
   await cp(join(root, 'svelte/tests/package'), directory, { recursive: true });
@@ -85,7 +89,7 @@ try {
     "'@zui/core'",
   );
   await writeFile(join(directory, 'src/core-types.ts'), types);
-  run(['install', '--ignore-workspace', '--ignore-scripts'], directory);
+  run(['install', '--no-frozen-lockfile', '--ignore-scripts'], directory);
   for (const name of ['@zui/core', '@zui/svelte']) {
     const installed = await realpath(join(directory, 'node_modules', name));
     assert(

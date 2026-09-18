@@ -9,6 +9,7 @@ export function transformStyleModule(
   filename: string,
   root: string,
   cssModules: readonly string[] = ['@zui/core', '@zui/svelte'],
+  editing?: { magic: MagicString; offset: number },
 ) {
   const source = ts.createSourceFile(filename, content, ts.ScriptTarget.Latest, true);
   const names = new Set<string>();
@@ -67,13 +68,14 @@ export function transformStyleModule(
   let owner = '__zuiModule';
   while (content.includes(owner)) owner += '_';
   const create = owner + 'Create';
-  const magic = new MagicString(content);
+  const magic = editing?.magic ?? new MagicString(content);
+  const offset = editing?.offset ?? 0;
   for (const call of calls) {
     const start = call.expression.getStart(source);
     // 参数仍在原位置求值，保留顶层 await、异常和参数求值顺序。
     magic.overwrite(
-      start,
-      call.arguments.pos,
+      offset + start,
+      offset + call.arguments.pos,
       owner +
         '.call(' +
         JSON.stringify(String(start)) +
@@ -82,7 +84,8 @@ export function transformStyleModule(
         (call.arguments.length ? ',' : ''),
     );
   }
-  magic.prepend(
+  magic.appendLeft(
+    offset,
     'import { createStyleModule as ' +
       create +
       ' } from "@zui/core";\nconst ' +
@@ -93,7 +96,10 @@ export function transformStyleModule(
       JSON.stringify(moduleId) +
       ');\n',
   );
-  magic.append('\nif (import.meta.hot) import.meta.hot.dispose(() => ' + owner + '.dispose());\n');
+  magic.appendLeft(
+    offset + content.length,
+    '\nif (import.meta.hot) import.meta.hot.dispose(() => ' + owner + '.dispose());\n',
+  );
   return {
     code: magic.toString(),
     map: magic.generateMap({ hires: true, source: filename, includeContent: true }),

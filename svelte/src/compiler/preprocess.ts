@@ -62,6 +62,17 @@ export function transformClasses(
   const targets: { node: Node; parents: readonly Node[] }[] = [];
   const instance = ast.instance as Node | null;
   const program = instance?.content as Node | undefined;
+  const moduleScript = (ast.module as Node | null)?.content as Node | undefined;
+  // module 脚本只注册只读定义，仍由每个消费请求收集；共用编辑器保留原文件映射。
+  const moduleResult =
+    moduleScript &&
+    transformStyleModule(
+      content.slice(moduleScript.start, moduleScript.end),
+      filename + '.module.ts',
+      options.root ?? process.cwd(),
+      options.cssModules,
+      { magic, offset: moduleScript.start },
+    );
 
   if (program)
     walk(program, (node) => {
@@ -127,7 +138,14 @@ export function transformClasses(
       targets.push({ node, parents });
     }
   });
-  if (!targets.length && !imports.length) return undefined;
+  if (!targets.length && !imports.length) {
+    if (!moduleResult) return undefined;
+    magic.appendLeft(moduleScript!.start, '/* ' + marker + ' */\n');
+    return {
+      code: magic.toString(),
+      map: magic.generateMap({ hires: true, source: filename, includeContent: true }),
+    };
+  }
 
   function value(attribute: Node): string {
     if (attribute.value === true) return 'true';

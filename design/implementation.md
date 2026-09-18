@@ -135,3 +135,9 @@ c047dcb 的完整 CI 已通过（35300813045），包括固定性能门槛。模
 新增 test:packages：实际打包 core/svelte，在系统临时目录独立安装 tarball，使用包的 compiler/server/root 入口，不设置 zui-source，不链接工作区源码。依赖版本读取集中配置实际安装的版本；复制完整 core 类型正反用例做包外检查，核对安装路径和产物无测试文件。外部项目构建 Node adapter 与 static adapter，再复用 Kit 三浏览器测试，并直接读取 prerender HTML 在禁用 JavaScript 的浏览器验证首屏样式。成功清理临时项目，失败保留路径，CI 保存步骤报告。
 
 脚本语法、定向 ESLint、聚焦 TypeScript 和 WebStorm 检查通过；没有在本地运行完整安装/构建/浏览器流程，结果待本次 CI。阶段额度剩余 48%。
+
+## P4：Svelte module 脚本静态定义
+
+为 script module 复用 TS 模块定义编译，覆盖没有 instance script、仅导出常量以及模板消费等形式；使用同一 MagicString 与原始偏移编辑，保留源文件位置。模块常量不绑定某个 SSR 请求，每个消费者单独注册和回收。局部编译/SSR 11 项、聚焦 TypeScript、定向 ESLint 和 WebStorm 检查通过。包外阶段 Playwright 配置的首次 IDE 检查超时，单文件重查已通过。
+
+75b70e3 的 CI 35308087996 已通过原有工作区门槛，新包外阶段在安装时失败：pnpm 11 不读取 package.json.pnpm.overrides，尝试从 npm 下载未发布的 core。依据 pnpm 官方 package.json 文档，将覆盖写到独立临时项目自己的 pnpm-workspace.yaml；本地 pnpm 11.22.0 config get 已确认可读，完整安装留给 CI。
