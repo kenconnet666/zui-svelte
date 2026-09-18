@@ -1,5 +1,52 @@
 import { expect, test } from '@playwright/test';
 
+test('provider scopes update, replace and release without taking ownership of shared scopes', async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto('/#/__provider-test');
+  const root = page.getByTestId('provider-root');
+  const shared = page.getByTestId('provider-shared');
+  await expect(root).toHaveCSS('color', 'rgb(255, 0, 0)');
+  await expect(shared).toHaveCSS('color', 'rgb(255, 0, 0)');
+  await expect(page.getByTestId('provider-child')).toHaveCSS('color', 'rgb(0, 0, 255)');
+  await expect(page.getByTestId('provider-container')).toHaveCSS('padding-top', '7px');
+  await expect(page.getByTestId('provider-container')).toHaveClass(/custom-provider/u);
+  expect(await page.getByTestId('provider-container').evaluate((node) => node.tagName)).toBe(
+    'SECTION',
+  );
+  await root.click();
+  await expect(page.getByTestId('provider-clicks')).toHaveText('1');
+  const count = await page.locator('style[data-zui="provider"]').count();
+  await page.getByRole('button', { name: 'Switch theme 100 times' }).click();
+  await expect(page.getByTestId('provider-completed')).toHaveText('1');
+  await expect(root).toHaveCSS('color', 'rgb(0, 128, 0)');
+  await expect(shared).toHaveCSS('color', 'rgb(0, 128, 0)');
+  await expect(page.getByTestId('provider-child')).toHaveCSS('color', 'rgb(0, 0, 255)');
+  await expect(page.locator('style[data-zui="provider"]')).toHaveCount(count);
+  await page.getByRole('button', { name: 'Replace scope' }).click();
+  await expect(root).toHaveCSS('color', 'rgb(128, 0, 128)');
+  await expect(shared).toHaveCSS('color', 'rgb(0, 128, 0)');
+  await page.getByRole('button', { name: 'Toggle provider' }).click();
+  await expect(root).toHaveCount(0);
+  await page.getByRole('button', { name: 'Switch theme 100 times' }).click();
+  await expect(page.getByTestId('provider-completed')).toHaveText('2');
+  await expect(shared).toHaveCSS('color', 'rgb(0, 128, 0)');
+  await page.getByRole('button', { name: 'Dispose scope' }).click();
+  await expect
+    .poll(() =>
+      page
+        .locator('style[data-zui="provider"]')
+        .allTextContents()
+        .then((items) => items.join('')),
+    )
+    .not.toContain(':where(.provider-theme-');
+  expect(errors).toEqual([]);
+  await page.getByRole('navigation').getByRole('link', { name: '概览' }).click();
+  await expect(page.locator('style[data-zui="provider"]')).toHaveCount(0);
+});
+
 test('ordinary class bindings do not create a style runtime or inject theme rules', async ({
   page,
 }) => {

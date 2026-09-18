@@ -54,3 +54,11 @@
 `CR/order.test.ts` 先证明反向取得来源、释放来源后重挂会改变 CSS 顺序（旧实现两项失败）。改为稳定来源键后局部回归通过；层顺序声明固定在首位，数字源码位置按数值位数排序，不依赖 locale，来源引用归零仍释放。
 
 SSR order 改为字符串键，内部协议从 5 升到 6；自定义 StyleSheet 的 set 第三个参数及 StyleEntry.order 同步改为 string，不可将其当作数字相减。旧 SSR/编译产物明确报版本不匹配。CB 新增双通道提升/重挂计算样式、SSR 反向接管及损坏 order 检查，浏览器结果待本轮 CI，尚不标为已验收。
+
+后续核实：`398f483` 的完整 CI [35325762599](https://github.com/kenconnet666/zui-svelte/actions/runs/35325762599) 已通过，上述新增来源顺序与协议回归已有三浏览器和包外证据；A03/A08/A16 的其他组合仍保留缺口。
+
+## 本轮增量：StyleProvider 基础接入
+
+新增容器组件、SSR 正负例、公开属性类型检查、共享/嵌套 scope 与 100 次切换的 Docs 回归，以及独立 tarball 的禁 JS 初始主题与客户端切换。A22/A23 已从仅底层能力推进到 Provider 实现；新浏览器/包外回归等待对应提交 CI，Provider 跨 Document/ShadowRoot 接入与多轴偏好仍待补，不能标记整个 R1 完成。
+
+组件使用通用 HTMLAttributes，避免按全部标签展开泛型联合；as 排除 void 标签。根入口包含标准 .svelte 源组件后，普通 Node 直接导入根入口不再是有效消费方式，CI 保留 core 的直接 Node 导入，Svelte 根入口由真实 Vite/Kit 外部安装消费验证。

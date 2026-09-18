@@ -15,6 +15,7 @@ test.describe('prerender without client scripts', () => {
     await page.setContent(html);
     await expect(page.getByTestId('prerender-target')).toHaveCSS('width', '213px');
     await expect(page.getByTestId('prerender-target')).toHaveCSS('color', 'rgb(255, 0, 0)');
+    await expect(page.getByTestId('prerender-nested')).toHaveCSS('color', 'rgb(0, 0, 255)');
   });
 });
 
@@ -34,6 +35,11 @@ test('forwards plain classes to an unmanaged dependency and cleans them during K
   const oldClass = await target.getAttribute('class');
   await page.getByRole('link', { name: 'Static route' }).click();
   await expect(page.getByTestId('prerender-target')).toHaveCSS('width', '213px');
+  await expect(page.getByTestId('prerender-target')).toHaveCSS('color', 'rgb(255, 0, 0)');
+  await page.getByRole('button', { name: 'Change package theme' }).click();
+  await expect(page.getByTestId('prerender-target')).toHaveCSS('color', 'rgb(0, 128, 0)');
+  await expect(page.getByTestId('prerender-nested')).toHaveCSS('color', 'rgb(0, 0, 255)');
+  expect(await page.locator('article').getAttribute('style')).toBeNull();
   await expect
     .poll(() =>
       page

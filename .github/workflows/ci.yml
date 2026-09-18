@@ -73,7 +73,9 @@ jobs:
             for (const name of ['@zui/core', '@zui/svelte']) {
               const resolved = import.meta.resolve(name);
               if (!resolved.endsWith('/dist/index.js')) throw new Error('Unexpected entrypoint: ' + resolved);
-              await import(name);
+              // Svelte 根入口现在含 .svelte 源组件，由后续 Vite/Kit 包外构建验证。
+              // 普通 Node 无 Svelte loader；core 仍须直接导入且无 DOM 依赖。
+              if (name === '@zui/core') await import(name);
               console.log(name + ' -> ' + resolved);
             }
           "

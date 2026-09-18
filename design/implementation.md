@@ -247,3 +247,13 @@ Codex CLI 0.154.0 的 daemon version 与 app-server proxy 均无法连接默认�
 新增两项来源顺序反例，在旧实现中均失败：反向取得两个来源、来源完全释放后重挂会改变 CSS 输出顺序。改为由稳定来源与数字源码位置生成字符串排序键，Node/浏览器使用相同码元比较，层声明在前；来源归零后仍释放，不永久记录挂载历史。StyleSheet.order 合同改为 string，SSR metadata 统一转义/校验，内部协议升至 6，旧编译和 SSR 数据明确拒绝。
 
 相关 14 项局部单元、core 类型检查、ESLint、LSP 单文件诊断通过。新增双通道提升/重挂、SSR 反向接管与损坏 order 的三浏览器回归，结果交给本轮 CI；未将浏览器用例存在计作通过。同来源不同值变体仍不提供 class 拼接顺序优先级，明确覆盖使用 layers。
+
+## R1：StyleProvider 容器基础接入
+
+398f483 的完整 CI 已通过（35325762599），稳定来源排序、双通道提升/重挂与 SSR 反向接管均已通过三浏览器及包外验证。
+
+新增 @zui/svelte 根入口 StyleProvider：默认 div、非 void 的 as、通用 HTML 属性/class/style/事件、调用方拥有的 ThemeScope；复用 runtime，先安装新主题再释放旧规则，切换 scope 后释放旧订阅，SSR 不订阅且将规则留到请求收集完成。自定义主题要求匹配 runtime namespace 和基础 Token schema。泛型标签的属性全集触发 TS 联合类型过大，采用 HTMLAttributes<HTMLElement> 保持类型可维护；实际类型用例覆盖必填 scope 和 void 标签拒绝。
+
+10 项相关 SSR 测试、svelte-check（0 errors / 0 warnings）、ESLint 和 Svelte autofixer 的结构检查通过。LSP 对组件诊断正常；单独查询 tests/provider-types.ts 时进入未带 zui-source 的推断项目而报包解析错误，此处以项目实际 tsconfig.check.json 的 svelte-check 结果为准，未把 LSP 结果计作通过。独立 Kit/package fixture 尚未本地构建，配置加载日志沿用既有隔离检查边界。
+
+新增 Docs 的共享/嵌套 scope、100 次切换、scope 替换/销毁、容器属性及卸载回收回归；独立 tarball 增加 Provider 禁 JS 首屏、嵌套主题与客户端切换。上述浏览器/包外结果交给 CI。根入口包含 .svelte 后普通 Node 不直接执行该入口，CI 保留 core Node 导入，Svelte 根入口交给真实外部 Vite/Kit 编译消费。R1 的 Portal/ShadowRoot 与偏好探针仍未收口。

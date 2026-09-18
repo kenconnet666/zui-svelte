@@ -29,6 +29,66 @@ afterAll(async () => {
 });
 
 describe('compiled SSR', () => {
+  it('collects nested providers after their owner scopes finish server rendering', async () => {
+    const { default: Probe } = await server.ssrLoadModule('/tests/fixtures/ProviderProbe.svelte');
+    const { renderStyled } = await server.ssrLoadModule('/src/server.ts');
+    const result = await renderStyled(Probe, { props: {}, runtime: { namespace: 'provider' } });
+    expect(result.body).toContain('provider-child');
+    expect(result.head.match(/:where\(\.provider-theme-[\w-]+\)\{/gu)).toHaveLength(3);
+    expect(result.head).toContain('--z-color-text:red');
+    expect(result.head).toContain('--z-color-text:blue');
+  });
+
+  it('accepts a provider custom theme when the runtime shares its schema', async () => {
+    const { default: Provider } = await server.ssrLoadModule('/src/StyleProvider.svelte');
+    const { renderStyled } = await server.ssrLoadModule('/src/server.ts');
+    const { ThemeScope, defineTheme } = await server.ssrLoadModule('@zui/core');
+    const theme = defineTheme({ color: { brand: 'red' } }, { namespace: 'custom' });
+    const scope = new ThemeScope(theme, { color: { brand: 'green' } });
+    const result = await renderStyled(Provider, { props: { scope }, runtime: { theme } });
+    expect(result.head).toContain('--custom-color-brand:green');
+    scope.dispose();
+  });
+  it('collects provider theme styles without subscribing to or disposing the caller scope', async () => {
+    const { default: Provider } = await server.ssrLoadModule('/src/StyleProvider.svelte');
+    const { renderStyled } = await server.ssrLoadModule('/src/server.ts');
+    const { ThemeScope, lightTheme } = await server.ssrLoadModule('@zui/core');
+    const scope = new ThemeScope(lightTheme, { color: { text: 'red' } });
+    scope.subscribe = () => {
+      throw new Error('SSR must not subscribe');
+    };
+    const result = await renderStyled(Provider, {
+      props: { scope, as: 'section', class: 'external', style: 'padding:7px' },
+      runtime: { nonce: 'provider-ssr' },
+    });
+    expect(result.body).toContain('<section');
+    expect(result.body).toContain('external');
+    expect(result.body).toContain('padding:7px');
+    expect(result.head).toContain(':where(.z-theme-');
+    expect(result.head).toContain('--z-color-text:red');
+    expect(result.head).toContain('nonce="provider-ssr"');
+    expect(() => scope.override({ color: { text: 'green' } })).not.toThrow();
+    scope.dispose();
+  });
+
+  it('rejects incompatible provider themes and void containers', async () => {
+    const { default: Provider } = await server.ssrLoadModule('/src/StyleProvider.svelte');
+    const { renderStyled } = await server.ssrLoadModule('/src/server.ts');
+    const { ThemeScope, lightTheme, defineTheme } = await server.ssrLoadModule('@zui/core');
+    for (const [theme, message] of [
+      [defineTheme({ color: { text: 'red' } }, { namespace: 'other' }), 'namespace'],
+      [defineTheme({ color: { text: 'red' } }), 'compatible token'],
+    ]) {
+      const scope = new ThemeScope(theme);
+      await expect(renderStyled(Provider, { props: { scope } })).rejects.toThrow(message);
+      scope.dispose();
+    }
+    const scope = new ThemeScope(lightTheme);
+    await expect(renderStyled(Provider, { props: { scope, as: 'input' } })).rejects.toThrow(
+      'non-void',
+    );
+    scope.dispose();
+  });
   it('renders ordinary classes without requiring a style collector', async () => {
     const { default: Probe } = await server.ssrLoadModule('/tests/fixtures/PlainClassProbe.svelte');
     const { render } = await server.ssrLoadModule('svelte/server');
