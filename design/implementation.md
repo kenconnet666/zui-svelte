@@ -223,3 +223,9 @@ db02c4d 的完整 CI 已通过（35312345458），验证普通 class 页面不�
 适配层销毁继续处理本组件的全部控制器/快照；默认 runtime 在调用可能抛错的 dispose 前从缓存移除。相关 21 项与新增双重故障后的定向 6 项、聚焦 TypeScript、ESLint 和 WebStorm 检查通过。自定义后端拒绝删除时不承诺物理 CSS 已消失，内部所有权与物理清理结果分别报告。
 
 用户已确认 StyleProvider 使用容器：默认 div，as 可选标签，接收 ThemeScope 与普通 class/style，接下来据此实现最少框架接入。
+
+## 验证修正与语言服务接入调查
+
+3ef459f 的 CI 35314320650 在 preserve-caught-error 阻塞：AggregateError 虽包含两个原异常，仍须显式声明 cause。已补充 cause 并单独执行 ESLint 通过。上一批组合命令未在 lint 失败后立即退出，后续 tsc 的成功掩盖了该失败；以本次独立检查和后续 CI 为准。
+
+用户重启 WebStorm 并启用服务驱动类型后，MCP 可返回数字 Token 的 _100: void 和 Svelte derived 的 string 类型，但受控探针的三个 TS 类型错误仍未由 get_file_problems 返回。临时探针已删除。用户授权研究并配置 LSP/MCP，必要时由用户重启 Codex；StyleProvider 容器方案保持已确认，尚未实现。

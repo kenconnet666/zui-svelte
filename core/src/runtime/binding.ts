@@ -128,7 +128,9 @@ export class StyleBinding<T extends TokenSchema> {
         try {
           this.registry.release(record);
         } catch (cleanupError) {
-          throw new AggregateError([error, cleanupError], 'Style write and rollback failed.');
+          throw new AggregateError([error, cleanupError], 'Style write and rollback failed.', {
+            cause: cleanupError,
+          });
         }
       }
       throw error;
