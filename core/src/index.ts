@@ -11,10 +11,17 @@ export {
 export type { StyleBuilder, StyleFactory } from './css/builder.js';
 export type { StyleProgram, Instruction, Declaration, Rule } from './css/program.js';
 export { serializeProgram, serializeTheme, canonicalize, hashText } from './css/serialize.js';
-export { defineTheme, extendTheme, overrideTheme } from './theme/theme.js';
+export { defineTheme, extendTheme, overrideTheme, tokenRef } from './theme/theme.js';
 export { lightTheme, darkTheme } from './theme/presets.js';
 export type { DefaultTokens } from './theme/presets.js';
-export type { Theme, TokenSchema, ThemePatch, TokenValue } from './theme/types.js';
+export type {
+  Theme,
+  TokenSchema,
+  ThemePatch,
+  TokenValue,
+  ThemeDefinition,
+  TokenReference,
+} from './theme/types.js';
 export { createRuntime } from './runtime/runtime.js';
 export type { StyleRuntime, RuntimeOptions } from './runtime/runtime.js';
 export { StyleBinding } from './runtime/binding.js';

@@ -7,3 +7,25 @@
 - 构建：`pnpm --filter @zui/core build`
 - 类型检查：`pnpm --filter @zui/core check`
 - 规划模块：`css/`、`theme/`、`recipe/`、`runtime/`、`preset/`，有实现后再创建。
+
+## 统一入口与主题
+
+样式、主题、预设和 runtime 均从 `@zui/core` 导入。下面是当前已实现的主题写法；`css()` 的组件/模块调用仍需接入 ZUI 编译插件。
+
+```ts
+import { createCss, extendTheme, lightTheme, overrideTheme, tokenRef } from '@zui/core';
+
+const theme = extendTheme(lightTheme, {
+  color: { brandText: tokenRef('color', 'primary') },
+  spacing: { panelGap: '18px' },
+});
+const css = createCss(theme);
+const alternate = overrideTheme(theme, { color: { primary: '#0f766e' } });
+
+theme.ref('color', 'brandText'); // var(--z-color-brandText)，可用于复杂 CSS 值
+alternate.resolved.color.brandText; // #0f766e
+```
+
+Token 别名只能引用同类别的已有键，覆盖后从完整定义重新解析；循环、缺失目标和类别错误会报错。`definition` 保留只读原始定义，`tokens`/`resolved` 是只读解析值。主题作用域先验证整棵子树再提交，子级别名失败不会让父级停留在半次更新状态。
+
+长度、时间、颜色等类别使用字符串，opacity/zIndex 使用数值；新增值遵守类别约束，覆盖和扩展不能改变已有 Token 的值种类。CSS 标准值的完整语法仍由浏览器解释。

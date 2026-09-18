@@ -1,6 +1,6 @@
 import { createVariableBinding } from '../runtime/variables.js';
 import { validateValue } from '../css/validate.js';
-import { overrideTheme } from './theme.js';
+import { overrideTheme, tokenRef, isReference } from './theme.js';
 import type { Theme, ThemePatch, TokenSchema, WidenTokens } from './types.js';
 
 export class ThemeScope<T extends TokenSchema> {
@@ -24,17 +24,47 @@ export class ThemeScope<T extends TokenSchema> {
   #copy(patch: ThemePatch<T>): ThemePatch<T> {
     return Object.freeze(
       Object.fromEntries(
-        Object.entries(patch).map(([key, values]) => [key, Object.freeze({ ...values })]),
+        Object.entries(patch).map(([key, values]) => [
+          key,
+          Object.freeze(
+            Object.fromEntries(
+              Object.entries(values ?? {}).map(([token, value]) => [
+                token,
+                isReference(value) ? tokenRef(value.category, value.token) : value,
+              ]),
+            ),
+          ),
+        ]),
       ),
     ) as ThemePatch<T>;
   }
   #alive() {
     if (this.#disposed) throw new Error('Theme scope is disposed.');
   }
-  #refresh() {
-    this.#theme = overrideTheme((this.parent?.theme ?? this.#base) as Theme<T>, this.#patch);
-    for (const listener of this.#listeners.keys()) listener(this.#theme);
-    for (const child of this.#children) child.#refresh();
+  #prepare(
+    base: Theme<T>,
+    patch: ThemePatch<T>,
+    pending = new Map<ThemeScope<T>, Theme<WidenTokens<T>>>(),
+  ) {
+    const theme = overrideTheme(base, patch);
+    pending.set(this, theme);
+    for (const child of this.#children) child.#prepare(theme as Theme<T>, child.#patch, pending);
+    return pending;
+  }
+  #commit(pending: Map<ThemeScope<T>, Theme<WidenTokens<T>>>) {
+    // 先验证整棵子作用域，再统一提交，避免子级别名失败导致父级已切换。
+    for (const [scope, theme] of pending) scope.#theme = theme;
+    const errors: unknown[] = [];
+    for (const [scope, theme] of pending)
+      for (const listener of [...scope.#listeners.keys()]) {
+        if (!scope.#listeners.has(listener)) continue;
+        try {
+          listener(theme);
+        } catch (error) {
+          errors.push(error);
+        }
+      }
+    if (errors.length) throw new AggregateError(errors, 'Theme subscribers failed.');
   }
   get theme(): Theme<WidenTokens<T>> {
     return this.#theme;
@@ -51,22 +81,35 @@ export class ThemeScope<T extends TokenSchema> {
     if (this.parent) throw new Error('Update the root theme, or change this scope overrides.');
     if (theme.namespace !== this.#base.namespace)
       throw new Error('Theme namespace cannot change in a live scope.');
-    overrideTheme(theme, this.#patch);
+    for (const [category, tokens] of Object.entries(this.#base.tokens))
+      for (const [key, value] of Object.entries(tokens))
+        if (
+          !Object.hasOwn(theme.tokens[category] ?? {}, key) ||
+          typeof theme.tokens[category]![key] !== typeof value
+        )
+          throw new Error('Incompatible theme token: ' + category + '.' + key);
+    const pending = this.#prepare(theme, this.#patch);
     this.#base = theme;
-    this.#refresh();
+    this.#commit(pending);
   }
   override(patch: ThemePatch<T>): void {
     this.#alive();
     const copied = this.#copy(patch);
-    overrideTheme((this.parent?.theme ?? this.#base) as Theme<T>, copied);
+    const pending = this.#prepare((this.parent?.theme ?? this.#base) as Theme<T>, copied);
     this.#patch = copied;
-    this.#refresh();
+    this.#commit(pending);
   }
   subscribe(listener: (theme: Theme<WidenTokens<T>>) => void, cleanup?: () => void): () => void {
     this.#alive();
     const notify = (theme: Theme<WidenTokens<T>>) => listener(theme);
     this.#listeners.set(notify, cleanup);
-    notify(this.#theme);
+    try {
+      notify(this.#theme);
+    } catch (error) {
+      this.#listeners.delete(notify);
+      cleanup?.();
+      throw error;
+    }
     return () => {
       if (this.#listeners.delete(notify)) cleanup?.();
     };

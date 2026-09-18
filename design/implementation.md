@@ -67,3 +67,9 @@ b6e3196 的完整 CI 已通过（35297002200），含严格 CSP 生产构建三�
 已增加真正的 Kit Node 构建/三浏览器 CI fixture，使用显式服务端数据放行验证 styled shell 先返回，并检验 hydration、晚到 await 内容及严格 CSP。本地没有运行完整 Kit 构建或浏览器套件。本实现覆盖锁定 Kit 的数据流式模型，不声称支持任意宿主的晚到 HTML/CSS 分块协议；包外 tarball、静态 prerender 和复杂取消压力仍待后续验收。
 
 4a7cf01 的 CI 35297816273 在 Kit fixture 类型检查失败：独立 package.json 阻断父包自引用解析。为 fixture 显式声明 link 依赖并在 CI 检查前准备本地链接；这仍是 P1 工作区消费验证，不能替代 P6 的 tarball 外部消费。hooks.server.ts 聚焦类型检查通过。后续构建/浏览器结果以新 CI 为准。
+
+## P2：主题引用、别名与原子更新
+
+新增统一入口 tokenRef、类型化 theme.variable/ref、只读 definition/resolved。别名按最终覆盖后的定义解析，检测循环、缺失和跨类别引用；类型推导深度有界，已知类别的值约束由类型/运行时共用表维护。覆盖和扩展保持已有值种类，ThemeScope 先计算整棵子树再提交，单个订阅者异常不阻断其余通知。局部主题/模块 12 项测试及正反类型用例通过，定向 ESLint 通过，WebStorm 对主题核心文件检查无错误。
+
+9faf98f 的 CI 35298060285 已通过之前各项并到达 Kit 构建，但自定义 resolve.conditions 丢失 browser 默认条件，误解析服务端代码。fixture 改为追加 Vite 官方默认 client/server conditions；本批交给 CI 继续验证，尚未宣布真实 Kit 验收完成。
