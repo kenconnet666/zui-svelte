@@ -59,3 +59,9 @@ fb37d44 的完整 CI 已通过（35296738893）。新增 runtime 的 variables: 
 ## P1：模块静态样式与请求收集
 
 b6e3196 的完整 CI 已通过（35297002200），含严格 CSP 生产构建三浏览器用例。新增只读模块定义与模块/消费者引用管理，TS/JS 编译在顶层 css 调用处建立模块所有权，保留参数求值顺序和顶层 await，普通 helper 函数体继续使用消费者上下文。同一已缓存模块的样式可被不同 SSR 请求独立收集；HMR 释放模块时保留仍在使用的定义。局部 core 10 项、编译/SSR 9 项通过；WebStorm 对 definitions.ts、classes.ts、module.ts 无错误，其后一个请求返回 HTTP 404，缺失部分用聚焦 tsc 补验（显式使用工作区现有 Node 类型路径）。已加生产浏览器模块注册/回收用例，交给 CI。当前仅识别已配置入口的顶层直接调用，完整重导出图、模块 helper 初始化和 HMR 浏览器验收仍未完成。
+
+## P1：SvelteKit 流式响应与请求生命周期
+
+模块阶段 eed2762 的完整 CI 已通过（35297348116）。锁定 SvelteKit 2.70.3，并核对实际源码：先生成并转换完整 HTML shell，再发送延迟数据片段。createStyleHandle 改用真实 Handle 类型和 transformPageChunk 注入首屏样式，保留响应流、头和背压，结束/取消/AbortSignal/错误时释放请求资源；支持逐请求 runtime 配置，原始非页面响应保持原样。renderStyled 补传 idPrefix/CSP/错误处理选项。局部响应生命周期 4 项、SSR 3 项验证通过；聚焦 TypeScript 检查通过，WebStorm 对 server.ts 和 Kit page 无错误。
+
+已增加真正的 Kit Node 构建/三浏览器 CI fixture，使用显式服务端数据放行验证 styled shell 先返回，并检验 hydration、晚到 await 内容及严格 CSP。本地没有运行完整 Kit 构建或浏览器套件。本实现覆盖锁定 Kit 的数据流式模型，不声称支持任意宿主的晚到 HTML/CSS 分块协议；包外 tarball、静态 prerender 和复杂取消压力仍待后续验收。

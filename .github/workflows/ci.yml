@@ -81,6 +81,12 @@ jobs:
       - name: Test core DOM and hydration in three browsers
         run: pnpm run test:core:browser
 
+      - name: Build SvelteKit production fixture
+        run: pnpm --filter @zui/svelte run test:kit:build
+
+      - name: Test SvelteKit SSR and hydration in three browsers
+        run: pnpm --filter @zui/svelte run test:kit
+
       - name: Upload browser report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -90,6 +96,7 @@ jobs:
             docs/playwright-report/
             docs/test-results/
             core/test-results/
+            svelte/test-results/
           if-no-files-found: ignore
           retention-days: 14
 

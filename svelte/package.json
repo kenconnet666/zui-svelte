@@ -37,7 +37,9 @@
   "scripts": {
     "build": "svelte-package --input src",
     "check": "svelte-check --tsconfig ./tsconfig.check.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:kit:build": "cd tests/kit && vite build",
+    "test:kit": "playwright test"
   },
   "dependencies": {
     "typescript": "catalog:",
@@ -46,9 +48,19 @@
     "@lucide/svelte": "catalog:"
   },
   "peerDependencies": {
+    "@sveltejs/kit": "^2.70.3",
     "svelte": "^5.57.0"
   },
+  "peerDependenciesMeta": {
+    "@sveltejs/kit": {
+      "optional": true
+    }
+  },
   "devDependencies": {
+    "@playwright/test": "catalog:",
+    "@sveltejs/kit": "catalog:",
+    "@sveltejs/adapter-node": "catalog:",
+    "@sveltejs/adapter-static": "catalog:",
     "@sveltejs/package": "catalog:",
     "@sveltejs/vite-plugin-svelte": "catalog:",
     "@vitest/browser-playwright": "catalog:",

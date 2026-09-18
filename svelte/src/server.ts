@@ -1,6 +1,7 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { render } from 'svelte/server';
+import { render, type Csp } from 'svelte/server';
 import type { Component } from 'svelte';
+import type { Handle, RequestEvent } from '@sveltejs/kit';
 import { createRuntime, type RuntimeOptions, type TokenSchema } from '@zui/core';
 import { STYLE_RUNTIME, setServerRuntimeResolver, type Runtime } from './runtime/context.js';
 
@@ -9,49 +10,128 @@ setServerRuntimeResolver(() => requests.getStore());
 
 export async function renderStyled<P extends Record<string, unknown>>(
   component: Component<P>,
-  options: { props: P; context?: Map<unknown, unknown>; runtime?: RuntimeOptions<TokenSchema> },
+  options: {
+    props: P;
+    context?: Map<unknown, unknown>;
+    runtime?: RuntimeOptions<TokenSchema>;
+    idPrefix?: string;
+    csp?: Csp;
+    transformError?: (error: unknown) => unknown | Promise<unknown>;
+  },
 ) {
-  const runtime = createRuntime<TokenSchema>(options.runtime);
+  if (options.runtime?.nonce && options.csp?.nonce && options.runtime.nonce !== options.csp.nonce)
+    throw new Error('Style and render CSP nonces must match.');
+  const runtime = createRuntime<TokenSchema>({
+    ...options.runtime,
+    nonce: options.runtime?.nonce ?? options.csp?.nonce,
+  });
   runtime.themeStyle(':where(:root)');
   const context = new Map(options.context);
   context.set(STYLE_RUNTIME, runtime);
   try {
-    const result = await render(component, { props: options.props, context });
+    const result = await render(component, {
+      props: options.props,
+      context,
+      idPrefix: options.idPrefix,
+      csp: options.csp,
+      transformError: options.transformError,
+    });
     return { ...result, head: result.head + runtime.styleTags() };
   } finally {
     runtime.dispose();
   }
 }
 
-export function createStyleHandle(options: RuntimeOptions<TokenSchema> = {}) {
-  return async <E>({
-    event,
-    resolve,
-  }: {
-    event: E;
-    resolve: (event: E) => Promise<Response>;
-  }): Promise<Response> => {
-    const runtime = createRuntime<TokenSchema>(options);
+export function createStyleHandle(
+  options:
+    | RuntimeOptions<TokenSchema>
+    | ((
+        event: RequestEvent,
+      ) => RuntimeOptions<TokenSchema> | Promise<RuntimeOptions<TokenSchema>>) = {},
+): Handle {
+  return async ({ event, resolve }) => {
+    const settings = typeof options === 'function' ? await options(event) : options;
+    const runtime = createRuntime<TokenSchema>(settings);
     try {
+      runtime.themeStyle(':where(:root)');
       return await requests.run(runtime, async () => {
-        const response = await resolve(event);
-        if (!response.headers.get('content-type')?.includes('text/html')) return response;
-        const html = await response.text();
-        if (runtime.registry.size) runtime.themeStyle(':where(:root)');
         const placeholder = '<!--zui:styles-->';
-        if (runtime.registry.size && response.status < 400 && !html.includes(placeholder))
-          throw new Error('Add <!--zui:styles--> inside app.html head.');
-        const headers = new Headers(response.headers);
-        headers.delete('content-length');
-        headers.delete('etag');
-        return new Response(html.replace(placeholder, runtime.styleTags()), {
+        let inserted = false;
+        let pending = '';
+        const response = await resolve(event, {
+          transformPageChunk: ({ html, done }) => {
+            if (inserted) return html;
+            pending += html;
+            if (!pending.includes(placeholder)) {
+              if (done) throw new Error('Add <!--zui:styles--> inside app.html head.');
+              return '';
+            }
+            inserted = true;
+            const result = pending.replace(placeholder, placeholder + runtime.styleTags());
+            pending = '';
+            return result;
+          },
+        });
+        if (!response.body || !response.headers.get('content-type')?.includes('text/html')) {
+          runtime.dispose();
+          return response;
+        }
+        if (!inserted) {
+          if (runtime.registry.size > 1)
+            throw new Error('HTML styles require the SvelteKit page transform.');
+          runtime.dispose();
+          return response;
+        }
+        const reader = response.body.getReader();
+        let closed = false;
+        const finish = () => {
+          if (closed) return;
+          closed = true;
+          event.request.signal.removeEventListener('abort', abort);
+          reader.releaseLock();
+          runtime.dispose();
+        };
+        const cancel = async (reason: unknown) => {
+          try {
+            await reader.cancel(reason);
+          } finally {
+            finish();
+          }
+        };
+        const abort = () => {
+          void cancel(event.request.signal.reason).catch(() => {});
+        };
+        event.request.signal.addEventListener('abort', abort, { once: true });
+        if (event.request.signal.aborted) abort();
+        // Response 返回不代表渲染结束；保留请求上下文直到流关闭、报错或取消。
+        const body = new ReadableStream<Uint8Array>({
+          async pull(controller) {
+            if (closed) {
+              controller.close();
+              return;
+            }
+            try {
+              const result = await requests.run(runtime, () => reader.read());
+              if (result.done) {
+                finish();
+                controller.close();
+              } else controller.enqueue(result.value);
+            } catch (error) {
+              finish();
+              controller.error(error);
+            }
+          },
+          cancel,
+        });
+        return new Response(body, {
           status: response.status,
           statusText: response.statusText,
-          headers,
+          headers: response.headers,
         });
       });
-    } finally {
+    } catch (error) {
       runtime.dispose();
+      throw error;
     }
   };
 }
