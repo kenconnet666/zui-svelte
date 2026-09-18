@@ -13,6 +13,37 @@ export function transformStyleModule(
   editing?: { magic: MagicString; offset: number },
 ) {
   const source = ts.createSourceFile(filename, content, ts.ScriptTarget.Latest, true);
+  const creators = new Set<string>();
+  for (const statement of source.statements) {
+    if (
+      !ts.isImportDeclaration(statement) ||
+      !ts.isStringLiteral(statement.moduleSpecifier) ||
+      statement.moduleSpecifier.text !== '@zui/core'
+    )
+      continue;
+    const bindings = statement.importClause?.namedBindings;
+    if (bindings && ts.isNamedImports(bindings))
+      for (const binding of bindings.elements)
+        if ((binding.propertyName?.text ?? binding.name.text) === 'createStyleModule')
+          creators.add(binding.name.text);
+  }
+  for (const statement of source.statements) {
+    if (!ts.isVariableStatement(statement)) continue;
+    for (const declaration of statement.declarationList.declarations) {
+      const init = declaration.initializer;
+      if (
+        !init ||
+        !ts.isCallExpression(init) ||
+        !ts.isIdentifier(init.expression) ||
+        !creators.has(init.expression.text) ||
+        init.arguments.length !== 2
+      )
+        continue;
+      const version = init.arguments[1]!;
+      styleProtocol.check(ts.isNumericLiteral(version) ? Number(version.text) : undefined);
+      return undefined;
+    }
+  }
   const names = new Set<string>();
   const factories = new Set<string>();
   const helpers = new Map<string, ts.Node>();

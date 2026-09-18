@@ -3,8 +3,53 @@ import { compile } from 'svelte/compiler';
 import { transformClasses } from '../src/compiler/preprocess.js';
 import { createStyleScope } from '../src/runtime/scope.js';
 import { styleProtocol } from '@zui/core';
+import { SourceMap } from 'node:module';
 
 describe('class compiler', () => {
+  it('does not treat ordinary marker text or comments as compiled code', () => {
+    for (const text of ['<p>zui-class-compiled</p>', '<!-- zui-class-compiled -->']) {
+      const source =
+        '<script>import {css} from "@zui/core";</script>' +
+        text +
+        '<div class={css(s=>{s.width.px(10);})}/>';
+      const result = transformClasses(source, '/app/Marker.svelte')!;
+      expect(result).toBeDefined();
+      expect(transformClasses(result.code, '/app/Marker.svelte')).toBeUndefined();
+    }
+  });
+  it('validates the protocol before skipping already compiled components', () => {
+    const result = transformClasses('<div class={"panel"}/>', '/app/Protocol.svelte')!;
+    const incompatible = result.code.replace(', ' + styleProtocol.version + ');', ', 0);');
+    expect(() => transformClasses(incompatible, '/app/Protocol.svelte')).toThrow(
+      'protocol mismatch',
+    );
+  });
+  it('preserves expression source locations across attributes and directives', () => {
+    const source = `<script lang="ts">
+import {css} from '@zui/core';
+let width=$state(10); let node; let props={title:'panel'};
+</script>
+<div id="panel" bind:this={node} {...props}
+ class={css(s=>{
+  s.width.px(width);
+ })} style:color="red" title="width {width}"/>`;
+    const result = transformClasses(source, '/app/Mapped.svelte')!;
+    function locate(text: string, needle: string): [number, number] {
+      const offset = text.lastIndexOf(needle);
+      expect(offset).toBeGreaterThanOrEqual(0);
+      const before = text.slice(0, offset);
+      return [before.split('\n').length - 1, offset - before.lastIndexOf('\n') - 1];
+    }
+    const map = new SourceMap(JSON.parse(result.map.toString()));
+    for (const needle of ['s.width.px(width)', 'props', 'width']) {
+      // 表达式在属性合并后仍映射到它自身，不是 class/spread 起点。
+      const entry = map.findEntry(...locate(result.code, needle));
+      const expected = locate(source, needle);
+      expect([entry.originalLine, entry.originalColumn]).toEqual(expected);
+    }
+    for (const generate of ['client', 'server'] as const)
+      expect(() => compile(result.code, { filename: 'Mapped.svelte', generate })).not.toThrow();
+  });
   it('keeps runes in declaration position and wraps imported helper producers', () => {
     const source = `<script lang="ts">
 import {make} from './helper';
@@ -27,7 +72,11 @@ const id=$props.id();
     );
   });
   it('registers module script constants even without an instance script or styled element', () => {
-    for (const template of ['', '<div class={panel}>module</div>']) {
+    for (const template of [
+      '',
+      '<script>let value=1;</script><p>{value}</p>',
+      '<div class={panel}>module</div>',
+    ]) {
       const source =
         '<script module lang="ts">import {css} from "@zui/core"; export const panel=css(s=>{s.width.px(193);});</script>' +
         template;

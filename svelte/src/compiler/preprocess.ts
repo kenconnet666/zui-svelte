@@ -18,6 +18,42 @@ export interface ClassCompilerOptions {
   cssModules?: readonly string[];
 }
 const marker = 'zui-class-compiled';
+
+function isCompiled(
+  program: Node | undefined,
+  module: string,
+  imported: string,
+  arity: number,
+): boolean {
+  const statements = (program?.body as Node[] | undefined) ?? [];
+  const names = new Set<string>();
+  for (const statement of statements) {
+    if (statement.type !== 'ImportDeclaration' || (statement.source as Node).value !== module)
+      continue;
+    for (const specifier of statement.specifiers as Node[])
+      if (specifier.type === 'ImportSpecifier' && (specifier.imported as Node).name === imported)
+        names.add((specifier.local as Node).name as string);
+  }
+  for (const statement of statements) {
+    if (statement.type !== 'VariableDeclaration') continue;
+    for (const declaration of statement.declarations as Node[]) {
+      const init = declaration.init as Node | undefined;
+      const callee = init?.callee as Node | undefined;
+      if (
+        init?.type !== 'CallExpression' ||
+        callee?.type !== 'Identifier' ||
+        !names.has(callee.name as string)
+      )
+        continue;
+      const args = init.arguments as Node[];
+      if (args.length !== arity) continue;
+      // 实际桥接 import + 初始化调用才是协议证据，普通文字/注释不参与判断。
+      styleProtocol.check(args[arity - 1]?.value);
+      return true;
+    }
+  }
+  return false;
+}
 function walk(
   value: unknown,
   visit: (node: Node, parents: readonly Node[]) => void,
@@ -45,8 +81,12 @@ export function transformClasses(
   filename: string,
   options: ClassCompilerOptions = {},
 ) {
-  if (content.includes(marker)) return undefined;
   const ast = parse(content, { filename, modern: true }) as unknown as Node;
+  const instance = ast.instance as Node | null;
+  const program = instance?.content as Node | undefined;
+  const moduleScript = (ast.module as Node | null)?.content as Node | undefined;
+  if (isCompiled(program, options.runtimeModule ?? '@zui/svelte/internal', 'createStyleScope', 3))
+    return undefined;
   const magic = new MagicString(content);
   const scope = unique(content, '__zuiScope');
   const create = unique(content, '__zuiCreate');
@@ -60,9 +100,6 @@ export function transformClasses(
   const imports: { node: Node; local: string; alias: string }[] = [];
   const loops = new Map<Node, string>();
   const targets: { node: Node; parents: readonly Node[] }[] = [];
-  const instance = ast.instance as Node | null;
-  const program = instance?.content as Node | undefined;
-  const moduleScript = (ast.module as Node | null)?.content as Node | undefined;
   // module 脚本只注册只读定义，仍由每个消费请求收集；共用编辑器保留原文件映射。
   const moduleResult =
     moduleScript &&
@@ -146,26 +183,42 @@ export function transformClasses(
     };
   }
 
-  function value(attribute: Node): string {
-    if (attribute.value === true) return 'true';
+  type Part = string | Node;
+  function value(attribute: Node): Part[] {
+    if (attribute.value === true) return ['true'];
     const items = Array.isArray(attribute.value)
       ? (attribute.value as Node[])
       : [attribute.value as Node];
     if (items.length === 1 && items[0]!.type === 'ExpressionTag') {
       const expression = items[0]!.expression as Node;
-      return content.slice(expression.start, expression.end);
+      return [expression];
     }
-    return (
-      items
-        .map((item) =>
-          item.type === 'Text'
-            ? JSON.stringify(item.data)
-            : 'String((' +
-              content.slice((item.expression as Node).start, (item.expression as Node).end) +
-              ') ?? "")',
-        )
-        .join(' + ') || '""'
-    );
+    return items.length
+      ? items.flatMap((item, index): Part[] => [
+          ...(index ? [' + '] : []),
+          ...(item.type === 'Text'
+            ? [JSON.stringify(item.data)]
+            : ['String((', item.expression as Node, ') ?? "")']),
+        ])
+      : ['""'];
+  }
+
+  function rewrite(attribute: Node, parts: Part[]): void {
+    let cursor = attribute.start;
+    let prefix = '';
+    for (const part of parts) {
+      if (typeof part === 'string') {
+        prefix += part;
+        continue;
+      }
+      // 只改表达式之间的语法，原表达式及其逐字符源映射保持不变。
+      if (cursor < part.start) magic.overwrite(cursor, part.start, prefix);
+      else magic.appendLeft(cursor, prefix);
+      cursor = part.end;
+      prefix = '';
+    }
+    if (cursor < attribute.end) magic.overwrite(cursor, attribute.end, prefix);
+    else magic.appendLeft(cursor, prefix);
   }
 
   const functionTypes = new Set([
@@ -226,13 +279,6 @@ export function transformClasses(
       (attr) => attr.type === 'Attribute' || attr.type === 'SpreadAttribute',
     );
     if (!attrs.length) continue;
-    const entries = attrs.map((attr) =>
-      attr.type === 'SpreadAttribute'
-        ? '...(' +
-          content.slice((attr.expression as Node).start, (attr.expression as Node).end) +
-          ')'
-        : JSON.stringify(attr.name) + ':(' + value(attr) + ')',
-    );
     const keys = parents.flatMap((parent, index) => {
       if (parent.type === 'EachBlock' && parents[index + 1] === parent.body)
         return [loops.get(parent)!];
@@ -247,22 +293,23 @@ export function transformClasses(
     const transient = parents.some(
       (parent) => parent.type === 'SnippetBlock' || parent.type === 'AwaitBlock',
     );
-    const call =
+    const start =
+      '{...' +
       scope +
       '.' +
       (component ? 'component' : 'attrs') +
       '(' +
       JSON.stringify(String(node.start)) +
-      ', () => ({' +
-      entries.join(',') +
-      '}), [' +
-      keys.join(',') +
-      ']' +
-      ', ' +
-      transient +
-      ')';
+      ', () => ({';
+    const end = '}), [' + keys.join(',') + ']' + ', ' + transient + ')}';
     for (let i = 0; i < attrs.length; i++) {
-      magic.overwrite(attrs[i]!.start, attrs[i]!.end, i === 0 ? '{...' + call + '}' : '');
+      const attr = attrs[i]!;
+      const parts: Part[] =
+        attr.type === 'SpreadAttribute'
+          ? ['...(', attr.expression as Node, ')']
+          : [JSON.stringify(attr.name) + ':(', ...value(attr), ')'];
+      rewrite(attr, [i === 0 ? start : ',', ...parts, i === attrs.length - 1 ? end : '']);
+      if (i > 0) magic.move(attr.start, attr.end, attrs[0]!.end);
     }
   }
   for (const item of imports)

@@ -1,5 +1,7 @@
 # Core 生产重构统一规划
 
+实施授权：2026-09-18 用户确认“按照推荐进行 core 模块重构和修改，直到生产可用”。本文的推荐 API 收敛与 P0–P5 路线已获实施授权；下文原讨论状态保留历史语境，完成进度以 implementation.md 和 core-acceptance.md 为准。
+
 更新：2026-09-18。核对基线：776a8b1；完整 CI [35340956063](https://github.com/kenconnet666/zui-svelte/actions/runs/35340956063) 通过，但当前矩阵仍有缺口，core 未达到生产完成条件。
 
 本文替换原 R0–R5 剩余清单，统一 API、重构和交付讨论。用户要求重新规划，尚未逐项确认下面的 API 改名与删除；本轮仅修改文档。core-production-plan.md 的 A01–A40 继续作为验收范围，core-acceptance.md 保存证据。theme-production-plan.md 保留研究背景，不再形成并行实施路线。

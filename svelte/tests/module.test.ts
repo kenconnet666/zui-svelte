@@ -1,8 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import ts from 'typescript';
 import { transformStyleModule } from '../src/compiler/module.js';
+import { styleProtocol } from '@zui/core';
 
 describe('module style compilation', () => {
+  it('recognizes generated imports and checks their protocol on repeated transforms', () => {
+    const source = 'import {css} from "@zui/core"; export const panel=css(s=>{s.width.px(10);});';
+    const result = transformStyleModule(source, '/app/panel.ts', '/app')!;
+    expect(transformStyleModule(result.code, '/app/panel.ts', '/app')).toBeUndefined();
+    const incompatible = result.code.replace(', ' + styleProtocol.version + ');', ', 0);');
+    expect(() => transformStyleModule(incompatible, '/app/panel.ts', '/app')).toThrow(
+      'protocol mismatch',
+    );
+  });
   it('wraps module snapshots while preserving typed entries, await and ordinary helpers', () => {
     const source = `import { css as base, createCss } from '@zui/core';
 const css = createCss(theme);
