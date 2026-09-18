@@ -2,6 +2,43 @@
 
 本文记录 2026-09-18 的实际验证和跨电脑配置方式。语言工具辅助日常开发；core 首版是否可交付，仍按生产规划和 GitHub CI 验收。
 
+## 当前任务工具实测与使用分工
+
+2026-09-18 新电脑当前任务复验。以下只说明实际测到的范围，不保证另一会话自动可用。
+
+| 能力                                | 实测结果                                                                       | 使用边界                                                                                              |
+| ----------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| GitHub MCP                          | 原生读取本仓库 master 提交成功                                                 | 仓库/PR/源码读取优先；Actions 具体日志使用 gh                                                         |
+| Context7                            | 原生 resolve Svelte、query 文档成功                                            | 查第三方当前 API，先 resolve 再 query                                                                 |
+| 官方 Svelte MCP                     | 原生 autofixer 调用成功，简单 Svelte 5 探针无 issues                           | 文档/代码建议，不代替项目 TS 语义                                                                     |
+| zui_lsp                             | 五个工具原生调用成功：hover、completions、definitions、references、diagnostics | TS 与 Svelte 临时文件各检出一处 2322 错误，修正后 complete=true/errors=0；跨文件定义和 Token 补全有效 |
+| WebStorm MCP                        | HTTP 独立客户端连接成功，列出 43 个工具，项目定位和文件检查成功                | 当前任务原生工具列表缺席；重启后仍须验收，不能把独立客户端成功当作宿主已加载                          |
+| Chrome DevTools                     | 原生列页、新建隔离 data 页面、按钮交互、读取结果 passed 和 CSS 能力成功        | 用于局部 DOM/CSS/网络/控制台诊断；未在此探针验证性能 trace/堆快照或完整浏览器矩阵                     |
+| Browser Use / cua_repl              | 内置浏览器和 Edge 扩展均成功打开 example.com 并读取页面                        | 普通网页交互可用；不把 Edge 扩展等同于 Chrome 扩展；原生 Windows API 在该入口未启用                   |
+| Computer Use / node_repl + @oai/sky | 初始化、窗口枚举、WebStorm 可访问性树及截图捕获成功                            | 可访问性树仅含基本窗口控件；未验证所有编辑器元素及键鼠写入，不夸大语义导航能力                        |
+
+TS/Svelte 临时探针已删除；Chrome/IAB/Edge 测试页已关闭，用户原有页面未修改。Computer Use 只读窗口观察，没有编辑 IDE 文件或执行桌面命令。
+
+### WebStorm 原生加载排障与最终配置
+
+Codex 桌面本任务启动日志在 2026-09-18 11:37:05 UTC 记录 WebStorm HTTP initialize 收到 503，因此没有进入原生列表。后续 Node SDK 独立客户端无请求头和带项目请求头都连接成功；仅凭这些证据不能认定 503 的确切来源或已经修复。
+
+本机官方 webstorm64.exe stdioMcpServer 探针失败于 Java loopback/UnixDomainSockets connect。临时安装 mcp-remote 0.14.2 的 Node 转接路径已通过 43 工具枚举和项目检查，但未写入启用配置。按用户最终选择，继续原生 HTTP，去掉固定项目请求头，设置启动 30 秒、调用 90 秒超时：
+
+```toml
+[mcp_servers.webstorm]
+url = "http://127.0.0.1:64542/stream"
+enabled = true
+startup_timeout_sec = 30
+tool_timeout_sec = 90
+```
+
+不要填 Markdown URL，也不保留 IJ_MCP_SERVER_PROJECT_PATH header。调用项目工具时显式传 projectPath。配置修改前已备份用户 config.toml；备份及凭据不进入 Git。临时转接工具目录位于用户 .codex/tools/webstorm-mcp-adapter，未启用；递归清理被执行策略拒绝，本轮保留，共享 pnpm store 不清理。
+
+下一步让用户完全退出并重开 Codex，保持 WebStorm 打开当前仓库。先检查原生工具目录出现 mcp__webstorm__*，再原生调用 get_project_modules 和 get_file_problems；如失败，读取这次新启动日志的具体错误，不能仅再次增大超时或重复安装。原生出现并调用成功后，才更新本表为通过。
+
+其他已注册 IDE 服务不作为 WebStorm 的替代：当前未实测 IDEA 项目接入成功，也未为本任务修改其配置。
+
 ## 另一台 Windows 电脑如何安装
 
 前置条件：PowerShell 7、Node.js 24、项目指定的 pnpm 11，以及可在终端执行的 `codex`。先克隆仓库、安装工作区依赖，再从仓库根目录执行：

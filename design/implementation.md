@@ -1,5 +1,7 @@
 # Core 实施进度
 
+当前规则更新（2026-09-18）：用户取消 token/周额度限制与定期用量检查。下文百分比仅为历史记录，不作为继续工作的约束。当前重构路线统一见 core-remaining-plan.md 的 P0–P5，旧 P/C 阶段保留历史含义。
+
 2026-09-18 规划更新：下一阶段采用 [首版生产可用规划](core-production-plan.md) 的 P0–P8 与 A01–A40 验收合同。规划已落盘，尚未执行这些阶段。以下 C1–C5 保留为历史实施记录。
 
 当前 `cc2f9d7` 的 CI [35289205755](https://github.com/kenconnet666/zui-svelte/actions/runs/35289205755) 已确认失败于两处 Svelte 接入 lint；尚未取得该提交后续完整验证通过证据。

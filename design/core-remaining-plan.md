@@ -12,7 +12,7 @@ core 是框架无关的运行时 CSS 与主题内核；Svelte 编译与宿主接
 - css() 返回原始 string，推荐模板内调用，参数和复用优先普通 TS 函数。
 - 首次普通值静态，同实例观察到变化才尝试变量提升；不要求 dynamic，不分析响应式来源。
 - 多 class 自由组合、子元素独立绑定、复杂组件用 slotProps；不增加 parts 或句柄式业务 API。
-- 分类 Token、系统亮暗两套、默认亮色；用户 extend 增加键和类型，切换纳入首版。
+- CSS 基础层不含预设 Token 或视觉值；亮暗两套主题从基础层扩展，默认使用亮色。用户可 extend 基础层、亮色或暗色，分类 Token 随扩展推导，切换纳入首版。
 - 业务及稳定宿主能力统一从 @zui/core 导入；core 不依赖 Svelte。
 - SvelteKit/Node SSR、hydration、严格 CSP 通道、资源回收属于必需支持；svelte/docs 只做必要接入。
 
@@ -50,7 +50,7 @@ core 是框架无关的运行时 CSS 与主题内核；Svelte 编译与宿主接
 
 ### 日常 API
 
-保留 css、createCss、defineTheme、extendTheme、overrideTheme、tokenRef、lightTheme、darkTheme、ThemeScope，以及 Theme/ThemePatch/DefaultTokens/StyleBuilder/StyleFactory/CssOptions/PropertyTokenMap 等必要类型。
+保留 css、createCss、defineTheme、extendTheme、overrideTheme、tokenRef、lightTheme、darkTheme、ThemeScope，以及 Theme/ThemePatch/DefaultTokens/StyleBuilder/StyleFactory/CssOptions/PropertyTokenMap 等必要类型。按新增确认的需求，提供一个不含 Token 的基础主题值（候选名 baseTheme），复用 Theme 与 extendTheme，不增加基础层工厂或独立 builder。
 
 defineTheme 从零定义；extendTheme 增加键并兼容覆盖；overrideTheme 只改已有键以捕获拼写错误；createCss 绑定类型和配置；css 服务默认主题。它们有不同职责，不合并为多模式万能函数。
 
@@ -100,7 +100,7 @@ ClassController、createStyleModule、styleProtocol、withCssEvaluation/hasCssEv
 
 ## 5. 主题合同与类型
 
-系统两套主题采用相同类别/键集合与合法值种类，默认 light。保留既有语义，补真实需要的表面、文字、边界、焦点、主色前景配对与反馈配对；不批量制造无人消费的状态 Token。
+基础层保留标准 CSS 属性、关键字、单位及选择器等 builder 能力，没有预设 Token。系统两套主题从该基础扩展，采用相同类别/键集合与合法值种类，默认 light。保留既有语义，补真实需要的表面、文字、边界、焦点、主色前景配对与反馈配对；不批量制造无人消费的状态 Token。用户从基础层扩展的主题不必包含系统预设键。
 
 语义清单逐条记录用途、配对关系、亮暗值、类别和验收示例。组件私有 Token 留在组件库；布局零值、百分比和业务计算值不机械 Token 化。
 
@@ -202,4 +202,67 @@ P0 不一次重写全仓；P1–P4 按相关模块迁移。P2/P3 改动协议时
 
 本轮待审阅的选择：候选改名和重复值入口删除；编译工具导出内收；schemes 校验先内置、双方案输出按首屏目标选择实现。未确认部分不可在后续当作用户已批准。
 
-本地用 WebStorm/已验证 LSP 与针对性测试，完整验证交 CI。每个可构建阶段中文提交推送，下次推送前检查上一轮，不等待新 CI。阶段查询额度，保留至少 15%，提前留文档/提交/交接余量。
+本地用 WebStorm/已验证 LSP 与针对性测试，完整验证交 CI。每个可构建阶段中文提交推送，下次推送前检查上一轮，不等待新 CI。用户已取消 token/周额度保留线和定期检查要求，不再主动轮询用量；性能预算、缓存上限和产品资源约束继续有效。
+
+## 14. 工具能力与阶段验证
+
+2026-09-18 本机实测记录见 [语言服务与工具能力](language-services.md#当前任务工具实测与使用分工)。每个新会话重新发现可调用工具，按当前任务做最小探针；注册、连接、项目定位、语义正确、完整验收分别报告。
+
+| 工作                  | 首选工具及证据                                                                                     | 边界与回退                                                                 |
+| --------------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| P0 API/类型迁移       | LSP hover/definitions/references/completions；逐文件 diagnostics；WebStorm 项目检查                | IDE 空错误列表不能独立证明类型正确，文件未纳入 tsconfig 时另补相关模块检查 |
+| P1 Svelte 编译接入    | 官方 Svelte MCP 文档与 autofixer；原生 LSP；针对性行为/映射测试                                    | autofixer 不替代 TS 项目语义；真实 HMR 只做局部复现，完整矩阵进 CI         |
+| P2 主题推导           | 临时类型正负例、LSP；Chrome DevTools 计算样式/控制台                                               | 要证明能报错且修正后清零，不能仅看补全                                     |
+| P3/P4 DOM、首屏、接管 | Chrome DevTools 优先检查 DOM/CSS/网络；Browser Use 用于交互；必要时 Computer Use 检查 IDE/原生窗口 | 不用桌面坐标代替已有 DOM 工具；本地只验证相关变化；全浏览器/SSR 矩阵在 CI  |
+| P5 交付与回归         | GitHub MCP 读取提交/PR；gh 读取 Actions 结果与失败日志；脚本检查生成与 tarball                     | 不将连接成功写成 CI 通过；下次推送前查上一轮，新推送不等待                 |
+| 源码研究              | GitHub MCP 读取固定提交，Context7 先 resolve 再 query；Svelte 问题优先官方 MCP                     | 只有源码/文档证据与当前需求对应时才引入能力                                |
+
+工具失败时先记录失败层：未暴露、启动失败、连接失败、无项目、调用失败、结果不完整；只对该层处理，不反复重装或修改无关配置。独立 MCP 客户端是原生工具缺席时的回退，不能伪称当前任务已原生加载。
+
+浏览器只操作本任务页面，关闭测试页、释放临时视口/模拟和探针文件；Computer Use 使用已读取技能和真实窗口观察，不操作终端或借 UI 执行命令。当前截图读取成功不等于所有键鼠注入能力已验证。
+
+## 15. 已确认的基础主题与预设关系
+
+用户明确选择：基础层只有标准 CSS 能力；系统亮色、暗色主题由它扩展；用户既可以 extend 基础层，也可以 extend 亮色或暗色。不保留一份要求用户填满的系统 Token 空壳。
+
+```text
+CSS 生成元数据：属性 / 标准关键字 / 单位 / builder 辅助能力
+  + baseTheme：空 Token、无视觉值
+      ├─ extend → lightTheme → 用户扩展
+      ├─ extend → darkTheme  → 用户扩展
+      └─ extend → 用户完全自定义主题
+```
+
+baseTheme 为候选公开名称；实现可复用 defineTheme({})，不引入新主题类型或独立 CSS 语法。CSS 元数据属于 builder，不能复制进每个主题的 tokens。基础主题是可用的空 Token 主题，不是尚未完成的值模板。
+
+```ts
+// 规划形态，baseTheme 导出尚未实现。
+const plainCss = createCss(baseTheme);
+plainCss((s) => {
+  s.display.flex;
+  s.width.px(240);
+  s.color('rebeccapurple');
+  // s.color._primary 应为类型错误：基础主题没有预设 Token。
+});
+
+const customTheme = extendTheme(baseTheme, {
+  color: { ink: '#172554', paper: '#fffdf5' },
+  spacing: { gutter: '18px' },
+});
+const customCss = createCss(customTheme);
+customCss((s) => {
+  s.color._ink;
+  s.backgroundColor._paper;
+  s.gap._gutter;
+});
+```
+
+应用默认 css 与未指定 theme 的 runtime 继续使用 lightTheme；显式选择 baseTheme/customTheme 时必须尊重其空/自定义 schema，不补入 lightTheme 的键或变量。createCss/runtime/SSR 必须配置兼容主题，编译接入不能在默认泛型处悄悄恢复 DefaultTokens。
+
+内置预设实现建议从基础层分别 extend，共用无视觉倾向的类别定义与适用的尺度数据，两套颜色表独立可审阅；不将暗色实现绑定到亮色新增字段的隐式继承。系统两套 schema 一致性继续验收。
+
+用户从基础层扩展的主题不强制实现 primary/surface 等系统键。消费方只要不依赖这些键即可使用；已有系统主题组件若依赖缺失 Token，要明确报兼容错误，不静默补亮色或注入 undefined。若需要兼容该组件，可由用户补充它所需的 Token/映射。
+
+自定义主题名称不限于 light/dark；名称与宿主 color-scheme 分离。同 scope 切换仍满足它已承诺的键和值种类，完全不同 schema 应建立独立 typed css/scope。
+
+新增验收：基础层标准关键字/单位可用且不输出主题变量；基础层不存在系统 Token 补全；扩展只增加用户键；亮暗预设从基础构建且结构一致；用户主题独立 runtime、SSR 禁 JS、hydration、包外类型消费均不偷带默认主题。分别纳入 P2、P4、P5。
