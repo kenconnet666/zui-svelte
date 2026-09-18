@@ -1,10 +1,35 @@
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { baseTheme, darkTheme, lightTheme } from '../presets.js';
 import { extendTheme, overrideTheme } from '../theme.js';
 import { ThemeScope, themeVariables } from '../scope.js';
 import { createRuntime } from '../../runtime/runtime.js';
 
 describe('theme presets', () => {
+  it('keeps the documented semantic inventory complete and consistent with both presets', () => {
+    const readme = readFileSync(new URL('../../../README.md', import.meta.url), 'utf8');
+    const rows = readme.split('\n').filter((line) => /^\|\s*`\w+\.\w+`\s*\|/u.test(line));
+    const entries = rows.map((line) =>
+      line
+        .split('|')
+        .slice(1, 5)
+        .map((part) => part.trim()),
+    );
+    const expected = Object.entries(lightTheme.resolved).flatMap(([category, values]) =>
+      Object.entries(values).map(([key, value]) => ({ category, key, value })),
+    );
+    expect(entries).toHaveLength(expected.length);
+    for (const { category, key, value } of expected) {
+      const row = entries.find(([name]) => name === '`' + category + '.' + key + '`');
+      expect(row, category + '.' + key).toBeDefined();
+      expect(row![1]).toBe('`' + value + '`');
+      const dark = darkTheme.resolved as Readonly<
+        Record<string, Readonly<Record<string, unknown>>>
+      >;
+      expect(row![2]).toBe('`' + dark[category]![key] + '`');
+      expect(row![3]!.length).toBeGreaterThan(0);
+    }
+  });
   it('keeps the CSS-only base free of preset tokens and default values', () => {
     expect(baseTheme.resolved).toEqual({});
     expect(themeVariables(baseTheme)).toEqual({});

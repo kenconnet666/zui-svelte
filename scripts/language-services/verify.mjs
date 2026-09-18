@@ -99,6 +99,27 @@ export const props: ComponentProps<typeof Probe> = { initialWidth: ${valid ? '10
     assert.equal(result.errors, valid ? 0 : 1);
     if (!valid) assert.equal(Number(result.diagnostics[0].code), 2322);
   }
+  // 大主题同时验证完成诊断与补全成本，不能只以 tsc 吞吐量推断编辑器体验。
+  const scalePath = paths[0];
+  const fields = Array.from({ length: 500 }, (_, index) => `color${index}: '#123456'`).join(',');
+  await writeFile(
+    resolve(root, scalePath),
+    `import {baseTheme,extendTheme,createCss} from '../../index.js';
+const css=createCss(extendTheme(baseTheme,{color:{${fields}}}));
+css(s=>{s.color._color499;});\n`,
+  );
+  const scaleStart = performance.now();
+  const scaleDiagnostics = await call('diagnostics', { filePath: scalePath });
+  assert.equal(scaleDiagnostics.errors, 0);
+  const scaleCompletions = await call('completions', {
+    ...(await position(scalePath, '_color499;')),
+    prefix: '_color49',
+    limit: 20,
+  });
+  assert(scaleCompletions.items.some((item) => item.label === '_color499'));
+  const scale = { tokens: 500, diagnosticsAndCompletionMs: performance.now() - scaleStart };
+  report.push({ scale });
+  console.log(JSON.stringify({ scale }));
   const tokenPosition = await position('core/tests/types.ts', '_100;');
   const hover = await call('hover', tokenPosition);
   assert(JSON.stringify(hover.contents).includes('_100: void'));

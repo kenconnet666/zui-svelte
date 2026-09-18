@@ -197,3 +197,77 @@ MemoryStyleSheet 和 BrowserStyleSheet 都实现 set/remove/entries/dispose。en
 | 扩展        | 普通 TS 函数、自定义 Token 类别与映射、自定义 StyleSheet、独立绑定；没有通用插件生命周期或 recipe DSL |
 
 升级前同时重建 core、编译适配器和应用，避免协议 8 与旧 SSR/编译缓存混用；接口迁移见上文。需要回退时回退整组包和应用产物，不仅替换浏览器 runtime。CI 产物的 candidate-evidence.json 关联提交、报告与被测试归档的 hash；这些包仍 private，发布命名和许可另行确定。
+
+## 默认主题语义清单
+
+下表列出系统亮暗预设的实际键和值；baseTheme 不含这些键。前景/背景配对是使用约定，覆盖任意品牌色后应重新验证。默认配对的对比度、两套 schema 与此表的值由 presets.test.ts 核对。
+
+| Token                   | 亮色值                        | 暗色值                        | 用途与配对                                                    |
+| ----------------------- | ----------------------------- | ----------------------------- | ------------------------------------------------------------- |
+| `spacing.none`          | `0px`                         | `0px`                         | 布局间距尺度                                                  |
+| `spacing.xs`            | `4px`                         | `4px`                         | 布局间距尺度                                                  |
+| `spacing.small`         | `8px`                         | `8px`                         | 布局间距尺度                                                  |
+| `spacing.medium`        | `12px`                        | `12px`                        | 布局间距尺度                                                  |
+| `spacing.large`         | `16px`                        | `16px`                        | 布局间距尺度                                                  |
+| `spacing.xl`            | `24px`                        | `24px`                        | 布局间距尺度                                                  |
+| `size.controlSmall`     | `28px`                        | `28px`                        | 控件高度或图标尺寸                                            |
+| `size.control`          | `36px`                        | `36px`                        | 控件高度或图标尺寸                                            |
+| `size.controlLarge`     | `44px`                        | `44px`                        | 控件高度或图标尺寸                                            |
+| `size.icon`             | `16px`                        | `16px`                        | 控件高度或图标尺寸                                            |
+| `radius.small`          | `4px`                         | `4px`                         | 圆角尺度；full 表示胶囊/圆形意图                              |
+| `radius.medium`         | `8px`                         | `8px`                         | 圆角尺度；full 表示胶囊/圆形意图                              |
+| `radius.large`          | `12px`                        | `12px`                        | 圆角尺度；full 表示胶囊/圆形意图                              |
+| `radius.full`           | `9999px`                      | `9999px`                      | 圆角尺度；full 表示胶囊/圆形意图                              |
+| `borderWidth.thin`      | `1px`                         | `1px`                         | 细边界或焦点轮廓宽度                                          |
+| `borderWidth.focus`     | `2px`                         | `2px`                         | 细边界或焦点轮廓宽度                                          |
+| `fontFamily.body`       | `system-ui, sans-serif`       | `system-ui, sans-serif`       | 正文或等宽字体栈                                              |
+| `fontFamily.mono`       | `ui-monospace, monospace`     | `ui-monospace, monospace`     | 正文或等宽字体栈                                              |
+| `fontSize.small`        | `12px`                        | `12px`                        | 文字尺寸尺度                                                  |
+| `fontSize.medium`       | `14px`                        | `14px`                        | 文字尺寸尺度                                                  |
+| `fontSize.large`        | `18px`                        | `18px`                        | 文字尺寸尺度                                                  |
+| `fontWeight.normal`     | `400`                         | `400`                         | 字重尺度                                                      |
+| `fontWeight.medium`     | `500`                         | `500`                         | 字重尺度                                                      |
+| `fontWeight.bold`       | `700`                         | `700`                         | 字重尺度                                                      |
+| `lineHeight.normal`     | `1.5`                         | `1.5`                         | 无单位行高比例                                                |
+| `lineHeight.tight`      | `1.25`                        | `1.25`                        | 无单位行高比例                                                |
+| `letterSpacing.normal`  | `0px`                         | `0px`                         | 普通字距                                                      |
+| `duration.fast`         | `120ms`                       | `120ms`                       | 交互过渡时长                                                  |
+| `duration.normal`       | `200ms`                       | `200ms`                       | 交互过渡时长                                                  |
+| `duration.slow`         | `300ms`                       | `300ms`                       | 交互过渡时长                                                  |
+| `easing.standard`       | `ease`                        | `ease`                        | 过渡曲线                                                      |
+| `easing.linear`         | `linear`                      | `linear`                      | 过渡曲线                                                      |
+| `shadow.small`          | `0 1px 3px rgb(0 0 0 / 0.12)` | `0 1px 3px rgb(0 0 0 / 0.12)` | 轻量浮起阴影                                                  |
+| `zIndex.popup`          | `1000`                        | `1000`                        | 弹出层/遮罩/通知的相对层级                                    |
+| `zIndex.overlay`        | `1100`                        | `1100`                        | 弹出层/遮罩/通知的相对层级                                    |
+| `zIndex.notification`   | `1200`                        | `1200`                        | 弹出层/遮罩/通知的相对层级                                    |
+| `opacity.disabled`      | `0.5`                         | `0.5`                         | 禁用状态透明度；不自动满足文字对比度                          |
+| `breakpoint.small`      | `640px`                       | `640px`                       | 媒体查询阈值；通过 resolved 生成查询，不把 var() 放入媒体条件 |
+| `breakpoint.medium`     | `768px`                       | `768px`                       | 媒体查询阈值；通过 resolved 生成查询，不把 var() 放入媒体条件 |
+| `breakpoint.large`      | `1024px`                      | `1024px`                      | 媒体查询阈值；通过 resolved 生成查询，不把 var() 放入媒体条件 |
+| `color.primary`         | `#4f46e5`                     | `#a5b4fc`                     | 主要操作的实色背景；搭配 onPrimary                            |
+| `color.primaryHover`    | `#4338ca`                     | `#c7d2fe`                     | 主要操作悬停背景；搭配 onPrimary                              |
+| `color.primaryActive`   | `#3730a3`                     | `#e0e7ff`                     | 主要操作按下背景；搭配 onPrimary                              |
+| `color.primarySubtle`   | `#eef2ff`                     | `#312e81`                     | 低强调主色背景；搭配 onPrimarySubtle                          |
+| `color.onPrimary`       | `#ffffff`                     | `#1e1b4b`                     | primary/primaryHover/primaryActive 上的文字或图标             |
+| `color.onPrimarySubtle` | `#3730a3`                     | `#e0e7ff`                     | primarySubtle 上的文字或图标                                  |
+| `color.surface`         | `#ffffff`                     | `#1e293b`                     | 普通卡片/容器表面；搭配 text                                  |
+| `color.surfaceRaised`   | `#ffffff`                     | `#334155`                     | 抬高的弹层/浮动表面；搭配 text                                |
+| `color.surfaceSunken`   | `#f1f5f9`                     | `#0f172a`                     | 凹陷区域/次级底色；搭配 text                                  |
+| `color.surfaceHover`    | `#f1f5f9`                     | `#334155`                     | 普通表面的悬停反馈；搭配 text                                 |
+| `color.background`      | `#f8fafc`                     | `#0f172a`                     | 页面基础背景；搭配 text 或 muted                              |
+| `color.text`            | `#0f172a`                     | `#f8fafc`                     | 普通可读正文；搭配 background 或 surface 系列                 |
+| `color.muted`           | `#475569`                     | `#cbd5e1`                     | 次要说明；默认对比度验收使用 background                       |
+| `color.textDisabled`    | `#64748b`                     | `#94a3b8`                     | 不可操作内容的弱化前景，不代替 disabled 属性                  |
+| `color.border`          | `#cbd5e1`                     | `#64748b`                     | 弱分隔线；不单独承担控件状态辨识                              |
+| `color.borderStrong`    | `#64748b`                     | `#94a3b8`                     | 需要强调的边界线                                              |
+| `color.focus`           | `#4f46e5`                     | `#a5b4fc`                     | 焦点指示色；结合 borderWidth.focus 使用                       |
+| `color.danger`          | `#b91c1c`                     | `#fca5a5`                     | 危险/错误实色背景；搭配 onDanger                              |
+| `color.onDanger`        | `#ffffff`                     | `#450a0a`                     | danger 上的前景                                               |
+| `color.success`         | `#15803d`                     | `#86efac`                     | 成功实色背景；搭配 onSuccess                                  |
+| `color.onSuccess`       | `#ffffff`                     | `#052e16`                     | success 上的前景                                              |
+| `color.warning`         | `#92400e`                     | `#fde68a`                     | 警告实色背景；搭配 onWarning                                  |
+| `color.onWarning`       | `#ffffff`                     | `#451a03`                     | warning 上的前景                                              |
+| `color.info`            | `#0369a1`                     | `#7dd3fc`                     | 信息实色背景；搭配 onInfo                                     |
+| `color.onInfo`          | `#ffffff`                     | `#082f49`                     | info 上的前景                                                 |
+
+例如实色主操作使用 s.backgroundColor._primary 和 s.color._onPrimary；柔和强调改用 primarySubtle/onPrimarySubtle。表面嵌套使用 surfaceRaised/surfaceSunken，而不是在组件中判断暗色并写死颜色。减少动画、密度、方向等由普通 TS 覆盖和原生 CSS 条件组合，不引入第二套主题 DSL。

@@ -1,6 +1,6 @@
 # Core 工作交接
 
-更新：2026-09-19。目标模式仍在执行 core 生产重构，仓库 kenconnet666/zui-svelte，分支 master。组件库和 Docs 仅服务 core 验证，包保持 private。
+更新：2026-09-19。core 生产重构已进入最终验收，仓库 kenconnet666/zui-svelte，分支 master。组件库和 Docs 仅服务 core 验证，包保持 private。
 
 ## 当前状态
 
@@ -8,7 +8,7 @@ P0–P5 的主要实现已进入仓库：CSS-only baseTheme 与亮暗扩展、�
 
 剩余工作是候选全矩阵收口与发现问题后的修复，不重新启动另一套架构。详细合同见 [验收台账](core-acceptance.md)，设计依据见 [统一路线](core-remaining-plan.md)，历史实施见 implementation.md。
 
-最近核实 7e77ed091f48f09e0293906222f96b250f987d8b 的 CI 35367508108：所有产品步骤通过，包括三浏览器、真实 Kit 和独立安装包；最后证据整理因归档被 Playwright 清理而失败。本批改为测试后复制实际安装归档并复核 hash。58eab65 已追加主题重入修复和堆/主题规模预算，本批检查时仍运行；推送后不等新 CI，下次推进时先检查。接入文档已补普通 Vite/Kit 可编译示例，Svelte 包删除未使用图标依赖。
+最近核实 ff7bf3b687999a4b9af5f40756ab7b37281885df 的 CI 35368949928 全部成功；归档、主题重入和规模预算均已闭合，实际下载包的 hash 与证据清单一致。详见 core-acceptance.md。本批最后增加默认 65 Token 的语义清单/一致性检查与 500 Token LSP 探针，局部验证通过，不改产品 runtime。接续时只核对最新提交 CI 和产物；没有新缺陷就结束当前目标，不继续扩大架构。接入文档包含普通 Vite/Kit 可编译示例，Svelte 包已删除未使用图标依赖。
 
 ## 接续方式
 

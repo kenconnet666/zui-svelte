@@ -6,7 +6,7 @@
 
 ## 当前状态
 
-core 已完成生成式 CSS 类型、CSS-only 基础主题与亮暗扩展、动态值自动提升、有界样式分片和资源回收。Svelte class 编译、真实 HMR、SvelteKit SSR/hydration/CSP 与独立安装包消费均已接入验收。当前正在按 [统一重构路线](design/core-remaining-plan.md) 收口，以 [验收台账](design/core-acceptance.md) 的候选提交证据为准，尚未宣称整个重构生产验收完成。
+core 已完成生成式 CSS 类型、CSS-only 基础主题与亮暗扩展、动态值自动提升、有界样式分片和资源回收。Svelte class 编译、真实 HMR、SvelteKit SSR/hydration/CSP 与独立安装包消费均有完整候选 CI 证据。设计依据见 [统一重构路线](design/core-remaining-plan.md)，已验证提交、支持边界及产物校验值以 [验收台账](design/core-acceptance.md) 为准；不能用旧候选的结果代替后续改动的 CI。
 
 ## 目录
 

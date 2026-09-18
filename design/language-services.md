@@ -148,3 +148,9 @@ node scripts/language-services/verify.mjs
 - 桥接只结束自己创建的子进程树，不按进程名批量结束 Node，也不操作 WebStorm 进程。
 
 参考：[Svelte MCP 本地配置](https://svelte.dev/docs/ai/local-setup)、[Svelte language server](https://github.com/sveltejs/language-tools/tree/master/packages/language-server)、[TypeScript Svelte plugin](https://github.com/sveltejs/language-tools/tree/master/packages/typescript-plugin)、[Codex MCP 配置](https://learn.chatgpt.com/docs/extend/mcp?surface=cli)。
+
+## 500 Token 编辑器规模复验（2026-09-19）
+
+verify.mjs 现增加 500 Token 的主题扩展，要求完整诊断为零错误，并确实补全 _color499；不能只记录请求成功。独立 MCP 客户端本次输出 VERIFIED，包含既有 TS/Svelte 正负例、跨文件语义、定义/引用和补全；大主题诊断与补全合计约 1.64 秒，属于本机已启动服务的测量，不包含冷启动，也不承诺其他机器同速。
+
+长期运行的原生 TS 服务曾对 core/tests/browser.test.ts 报内部 resolutionCache 错误；独立新服务的上述验收通过，不将两者混为一次成功。遇到该内部错误时可重启语言服务/宿主，并继续使用 WebStorm 加相关模块检查；不要把错误输出当作空诊断。临时探针与自己创建的进程树均由验收脚本清理。安装包 fixture 的配置扫描日志仍不代表其在仓库内可独立运行，实际包消费由 CI 验证。

@@ -4,12 +4,17 @@
 
 ## 当前证据
 
-- 最新核实：7e77ed091f48f09e0293906222f96b250f987d8b 的 [CI 35367508108](https://github.com/kenconnet666/zui-svelte/actions/runs/35367508108) 已通过全部产品验收步骤；最终证据整理因 Playwright 清理了提前复制的归档而失败。本批改为测试后复制并校验原归档。后续主题重入和堆/主题规模预算属于更新实现，仍待新候选完整确认。
+已核实候选：ff7bf3b687999a4b9af5f40756ab7b37281885df，[完整 CI 35368949928](https://github.com/kenconnet666/zui-svelte/actions/runs/35368949928) 成功。以下 A01–A40 的产品合同在表中注明的支持范围内，均有该候选的类型、Node、编译、Docs/HMR/core DOM 三浏览器、真实 Kit 或独立包消费证据；不能推广到未声明的旧浏览器、Edge SSR 或任意异步 CSS 调用图。
 
-- c2c772e 的 [完整 CI 35346989755](https://github.com/kenconnet666/zui-svelte/actions/runs/35346989755) 成功，属于协议 7 后端基线。
-- 协议 8 候选 ebbdeed17017fa448d8d51beb1e7856daa1aa3b5 的 [CI 35366193117](https://github.com/kenconnet666/zui-svelte/actions/runs/35366193117) 已通过格式、类型规模、生成、Node/编译合同、构建、API/体积、Node 预算、三浏览器 Docs 和真实 HMR。
-- 该轮 core DOM 三浏览器都在同一个旧 fixture 上失败：自定义 scope 未与 runtime 默认主题保持兼容。现已显式把 fixture 的 theme 传入 runtime，本机 Chrome 聚焦回归通过。后续浏览器预算、Kit 和包外步骤被跳过，仍须下一候选 CI 确认。
-- 最终生产验收必须同一候选 SHA 全部步骤成功，并保留 candidate-evidence.json、报告和被测试 tarball。当前不标记整体完成。
+已下载 workspace-dist 并核对实际归档：
+
+- zui-core-0.0.0.tgz：6759d0545a012e3f8fc0fc7a7a04fc6a222a054100c91c0ad3ebb2016e2a0ca7。
+- zui-svelte-0.0.0.tgz：26952f9a34c95309e5f9b871e6e09a6f87a530bdf314bdf80e6b7e69a92cd431。
+- candidate-evidence.json 的提交与运行号一致，40 个公开导出、45 个合同条目；完整 bundle gzip 43954 字节，baseTheme 窄入口 2070 字节，声明 552950 字节；500 Token 的 CI 类型检查为 3.8 秒。时间属于对应 runner，不作跨设备性能承诺。
+
+前一候选 48a5786 的完整 CI 35368499416 也成功；下载的两份归档及六份原始报告均已逐一核对清单中的 SHA-256。早期 fixture/HMR/归档故障已修复，历史详见 implementation.md。
+
+本批最后增补 65 个预设 Token 的语义清单/一致性测试，以及 500 Token 的 LSP 诊断与补全探针，不修改产品 runtime。局部预设 5 项通过，独立 LSP 完整验收 VERIFIED，大主题诊断加补全约 1.64 秒；临时文件已由脚本清理。最新提交仍须 CI 确认后才能作为最终目标完成依据。
 
 路径缩写：CR = core/src/runtime/test，CC = core/src/css/test，CT = core/src/theme/test，CB = core/tests/browser.test.ts，ST = svelte/tests，DC = docs/tests/core.spec.ts。仅用于阅读，不新增目录。
 
