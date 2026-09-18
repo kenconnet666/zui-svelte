@@ -12,7 +12,7 @@
 | Context7                            | 原生 resolve Svelte、query 文档成功                                            | 查第三方当前 API，先 resolve 再 query                                                                 |
 | 官方 Svelte MCP                     | 原生 autofixer 调用成功，简单 Svelte 5 探针无 issues                           | 文档/代码建议，不代替项目 TS 语义                                                                     |
 | zui_lsp                             | 五个工具原生调用成功：hover、completions、definitions、references、diagnostics | TS 与 Svelte 临时文件各检出一处 2322 错误，修正后 complete=true/errors=0；跨文件定义和 Token 补全有效 |
-| WebStorm MCP                        | HTTP 独立客户端连接成功，列出 43 个工具，项目定位和文件检查成功                | 当前任务原生工具列表缺席；重启后仍须验收，不能把独立客户端成功当作宿主已加载                          |
+| WebStorm MCP                        | 用户重启后原生加载 43 个工具；项目识别、文件检查、符号类型查询全部成功         | 已完成当前任务原生验收；IDE 空问题列表仍不能独立证明全仓 TS 语义通过                                  |
 | Chrome DevTools                     | 原生列页、新建隔离 data 页面、按钮交互、读取结果 passed 和 CSS 能力成功        | 用于局部 DOM/CSS/网络/控制台诊断；未在此探针验证性能 trace/堆快照或完整浏览器矩阵                     |
 | Browser Use / cua_repl              | 内置浏览器和 Edge 扩展均成功打开 example.com 并读取页面                        | 普通网页交互可用；不把 Edge 扩展等同于 Chrome 扩展；原生 Windows API 在该入口未启用                   |
 | Computer Use / node_repl + @oai/sky | 初始化、窗口枚举、WebStorm 可访问性树及截图捕获成功                            | 可访问性树仅含基本窗口控件；未验证所有编辑器元素及键鼠写入，不夸大语义导航能力                        |
@@ -41,7 +41,7 @@ tool_timeout_sec = 90
 
 不要填 Markdown URL，也不保留 IJ_MCP_SERVER_PROJECT_PATH header。调用项目工具时显式传 projectPath。配置修改前已备份用户 config.toml；备份及凭据不进入 Git。临时转接工具目录位于用户 .codex/tools/webstorm-mcp-adapter，未启用；递归清理被执行策略拒绝，本轮保留，共享 pnpm store 不清理。
 
-下一步让用户完全退出并重开 Codex，保持 WebStorm 打开当前仓库。先检查原生工具目录出现 mcp__webstorm__*，再原生调用 get_project_modules 和 get_file_problems；如失败，读取这次新启动日志的具体错误，不能仅再次增大超时或重复安装。原生出现并调用成功后，才更新本表为通过。
+最终复验（2026-09-18）：用户使用已配置 NO_PROXY 的环境重启 Codex 后，当前任务原生工具目录出现 43 个 mcp__webstorm__* 工具。原生 get_project_modules 识别 zui-svelte/WEB_MODULE；get_file_problems 检查 docs/tests/navigation.spec.ts 返回空错误且未报告超时；get_symbol_info 在 core/tests/types.ts 第 19 行返回 _100: void。至此本机 WebStorm MCP 原生接入验收通过，无须继续重启或安装转接工具。以后新会话仍按需验证，不把此次结果泛化为永久可用或全仓类型通过。
 
 其他已注册 IDE 服务不作为 WebStorm 的替代：当前未实测 IDEA 项目接入成功，也未为本任务修改其配置。
 
