@@ -1,3 +1,5 @@
+import { styleProtocol } from './protocol.js';
+
 export interface StyleSheet {
   set(key: string, css: string, order: number): void;
   remove(key: string): void;
@@ -42,14 +44,27 @@ export class BrowserStyleSheet extends MemoryStyleSheet {
     this.#document = target.nodeType === 9 ? (target as Document) : target.ownerDocument!;
     this.#parent = target.nodeType === 9 ? this.#document.head : (target as ShadowRoot);
     if (!this.#parent) throw new Error('The target document has no head.');
-    for (const element of this.#parent.querySelectorAll<HTMLStyleElement>(
-      'style[data-zui][data-z-ssr]',
-    )) {
-      if (element.parentNode !== this.#parent || element.dataset.zui !== namespace) continue;
+    const elements = [
+      ...this.#parent.querySelectorAll<HTMLStyleElement>('style[data-zui][data-z-ssr]'),
+    ].filter((element) => element.parentNode === this.#parent && element.dataset.zui === namespace);
+    const keys = new Set<string>();
+    // 全部校验通过才接管，避免后面的坏数据让前面的 SSR 标记被提前消耗。
+    for (const element of elements) {
+      styleProtocol.check(
+        element.dataset.zProtocol ? Number(element.dataset.zProtocol) : undefined,
+      );
       const key = element.dataset.zKey;
       const order = Number(element.dataset.zOrder);
-      if (!key || !Number.isFinite(order)) throw new Error('Invalid server style metadata.');
-      if (this.#nodes.has(key)) throw new Error('Duplicate server style: ' + key);
+      if (!key || !element.dataset.zOrder || !Number.isFinite(order))
+        throw new Error('Invalid server style metadata.');
+      if (keys.has(key)) throw new Error('Duplicate server style: ' + key);
+      if (element.nonce !== (nonce ?? ''))
+        throw new Error('Server and client style nonces must match.');
+      keys.add(key);
+    }
+    for (const element of elements) {
+      const key = element.dataset.zKey!;
+      const order = Number(element.dataset.zOrder);
       this.#nodes.set(key, element);
       super.set(key, element.textContent ?? '', order);
       delete element.dataset.zSsr;

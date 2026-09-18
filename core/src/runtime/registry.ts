@@ -8,6 +8,7 @@ import { runAll } from './callbacks.js';
 import { assertTokenUses, tokenUses } from '../theme/requirements.js';
 import { lightTheme } from '../theme/presets.js';
 import type { Theme, TokenSchema } from '../theme/types.js';
+import { styleProtocol } from './protocol.js';
 
 interface RegistryOptions {
   namespace?: string;
@@ -74,7 +75,6 @@ export class StyleRegistry {
     source: string,
     render: (key: string) => { css: string; className: string },
   ): RuleRecord {
-    if (this.#disposed) throw new Error('Style registry is disposed.');
     if (this.#disposed) throw new Error('Style registry is disposed.');
     // 同一来源的各个版本保持逻辑顺序，不能因提升改变与其他来源的覆盖关系。
     const key = hashText(canonical);
@@ -249,7 +249,9 @@ export class StyleRegistry {
       .entries()
       .map(
         (entry) =>
-          '<style data-z-ssr="" data-zui="' +
+          '<style data-z-ssr="" data-z-protocol="' +
+          styleProtocol.version +
+          '" data-zui="' +
           attribute(this.namespace) +
           '" data-z-key="' +
           attribute(entry.key) +

@@ -11,6 +11,7 @@ import {
   lightTheme,
   createStyleModule,
   css,
+  styleProtocol,
 } from '../src/index.js';
 
 const cleanup: (() => void)[] = [];
@@ -31,6 +32,41 @@ function runtime(namespace: string) {
 }
 
 describe('real DOM style bindings', () => {
+  it('validates all hydration metadata before taking ownership of server styles', () => {
+    const server = createRuntime({ namespace: 'invalid-hydration', nonce: 'request' });
+    cleanup.push(() => server.dispose());
+    server.css((s) => {
+      s.width.px(100);
+    }, 'first');
+    server.css((s) => {
+      s.width.px(120);
+    }, 'second');
+    document.head.insertAdjacentHTML('beforeend', server.styleTags());
+    const nodes = [
+      ...document.head.querySelectorAll<HTMLStyleElement>('style[data-zui="invalid-hydration"]'),
+    ];
+    cleanup.push(() => nodes.forEach((node) => node.remove()));
+    const create = () =>
+      createRuntime({ target: document, namespace: 'invalid-hydration', nonce: 'request' });
+    nodes[1]!.dataset.zProtocol = '0';
+    expect(create).toThrow('protocol mismatch');
+    expect(nodes.every((node) => node.hasAttribute('data-z-ssr'))).toBe(true);
+    nodes[1]!.dataset.zProtocol = String(styleProtocol.version);
+    nodes[1]!.nonce = 'wrong';
+    expect(create).toThrow('nonces must match');
+    expect(nodes.every((node) => node.hasAttribute('data-z-ssr'))).toBe(true);
+    nodes[1]!.nonce = 'request';
+    const key = nodes[1]!.dataset.zKey;
+    nodes[1]!.dataset.zKey = nodes[0]!.dataset.zKey;
+    expect(create).toThrow('Duplicate server style');
+    expect(nodes.every((node) => node.hasAttribute('data-z-ssr'))).toBe(true);
+    nodes[1]!.dataset.zKey = key;
+    const client = create();
+    cleanup.push(() => client.dispose());
+    expect(nodes.every((node) => !node.hasAttribute('data-z-ssr'))).toBe(true);
+    client.finishHydration();
+    expect(nodes.every((node) => !node.isConnected)).toBe(true);
+  });
   it('keeps shared variable ownership until the last attachment is released', () => {
     const owner = runtime('duplicate-binding');
     const binding = owner.binding();

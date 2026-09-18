@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { relative } from 'node:path';
 import ts from 'typescript';
 import MagicString from 'magic-string';
+import { styleProtocol } from '@zui/core';
 
 /** 模块只包装初始化时的 css 调用；函数体保留给实际消费者的求值上下文。 */
 export function transformStyleModule(
@@ -94,6 +95,8 @@ export function transformStyleModule(
       create +
       '(' +
       JSON.stringify(moduleId) +
+      ', ' +
+      styleProtocol.version +
       ');\n',
   );
   magic.appendLeft(

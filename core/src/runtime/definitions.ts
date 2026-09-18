@@ -4,6 +4,7 @@ import { canonicalize, hashText } from '../css/serialize.js';
 import { withCssEvaluation } from './evaluation.js';
 import { tokenUses, type TokenUse } from '../theme/requirements.js';
 import type { TokenSchema } from '../theme/types.js';
+import { styleProtocol } from './protocol.js';
 
 export interface StyleDefinition {
   readonly className: string;
@@ -39,7 +40,8 @@ export function retainDefinition(definition: StyleDefinition): () => void {
 }
 
 /** @internal 编译器为模块初始化建立所有权，HMR 与消费者共同持有定义。 */
-export function createStyleModule(source: string) {
+export function createStyleModule(source: string, protocol: number = styleProtocol.version) {
+  styleProtocol.check(protocol);
   const owned = new Map<string, () => void>();
   let disposed = false;
   return {

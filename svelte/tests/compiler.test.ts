@@ -1,8 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { compile } from 'svelte/compiler';
 import { transformClasses } from '../src/compiler/preprocess.js';
+import { createStyleScope } from '../src/runtime/scope.js';
+import { styleProtocol } from '@zui/core';
 
 describe('class compiler', () => {
+  it('rejects a compiler/runtime protocol mismatch before accessing component lifecycle', () => {
+    expect(() => createStyleScope(() => 'owner', 'module', styleProtocol.version + 1)).toThrow(
+      'protocol mismatch',
+    );
+  });
   it('registers module script constants even without an instance script or styled element', () => {
     for (const template of ['', '<div class={panel}>module</div>']) {
       const source =

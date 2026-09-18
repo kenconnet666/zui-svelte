@@ -141,3 +141,11 @@ c047dcb 的完整 CI 已通过（35300813045），包括固定性能门槛。模
 为 script module 复用 TS 模块定义编译，覆盖没有 instance script、仅导出常量以及模板消费等形式；使用同一 MagicString 与原始偏移编辑，保留源文件位置。模块常量不绑定某个 SSR 请求，每个消费者单独注册和回收。局部编译/SSR 11 项、聚焦 TypeScript、定向 ESLint 和 WebStorm 检查通过。包外阶段 Playwright 配置的首次 IDE 检查超时，单文件重查已通过。
 
 75b70e3 的 CI 35308087996 已通过原有工作区门槛，新包外阶段在安装时失败：pnpm 11 不读取 package.json.pnpm.overrides，尝试从 npm 下载未发布的 core。依据 pnpm 官方 package.json 文档，将覆盖写到独立临时项目自己的 pnpm-workspace.yaml；本地 pnpm 11.22.0 config get 已确认可读，完整安装留给 CI。
+
+## P4/P6：协议版本与原子接管预检
+
+30998bb 的完整 CI 已通过（35308397801），新增 tarball 独立安装、包外类型检查、Node/static adapter 构建、Kit 三浏览器以及无 JavaScript prerender 样式验收均已执行通过。
+
+增加内部 styleProtocol：编译产物嵌入版本，框架 scope 在触及生命周期前校验；模块定义入口与 SSR 元数据使用相同版本。BrowserStyleSheet 在接管任何节点前先校验全部版本、key、顺序、重复记录和 nonce，失败保留原始 SSR 标记，可修正后重试。移除 registry 中重复的 disposed 检查，补充升级与 nonce 合同说明。
+
+相关 core 6 项、编译/SSR 12 项、聚焦 TypeScript、定向 ESLint 和 WebStorm 检查通过；协议/nonce/重复 key 失败后重新接管的 DOM 用例交给 CI。

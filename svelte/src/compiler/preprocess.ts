@@ -4,6 +4,7 @@ import MagicString from 'magic-string';
 import { parse, type PreprocessorGroup } from 'svelte/compiler';
 import type { Plugin } from 'vite';
 import { transformStyleModule } from './module.js';
+import { styleProtocol } from '@zui/core';
 
 interface Node {
   type: string;
@@ -233,6 +234,8 @@ export function transformClasses(
     owner +
     ', ' +
     JSON.stringify(moduleId) +
+    ', ' +
+    styleProtocol.version +
     ');\n' +
     imports
       .map((item) => 'const ' + item.local + ' = ' + scope + '.wrapCss(' + item.alias + ');')

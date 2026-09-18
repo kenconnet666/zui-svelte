@@ -3,8 +3,18 @@ import { createStyleModule, findDefinition } from '../definitions.js';
 import { ClassController, css, createCss } from '../classes.js';
 import { createRuntime } from '../runtime.js';
 import { defineTheme } from '../../theme/theme.js';
+import { styleProtocol } from '../protocol.js';
 
 describe('module style definitions', () => {
+  it('rejects incompatible compiled modules and versions server metadata', () => {
+    expect(() => createStyleModule('old', styleProtocol.version + 1)).toThrow('protocol mismatch');
+    const runtime = createRuntime();
+    runtime.css((s) => {
+      s.width.px(10);
+    });
+    expect(runtime.styleTags()).toContain('data-z-protocol="' + styleProtocol.version + '"');
+    runtime.dispose();
+  });
   it('collects one module definition independently in each request', () => {
     const module = createStyleModule('panel.ts');
     const className = module.call('panel', css, (s) => {

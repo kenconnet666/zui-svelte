@@ -61,6 +61,8 @@ const plainCss = createCss(theme, { layer: null });
 
 同一 Document/ShadowRoot 中的独立 runtime 使用不同 namespace；也可以由多个组件共享一个 runtime。声明相同层根的 runtime 必须使用一致的完整层序。模块 class 在最终消费时会补充目标别名，以隔离不同 runtime 的样式位置；返回值和转发值仍为普通字符串。
 
+SSR 样式携带内部协议版本，客户端接管前统一校验版本、规则标识、顺序与 nonce；服务端和客户端必须使用相同 nonce。数据不兼容时直接报错并保留原始 SSR 标记，不接管半份样式。编译插件与框架 runtime 也会核对协议，升级时应一起重新构建，不能混用旧编译产物。
+
 ## 自定义 Token 类别
 
 自定义类别在应用入口显式映射到属性，类型提示与运行时使用同一份配置，嵌套规则也继承该映射。

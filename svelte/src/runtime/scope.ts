@@ -7,6 +7,7 @@ import {
   hasCssEvaluation,
   withCssEvaluation,
   hashText,
+  styleProtocol,
   type TokenSchema,
 } from '@zui/core';
 import { captureRuntime } from './context.js';
@@ -26,7 +27,8 @@ interface Branch {
   entry?: Entry;
 }
 
-export function createStyleScope(owner: () => string, moduleId: string) {
+export function createStyleScope(owner: () => string, moduleId: string, protocol: number) {
+  styleProtocol.check(protocol);
   const getRuntime = captureRuntime();
   const roots = new Map<string, Branch>();
   const entries = new Set<Entry>();
