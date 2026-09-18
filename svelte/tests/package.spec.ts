@@ -25,6 +25,7 @@ test('forwards plain classes to an unmanaged dependency and cleans them during K
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/forwarded');
+  await expect(page.locator('html')).toHaveAttribute('data-zui-ready', 'z');
   const target = page.getByTestId('plain-target');
   await expect(target).toHaveCSS('width', '100px');
   for (const width of [120, 140]) {

@@ -395,3 +395,11 @@ c2c772e 的完整 CI 35346989755 成功。之后 ebbdeed 的 CI 35366193117 已�
 ## 最终检查配置修正
 
 efdc391 的 CI 35369830364 在 core 类型检查发现新增 README 一致性测试缺少 node:fs 类型。测试运行能通过不等于其项目类型配置通过。仅在 core/tsconfig.check.json 启用 node 类型；产品 tsconfig 的 types: [] 与浏览器产物检查不变。对 presets.test.ts 及其导入执行聚焦 TypeScript 语义检查通过，格式/diff 检查通过。完整仓库与新候选 CI 留给推送后的正常流程，不放宽类型或性能门槛。
+
+## CSS-only 自定义主题的完整宿主组合
+
+完成审计发现旧证据只分别覆盖 baseTheme 类型与 SSR，以及默认预设的真实 Kit/包外链路，尚不足以证明自定义 schema 的完整组合。因此增加 /custom 夹具，不用旧 CI 代替这一项。服务端和客户端共享 runtimeOptions，schema 变化通过 keyed RuntimeRoot 重建宿主；同 schema 的路由导航继续复用。验证禁 JS 首屏没有 primary 等默认变量、hydration 后自动提升/主题覆盖、跨 schema 导航释放及返回重新创建。
+
+本机只运行两条新增 Chrome 开发态 Kit 用例，均通过；官方 Svelte autofixer 对三段新增/改动组件均无问题，相关 lint/格式通过。首次运行因 SSR 元素先于 hydration 可点击，事件尚未绑定；夹具增加 onMount 就绪标记，所有真实 Kit/包外交互测试在操作前等待该标记。CI 仍严格使用生产构建，ZUI_KIT_DEV=1 在 CI 会直接拒绝，不能把本地开发模式当作生产验收。
+
+同一 kit.spec.ts 在独立 tarball 消费中也会执行，因此新增组合同时覆盖源码工作区与实际安装包。全部三浏览器/生产/包外结果交新候选，不在本地跑完整矩阵。

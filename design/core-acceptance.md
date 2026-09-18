@@ -4,6 +4,8 @@
 
 ## 当前证据
 
+最终组合审计补充：基础主题的类型/SSR 与默认主题的真实 Kit/包外通过，不能直接证明自定义 schema 的整个宿主链路。本批新增 /custom 的禁 JS、hydration、动态提升、跨 schema 根切换与回收，并同步进入独立 tarball 测试；本机 Chrome 两项通过，当前候选三浏览器/生产/包外 CI 仍需确认。此组合涉及 A21/A22/A26/A28/A37，闭合前不完成目标。
+
 已核实候选：ff7bf3b687999a4b9af5f40756ab7b37281885df，[完整 CI 35368949928](https://github.com/kenconnet666/zui-svelte/actions/runs/35368949928) 成功。以下 A01–A40 的产品合同在表中注明的支持范围内，均有该候选的类型、Node、编译、Docs/HMR/core DOM 三浏览器、真实 Kit 或独立包消费证据；不能推广到未声明的旧浏览器、Edge SSR 或任意异步 CSS 调用图。
 
 已下载 workspace-dist 并核对实际归档：

@@ -8,7 +8,7 @@ P0–P5 的主要实现已进入仓库：CSS-only baseTheme 与亮暗扩展、�
 
 剩余工作是候选全矩阵收口与发现问题后的修复，不重新启动另一套架构。详细合同见 [验收台账](core-acceptance.md)，设计依据见 [统一路线](core-remaining-plan.md)，历史实施见 implementation.md。
 
-最近核实 ff7bf3b687999a4b9af5f40756ab7b37281885df 的 CI 35368949928 全部成功；归档、主题重入和规模预算均已闭合，实际下载包的 hash 与证据清单一致。详见 core-acceptance.md。本批最后增加默认 65 Token 的语义清单/一致性检查与 500 Token LSP 探针，局部验证通过，不改产品 runtime。接续时只核对最新提交 CI 和产物；没有新缺陷就结束当前目标，不继续扩大架构。接入文档包含普通 Vite/Kit 可编译示例，Svelte 包已删除未使用图标依赖。
+最近核实 5accd126064a2f953859ecbc2fde1360bae849b7 的 CI 35370072639 全部成功，已修正文档测试缺少 Node 类型的问题。此前 ff7bf3b 的成功产物也已下载核对 hash。最终组合审计又发现自定义 baseTheme schema 缺少真实 Kit/包外完整链路，现新增 /custom 验证禁 JS、hydration、自动提升、主题覆盖及跨 schema 根回收，本机 Chrome 两项通过。下一步检查这一批的生产三浏览器和独立包 CI；没有新缺陷就完成目标，不扩大架构。65 Token 清单、500 Token LSP、API/体积/内存预算与最小接入文档均已具备。
 
 ## 接续方式
 

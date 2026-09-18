@@ -36,3 +36,5 @@ Docs 启用 zui-source 条件便于源码联调，根 dev 命令仍先构建 cor
 包保持 private；当前交付为可下载构建产物和实际验证过的 tarball，未发布 npm、未部署公网。发布前另行确定 scope、版本和许可证。
 
 开发态测试仅清理自己创建的 .zui-hmr-* 目录；包外消费成功后只清理已校验路径的临时项目，并保留被测试的归档和报告。失败现场保留用于诊断。不清理共享缓存、已有依赖或用户数据。
+
+局部排查 Kit fixture 时可先执行 pnpm --filter @zui/svelte run test:kit:prepare，再在 PowerShell 中设置 $env:ZUI_KIT_DEV='1'，运行 pnpm --filter @zui/svelte exec playwright test --project chromium --grep '相关用例名称'。该模式仅使用本机 Chrome 与开发服务器；CI 禁止启用，仍验证生产构建。命令结束后删除当前 shell 的该环境变量再运行生产测试，避免混淆两种证据。

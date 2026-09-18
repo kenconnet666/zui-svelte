@@ -1,5 +1,36 @@
 import { expect, test } from '@playwright/test';
 
+test('hydrates a CSS-only custom schema and releases it when the root schema changes', async ({
+  page,
+  request,
+}) => {
+  const html = await (await request.get('/custom')).text();
+  expect(html).toContain('--z-color-ink:#172554');
+  expect(html).not.toContain('--z-color-primary:');
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto('/custom');
+  await expect(page.locator('html')).toHaveAttribute('data-zui-ready', 'custom');
+  const target = page.getByTestId('custom-target');
+  await expect(target).toHaveCSS('color', 'rgb(23, 37, 84)');
+  await expect(target).toHaveCSS('gap', '18px');
+  await page.getByRole('button', { name: 'Change custom theme', exact: true }).click();
+  await expect(target).toHaveCSS('width', '147px');
+  await expect(target).toHaveCSS('color', 'rgb(0, 128, 0)');
+  const className = await target.getAttribute('class');
+  await page.getByRole('button', { name: 'Change custom theme', exact: true }).click();
+  await expect(target).toHaveCSS('width', '157px');
+  expect(await target.getAttribute('class')).toBe(className);
+  expect(await target.getAttribute('style')).toBeNull();
+  await page.getByRole('link', { name: 'Default schema route', exact: true }).click();
+  await expect(page.getByTestId('scheme-target')).toHaveCSS('color-scheme', 'light');
+  await expect(page.locator('style[data-zui="custom"]')).toHaveCount(0);
+  await page.goBack();
+  await expect(target).toHaveCSS('color', 'rgb(23, 37, 84)');
+  await expect(target).toHaveCSS('width', '137px');
+  expect(errors).toEqual([]);
+});
+
 test('hydrates legacy component state under stylesheet CSP and promotes after hydration', async ({
   page,
   request,
@@ -9,6 +40,7 @@ test('hydrates legacy component state under stylesheet CSP and promotes after hy
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/legacy');
+  await expect(page.locator('html')).toHaveAttribute('data-zui-ready', 'z');
   const target = page.getByTestId('legacy-route');
   await expect(target).toHaveCSS('width', '101px');
   await page.getByRole('button', { name: 'Resize legacy route', exact: true }).click();
@@ -26,6 +58,7 @@ test('hydrates unkeyed reuse, object keys and recursive snippets', async ({ page
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/structure');
+  await expect(page.locator('html')).toHaveAttribute('data-zui-ready', 'z');
   for (const name of ['unkeyed', 'object-key']) {
     await expect(page.getByTestId(name).nth(0)).toHaveCSS('width', '101px');
     await expect(page.getByTestId(name).nth(1)).toHaveCSS('width', '202px');
@@ -46,6 +79,7 @@ test('hydrates unkeyed reuse, object keys and recursive snippets', async ({ page
 
 test('switches theme variables without replacing the consuming class', async ({ page }) => {
   await page.goto('/theme');
+  await expect(page.locator('html')).toHaveAttribute('data-zui-ready', 'z');
   const target = page.getByTestId('scheme-target');
   await expect(target).toHaveCSS('color-scheme', 'light');
   const className = await target.getAttribute('class');
@@ -59,6 +93,16 @@ test('switches theme variables without replacing the consuming class', async ({ 
 
 test.describe('request theme without JavaScript', () => {
   test.use({ javaScriptEnabled: false });
+  test('renders a custom base theme without system tokens or JavaScript', async ({ page }) => {
+    await page.goto('/custom');
+    const target = page.getByTestId('custom-target');
+    await expect(target).toHaveCSS('color', 'rgb(23, 37, 84)');
+    await expect(target).toHaveCSS('background-color', 'rgb(255, 253, 245)');
+    await expect(target).toHaveCSS('width', '137px');
+    expect((await page.locator('style[data-zui]').allTextContents()).join('')).not.toContain(
+      '--z-color-primary:',
+    );
+  });
   test('defaults to light and renders the saved dark scheme on the next response', async ({
     page,
   }) => {
@@ -136,6 +180,7 @@ test('SvelteKit streams deferred data after styled shell and hydrates dynamic cl
   });
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/?width=173');
+  await expect(page.locator('html')).toHaveAttribute('data-zui-ready', 'z');
   await expect(page.getByTestId('kit-target')).toHaveCSS('width', '173px');
   await page.getByRole('button', { name: 'Resize' }).click();
   await expect(page.getByTestId('kit-target')).toHaveCSS('width', '193px');
