@@ -1,8 +1,61 @@
 import { describe, expect, it } from 'vitest';
-import { ClassController, css } from './classes.js';
+import { ClassController, css, createCss, withCssEvaluation } from './classes.js';
 import { createRuntime } from './runtime.js';
+import { defineTheme } from '../theme/theme.js';
+import { buildStyle } from '../css/builder.js';
 
 describe('class-only evaluation', () => {
+  it('keeps typed theme evaluation and restores nested contexts after errors', () => {
+    const theme = defineTheme({ color: { brand: 'red' } }, { namespace: 'app' });
+    const typed = createCss(theme);
+    const programs: unknown[] = [];
+    withCssEvaluation(
+      () => {
+        expect(
+          typed((s) => {
+            s.color._brand;
+          }),
+        ).toBe('outer');
+        expect(() =>
+          withCssEvaluation(
+            () => {
+              expect(css(() => {})).toBe('inner');
+              throw new Error('failed calculation');
+            },
+            () => 'inner',
+          ),
+        ).toThrow('failed calculation');
+        expect(
+          typed((s) => {
+            s.color._brand;
+          }),
+        ).toBe('outer');
+      },
+      (factory, selected) => {
+        programs.push(buildStyle(factory, selected));
+        return 'outer';
+      },
+    );
+    expect(programs).toEqual([
+      [
+        {
+          kind: 'declaration',
+          property: 'color',
+          value: 'var(--app-color-brand)',
+          important: false,
+        },
+      ],
+      [
+        {
+          kind: 'declaration',
+          property: 'color',
+          value: 'var(--app-color-brand)',
+          important: false,
+        },
+      ],
+    ]);
+    expect(() => css(() => {})).toThrow(/compiler/u);
+  });
   it('returns primitive class strings and preserves independent class composition', () => {
     const runtime = createRuntime();
     const frame = new ClassController(runtime, 'instance', 'site');

@@ -215,7 +215,9 @@ export function transformClasses(
     ', ' +
     JSON.stringify(moduleId) +
     ');\n' +
-    imports.map((item) => 'const ' + item.local + ' = ' + scope + '.css;').join('\n') +
+    imports
+      .map((item) => 'const ' + item.local + ' = ' + scope + '.wrapCss(' + item.alias + ');')
+      .join('\n') +
     '\n';
   if (program) magic.appendLeft(program.start, header);
   else magic.prepend('<script>' + header + '</script>\n');

@@ -5,6 +5,7 @@ export {
   ClassController,
   normalizeClass,
   hasCssEvaluation,
+  withCssEvaluation,
 } from './runtime/classes.js';
 export type { StyleBuilder, StyleFactory } from './css/builder.js';
 export type { StyleProgram, Instruction, Declaration, Rule } from './css/program.js';

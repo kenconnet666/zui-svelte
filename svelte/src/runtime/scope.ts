@@ -4,13 +4,10 @@ import { createAttachmentKey } from 'svelte/attachments';
 import {
   ClassController,
   buildStyle,
-  css as evaluateCss,
   hasCssEvaluation,
+  withCssEvaluation,
   hashText,
-  type DefaultTokens,
-  type StyleFactory,
   type TokenSchema,
-  type Theme,
 } from '@zui/core';
 import { captureRuntime, type Runtime } from './context.js';
 
@@ -160,17 +157,25 @@ export function createStyleScope(owner: () => string, moduleId: string) {
       managed = false,
       transient = false,
     ) => read(site, factory, keys, false, managed, transient),
-    css<T extends TokenSchema = DefaultTokens>(factory: StyleFactory<T>, theme?: Theme<T>): string {
-      if (hasCssEvaluation()) return evaluateCss(factory, theme);
-      const runtime = getRuntime();
-      const record = runtime.registry.acquire(
-        buildStyle(factory as unknown as StyleFactory<TokenSchema>, theme ?? runtime.theme),
-        moduleId + ':setup',
-      );
-      if (statics.has(record.key)) runtime.registry.release(record);
-      else statics.set(record.key, { runtime, stop: () => runtime.registry.release(record) });
-      getRuntime.assertCollected();
-      return record.className;
+    wrapCss<F extends (...args: never[]) => string>(original: F): F {
+      // 保留用户的类型化入口；直接替换成默认 css 会丢失自定义主题。
+      return ((...args: never[]) => {
+        if (hasCssEvaluation()) return original(...args);
+        return withCssEvaluation(
+          () => original(...args),
+          (factory, theme) => {
+            const runtime = getRuntime();
+            const record = runtime.registry.acquire(
+              buildStyle(factory, theme ?? runtime.theme),
+              moduleId + ':setup',
+            );
+            if (statics.has(record.key)) runtime.registry.release(record);
+            else statics.set(record.key, { runtime, stop: () => runtime.registry.release(record) });
+            getRuntime.assertCollected();
+            return record.className;
+          },
+        );
+      }) as F;
     },
   };
 }

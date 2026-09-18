@@ -47,3 +47,7 @@ C4 已加入 class 字符串求值上下文、独立 class 元数据与变量通
 ## 生产规划执行：P0
 
 2026-09-18：用户确认 core 统一从 @zui/core 导入，其余规划开始执行；周额度初查已用 40%，保留至少 15%。已修复 scope.ts 的 prefer-const 和 CoreProbe.svelte 的无效 mustache。定向 ESLint、scope.ts 聚焦 TypeScript 检查通过。IDEA 未打开当前项目，未执行 IDE 检查；完整检查交给本次 CI，推送后不等待。
+
+## P1：类型化 css 求值入口
+
+P0 提交 ef0677a 的完整 CI 已通过（35296371987）。本批修复编译器替换 css 时丢失原函数的问题，改为保留入口并包裹同步求值上下文，兼容自定义 createCss 主题与嵌套异常恢复。局部 core 5 项、编译/SSR 6 项测试通过；WebStorm MCP 对 classes.ts、scope.ts、preprocess.ts 和 TypedProbe.svelte 检查无错误。自定义模块目前仍需 cssModules 配置，自动识别和模块静态定义尚未完成，不宣称 P1 全部完成。

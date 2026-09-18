@@ -33,7 +33,7 @@ describe('class compiler', () => {
     const source =
       '<script lang="ts">import {css as styles} from "@zui/core"; import Child from "./Child.svelte"; function make(n:number){return styles((s)=>{s.width.px(n);});}</script><Child class={make(20)} slotProps={{input:{class:make(10)}}}/>';
     const result = transformClasses(source, '/app/Parent.svelte')!;
-    expect(result.code).toContain('const styles = __zuiScope.css');
+    expect(result.code).toContain('const styles = __zuiScope.wrapCss(__zuiOriginal0)');
     expect(result.code).toContain('__zuiScope.component');
     expect(() =>
       compile(result.code, { generate: 'server', filename: 'Parent.svelte' }),

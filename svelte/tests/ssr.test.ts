@@ -11,7 +11,10 @@ beforeAll(async () => {
   server = await createServer({
     root,
     configFile: false,
-    plugins: [zui({ root }), svelte({ configFile: false })],
+    plugins: [
+      zui({ root, cssModules: ['@zui/core', '@zui/svelte', './styling.js'] }),
+      svelte({ configFile: false }),
+    ],
     resolve: { conditions: ['zui-source', 'node'] },
     ssr: {
       noExternal: ['@zui/core', '@zui/svelte'],
@@ -25,6 +28,15 @@ afterAll(async () => {
 });
 
 describe('compiled SSR', () => {
+  it('preserves a typed CSS entry in setup snapshots and template evaluation', async () => {
+    const { default: Probe } = await server.ssrLoadModule('/tests/fixtures/TypedProbe.svelte');
+    const { renderStyled } = await server.ssrLoadModule('/src/server.ts');
+    const { theme } = await server.ssrLoadModule('/tests/fixtures/styling.ts');
+    const result = await renderStyled(Probe, { props: {}, runtime: { theme } });
+    expect(result.head).toContain('color:var(--probe-color-brand)');
+    expect(result.head).toContain('background-color:var(--probe-color-brand)');
+    expect(result.head).toContain('--probe-color-brand:#0f766e');
+  });
   it('renders independent requests with collected styles and ordinary class strings', async () => {
     const { default: Probe } = (await server.ssrLoadModule('/tests/fixtures/CoreProbe.svelte')) as {
       default: Component<{ initialWidth?: number }>;

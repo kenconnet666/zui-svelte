@@ -11,6 +11,20 @@ import { createVariableBinding } from './variables.js';
 type ErasedFactory = StyleFactory<TokenSchema>;
 let activeEvaluation: ((factory: ErasedFactory, theme?: Theme<TokenSchema>) => string) | undefined;
 
+/** @internal 只在同步样式求值期间切换上下文，异常和嵌套调用都必须恢复。 */
+export function withCssEvaluation<R>(
+  read: () => R,
+  evaluate: (factory: ErasedFactory, theme?: Theme<TokenSchema>) => string,
+): R {
+  const previous = activeEvaluation;
+  activeEvaluation = evaluate;
+  try {
+    return read();
+  } finally {
+    activeEvaluation = previous;
+  }
+}
+
 export function hasCssEvaluation(): boolean {
   return activeEvaluation !== undefined;
 }
@@ -70,16 +84,15 @@ export class ClassController<T extends TokenSchema> {
 
   run<R>(read: () => R): R {
     if (this.#disposed) throw new Error('Class controller is disposed.');
-    const previous = activeEvaluation;
     this.#cursor = 0;
-    activeEvaluation = (factory, theme) => this.#slot(factory, theme);
-    try {
-      const result = read();
-      for (const binding of this.#bindings.splice(this.#cursor)) binding.dispose();
-      return result;
-    } finally {
-      activeEvaluation = previous;
-    }
+    return withCssEvaluation(
+      () => {
+        const result = read();
+        for (const binding of this.#bindings.splice(this.#cursor)) binding.dispose();
+        return result;
+      },
+      (factory, theme) => this.#slot(factory, theme),
+    );
   }
 
   #refresh(): void {
