@@ -1,5 +1,5 @@
 import { getAllContexts, onDestroy, setContext } from 'svelte';
-import { createRuntime, type StyleRuntime, type TokenSchema } from '@zui/core';
+import { createRuntime, StyleError, type StyleRuntime, type TokenSchema } from '@zui/core';
 
 export const STYLE_RUNTIME = Symbol.for('@zui/style-runtime');
 export type Runtime = StyleRuntime<TokenSchema>;
@@ -16,14 +16,11 @@ export function provideStyleRuntime<T extends TokenSchema>(runtime: StyleRuntime
 
 export function captureRuntime(): (() => Runtime) & {
   peek(): Runtime | undefined;
-  assertCollected(): void;
 } {
   const contexts = getAllContexts();
   let selected: Runtime | undefined;
-  let fallback = false;
   let defaultEntry: { runtime: Runtime; references: number } | undefined;
   onDestroy(() => {
-    if (fallback) selected?.dispose();
     if (defaultEntry && --defaultEntry.references === 0) {
       defaults.delete(document);
       defaultEntry.runtime.dispose();
@@ -35,9 +32,10 @@ export function captureRuntime(): (() => Runtime) & {
     if (!selected && typeof document === 'undefined') selected = serverRuntime?.();
     if (!selected) {
       if (typeof document === 'undefined') {
-        fallback = true;
-        selected = createRuntime<TokenSchema>();
-        return selected;
+        throw new StyleError(
+          'runtime.context',
+          'SSR styles require renderStyled() or the SvelteKit style handle.',
+        );
       }
       defaultEntry = defaults.get(document);
       if (!defaultEntry) {
@@ -58,10 +56,6 @@ export function captureRuntime(): (() => Runtime) & {
         (contexts.get(STYLE_RUNTIME) as Runtime | undefined) ??
         (typeof document === 'undefined' ? serverRuntime?.() : defaults.get(document)?.runtime)
       );
-    },
-    assertCollected() {
-      if (fallback && selected?.registry.size)
-        throw new Error('SSR styles require renderStyled() or the SvelteKit style handle.');
     },
   });
 }

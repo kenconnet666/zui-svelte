@@ -27,13 +27,14 @@ export const accent=css(s=>{s.height.px(${height});});`;
 
 const nativeProbe = `<script lang="ts">
 let {name}=$props();let value=$state('first');let active=$state(true);let snapshot=$state('');let node:HTMLInputElement;
-const reads:string[]=[];let events=0;
+const reads:string[]=[];let events=0;let attachments=0;
+const attach=()=>{attachments++;return ()=>attachments--;};
 const attributes={get title(){reads.push('title');return value;},get 'data-spread'(){reads.push('spread');return 'yes';}};
 </script>
 <section data-testid={name}>
-<input {...attributes} class={['subject',{active}]} class:flag={active} style="color:blue" style:color={active?'red':'green'} bind:this={node} bind:value oninput={()=>events++}/>
+<input {...attributes} {@attach attach} class={['subject',{active}]} class:flag={active} style="color:blue" style:color={active?'red':'green'} bind:this={node} bind:value oninput={()=>events++}/>
 <button onclick={()=>{active=!active;value='second';}}>Update</button>
-<button onclick={()=>{snapshot=JSON.stringify({reads,events,value,active,title:node.title,classes:node.className,color:node.style.color});}}>Inspect native</button>
+<button onclick={()=>{snapshot=JSON.stringify({reads,events,attachments,value,active,title:node.title,classes:node.className,color:node.style.color});}}>Inspect native</button>
 <output>{snapshot}</output>
 </section>`;
 

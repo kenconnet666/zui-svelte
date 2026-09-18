@@ -29,6 +29,11 @@ afterAll(async () => {
 });
 
 describe('compiled SSR', () => {
+  it('rejects a module-only styled render without a collector before acquiring styles', async () => {
+    const { default: Probe } = await server.ssrLoadModule('/tests/fixtures/ModuleOnlyProbe.svelte');
+    const { render } = await server.ssrLoadModule('svelte/server');
+    await expect(render(Probe)).rejects.toThrow('SSR styles require');
+  });
   it('renders a CSS-only custom theme without injecting the system light tokens', async () => {
     const { default: Probe, theme } = await server.ssrLoadModule(
       '/tests/fixtures/BaseThemeProbe.svelte',

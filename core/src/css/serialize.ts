@@ -39,5 +39,5 @@ export function serializeTheme<T extends TokenSchema>(theme: Theme<T>, selector 
   const declarations = Object.entries(themeDeclarations(theme))
     .map(([property, value]) => property + ':' + validateValue(value) + ';')
     .join('');
-  return selector + '{' + declarations + '}';
+  return declarations ? selector + '{' + declarations + '}' : '';
 }

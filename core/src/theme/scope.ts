@@ -24,6 +24,8 @@ export class ThemeScope<T extends TokenSchema> {
   #disposed = false;
 
   constructor(base: Theme<T>, patch: ThemePatch<T> = {}) {
+    if (arguments.length > 2)
+      throw new StyleError('theme.invalid', 'Use scope.fork() to create a child theme scope.');
     this.#schema = base;
     this.#base = base;
     this.#patch = this.#copy(patch);
@@ -58,8 +60,6 @@ export class ThemeScope<T extends TokenSchema> {
     patch: ThemePatch<T>,
     pending = new Map<ThemeScope<T>, Theme<WidenTokens<T>>>(),
   ) {
-    if (arguments.length > 2)
-      throw new StyleError('theme.invalid', 'Use scope.fork() to create a child theme scope.');
     const theme = overrideTheme(base, patch);
     pending.set(this, theme);
     // scope 允许值拓宽；子级仍使用相同键结构，实际值类别由 overrideTheme 校验。

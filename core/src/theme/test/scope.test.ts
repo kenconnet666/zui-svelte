@@ -7,6 +7,7 @@ describe('theme scopes', () => {
     const base = defineTheme({ color: { text: 'red' } });
     const scope = new ThemeScope(base);
     const child = scope.fork({ color: { text: 'green' } });
+    expect(() => Reflect.construct(ThemeScope, [base, {}, scope])).toThrow('scope.fork()');
     scope.setTheme(extendTheme(base, { color: { unused: 'blue' } }));
     expect(() => scope.setTheme(base)).not.toThrow();
     expect(child.parent).toBe(scope);

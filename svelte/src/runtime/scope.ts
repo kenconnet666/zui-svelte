@@ -140,7 +140,6 @@ export function createStyleScope(owner: () => string, moduleId: string, protocol
     entry.evaluating = true;
     try {
       const original = entry.controller.run(factory);
-      getRuntime.assertCollected();
       const className = entry.controller.resolve(original.class);
       const style = original.style;
       if (style != null && typeof style !== 'string')
@@ -187,7 +186,6 @@ export function createStyleScope(owner: () => string, moduleId: string, protocol
       if (tracked) snapshots.add(stop);
       else if (statics.has(record.key)) stop();
       else statics.set(record.key, stop);
-      getRuntime.assertCollected();
       return record.className;
     });
   }

@@ -9,6 +9,10 @@ describe('theme presets', () => {
     expect(baseTheme.resolved).toEqual({});
     expect(themeVariables(baseTheme)).toEqual({});
     expect(baseTheme.colorScheme).toBeUndefined();
+    const empty = createRuntime({ theme: baseTheme });
+    empty.themeStyle(':root');
+    expect(empty.styleTags()).toBe('');
+    empty.dispose();
     const custom = extendTheme(baseTheme, { color: { ink: '#123456' } });
     const runtime = createRuntime({ theme: custom });
     try {

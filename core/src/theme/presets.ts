@@ -1,7 +1,7 @@
 import { defineTheme, extendTheme } from './theme.js';
 
 /** 只提供 CSS 载体的空 Token 起点，不继承亮暗预设的视觉值。 */
-export const baseTheme = defineTheme({});
+export const baseTheme = /* @__PURE__ */ defineTheme({});
 
 const scales = {
   spacing: { none: '0px', xs: '4px', small: '8px', medium: '12px', large: '16px', xl: '24px' },
@@ -21,7 +21,7 @@ const scales = {
   breakpoint: { small: '640px', medium: '768px', large: '1024px' },
 };
 
-export const lightTheme = extendTheme(
+export const lightTheme = /* @__PURE__ */ extendTheme(
   baseTheme,
   {
     ...scales,
@@ -58,7 +58,7 @@ export const lightTheme = extendTheme(
 
 export type DefaultTokens = typeof lightTheme.resolved;
 
-export const darkTheme = extendTheme(
+export const darkTheme = /* @__PURE__ */ extendTheme(
   baseTheme,
   {
     ...scales,

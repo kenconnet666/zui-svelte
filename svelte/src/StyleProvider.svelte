@@ -57,7 +57,6 @@
   }
 
   untrack(() => install(scope.theme));
-  getRuntime.assertCollected();
   $effect.pre(() => {
     const nextScope = scope;
     const nextStop = nextScope.subscribe(install, () => {

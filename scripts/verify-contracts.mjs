@@ -123,6 +123,38 @@ assert(
   'Core browser bundle must not need external or Node imports.',
 );
 const code = chunks.map((chunk) => chunk.code).join('\n');
+const minimal = await build({
+  root,
+  configFile: false,
+  logLevel: 'silent',
+  resolve: { alias: { '@zui/core': join(root, 'core/dist/index.js') } },
+  plugins: [
+    {
+      name: 'zui-contract-consumer',
+      resolveId(id) {
+        if (id.replaceAll('\\', '/').endsWith('virtual:zui-base')) return '\0zui-base';
+      },
+      load(id) {
+        if (id === '\0zui-base') return "export { baseTheme } from '@zui/core';";
+      },
+    },
+  ],
+  build: {
+    lib: { entry: 'virtual:zui-base', formats: ['es'] },
+    write: false,
+    minify: true,
+    target: 'es2023',
+  },
+});
+const minimalCode = (Array.isArray(minimal) ? minimal : [minimal])
+  .flatMap((result) => result.output)
+  .filter((output) => output.type === 'chunk')
+  .map((chunk) => chunk.code)
+  .join('\n');
+assert(
+  !minimalCode.includes('#4f46e5') && !minimalCode.includes('#a5b4fc'),
+  'Unused light/dark presets must be tree shaken.',
+);
 const declarationFiles = (await readdir(join(root, 'core/dist'), { recursive: true })).filter(
   (file) => file.endsWith('.d.ts'),
 );
@@ -136,9 +168,10 @@ const report = {
   jsBytes: Buffer.byteLength(code),
   gzipBytes: gzipSync(code).length,
   declarationBytes,
+  baseGzipBytes: gzipSync(minimalCode).length,
 };
 console.log(JSON.stringify(report));
-for (const key of ['jsBytes', 'gzipBytes', 'declarationBytes'])
+for (const key of ['jsBytes', 'gzipBytes', 'declarationBytes', 'baseGzipBytes'])
   assert(report[key] <= budget[key], `${key}: ${report[key]} exceeds ${budget[key]}`);
 await mkdir(join(root, 'core/test-results'), { recursive: true });
 await writeFile(join(root, 'core/test-results/core-browser.mjs'), code);

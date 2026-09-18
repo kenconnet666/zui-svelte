@@ -8,6 +8,8 @@
 
 `pnpm contracts:check` 使用构建产物核对公开 API 快照并打包验证浏览器依赖闭合；报告在 core/test-results/contracts.json，CI 携带 GITHUB_SHA。`pnpm generate:check` 同时生成 css-coverage.json，区分属性、单位、Token 类别映射及没有单位/Token 辅助的属性（这些属性仍有标准值与关键字调用）。
 
+最小导入另有 baseTheme-only bundle 验收：亮暗默认颜色必须被裁剪，gzip 上限 10,000 字节，首次局部测量 2,070 字节。这只是主题基础值的最小导入，不代表包含 builder/runtime 的应用包体积。普通用户 CSS factory 可能有副作用，不给任意业务调用自动添加 pure 注解。
+
 2026-09-18 输出后端升级：真实 DOM 增加 1,000 规则不超过 32 个 style、单条更新只改一个分片、释放后零节点的硬约束；分片上限 64 记录。旧实现每记录一个 style，不能满足此节点预算。局部 Chrome 的分片与接管 4 项通过，三浏览器由 CI 复验；单次本机时间只作诊断，不替代下面固定环境的 p50/p95。SSR 协议同步升级为 7。
 
 第一份基线来自 a8cf60f 的 CI 35299462819：Linux、Node 24.20.0、Intel Xeon Platinum 8573C。完整样本、SHA、来源链接与预算保存在 [预算文件](core-performance-budget.json)。
