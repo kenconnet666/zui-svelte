@@ -25,10 +25,10 @@ export async function renderStyled<P extends Record<string, unknown>>(
     ...options.runtime,
     nonce: options.runtime?.nonce ?? options.csp?.nonce,
   });
-  runtime.themeStyle(':where(:root)');
-  const context = new Map(options.context);
-  context.set(STYLE_RUNTIME, runtime);
   try {
+    runtime.themeStyle(':where(:root)');
+    const context = new Map(options.context);
+    context.set(STYLE_RUNTIME, runtime);
     const result = await render(component, {
       props: options.props,
       context,

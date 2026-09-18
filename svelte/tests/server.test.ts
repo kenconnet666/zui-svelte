@@ -1,11 +1,31 @@
 import { describe, expect, it } from 'vitest';
 import type { Handle, RequestEvent } from '@sveltejs/kit';
 import { MemoryStyleSheet } from '@zui/core';
-import { createStyleHandle } from '../src/server.js';
+import { createStyleHandle, renderStyled } from '../src/server.js';
+import type { Component } from 'svelte';
 
 const event = () => ({ request: new Request('https://example.test/') }) as RequestEvent;
 
 describe('SvelteKit response ownership', () => {
+  it('disposes a render runtime even when initial theme insertion fails', async () => {
+    let disposed = false;
+    class FailingSheet extends MemoryStyleSheet {
+      override set(): void {
+        throw new Error('theme insertion failed');
+      }
+      override dispose(): void {
+        disposed = true;
+        super.dispose();
+      }
+    }
+    await expect(
+      renderStyled((() => ({})) as Component, {
+        props: {},
+        runtime: { sheet: new FailingSheet() },
+      }),
+    ).rejects.toThrow('theme insertion failed');
+    expect(disposed).toBe(true);
+  });
   it('releases an aborted request and evaluates runtime options per request', async () => {
     const sheet = new MemoryStyleSheet();
     const abort = new AbortController();

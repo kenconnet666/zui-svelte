@@ -4,6 +4,7 @@ import { svelte } from '@sveltejs/vite-plugin-svelte';
 import type { Component } from 'svelte';
 import { fileURLToPath } from 'node:url';
 import { zui } from '../src/compiler/preprocess.js';
+import type { RequestEvent } from '@sveltejs/kit';
 
 let server: ViteDevServer;
 beforeAll(async () => {
@@ -28,6 +29,59 @@ afterAll(async () => {
 });
 
 describe('compiled SSR', () => {
+  it('isolates themes, nonces and rules across 100 interleaved handle requests', async () => {
+    const { default: Probe } = await server.ssrLoadModule('/tests/fixtures/CoreProbe.svelte');
+    const { createStyleHandle } = await server.ssrLoadModule('/src/server.ts');
+    const { render } = await server.ssrLoadModule('svelte/server');
+    const { MemoryStyleSheet, lightTheme, overrideTheme } = await server.ssrLoadModule('@zui/core');
+    const sheets = Array.from({ length: 100 }, () => new MemoryStyleSheet());
+    const handle = createStyleHandle(async (event: RequestEvent) => {
+      const index = Number(new URL(event.request.url).searchParams.get('index'));
+      await Promise.resolve();
+      return {
+        sheet: sheets[index],
+        namespace: 'request-' + index,
+        nonce: 'nonce-' + index,
+        theme: overrideTheme(lightTheme, {
+          color: { primary: '#' + index.toString(16).padStart(6, '0') },
+        }),
+      };
+    }) as ReturnType<typeof import('../src/server.js').createStyleHandle>;
+    const responses = await Promise.all(
+      sheets.map((_sheet, index) =>
+        handle({
+          event: { request: new Request('https://example.test/?index=' + index) } as RequestEvent,
+          resolve: async (_event, options) => {
+            // 先让所有请求进入，再经过实际 Svelte 渲染读取 ALS runtime。
+            await Promise.resolve();
+            const rendered = await render(Probe, { props: { initialWidth: index + 100 } });
+            const html = await options!.transformPageChunk!({
+              html:
+                '<head><!--zui:styles-->' +
+                rendered.head +
+                '</head><body>' +
+                rendered.body +
+                '</body>',
+              done: true,
+            });
+            return new Response(html, { headers: { 'content-type': 'text/html' } });
+          },
+        }),
+      ),
+    );
+    const pages = await Promise.all(responses.map((response) => response.text()));
+    for (const [index, html] of pages.entries()) {
+      expect(html).toContain('width:' + (index + 100) + 'px;');
+      expect(html).toContain('--z-color-primary:#' + index.toString(16).padStart(6, '0'));
+      expect(new Set([...html.matchAll(/data-zui="([^"]+)"/gu)].map((match) => match[1]))).toEqual(
+        new Set(['request-' + index]),
+      );
+      expect(new Set([...html.matchAll(/nonce="([^"]+)"/gu)].map((match) => match[1]))).toEqual(
+        new Set(['nonce-' + index]),
+      );
+      expect(sheets[index].entries()).toHaveLength(0);
+    }
+  });
   it('collects setup and derived snapshots with server subscriptions disabled', async () => {
     const { default: Probe } = await server.ssrLoadModule('/tests/fixtures/LifecycleProbe.svelte');
     const { renderStyled } = await server.ssrLoadModule('/src/server.ts');

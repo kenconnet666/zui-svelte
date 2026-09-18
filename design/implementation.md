@@ -159,3 +159,9 @@ d815fe4 的完整 CI 已通过（35308700961），包含协议/nonce/重复元�
 提升前规范化 CSS-wide 关键字的大小写/空白，转义值回退完整规则；无 CSS.supports 时按属性和值组合检查保守子集，防止 width:red、无单位非零长度、无效 hex 颜色、负尺寸等从解析期无效变成变量计算期无效。依据 W3C CSS Nesting 与 CSS Variables 的语义，未确认安全的值不改变输出功能。
 
 局部相关 51 项、新增换行后定向 39 项、聚焦 TypeScript、ESLint 和 WebStorm 检查通过。继承值与选择器隔离三浏览器回归交给 CI。周额度仍剩余 48%。
+
+## P6：交错请求与初始化失败的释放
+
+67110d8 的完整 CI 已通过（35308963271），包含选择器隔离与 CSS-wide 关键字三浏览器回归。新增 100 个交错 createStyleHandle 请求，实际 Svelte 渲染通过 ALS 获取各自 runtime，分别验证主题、nonce、namespace、width 输出与响应消费后样式表归零。首屏主题规则写入纳入 renderStyled 的 try/finally，初始化失败同样释放 runtime。
+
+相关 SSR/响应生命周期 10 项和聚焦 TypeScript 检查通过。WebStorm 对 server.ts 通过；SSR 测试首轮超时，单文件重查通过。测试替身最初的 Component 返回类型不匹配已修正，未绕过类型检查。
