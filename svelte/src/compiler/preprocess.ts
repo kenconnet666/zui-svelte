@@ -58,7 +58,6 @@ export function transformClasses(
     .slice(0, 16);
   const modules = new Set(options.cssModules ?? ['@zui/core', '@zui/svelte']);
   const imports: { node: Node; local: string; alias: string }[] = [];
-  const managed = new Set<string>();
   const loops = new Map<Node, string>();
   const targets: { node: Node; parents: readonly Node[] }[] = [];
   const instance = ast.instance as Node | null;
@@ -94,7 +93,6 @@ export function transformClasses(
       const source = (node.source as Node).value as string;
       for (const specifier of node.specifiers as Node[]) {
         const local = (specifier.local as Node).name as string;
-        if (source.startsWith('.') && source.endsWith('.svelte')) managed.add(local);
         if (
           specifier.type === 'ImportSpecifier' &&
           modules.has(source) &&
@@ -207,7 +205,6 @@ export function transformClasses(
       '}), [' +
       keys.join(',') +
       ']' +
-      (component ? ', ' + managed.has(node.name as string) : '') +
       ', ' +
       transient +
       ')';

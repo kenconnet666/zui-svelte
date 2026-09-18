@@ -45,7 +45,11 @@ try {
     assert(match, 'Missing package archive: ' + name);
     return 'file:./' + match;
   };
-  const dependencies = { '@zui/core': archive('core'), '@zui/svelte': archive('svelte') };
+  const dependencies = {
+    '@zui/core': archive('core'),
+    '@zui/svelte': archive('svelte'),
+    'zui-fixture-plain': 'file:./plain',
+  };
   for (const name of [
     '@sveltejs/kit',
     '@sveltejs/adapter-node',
@@ -90,6 +94,12 @@ try {
   );
   await writeFile(join(directory, 'src/core-types.ts'), types);
   run(['install', '--no-frozen-lockfile', '--ignore-scripts'], directory);
+  assert(
+    (await realpath(join(directory, 'node_modules/zui-fixture-plain'))).includes(
+      sep + 'node_modules' + sep,
+    ),
+    'The unmanaged fixture must be consumed from node_modules, outside ZUI transformation.',
+  );
   for (const name of ['@zui/core', '@zui/svelte']) {
     const installed = await realpath(join(directory, 'node_modules', name));
     assert(

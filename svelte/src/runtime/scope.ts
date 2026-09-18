@@ -159,9 +159,9 @@ export function createStyleScope(owner: () => string, moduleId: string, protocol
       site: string,
       factory: () => P,
       keys: readonly unknown[] = [],
-      managed = false,
       transient = false,
-    ) => read(site, factory, keys, false, managed, transient),
+      // 组件是否消费内部变量不能靠导入路径推断；边界传递完整规则，保持普通 class 转发。
+    ) => read(site, factory, keys, false, false, transient),
     wrapCss<F extends (...args: never[]) => string>(original: F): F {
       // 保留用户的类型化入口；直接替换成默认 css 会丢失自定义主题。
       return ((...args: never[]) => {
