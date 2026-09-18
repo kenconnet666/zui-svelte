@@ -1,131 +1,205 @@
-# Core 剩余工作与首版收口规划
+# Core 生产重构统一规划
 
-日期：2026-09-18。代码基线：`478f09e`。本文重新核对现有实现后编写，仅规划，不代表新增能力已经实现。原生产规划的 A01–A40 仍是验收范围；其“当前实现与差距”是最初基线，不能继续用作剩余任务表。
+更新：2026-09-18。核对基线：776a8b1；完整 CI [35340956063](https://github.com/kenconnet666/zui-svelte/actions/runs/35340956063) 通过，但当前矩阵仍有缺口，core 未达到生产完成条件。
 
-## 1. 当前判断
+本文替换原 R0–R5 剩余清单，统一 API、重构和交付讨论。用户要求重新规划，尚未逐项确认下面的 API 改名与删除；本轮仅修改文档。core-production-plan.md 的 A01–A40 继续作为验收范围，core-acceptance.md 保存证据。theme-production-plan.md 保留研究背景，不再形成并行实施路线。
 
-core 已有完整主链路，不需要重新设计样式语法或再建一套主题/runtime。剩余重点是完成主题消费、证明编译语义与开发更新正确、解决样式表规模问题，以及把各项证据落实到同一版本。
+## 1. 目标与已确认约束
 
-最近已核实的完整绿色 CI 为 `08c1c23` 的 [35321234678](https://github.com/kenconnet666/zui-svelte/actions/runs/35321234678)。本轮查询 `478f09e` 的 [35321927175](https://github.com/kenconnet666/zui-svelte/actions/runs/35321927175) 时尚在运行，不把它计作通过，也不等待或轮询。
+core 是框架无关的运行时 CSS 与主题内核；Svelte 编译与宿主接入让业务只写 class。生产完成意味着类型、求值、主题、DOM、SSR 和独立安装整条链路可靠。
 
-| 能力                                 | 当前事实                                       | 后续处理                                                 |
-| ------------------------------------ | ---------------------------------------------- | -------------------------------------------------------- |
-| CSS builder、生成类型与 Token 映射   | 已实现，有类型/单元/生成检查                   | 审计类型和属性映射，不扩建平行 DSL                       |
-| 静态起步、动态提升、变量双通道       | 已实现，有事务、所有权、三浏览器回归           | 补组合覆盖与规模测量                                     |
-| 主题定义、扩展、别名、scope          | 已实现，原生 DOM 有嵌套/Portal/ShadowRoot 探针 | 完成框架 Provider、首屏偏好与主题消费验证                |
-| 模块与组件样式、第三方 class 转发    | 已实现，多种 helper/快照/包外消费有回归        | 补编译语义、动态 chunk 与真实 HMR                        |
-| SSR、流式、hydration、CSP、prerender | 已实现主路径，包含并发/取消与真实 Kit fixture  | 按边界补证据，不重写既有服务端架构                       |
-| 性能                                 | 有 MemoryStyleSheet 的 Node 基准和资源计数     | 补 DOM、产物体积、类型性能；现有时延预算只在匹配环境执行 |
-| 生产候选交付                         | 有完整 CI 和包外安装验证                       | 缺正式 API 合同快照、逐项验收台账及同 SHA 的最终报告     |
+- 根目录 core、svelte、docs；内部继续 css、theme、runtime，不为计划创建空目录。
+- css() 返回原始 string，推荐模板内调用，参数和复用优先普通 TS 函数。
+- 首次普通值静态，同实例观察到变化才尝试变量提升；不要求 dynamic，不分析响应式来源。
+- 多 class 自由组合、子元素独立绑定、复杂组件用 slotProps；不增加 parts 或句柄式业务 API。
+- 分类 Token、系统亮暗两套、默认亮色；用户 extend 增加键和类型，切换纳入首版。
+- 业务及稳定宿主能力统一从 @zui/core 导入；core 不依赖 Svelte。
+- SvelteKit/Node SSR、hydration、严格 CSP 通道、资源回收属于必需支持；svelte/docs 只做必要接入。
 
-## 2. 保持不变的 API 方向
+## 2. 能力准入与参考收敛
 
-- 所有 core 业务、主题、预设和宿主 API 统一从 `@zui/core` 导入，不再拆业务子入口。
-- `css(factory): string`、`createCss(theme, options)` 保持现有形态。业务继续只写 class，参数用普通函数；不增加动态标记、句柄或手写 attachment。
-- `defineTheme` / `extendTheme` / `overrideTheme` / `tokenRef` / `ThemeScope` 沿用。`scope.override()` 替换当前 patch，根 `update()` 切换兼容主题，`fork()` 建立显式父子关系。
-- `createRuntime`、`bindElement`、`bindTheme`、资源注册和样式表接口作为宿主接入能力保留。内部优化不变成业务参数。
-- 编译协议及必要内部导出标记为 `@internal`，建立快照核对；不因为统一入口就承诺所有内部实现永久稳定，也不为清理导出直接破坏已有编译产物。
-- 不增加 recipe/variant DSL、全局主题单例、系统偏好监听器或配置中心。普通 TS 函数足以组合首版能力。
+每项新增/重构必须说明实际问题、最小解法、对 API/状态/依赖的影响、验收证据。普通 TS/CSS 或已有 API 能解决时先复用。减少公开概念优先于减少必要校验。
 
-首版唯一明确待补的组件 API 是已经确认的 `StyleProvider`，从 `@zui/svelte` 根入口导出：
+参考只保留机制：Tailwind 的分类和值/引用分离；UnoCSS 的确定合并与条件顺序；MUI 的变量输出和首屏选择分工；Chakra 的前景/背景/边界角色；Naive UI 的公共值先合并、组件值后派生。它们不对应五个新模块，也不引入这些库。
 
-```svelte
-<StyleProvider {scope} as="section" class="panel" style="min-width: 0">
-  <!-- 正常子内容和 class 样式 -->
-</StyleProvider>
+- [既有源码研究](theme-production-plan.md)
+- [Chakra 语义颜色](https://github.com/chakra-ui/chakra-ui/blob/1ff9873754e9913fc3d849d23c0844a628f5f20d/packages/react/src/theme/semantic-tokens/colors.ts)
+- [Naive UI 主题合并](https://github.com/tusen-ai/naive-ui/blob/42a52e6436b38bed456fee19eb0b89cdcd00fcc2/src/_mixins/use-theme.ts)
+
+明确取消或暂不引入：必需 defineThemeSchemes 工厂、第二套主题 controller、通用插件生命周期、条件 Token/recipe DSL、命名部位、每种颜色全部状态组合、全局偏好存储单例、任意 JS 的零运行时提取。
+
+双主题预输出保留为首屏/性能的候选实现，不强制新增公共 API；首屏正确性要求不降低。
+
+## 3. 代码事实与重构动机
+
+| 当前事实                                               | 影响                     | 推荐处理                                     |
+| ------------------------------------------------------ | ------------------------ | -------------------------------------------- |
+| 根入口同时导出业务、宿主、编译协议和工具函数           | 稳定性边界模糊           | 分级导出，业务仍统一入口                     |
+| css(factory, theme?) 与 createCss(theme)(factory) 共存 | 自定义主题有近似入口     | 推荐移除 css 第二参数，统一用 createCss      |
+| tokens/resolved 指向同一对象                           | 名称暗示不存在的区别     | 推荐公开只保留 resolved，definition 独立     |
+| scope.override 替换整个 patch；update 仅根 scope 可用  | 容易误以为增量合并       | 推荐 setOverrides/setTheme，保留 fork        |
+| scope、requirements、Provider 分别校验主题             | 合同易漂移               | 共享底层校验，区分 schema 与消费子集要求     |
+| 原生 bindTheme 与 Provider 独立处理输出                | CSP/失败/释放易分叉      | 共享快照准备与输出合同，保留宿主生命周期差异 |
+| BrowserStyleSheet 每 entry 一个 style，写入时全表排序  | DOM 与热路径成本         | 有序存储和有界分片                           |
+| preprocess 用 includes(marker) 并整段改写属性          | 普通文本误判、源映射失真 | AST 协议识别、保留原源码跨度                 |
+| 属性生成与单位/Token 语义表来源不同                    | 属性数量不等于语义完整   | 分别审计并生成覆盖报告                       |
+
+两个编译问题已有历史复现；深别名联合值收窄风险尚需类型负例证明，不能预先记为已确认缺陷。所有推荐均尚未实施。
+
+## 4. 公共 API 的保留、简化与内收
+
+### 日常 API
+
+保留 css、createCss、defineTheme、extendTheme、overrideTheme、tokenRef、lightTheme、darkTheme、ThemeScope，以及 Theme/ThemePatch/DefaultTokens/StyleBuilder/StyleFactory/CssOptions/PropertyTokenMap 等必要类型。
+
+defineTheme 从零定义；extendTheme 增加键并兼容覆盖；overrideTheme 只改已有键以捕获拼写错误；createCss 绑定类型和配置；css 服务默认主题。它们有不同职责，不合并为多模式万能函数。
+
+推荐形态（含待确认改名，不是当前全部可用的 API）：
+
+```ts
+const appLight = extendTheme(lightTheme, {
+  color: { chartLine: tokenRef('color', 'primary') },
+  spacing: { panelGap: '20px' },
+});
+const appDark = extendTheme(darkTheme, {
+  color: { chartLine: tokenRef('color', 'primary') },
+  spacing: { panelGap: '20px' },
+});
+const themes = { light: appLight, dark: appDark };
+const css = createCss(themes.light);
+
+// 在应用实例或 SSR 请求中创建可变 scope。
+const scope = new ThemeScope(themes.light);
+scope.setTheme(themes.dark);
+scope.setOverrides({ spacing: { panelGap: '12px' } });
+scope.setOverrides({});
+const child = scope.fork({ spacing: { panelGap: '8px' } });
 ```
 
-`scope` 必填；`as` 默认 `div`；接收 children、普通 HTML 属性、class/style 和事件。首版使用可承载子内容的 HTML 容器，类型与运行时拒绝 void 标签；不顺带承诺任意组件、SVG 或无容器模式。
+themes/typed css 可模块共享，scope/runtime 不得跨 SSR 请求共享。普通方案对象足够；在绑定与切换边界复用校验，不先增加 schemes 工厂。
 
-Provider 使用已有 runtime，负责输出该容器的主题规则、订阅更新与清理，不创建每容器独立 runtime，不销毁调用方拥有的 scope。自定义 Token 的 runtime 配置仍在应用根通过 `provideStyleRuntime` / SSR 配置提供；Provider 不悄悄修改请求 collector 的 schema。
+若用户选择保留旧方法名，则只保留旧名并明确替换语义，不同时增加 update/set/patch/merge 等同义入口。
 
-嵌套 DOM 与 scope 父子关系分别明确：`scope.fork()` 负责主题继承；把任意两个独立 scope 放进嵌套容器，不自动建立 JS 父子关系。Portal 可在另一个容器使用同一有效 scope；跨 Document/ShadowRoot 时由宿主提供目标 runtime。
+### 宿主 API
 
-## 3. 剩余实施批次
+createRuntime、bindTheme、bindElement、StyleSheet/StyleEntry、MemoryStyleSheet/BrowserStyleSheet 及资源句柄保留为高级接入面。宿主通过 runtime.binding() 获取绑定，推荐将直接 new StyleBinding 的构造能力内收。
 
-执行状态与逐项缺口见 [Core 首版验收台账](core-acceptance.md)。
+runtime.css() 明确为 runtime 生命周期持有的静态入口，不能反复传入高频变化值当作自动提升。动态宿主使用 binding，常规业务使用编译 css。暂不仅为命名统一再造入口。
 
-### R0：建立当前验收台账与层叠反例
+runtime.theme 推荐改为 defaultTheme，表示默认值/schema 基准；当前局部主题在 scope.theme。创建选项仍用 theme。stats 保留用于诊断，重复的 bindingCount getter 建议内收。
 
-先把 A01–A40 标为“已具备部分证据 / 待补实现 / 待补验收 / 已验收”，记录测试位置、支持范围、最后通过 SHA/CI；禁止仅因文件存在就填写已通过。之后每个批次同步更新，不等最后追溯。
+global/keyframes/fontFace/property、cssText/styleTags 保留；资源必须有清理所有者。set/raw/custom 三种出口分别解决标准键类型、未来 CSS 和自定义变量，不因都能写声明而贸然合并。
 
-首先补稳定层叠的针对性反例。`registry.ts` 当前按来源首次取得引用时分配顺序，来源归零后删除顺序记录；`sheet.ts` 同顺序按 key 排序。这证明当前存在到达时序依赖，是否在支持场景造成视觉漂移仍须计算样式反例确认。
+### 内部协议
 
-检查同元素多个来源、异步模块相反到达顺序、卸载后重挂、同来源多变体、提升前后、SSR/客户端不同调度。如确有漂移，采用编译来源提供稳定优先关系，并让 SSR/客户端共用；不靠追加到末尾或永久保留所有历史来源维持顺序。class 字符串的书写顺序仍不承诺覆盖优先级，应用可使用明确 layers。
+ClassController、createStyleModule、styleProtocol、withCssEvaluation/hasCssEvaluation、normalizeClass、hashText、canonicalize、buildStyle、底层序列化和 StyleProgram 默认不属于稳定业务 API。
 
-**退出条件：** A01–A40 有可追踪状态；层叠合同明确，支持范围内的顺序不会因更新/回收而漂移。对应 A03/A08/A10/A16/A18。
+必要跨包符号暂以 @internal 从原入口提供给同版本 svelte/编译器。先清点消费者，再缩小桥接类型，不能直接删除仍被 Svelte 导入的函数，也不创建装载所有内部能力的万能对象。@internal 是稳定性标记，不是访问控制；协议不匹配仍要运行时诊断。
 
-### R1：完成主题消费与 StyleProvider
+@zui/svelte 的 css 转导出可保留兼容，文档推荐 @zui/core 或应用 typed css。业务入口不再分拆；既有编译器/服务端工具入口保留。
 
-复用 `ThemeScope`、资源管理和 Svelte runtime context，尽量只增加组件和必要的内部生命周期辅助。新增能力包括：
+## 5. 主题合同与类型
 
-- 默认 div / as 容器、属性透传、自定义 Token 与 runtime 匹配诊断。
-- 根主题切换、局部覆盖、嵌套 scope、替换 scope prop、共享 scope 的多个容器。
-- SSR 直接输出作用域主题，接管使用相同身份，禁 JS 时仍正确；请求结束回收，不在服务端组件结束时提前丢掉待收集样式。
-- Provider 卸载、scope 先销毁、父 scope 销毁、插入失败的资源归属与错误行为。
-- Portal 与 ShadowRoot 的最小真实接入；两个变量通道均工作，严格 CSP 时 ZUI 不写 style 属性。用户主动传入的 style 仍受宿主 CSP 约束。
+系统两套主题采用相同类别/键集合与合法值种类，默认 light。保留既有语义，补真实需要的表面、文字、边界、焦点、主色前景配对与反馈配对；不批量制造无人消费的状态 Token。
 
-用最小文字、表面、按钮、输入框、焦点、禁用、动画探针验证 light/dark、密度、对比度、reduced-motion、forced-colors 和方向。偏好组合用纯函数/已有主题覆盖表达；只有证明需要时才增加具体 Token，不先增加一套 preference API。系统偏好读取与保存由宿主负责，SSR 首值和接管一致。
+语义清单逐条记录用途、配对关系、亮暗值、类别和验收示例。组件私有 Token 留在组件库；布局零值、百分比和业务计算值不机械 Token 化。
 
-**退出条件：** A21–A24 的真实消费闭合；100 次主题切换不增长规则；同一 scope 多容器互不误清理。Provider 同时通过工作区与独立安装包消费。
+Theme 保留 definition/resolved/namespace/ref/variable。definition 保存别名，resolved 保存解析值；它可能含 calc/外部 var/相对单位，不等于 computed style。推荐删除 tokens 别名，同步 DefaultTokens 与全部消费。
 
-### R2：编译语义、动态模块与 HMR
+同类别 tokenRef 检查缺失和循环；源值改变后别名重算；覆盖别名本身则断开该引用。派生用确定性普通函数，不增加任意 getter 图。默认颜色有配对验收，任意用户品牌色不宣称自动满足可读性。
 
-当前已有模块 dispose 注入和 source map 输出，但测试尚不足以证明真实 HMR 或映射行列准确。这个批次先补行为对照，再最小修改编译器：
+类型键精确、值适度拓宽。extend 自动推导，override 捕获未知键，数字键规范化。fontWeight/lineHeight 合法联合值与别名递归预算在类型、覆盖、切换中一致；不能把 string | number 错误缩窄为 string。
 
-- 属性/spread 覆盖顺序、getter 次数、事件引用与调用次数、bind、style:/class:、action/attachment。普通无样式组件作为对照，防止 ZUI 改变无关响应行为。
-- keyed/unkeyed、对象 key、递归、snippet 多实例、await 成功/失败和错误边界；检查值隔离与退出回收。
-- 模块重导出、自定义入口、动态 import、tree shaking、双重编译、未编译依赖和已编译包的职责。
-- 启动真实 Vite 开发服务器，编辑局部样式、helper、主题、模块导出，随后删除/恢复导出；验证样式更新、状态保持、旧定义和订阅释放。不能只断言生成代码含 `hot.dispose`。
-- 将变换后的具体位置反查原始文件/行列；检查错误堆栈和 source map 组合，不能只断言 map 带 sourcesContent。
+兼容规则分别定义：系统两套 schema 一致；活跃 scope 切换须满足已经承诺的键和值种类；绑定只校验实际消费需求。额外键不自动扩大既有 typed css，改变 schema 时显式建立新入口/作用域。初始化为扩展主题后不能切到缺失扩展键的系统主题。
 
-**退出条件：** A06–A15/A34/A35 有运行证据，热更新无需整页刷新才能恢复样式；不扩展任意异步 helper 的 await 后隐式求值上下文。
+纯 Token 引用消费在切换时只更新变量，不重跑 factory、不换 class；resolved 参与 JS 计算的消费需要响应式重算，分别验收。scope patch 在父切换后保留，父子关系由 fork 明确建立，DOM 嵌套不自动建立 JS 父子。
 
-### R3：样式表规模与浏览器性能
+## 6. 内部职责与所有权
 
-`BrowserStyleSheet` 当前每 entry 一个 style 节点，写入时调用 `entries()` 排序并找插入位置；现有 MemoryStyleSheet 基准未覆盖 DOM 成本。原生产规划已经要求有界分片与避免热路径全表排序，这仍是明确未完成项。
+| 单元               | 主要职责                               | 不应承担                |
+| ------------------ | -------------------------------------- | ----------------------- |
+| css                | 载体、校验、有序 StyleProgram、序列化  | DOM 生命周期、请求状态  |
+| theme              | schema、别名、不可变快照、scope 与兼容 | 存储/系统偏好、组件注册 |
+| binding            | 实例结构历史、提升、快照提交           | 重建主题、解析 Svelte   |
+| registry/resources | 规则共享、引用、资源所有权、顺序       | 决定组件挂载、重排声明  |
+| sheet/variables    | DOM/内存输出、目标隔离、变量通道       | 第二套主题合并          |
+| compiler/adapter   | 身份、响应式/生命周期、请求收集        | 提前执行任意业务函数    |
 
-先固定真实浏览器工作负载与正确性断言，再实现最少的有序存储和样式表分片；逻辑 StyleEntry、外部 class API、nonce、目标隔离和所有权保持不变。SSR 标记如需变化，统一更新内部协议、接管和包外 fixture，不维护无期限双协议。
+runtime 拥有 registry/sheet；绑定拥有历史和规则引用；元素消费拥有订阅和变量写入；scope 拥有状态和子 scope；Provider 仅拥有自己的输出/订阅；请求拥有 collector/runtime 直到渲染或流结束。
 
-测量 1,000 静态实例、1,000 动态实例 × 100 轮、10,000 稳定更新、100 轮挂载/卸载、100 次主题切换；记录 style 节点数、规则编译次数、更新时间、DOM/堆趋势和回收结果。首轮建立可比基线后锁定预算，不先承诺未经测量的毫秒值。
+主题准备与校验共用，DOM bind 与 SSR Provider 的必要差异保留。服务端规则不能随组件销毁提前释放。不为了合并代码制造一个到处判断环境的大函数。
 
-**退出条件：** A16/A18–A20/A25/A32/A38 通过；稳定值更新不反复编译静态规则；物理节点按分片有界组织，更新不每次全表排序；回收回到预期基线。三浏览器验证两条变量通道，基准报告明确机器和构建模式。
+同步 css 求值上下文用 try/finally 恢复嵌套状态，不跨 await；异步请求上下文隔离不得依赖全局 activeEvaluation。缓存、监听、身份映射均需明确创建者与清理时机。
 
-### R4：SSR 与宿主边界补验收
+## 7. 动态 CSS、组合与层叠
 
-保留已有请求隔离、流式变换和包外 Kit 流程，针对台账缺口补测：晚到组件真正首次生成的新 CSS、多根接管、晚到边界与 finishHydration 的时序、hydration 前销毁、错误页、redirect、其他 handle 组合、非 HTML、取消和背压。
+首次静态；安全值改变才提升；多个独立安全位置可分别提升；结构变化或不能证明等价时换完整规则。CSS-wide 关键字、无效值、简写/回退、后代关系按语义判断，不按字符串长短或变化频率判断。
 
-重点区分“流式数据晚到”与“服务端晚到内容首次需要新规则”，分别标明当前锁定 Kit 支持形态；不能用前者冒充后者。既有 100 个交错请求保持验证，主题/nonce/规则均不得跨请求残留。
+保留声明顺序与重复声明，不为哈希复用排序声明。提升不得改变继承、无效声明丢弃、important 与条件语义。哈希用于索引/标识，冲突处理需要可验证策略。
 
-Provider 与样式表分片完成后，重验禁 JS 首屏、prerender、严格 CSP、路由往返、独立 tarball 消费。保留 Kit announcer 的精确 hash 例外说明，不把它称为整个 Kit 应用完全禁止 style 属性。
+多 class 不承诺右侧覆盖；来源顺序稳定，不依赖挂载或异步到达。明确覆盖通过 layers 和原生 specificity。外部普通 class 共存，无必需 merge/recipe API。
 
-**退出条件：** A20/A23/A26–A33/A37/A40 按支持矩阵闭合；若公开宿主无法满足既定流式要求，必须带证据回到范围讨论，不自行标记完成。
+实例历史有界；新引用先取得、旧引用后释放；class 不变而 revision 改变仍传播变量。跨未编译第三方组件的提升不得作无条件保证，支持范围、回退或诊断必须清楚。
 
-### R5：API、类型、诊断与交付收口
+slotProps 合同留在 svelte，明确受控属性、事件、style/class 和节点引用；core 不认识 slot 名称。编译后的原生属性/指令行为与未接入 ZUI 的对照一致。
 
-- 对根导出、声明签名和内部协议做可审阅快照；补齐输入、返回、错误、所有权、SSR 适用性。检查 runtime.css 静态快照与受管 binding 的区别。
-- 校验属性/单位/arity/Token 映射和生成一致性；保留标准字符串逃生口，不追求手写解析整个 CSS 标准。
-- 为必须稳定区分的错误补精简 code 与来源，例如缺少 owner、主题不兼容、协议不匹配、已销毁对象。保留 cause 和多重清理异常，不引入日志平台或复杂诊断总线。
-- 类型检查记录耗时与内存；构建产物记录 JS/gzip、CSS、SSR HTML 体积；确认浏览器根入口不带 Node/编译器依赖。
-- README 和最少 Docs Demo 通过真实公开 API；旧规划中的历史状态加说明。示例只覆盖使用合同，不建设整套组件文档站。
-- 将验收清单、类型/浏览器/SSR/性能报告与 tarball 绑定同一 SHA。补存现有基准输出；必要时拆分 CI job 控制总耗时，不为了形式重构流水线。
+## 8. 编译器先修语义
 
-**退出条件：** A01–A05/A21/A36/A38–A40 完成，A01–A40 全部有当前候选版本证据；包仍 private，不执行 npm 发布。
+加入已复现的 marker 文本误判、source map 行列失败用例。用 AST 和协议证据识别编译产物，保留重复编译保护和旧协议诊断；改写保留原表达式源码区间。
 
-## 4. 实施顺序与控制范围
+覆盖 spread/getter/事件/bind/style:/class:/attachment 的顺序与次数，以及普通 helper、typed css、模块重导出、动态 chunk、列表/snippet/await/错误边界、真实 HMR。不能仅断言生成代码合法或带 hot.dispose。
 
-顺序为 **R0 → R1 → R2 → R3 → R4 → R5**。API 收口所需的台账、文档和诊断随每批更新；R5 做最终统一核对，不把所有文档欠账留到最后。R0 如果发现会影响 Provider 的层叠错误，先修正确性，再实现容器。
+不承诺任意异步调用图。优化 controller 数量和重复求值必须在行为与源映射通过之后，不把编译复杂度转嫁成用户注解。
 
-暂不做：完整组件库、recipe/variants、React/Vue 适配、非 Node 边缘 SSR、CJS、任意动态 CSS 零运行时提取、跨第三方组件自动提升、自动识别任意跨文件/异步调用图。它们不参与首版完成条件；当前必须项不能以“后续优化”为由移出首版。
+## 9. 输出后端与性能
 
-每批遵循“小实现 + 必要中文注释 + 同步合同测试”。单元测试放模块 test 子目录，跨模块/浏览器/Kit 验证留独立 tests；不把工具、fixture 或测试打入产物。
+先固定真实浏览器基准，再将全表排序改为持久有序索引，逻辑规则与物理 style 分片分离。分片容量有界，按受影响范围更新；优先现有 HTMLStyleElement 路径，不同时引入另一份未验证后端。
 
-本地使用已验证的 zui_lsp 与相关模块实际类型检查、少量针对性测试。完整类型、构建、三浏览器、SSR、独立安装由 CI 完成。按可构建批次中文提交推送，推送后不等待或轮询；下次推送前核对上一轮具体结果。
+验证删除/空洞、nonce、顺序、SSR metadata、接管和外部 CSS。不能把全表字符串重写包装成节点数优化。协议改变时 compiler/runtime/SSR 同步升级，无无限双协议兼容。
 
-## 5. 预算与完成判定
+保留 inline/stylesheet 双变量通道，后者用于严格 CSP。基准覆盖 1,000 静态实例、1,000 动态实例多轮更新、10,000 稳定更新、100 次主题切换、100 轮挂载销毁、独立目标及大 schema 的 TS/LSP 成本。
 
-最近账户检查周额度剩余 40%，用户要求至少保留 15%；25 个百分点是当时剩余的最大可用空间，不是消费目标，也不是完成承诺。阶段间重新查询，约剩余 20% 时留出文档、验证和交接余量，不触碰 15% 保留线。
+固定环境比较 p50/p95；跨设备硬判资源数量与持续增长，不承诺任意机器相同毫秒数。性能门槛在改后端前锁定，不事后放宽到刚好通过。
 
-发现关键合同不成立时优先修复，不靠降低验收标准追赶额度。达到预算收尾点但工作未闭合，就准确保留未完成条目；提前达到首版门槛则停止继续扩张。
+## 10. SSR、首屏与边界
 
-最终完成不以文件数、测试总数或最近某次绿色 CI 定义，而以同一候选 SHA 的支持矩阵、A01–A40、公开 API 和产物验收同时成立为准。仍有已知层叠漂移、实例串值、请求污染、接管误删、持续资源增长或必需项缺证据时，不称为生产完成。
+默认无偏好亮色，服务端已知暗色直接输出暗色；客户端从相同快照接管。宿主同步 color-scheme。Cookie/localStorage/system 显式接入，core 导入不注册监听器。
+
+无 JS 首屏、请求并发隔离、异常/取消释放、prerender、严格 CSP 是硬门槛。本地存储在禁 JS 时不可读，不承诺该偏好恢复。需要本地偏好首帧生效时验证可选初始化脚本和预输出 CSS；默认路径不依赖脚本。嵌套亮暗边界不能被外层选择器穿透。
+
+数据流式与首次晚到新 CSS 分开验证。CSS 应在依赖内容展示前到达，或采用明确缓冲；不能第一段 head 输出后假定再无新规则。背压、取消、错误页、redirect、handle 组合、多根和晚到接管一并覆盖。
+
+style/script 边界转义、nonce、变量保留命名区与局部选择器约束需要测试。raw 保留未来 CSS，不意味着关闭结构边界校验；core 不承诺充当任意不可信 CSS 的沙箱。
+
+## 11. 错误、迁移与依赖
+
+误用提供稳定 code、必要来源/Token 路径和 cause，不公开大量内部异常类。准备失败保留旧快照；提交后的通知/清理失败明确已提交状态并继续清理。后端拒绝删除要报告残留，不能宣称所有 DOM 输出可全局回滚。
+
+推荐迁移：css 第二参数 → createCss；tokens → resolved；scope.update/override → setTheme/setOverrides；runtime.theme → defaultTheme；直接构造 StyleBinding → runtime.binding。改名前检查迁移量和实际收益，用户确认后执行。
+
+包尚 private，优先一次迁移仓库和独立包 fixtures，不长期保留重复别名。每批可构建；扫描源码、编译产物断言和包外消费，不只改 imports。内部协议升级联动服务端和客户端构建。
+
+不新增主题框架、deepmerge、偏好 manager 或插件依赖。继续使用现有专项依赖；类型依赖/Node-only 代码不得进入浏览器执行路径，tarball 声明依赖必须可解析。
+
+## 12. 单一实施路线
+
+| 批次 | 工作                            | 主要验收                            | 退出标准                                    |
+| ---- | ------------------------------- | ----------------------------------- | ------------------------------------------- |
+| P0   | API 分级/改名讨论、基线和迁移表 | A01/A02/A39；全台账校正             | 用户确认 API，每个变更有案例和迁移位置      |
+| P1   | 编译语义、映射、真实 HMR/chunk  | A06–A08/A11–A15/A34/A35             | R2 缺陷消除，原生行为对照通过               |
+| P2   | 主题类型、校验/输出职责、双主题 | A21–A24/A36                         | 推导、切换、嵌套/多目标、别名与故障合同一致 |
+| P3   | 绑定/资源所有权、层叠、输出规模 | A03–A05/A09/A10/A16–A20/A25/A32/A38 | 双通道等价、缓存/分片有界、DOM 预算通过     |
+| P4   | SSR 首屏、晚到 CSS、接管、CSP   | A26–A31/A33                         | 无 JS、请求隔离、流/错误页/多根通过         |
+| P5   | API/类型/体积快照、独立包与文档 | A37/A40，复验全部 A01–A40           | 同一候选 SHA 的完整矩阵与产物闭合           |
+
+P0 不一次重写全仓；P1–P4 按相关模块迁移。P2/P3 改动协议时立即补 SSR 回归，不等 P4 才发现破坏。现有关键回归保留，增加行为对照；失败测试不得删除以换取绿色。
+
+完成条件：没有已知实例串值、层叠漂移、请求污染、必需首屏缺样式、接管误删或持续资源增长；已承诺 API 的类型负例与独立包消费通过；必需矩阵有同一 SHA 证据。否则如实保持部分完成。
+
+## 13. 文档和执行规则
+
+本文是当前统一讨论/实施入口；core-acceptance.md 是验收账；implementation.md 记完成记录；handoff.md 记恢复点。旧主题研究/完整规划是背景，不再独立扩张 T/R 路线。
+
+本轮待审阅的选择：候选改名和重复值入口删除；编译工具导出内收；schemes 校验先内置、双方案输出按首屏目标选择实现。未确认部分不可在后续当作用户已批准。
+
+本地用 WebStorm/已验证 LSP 与针对性测试，完整验证交 CI。每个可构建阶段中文提交推送，下次推送前检查上一轮，不等待新 CI。阶段查询额度，保留至少 15%，提前留文档/提交/交接余量。
