@@ -1,133 +1,101 @@
-# 换机交接：core 持续实现
+# 换机交接：core 首版继续收口
 
-交接日期：2026-09-18。用户要求保存文档、推送 Git 后结束本机工作，换电脑继续。
-仓库：https://github.com/kenconnet666/zui-svelte
-分支：master
+更新：2026-09-18。用户要求尽快收敛、推送远程，换电脑继续；本机停止新增功能。仓库 https://github.com/kenconnet666/zui-svelte，分支 master。core 尚未生产验收完成，不将阶段通过误写为整体完成。
 
-## 先读这里
-
-目标仍是完成 core 并尽量生产可用，尚未完成。不要把已经绿色的基础 runtime CI 当成整个 class 编译/SSR 接入的生产验收。
-
-当前交接保存了未完成的 C4 编译接入原型和相应验收代码。交接推送后不等待 CI，新电脑先查看该提交的 CI 结果，再继续修复。
-
-## 新电脑启动
-
-安装 Node.js 24 与 pnpm 11.22.0，然后：
+## 新电脑先做什么
 
 ```powershell
 git clone https://github.com/kenconnet666/zui-svelte.git
-cd zui-svelte
+Set-Location zui-svelte
 pnpm install --frozen-lockfile
-pnpm dev
 ```
 
-若需要安装指定 pnpm：
+环境为 Node.js 24、pnpm 11.22.0、PowerShell 7。已有 checkout 先检查 `git status`，保留本机改动，再正常拉取 master；不要硬重置。版本、生成文件、测试和配置都已进入 Git，不复制旧电脑的 node_modules、dist、.idea 或用户凭据。
+
+需要 Codex 语言工具时：
 
 ```powershell
-npm install --global pnpm@11.22.0
+./scripts/language-services/setup.ps1 -Verify
 ```
 
-源码、生成物、锁文件和配置都在 Git 中，无需从旧电脑复制 node_modules 或 dist。三个 workspace 直接在根目录 core、svelte、docs。
+具体见 [语言服务配置](language-services.md)。脚本按本机路径安装并备份配置。当前机器重启 Codex 后 zui_lsp 五个工具与官方 Svelte MCP 均原生调用成功；不能由此推断另一台机器可以热加载。WebStorm MCP 地址从新机器 IDE 设置获取，不照搬旧端口。针对测试文件，LSP 的默认 tsconfig 可能进入推断项目，实际工作区类型检查使用 tsconfig.check.json。
 
-查看本次交接提交的 CI（使用完整 SHA）：
+开始实施前先核对交接提交的 CI，只检查结果，不持续轮询：
 
 ```powershell
-gh auth status
 $headCommit = (git rev-parse HEAD).Trim()
-gh run list --repo kenconnet666/zui-svelte --workflow ci.yml --commit $headCommit --limit 3
+gh run list --repo kenconnet666/zui-svelte --workflow ci.yml --commit $headCommit --limit 1
+# 如失败，再读取具体失败日志：
 gh run view <运行ID> --repo kenconnet666/zui-svelte --log-failed
 ```
 
-本机 Git 直连 GitHub 曾失败，使用当前机器的 Windows 代理 127.0.0.1:10808 后推送成功，只用了命令级设置。新电脑应使用自己的网络配置，不要照搬这个代理端口。
+## 当前提交与证据
 
-## 已确认的约束
+| 提交         | 内容                                                                 | 已核实结果                                   |
+| ------------ | -------------------------------------------------------------------- | -------------------------------------------- |
+| 398f483      | 稳定来源排序、SSR 协议 6、A01–A40 台账                               | 完整 CI 35325762599 通过                     |
+| 734324b      | StyleProvider、共享/嵌套 scope、100 次切换、独立包禁 JS 与客户端主题 | 完整 CI 35326735754 通过                     |
+| 50e11d1      | Portal/ShadowRoot 目标、多轴偏好探针、真实 Docs 演示                 | CI 35327321249 停在 Prettier，后续门槛未执行 |
+| 本次交接提交 | 修正上述格式阻塞、保存已确认缺口及恢复顺序                           | 推送后不等待 CI，新电脑核对                  |
 
-- 专注 core；svelte 与 docs 只做验证 core 的最少接入，不扩展业务组件或文档产品。
-- css() 返回原始字符串，推荐模板内 class={css((s) => { ... })}。
-- 不公开 css.parts、StyleHandle、panel.props 或手写 attachment/动态 getter。
-- 常量初次保持静态；检测到值变化后自动提升；结构/不安全变化更新哈希规则。
-- 不分析值来自哪个响应式变量；编译器负责隐藏绑定、生命周期和 SSR。
-- 子元素独立绑定，多个 class 自由组合，参数优先普通 TS 函数。
-- 复杂组件以 slotProps 转发子元素/子组件参数、class、style 等。
-- 首版要求 SvelteKit/SSR 消费、hydration、请求隔离。
-- 本地只做关键验证，优先 WebStorm；重新发现新会话工具，不假设 IDE MCP 存在。
-- 完整验证交给 CI。每次推送前查看上一轮；推送后继续工作，不等待或轮询新 CI。
-- 提交说明和必要的代码注释使用中文，保持简洁、可人工维护。
-- 周额度至少保留 15%。交接前查询已用 39%，剩余约 61%；新电脑必须重新查询。
+50e11d1 的失败只报告 docs/tests/core.spec.ts 格式。已将长调用链拆为局部 info 变量并重新格式化，避免同一表达式的格式反复变化；这不表示该提交的新增浏览器用例已通过。
 
-## 已推送且已确认 CI 成功的阶段
+## 已完成的本轮实现
 
-| 提交    | 内容                                        | 验证                                       |
-| ------- | ------------------------------------------- | ------------------------------------------ |
-| 6bd0b2a | 生成式 CSS、主题、builder                   | 当时 CI 发现两处类型问题，已由后续提交修复 |
-| 7fb15be | runtime、自动提升、类型修复                 | CI 35235308799 成功                        |
-| dcfa4b4 | 嵌套主题、SSR 接管、core 三浏览器测试       | CI 35236622296 成功                        |
-| 501fa9b | 全局样式、keyframes、字体、@property 与回收 | CI 35238179716 成功                        |
+- 来源顺序从首次挂载计数改为稳定来源字符串与数字位置；来源归零仍释放。新增反向到达、重挂、双变量通道提升、SSR 反向接管和损坏 metadata 回归。
+- **兼容变化：** StyleSheet.set 第三个参数与 StyleEntry.order 现为 string。比较码元顺序，再以 key 打破平局；禁止数字相减或依赖 locale 的比较。内部协议为 **6**，所有包与编译产物需一起重建。
+- StyleProvider 从 @zui/svelte 根入口导出：scope 必填，默认 div，as 排除 void 标签，透传通用 HTML 属性/class/style/事件。复用已有 runtime，不销毁调用方 scope。
+- Provider 主题须匹配 runtime 主题 namespace，包含基础 schema 的键及值种类；自定义 Token 同时配置根 runtime 和 SSR options。服务端不订阅 scope，规则留到 collector 完成输出。
+- 根入口含标准 .svelte 源组件，普通 Node 无 loader 不能直接执行；core 仍有直接 Node 导入检查，Svelte 由真实 Vite/Kit 外部包消费验证。
+- ProviderTarget 验证同一 scope 在 Portal 和 ShadowRoot 独立挂载；PreferenceProbe 用普通函数组合亮暗/密度/对比度，以 dir 和 CSS media 处理方向/减少动画/forced-colors，没有新增偏好管理 API。
+- forced-colors 的浏览器模拟能力写入测试注解；未激活时不能称作该浏览器已验证强制颜色表现。
 
-最近已确认的绿色运行：
-https://github.com/kenconnet666/zui-svelte/actions/runs/35238179716
+## 下一步优先处理：两个已复现的 R2 缺陷
 
-## 已有 core 能力
+本机为了换机收尾，撤回了仅用于证明这两处缺陷的新增失败测试，产品编译器未作半成品修改。以下复现已实际运行失败；新电脑先把它们加入 svelte/tests/compiler.test.ts，再修复。
 
-- scripts/generate-css.mjs 从固定版本 csstype 与 schema.ts 生成 857 个属性、262 组关键字。
-- 生成类型和运行时表共用数据；生成物已提交，不能手工修改。
-- 语句式 builder：属性调用、关键字、Token、单位、选择器、媒体/容器/supports 条件、important、自定义属性与显式 raw 属性。
-- 有序 StyleProgram 与 Stylis 序列化，保留声明顺序和重复回退。
-- defineTheme、extendTheme、overrideTheme、明暗预设、ThemeScope、DOM 主题绑定。
-- MemoryStyleSheet、BrowserStyleSheet、StyleRegistry、引用与来源位置回收。
-- StyleBinding 默认静态、变化后提升，复杂目标/不安全值走完整规则，历史有界。
-- 独立变量命名避免多个实例或多个 class 串值。
-- SSR style 标签、nonce、样式接管、ShadowRoot。
-- 全局样式、主题样式、keyframes、font-face、@property 的显式资源生命周期。
+### 1. 普通文字被误认为编译标记
 
-## 本次交接新增的 C4 原型
+svelte/src/compiler/preprocess.ts 开头使用 `content.includes(marker)`，所以用户模板里只要出现 zui-class-compiled，整个组件就跳过 ZUI 变换。
 
-这些代码已有局部验证，但完整链路以交接 CI 为准：
+```ts
+const source =
+  '<script>import {css} from "@zui/core";</script><p>zui-class-compiled</p><div class={css(s=>{s.width.px(10);})}/>';
+expect(transformClasses(source, '/app/Marker.svelte')).toBeDefined();
+```
 
-- core/src/runtime/classes.ts：css() 字符串入口、ClassController、普通 class 规范化与组合。
-- registry 新增 class 查找、变量元数据及订阅，保证 class 字符串不变时仍通知变量更新。
-- svelte/src/compiler/preprocess.ts：Vite 插件/预处理器，把 class/属性消费点改写为隐藏绑定；支持导入别名、Each/KeyBlock 身份；复用已有 $props.id。
-- svelte/src/runtime/context.ts、scope.ts：Svelte 生命周期与 createSubscriber 接入。
-- svelte/src/server.ts：renderStyled 与 SvelteKit handle 的收集原型。
-- svelte/tests/compiler.test.ts：编译语法测试。
-- svelte/tests/ssr.test.ts：通过 Vite SSR 实际加载并渲染 fixture，交给 CI。
-- svelte/tests/fixtures：CoreProbe 与 SlotProbe，仅为验证。
-- docs 的隐藏路径 /#/__core-test：测试 class、slotProps、列表和 snippet。
-- docs/tests/core.spec.ts：三浏览器实际渲染验收，交给 CI。
+当前返回 undefined。推荐用 AST 中实际的内部 import、owner 初始化和协议版本识别已编译产物；普通文字/注释不作为证据，仍须保留重复编译保护和旧协议报错。
 
-本地已通过：ClassController 4 项关键测试；编译器 4 项语法测试；前一版 scope/server 文件的小范围类型确认。新 SSR/浏览器验收没有在本地完整执行。
+### 2. source map 将 CSS 表达式映射到属性开头
 
-## 新电脑优先事项
+```ts
+import { SourceMap } from 'node:module';
+const source =
+  '<script lang="ts">\nimport {css} from "@zui/core";\nlet width=$state(10);\n</script>\n<div class={css(s=>{\n  s.width.px(width);\n})}/>';
+const result = transformClasses(source, '/app/Mapped.svelte')!;
+const locate = (text: string) => {
+  const offset = text.indexOf('s.width.px(width)');
+  const before = text.slice(0, offset);
+  return [before.split('\n').length - 1, offset - before.lastIndexOf('\n') - 1] as const;
+};
+const entry = new SourceMap(JSON.parse(result.map.toString())).findEntry(...locate(result.code));
+expect(entry.originalLine).toBe(locate(source)[0]);
+expect(entry.originalColumn).toBe(locate(source)[1]);
+```
 
-1. 查看交接提交 CI，先修复真实失败。重点关注类型检查、SSR 测试和新增浏览器验收。
-2. 核实 class 编译桥真正工作：直接模板、普通 TS helper、多个 class、slotProps、keyed 重排、卸载清理。
-3. 验证 SSR/hydration 两端命名与请求隔离；当前仅加入 SSR 测试，尚未建立真实 SvelteKit 应用 fixture。
-4. 审查 compiler 对普通属性、事件、spread、style: 指令的求值顺序与类型/诊断影响，不能因为重写而改变语义。
-5. 审查 createSubscriber 与 context 默认 runtime 的释放顺序，包括片段/异步模板和跨组件生命周期。
-6. 完善主题类型、别名/派生、主题切换与包外消费；不要把设计文档中的候选 API 当成已经实现。
-7. 首版生产完成前按 design/core*.md 做逐条能力审计，补真实验收；不得用现有少量 fixture 证明全部能力。
+当前 originalLine 为 4，预期为 5（均从 0 开始）。原因是整个属性被 MagicString.overwrite 成一个生成的 spread，原表达式的逐字符映射丢失。优先保留原表达式源码区间进行改写；还需测试属性间有 bind/style/class 指令时的重排，不能只修单个例子。曾在 .git 内试验 MagicString.move，尚无生产方案，这些临时文件无需迁移。
 
-## 已知边界与未验证点
+## 之后的实施顺序
 
-- Snippet/await 内暂用完整规则快照，避免把一次源码位置的多个渲染实例混用；这不是已完成的自动提升优化。
-- 未集成的第三方组件边界采用保守处理，不能声称所有任意字符串传递都能自动写变量。
-- 当前每个规则组使用 style 节点，性能和大规模场景需要进一步审计。
-- 严格 CSP、SSR streaming、复杂层叠、特殊属性回退等仍需完整验收。
-- recipe 等设计内容尚未全部落地；当前优先普通 TS 函数复用。
-- 两个库仍 private，未发布 npm；没有部署公网文档站。
-- 原型不能称作已经完成的生产版本。
+先读 [剩余规划](core-remaining-plan.md)、[验收台账](core-acceptance.md)、[实施记录](implementation.md)。R0 主要顺序反例已修；R1 基础 Provider 已有绿色完整 CI，独立目标和偏好探针仍需核对交接 CI。随后：
 
-## 常用命令（按范围使用）
+1. 修复上面的 R2 两项；补 spread/getter/事件/bind/指令行为对照、snippet/await/错误边界、真实动态 chunk 与 HMR。
+2. R3：BrowserStyleSheet 当前仍每 entry 一个 style，写入时全表排序查位置；内存基准不能证明 DOM 规模性能。做有序存储、分片及真实浏览器预算。
+3. R4：补 SSR 晚到新 CSS、多根/晚到接管、错误页/redirect/handle 组合。区分流式数据与晚到规则首屏保障。
+4. R5：公开 API/类型快照、错误 code 与定位、生成覆盖审计、类型/体积预算、同一 SHA 的全部验收与 tarball 证据。
 
-| 命令                                                                | 用途                                  |
-| ------------------------------------------------------------------- | ------------------------------------- |
-| pnpm generate                                                       | 更新生成类型与运行时表                |
-| pnpm generate:check                                                 | 检查生成物一致性                      |
-| pnpm --filter @zui/core exec vitest run src/runtime/classes.test.ts | 局部 class 合同验证                   |
-| pnpm --filter @zui/svelte exec vitest run tests/compiler.test.ts    | 局部编译验证                          |
-| pnpm run check / lint / build                                       | 完整检查，默认交给 CI                 |
-| pnpm test:core                                                      | core 完整 Node 测试，默认 CI          |
-| pnpm test:core:browser                                              | core 三浏览器验收，默认 CI            |
-| pnpm test                                                           | Docs 与 class 接入浏览器验收，默认 CI |
+不扩展业务组件库、recipe DSL 或其他框架适配；统一 @zui/core 入口，css() 仍返回 string。测试遵守模块 test 子目录与独立集成 tests 约定。保留合理中文注释和人工可维护性。
 
-所有路径以本次检出的实际代码为准。继续前先检查 git status，保留任何新电脑上的已有修改。
+本地只跑相关类型和针对性测试，完整类型/构建/浏览器/包外由 CI 承担。每批中文提交推送，推送后不等待或轮询；下一批前修具体失败。两包仍 private，未发布 npm、未部署公网。
+
+最近已查询的周额度剩余 39%，至少保留 15%；新电脑继续前重新查询实时额度，不能沿用旧百分比。此次按用户换机要求停止，未把剩余生产缺口标为完成。

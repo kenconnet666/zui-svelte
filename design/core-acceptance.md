@@ -64,3 +64,5 @@ SSR order 改为字符串键，内部协议从 5 升到 6；自定义 StyleSheet
 组件使用通用 HTMLAttributes，避免按全部标签展开泛型联合；as 排除 void 标签。根入口包含标准 .svelte 源组件后，普通 Node 直接导入根入口不再是有效消费方式，CI 保留 core 的直接 Node 导入，Svelte 根入口由真实 Vite/Kit 外部安装消费验证。
 
 Provider 基础提交 `734324b` 的完整 CI [35326735754](https://github.com/kenconnet666/zui-svelte/actions/runs/35326735754) 已通过，包含共享/嵌套 scope、100 次主题切换、替换/销毁、独立包禁 JS 和客户端更新。随后增加 ProviderTarget 的 Portal/ShadowRoot 及独立目的地 SSR，PreferenceProbe 的亮暗/密度/对比度/方向/减少动画/forced-colors；新浏览器结果尚待对应 CI。forced-colors 以报告中的媒体能力注解为准，不直接计为所有引擎都已模拟。
+
+换机暂停点：R2 已复现普通 marker 文本被误判为已编译，以及 class 表达式 source map 指向属性起始行的缺陷；均未修复，A08/A35 不可标记完成。复现保存在 handoff.md。50e11d1 的 CI 35327321249 停在格式检查；已修复格式，新增独立目标/偏好浏览器验收等待交接提交 CI。

@@ -265,3 +265,9 @@ Codex CLI 0.154.0 的 daemon version 与 app-server proxy 均无法连接默认�
 本批复用 ProviderTarget 验证同一 scope 在 Portal 与 ShadowRoot 的独立挂载，目标显式提供 runtime，增加同步主题与卸载清理回归；SSR 独立目的地继续使用请求 collector。新增 PreferenceProbe，以普通函数组合 light/dark、compact、contrast，CSS 处理减少动画与 forced-colors，HTML dir 处理方向；未增加偏好管理 API。文档站修正旧的未实现说明并展示真实探针。
 
 相关 Svelte 类型检查、ESLint、LSP 文档页诊断、Svelte autofixer 与独立目的地 SSR 单例通过。浏览器结果交给本轮 CI；forced-colors 记录实际媒体模拟能力，不把未激活的引擎算作该项视觉验证完成。
+
+## 换机收尾
+
+用户要求尽快收敛并推送远程。50e11d1 的 CI 35327321249 只执行到格式检查，docs/tests/core.spec.ts 的长调用链不符合 Prettier；拆为局部 info 变量并格式化，后续浏览器结果仍由交接提交 CI 验证。
+
+R2 已以失败用例确认两处尚未修复的缺陷：普通 zui-class-compiled 文本误触发跳过；被整体改写的 class 表达式 source map 原始行偏移。为避免临走提交半成品，撤回本轮新增的两个失败测试，完整复现与建议保存在 handoff.md，产品编译器保持原状。当前换机入口以新版 handoff.md 为准，不宣称 core 生产验收完成。

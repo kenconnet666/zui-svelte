@@ -28,14 +28,13 @@ test('composes theme preferences and respects direction and reduced motion', asy
   await expect(control).toHaveCSS('outline-width', '2px');
   await page.emulateMedia({ forcedColors: 'active' });
   const forced = await page.evaluate(() => matchMedia('(forced-colors: active)').matches);
-  test
-    .info()
-    .annotations.push({
-      type: 'forced-colors-media',
-      description: forced
-        ? 'active'
-        : 'engine did not activate emulation; forced color comparison unavailable',
-    });
+  const info = test.info();
+  info.annotations.push({
+    type: 'forced-colors-media',
+    description: forced
+      ? 'active'
+      : 'engine did not activate emulation; forced color comparison unavailable',
+  });
   if (forced) {
     const systemText = await page.evaluate(() => {
       const reference = document.createElement('span');
