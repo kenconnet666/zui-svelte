@@ -13,6 +13,8 @@ Svelte 5 组件库工作区，依赖 @zui/core，使用官方 svelte-package 生
 
 编译后的原生元素可以自动提升安全动态值。组件 class/slotProps 边界默认传递完整规则，不根据相对路径或文件扩展名猜测内部变量的消费能力；未使用 ZUI 编译的组件只要正常转发 class 即可接收样式。这条边界优先保证正确性，不承诺跨组件提升。
 
+属性表达式由生成的 snippet 参数交给 Svelte 自身 memo，样式生产者与最终 class 消费分离；无关状态改变不会重新执行其他属性 getter。class/style 的 nullish 值及未改写的组件 ClassValue 形态保留。legacy 组件不会因插件注入 rune 而改变 export let、普通 let 或 $:；legacy SSR 输出完整规则，客户端用 runtime 分配的独立 ID 开始自动提升。新编译桥使用协议 8，升级时应一起重建 core、适配器与应用产物。
+
 SvelteKit 中推荐在根 layout 创建并提供客户端 runtime，在 onMount 完成接管，在根销毁时释放；路由组件由编译接入持有自己的样式。服务端使用 createStyleHandle，每个请求单独持有 runtime。可运行写法见 tests/kit/src/routes/+layout.svelte。
 
 模块常量支持直接 css、同文件同步 helper、map 回调和命名空间导入；初始化保留方法 this 和求值次数。自定义样式入口及跨文件 helper 可在 zui({ cssModules: [...] }) 中声明其导入来源。函数体不绑定到某个请求；模板调用使用消费者上下文，模块初始化产生可跨请求收集的只读定义。顶层 await 参数保留原始求值位置；不承诺在异步 helper 的 await 之后延续同步样式上下文。

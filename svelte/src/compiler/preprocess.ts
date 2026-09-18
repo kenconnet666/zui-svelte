@@ -46,7 +46,7 @@ function isCompiled(
       )
         continue;
       const args = init.arguments as Node[];
-      if (args.length !== arity) continue;
+      if (args.length !== arity && args.length !== arity + 1) continue;
       // 实际桥接 import + 初始化调用才是协议证据，普通文字/注释不参与判断。
       styleProtocol.check(args[arity - 1]?.value);
       return true;
@@ -69,10 +69,12 @@ function walk(
   if (typeof node.type === 'string') visit(node, parents);
   for (const [key, child] of Object.entries(value)) if (key !== 'loc') walk(child, visit, next);
 }
-function unique(content: string, prefix: string): string {
+function unique(content: string, prefix: string, reserved: Set<string>): string {
   let result = prefix;
   let index = 0;
-  while (new RegExp('\\b' + result + '\\b', 'u').test(content)) result = prefix + ++index;
+  while (reserved.has(result) || new RegExp('\\b' + result + '\\b', 'u').test(content))
+    result = prefix + ++index;
+  reserved.add(result);
   return result;
 }
 
@@ -88,9 +90,25 @@ export function transformClasses(
   if (isCompiled(program, options.runtimeModule ?? '@zui/svelte/internal', 'createStyleScope', 3))
     return undefined;
   const magic = new MagicString(content);
-  const scope = unique(content, '__zuiScope');
-  const create = unique(content, '__zuiCreate');
-  let owner = unique(content, '__zuiOwner');
+  let runes = (ast.options as { runes?: boolean } | null)?.runes === true;
+  for (const script of [program, moduleScript])
+    walk(script, (node) => {
+      if (node.type !== 'CallExpression') return;
+      let callee = node.callee as Node;
+      while (callee.type === 'MemberExpression') callee = callee.object as Node;
+      if (
+        callee.type === 'Identifier' &&
+        ['$state', '$derived', '$effect', '$props', '$bindable', '$inspect', '$host'].includes(
+          callee.name as string,
+        )
+      )
+        runes = true;
+    });
+  const reserved = new Set<string>();
+  const allocate = (prefix: string) => unique(content, prefix, reserved);
+  const scope = allocate('__zuiScope');
+  const create = allocate('__zuiCreate');
+  let owner = allocate('__zuiOwner');
   let existingOwner = false;
   const moduleId = createHash('sha256')
     .update(relative(options.root ?? process.cwd(), filename).replaceAll('\\', '/'))
@@ -138,7 +156,7 @@ export function transformClasses(
           imports.push({
             node: specifier,
             local,
-            alias: unique(content, '__zuiOriginal' + imports.length),
+            alias: allocate('__zuiOriginal' + imports.length),
           });
         }
       }
@@ -149,7 +167,7 @@ export function transformClasses(
         loops.set(node, content.slice((node.key as Node).start, (node.key as Node).end));
       else if (typeof node.index === 'string') loops.set(node, node.index);
       else {
-        const index = unique(content, '__zuiIndex' + loops.size);
+        const index = allocate('__zuiIndex' + loops.size);
         loops.set(node, index);
         const context = node.context as Node | undefined;
         magic.appendLeft(
@@ -302,6 +320,7 @@ export function transformClasses(
       JSON.stringify(String(node.start)) +
       ', () => ({';
     const end = '}), [' + keys.join(',') + ']' + ', ' + transient + ')}';
+    const argumentsToMove: { expression: Node; parameter: string; produce: boolean }[] = [];
     for (let i = 0; i < attrs.length; i++) {
       const attr = attrs[i]!;
       const parts: Part[] =
@@ -309,7 +328,43 @@ export function transformClasses(
           ? ['...(', attr.expression as Node, ')']
           : [JSON.stringify(attr.name) + ':(', ...value(attr), ')'];
       rewrite(attr, [i === 0 ? start : ',', ...parts, i === attrs.length - 1 ? end : '']);
+      for (const part of parts)
+        if (typeof part !== 'string') {
+          const parameter = allocate('__zuiValue' + part.start);
+          const produce =
+            attr.type === 'SpreadAttribute' || attr.name === 'class' || attr.name === 'slotProps';
+          argumentsToMove.push({
+            expression: part,
+            parameter,
+            produce,
+          });
+          // 参数原表达式移到 render tag，让 Svelte 自己保留逐表达式 memo 边界。
+          magic.appendLeft(part.start, produce ? scope + '.value(' + parameter + ')' : parameter);
+          magic.move(part.start, part.end, node.end);
+        }
       if (i > 0) magic.move(attr.start, attr.end, attrs[0]!.end);
+    }
+    if (argumentsToMove.length) {
+      const snippet = allocate('__zuiElement' + node.start);
+      magic.prependRight(
+        node.start,
+        '{#snippet ' + snippet + '(' + argumentsToMove.map((arg) => arg.parameter).join(',') + ')}',
+      );
+      magic.appendLeft(node.end, '{/snippet}{@render ' + snippet + '(');
+      for (let index = 0; index < argumentsToMove.length; index++) {
+        const { expression, produce } = argumentsToMove[index]!;
+        const prefix = produce
+          ? scope + '.produce(' + JSON.stringify(String(expression.start)) + ', () => ('
+          : '(';
+        const suffix = produce
+          ? '), [' + keys.join(',') + '], ' + !component + ', ' + transient + ')'
+          : ')';
+        magic.prependRight(expression.start, (index ? ',' : '') + prefix);
+        magic.appendLeft(
+          expression.end,
+          suffix + (index === argumentsToMove.length - 1 ? ')}' : ''),
+        );
+      }
     }
   }
   for (const item of imports)
@@ -322,17 +377,19 @@ export function transformClasses(
     '; /* ' +
     marker +
     ' */\n' +
-    (existingOwner ? '' : 'const ' + owner + ' = $props.id();\n') +
+    (existingOwner || !runes ? '' : 'const ' + owner + ' = $props.id();\n') +
     'const ' +
     scope +
     ' = ' +
     create +
     '(() => ' +
-    owner +
+    (runes ? owner : '"legacy"') +
     ', ' +
     JSON.stringify(moduleId) +
     ', ' +
     styleProtocol.version +
+    ', ' +
+    runes +
     ');\n' +
     imports
       .map((item) => 'const ' + item.local + ' = ' + scope + '.wrapCss(' + item.alias + ');')

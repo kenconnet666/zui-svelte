@@ -1,5 +1,13 @@
 # Core 实施进度
 
+## 生产重构：原生求值边界与 legacy 模式
+
+补充独立属性 getter 对照后复现：聚合 attrs 回调在无关状态变化时重复调用 style getter。编译改为用 Svelte 原生 snippet 参数保存逐表达式 memo，CSS 生产/消费分开；原表达式移动仍保留精确源码映射。生产异常在消费边界重抛原对象，避免嵌套 derived 错误恢复时读取已销毁值。class/style 的 nullish 值与未改写组件 ClassValue 形态保留。
+
+不再向 legacy 组件强行注入 $props.id：保留 export let/普通 let/$:，服务端输出完整规则，客户端由 runtime ID 隔离并自动提升。内部协议同步到 8。编译/SSR 相关 24 项、本机开发态 5 项、Docs 中派生快照和 class/slotProps 动态提升两项通过；严格 CSP 本地用例明确跳过，继续交生产 CI。新增 legacy 的真实 Kit CSP/hydration 用例。
+
+推送前检查 ca9c0fd 的 CI 35357220289：Docs 三浏览器已通过，开发态热更新在 Chromium/Firefox 未观察到删除保存。隔离每个 Vite 实例的依赖缓存，热更新文件采用编辑器式原子保存，避免并行实例互相重建缓存和读取半份源码；本机 HMR 删除/恢复仍严格验证通过，CI 后续复验，不放宽断言。
+
 ## 生产重构：最小导入与 SSR 接入诊断
 
 默认预设的纯构造加可裁剪注解，分发检查新增只导入 baseTheme 的真实 bundle，确认未保留亮暗默认颜色；局部 gzip 2,070 字节，上限 10,000 字节。完整运行时仍按完整 bundle 门槛验证，不将这个数字称为整个 CSS runtime 的体积。空基础主题不再输出无意义空 style；原生属性对照增加用户 attachment，局部 Chrome 通过。

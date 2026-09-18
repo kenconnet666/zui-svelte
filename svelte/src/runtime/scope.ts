@@ -8,11 +8,15 @@ import {
   withCssEvaluation,
   hashText,
   styleProtocol,
+  normalizeClass,
   type TokenSchema,
 } from '@zui/core';
 import { captureRuntime } from './context.js';
 
 type Attributes = Record<string | symbol, unknown>;
+class EvaluationFailure {
+  constructor(readonly error: unknown) {}
+}
 interface Entry {
   controller: ClassController<TokenSchema>;
   key: symbol;
@@ -27,8 +31,15 @@ interface Branch {
   entry?: Entry;
 }
 
-export function createStyleScope(owner: () => string, moduleId: string, protocol: number) {
+export function createStyleScope(
+  owner: () => string,
+  moduleId: string,
+  protocol: number,
+  stableIdentity = true,
+) {
   styleProtocol.check(protocol);
+  // legacy 不注入 rune；SSR 只输出静态规则，客户端再以 runtime ID 开始观察提升。
+  const allowPromotion = stableIdentity || typeof document !== 'undefined';
   const getRuntime = captureRuntime();
   const roots = new Map<string, Branch>();
   const entries = new Set<Entry>();
@@ -86,6 +97,7 @@ export function createStyleScope(owner: () => string, moduleId: string, protocol
           });
         }
       },
+      stableIdentity,
     );
     const entry: Entry = {
       controller,
@@ -140,14 +152,20 @@ export function createStyleScope(owner: () => string, moduleId: string, protocol
     entry.evaluating = true;
     try {
       const original = entry.controller.run(factory);
-      const className = entry.controller.resolve(original.class);
+      const normalized = normalizeClass(original.class);
+      const className = entry.controller.resolve(normalized);
       const style = original.style;
       if (style != null && typeof style !== 'string')
         throw new TypeError('The style attribute must be a string.');
       const result: Attributes = { ...original };
-      if ('class' in original) result.class = className;
+      if ('class' in original)
+        result.class =
+          (!native && className === normalized) || (!className && original.class == null)
+            ? original.class
+            : className;
       const merged = entry.controller.style(style as string | null | undefined);
-      if (merged !== undefined || 'style' in original) result.style = merged;
+      if (merged !== undefined || 'style' in original)
+        result.style = merged ?? (style === null ? null : undefined);
       if (native) result[entry.key] = entry.attach;
       return result as P;
     } finally {
@@ -191,6 +209,29 @@ export function createStyleScope(owner: () => string, moduleId: string, protocol
   }
 
   return {
+    produce<R>(
+      site: string,
+      factory: () => R,
+      keys: readonly unknown[],
+      promote: boolean,
+      transient: boolean,
+    ): R | EvaluationFailure {
+      const entry = entryFor(site, keys, promote && allowPromotion && !transient, transient);
+      entry.track();
+      entry.evaluating = true;
+      try {
+        return entry.controller.run(factory);
+      } catch (error) {
+        // 在消费边界重抛原异常，避免嵌套参数 derived 在边界销毁后被再次读取。
+        return new EvaluationFailure(error);
+      } finally {
+        entry.evaluating = false;
+      }
+    },
+    value<R>(result: R | EvaluationFailure): R {
+      if (result instanceof EvaluationFailure) throw result.error;
+      return result;
+    },
     snapshot,
     wrapSnapshot<F extends (...args: never[]) => unknown>(original: F): F {
       return function (this: unknown, ...args: never[]) {
@@ -202,7 +243,7 @@ export function createStyleScope(owner: () => string, moduleId: string, protocol
       factory: () => P,
       keys: readonly unknown[] = [],
       transient = false,
-    ) => read(site, factory, keys, true, true, transient),
+    ) => read(site, factory, keys, true, allowPromotion, transient),
     // 组件是否消费内部变量不能靠导入路径推断；边界传递完整规则，保持普通 class 转发。
     component: <P extends Attributes>(
       site: string,

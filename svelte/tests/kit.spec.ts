@@ -1,5 +1,27 @@
 import { expect, test } from '@playwright/test';
 
+test('hydrates legacy component state under stylesheet CSP and promotes after hydration', async ({
+  page,
+  request,
+}) => {
+  const html = await (await request.get('/legacy')).text();
+  expect(html).toContain('width:101px');
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto('/legacy');
+  const target = page.getByTestId('legacy-route');
+  await expect(target).toHaveCSS('width', '101px');
+  await page.getByRole('button', { name: 'Resize legacy route', exact: true }).click();
+  await expect(target).toHaveCSS('width', '111px');
+  const name = await target.getAttribute('class');
+  await page.getByRole('button', { name: 'Resize legacy route', exact: true }).click();
+  await expect(target).toHaveCSS('width', '121px');
+  await expect(target).toHaveText('size:121');
+  expect(await target.getAttribute('class')).toBe(name);
+  expect(await target.getAttribute('style')).toBeNull();
+  expect(errors).toEqual([]);
+});
+
 test('hydrates unkeyed reuse, object keys and recursive snippets', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));

@@ -38,6 +38,7 @@ export class ClassController<T extends TokenSchema> {
     readonly source: string,
     readonly promote = true,
     readonly onChange?: () => void,
+    readonly stableIdentity = true,
   ) {
     this.#runtime = runtime;
   }
@@ -64,7 +65,8 @@ export class ClassController<T extends TokenSchema> {
     let binding = this.#bindings[slot];
     if (!binding) {
       binding = this.runtime.binding({
-        id: 'c' + hashText(this.identity) + '_' + slot,
+        // 无跨端稳定标识的宿主使用 runtime ID；Svelte legacy 服务端不会提前提升变量。
+        id: this.stableIdentity ? 'c' + hashText(this.identity) + '_' + slot : undefined,
         source: this.source + ':' + slot,
         promote: this.promote,
       });
@@ -170,6 +172,7 @@ export class ClassController<T extends TokenSchema> {
 
   style(authored: string | null | undefined): string | undefined {
     if (this.#peek()?.registry.variables === 'stylesheet') return authored ?? undefined;
+    if (!Object.keys(this.#variables).length) return authored ?? undefined;
     const variables = Object.entries(this.#variables)
       .map(([name, value]) => name + ':' + value)
       .join(';');

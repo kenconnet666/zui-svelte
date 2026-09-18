@@ -1,5 +1,7 @@
 # Core 首版验收台账
 
+编译语义增量：独立属性 getter、action/attachment、nullish component props 的原生对照已覆盖；legacy 模式不再被 rune 注入改变，客户端仍可提升。协议 8 的相关编译/SSR 24 项和本机开发态验证通过，真实 Kit/三浏览器矩阵待当前候选 CI。原始表继续作为待统一归档的历史清单，不将旧状态当作本批通过证据。
+
 边界与规模增量：A13 的错误边界清理/恢复、A20 的多 Document、A28 的 CRLF 接管已通过局部 Chrome。A12 递归/对象 key/unkeyed、A24/A26/A28 默认亮色与 Cookie 暗色/无 JS/切换 class 稳定已加入真实 Kit 与包外矩阵。A38 新增完整产物的三浏览器双通道基准，本机 Chrome 通过，其他引擎及候选 SHA 证据由下一轮 CI 提供。
 
 公共合同增量：已加入原生 color-scheme 元数据及双通道切换、StyleError 分类、主题原型同名键防护；生成器从 csstype 泛型识别额外 208 个单位属性并输出覆盖报告。公开 API 快照与 JS/gzip/声明上限已接入 CI，局部生成一致性和实际 core 构建产物检查通过。完整候选证据等待本批 CI；尚不能把所有 A01–A40 直接标为通过。

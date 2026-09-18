@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, rename, rm, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import { createServer, defaultClientConditions, type ViteDevServer } from 'vite';
@@ -9,6 +9,12 @@ import { zui } from '../src/compiler/preprocess.js';
 let server: ViteDevServer;
 let directory: string;
 let url: string;
+async function saveSource(name: string, source: string): Promise<void> {
+  const target = join(directory, name);
+  // 模拟编辑器原子保存，避免 watcher 在 truncate 与写入之间读到半份源码。
+  await writeFile(target + '.next', source);
+  await rename(target + '.next', target);
+}
 const component = (padding: number, styled = true) => `<script lang="ts">
 import { onDestroy } from 'svelte';
 import { css, createRuntime } from '@zui/core';
@@ -26,15 +32,22 @@ export function panel(){return css(s=>{s.width.px(${width});});}
 export const accent=css(s=>{s.height.px(${height});});`;
 
 const nativeProbe = `<script lang="ts">
+import PlainProps from 'plain/props';
 let {name}=$props();let value=$state('first');let active=$state(true);let snapshot=$state('');let node:HTMLInputElement;
-const reads:string[]=[];let events=0;let attachments=0;
+const reads:string[]=[];let events=0;let attachments=0;let actions=0;let actionUpdates=0;
 const attach=()=>{attachments++;return ()=>attachments--;};
+const action=()=>{actions++;return {update(){actionUpdates++;},destroy(){actions--;}};};
 const attributes={get title(){reads.push('title');return value;},get 'data-spread'(){reads.push('spread');return 'yes';}};
+function readTitle(){reads.push('title-alone');return value;}
+function readStyle(){reads.push('style-alone');return 'color:blue';}
 </script>
 <section data-testid={name}>
-<input {...attributes} {@attach attach} class={['subject',{active}]} class:flag={active} style="color:blue" style:color={active?'red':'green'} bind:this={node} bind:value oninput={()=>events++}/>
+<PlainProps class={undefined} style={null}/>
+<input {...attributes} use:action={active} {@attach attach} class={['subject',{active}]} class:flag={active} style="color:blue" style:color={active?'red':'green'} bind:this={node} bind:value oninput={()=>events++}/>
+<div title={readTitle()} style={readStyle()} class={active?'active':'inactive'}>separate attributes</div>
+<button onclick={()=>active=!active}>Toggle only</button>
 <button onclick={()=>{active=!active;value='second';}}>Update</button>
-<button onclick={()=>{snapshot=JSON.stringify({reads,events,attachments,value,active,title:node.title,classes:node.className,color:node.style.color});}}>Inspect native</button>
+<button onclick={()=>{snapshot=JSON.stringify({reads,events,attachments,actions,actionUpdates,value,active,title:node.title,classes:node.className,color:node.style.color,props:node.parentElement?.querySelector('[data-props]')?.textContent});}}>Inspect native</button>
 <output>{snapshot}</output>
 </section>`;
 
@@ -63,7 +76,17 @@ test.beforeAll(async () => {
   );
   await writeFile(
     join(directory, 'main.ts'),
-    "import {mount} from 'svelte';import Root from './Root.svelte';import Compare from './Compare.svelte';import Branches from './Branches.svelte';import Boundary from './Boundary.svelte';mount(location.search.includes('boundary') ? Boundary : location.search.includes('branches') ? Branches : location.search ? Compare : Root,{target:document.getElementById('app')!});",
+    "import {mount} from 'svelte';import Root from './Root.svelte';import Compare from './Compare.svelte';import Branches from './Branches.svelte';import Boundary from './Boundary.svelte';import LegacyRoot from './LegacyRoot.svelte';mount(location.search.includes('legacy') ? LegacyRoot : location.search.includes('boundary') ? Boundary : location.search.includes('branches') ? Branches : location.search ? Compare : Root,{target:document.getElementById('app')!});",
+  );
+  await writeFile(
+    join(directory, 'Legacy.svelte'),
+    `<script>
+import {css} from '@zui/core';export let initial=101;export let name;let width=initial;$: caption='size:'+width;
+</script><button onclick={()=>width+=10}>Resize {name}</button><div data-testid={name} class={css(s=>{s.width.px(width);})}>{caption}</div>`,
+  );
+  await writeFile(
+    join(directory, 'LegacyRoot.svelte'),
+    `<script>import Legacy from './Legacy.svelte';</script><Legacy name="legacy-left" initial={101}/><Legacy name="legacy-right" initial={202}/>`,
   );
   await writeFile(
     join(directory, 'Fragile.svelte'),
@@ -91,10 +114,17 @@ const runtime=createRuntime({target:document,namespace:'boundary'});provideStyle
     JSON.stringify({
       name: 'plain',
       type: 'module',
-      exports: { '.': { svelte: './Native.svelte', default: './Native.svelte' } },
+      exports: {
+        '.': { svelte: './Native.svelte', default: './Native.svelte' },
+        './props': { svelte: './Props.svelte', default: './Props.svelte' },
+      },
     }),
   );
   await writeFile(join(directory, 'node_modules/plain/Native.svelte'), nativeProbe);
+  await writeFile(
+    join(directory, 'node_modules/plain/Props.svelte'),
+    `<script>let {class:className='fallback',style='unset'}=$props();</script><span data-props>{className}:{style===null?'null':style}</span>`,
+  );
   await writeFile(join(directory, 'Subject.svelte'), nativeProbe);
   await writeFile(
     join(directory, 'Compare.svelte'),
@@ -110,6 +140,7 @@ const runtime=createRuntime({target:document,namespace:'boundary'});provideStyle
   await writeFile(join(directory, 'styles.ts'), styles(120, 44));
   server = await createServer({
     root: directory,
+    cacheDir: join(directory, 'node_modules/.vite'),
     configFile: false,
     plugins: [zui({ root: directory }), svelte({ configFile: false })],
     resolve: { conditions: ['zui-source', ...defaultClientConditions] },
@@ -138,7 +169,7 @@ test('real HMR preserves parent state and releases replaced and removed styles',
   await page.getByRole('button', { name: 'Increment', exact: true }).click();
   await expect(page.locator('#count')).toHaveText('1');
   for (const width of [140, 160, 180]) {
-    await writeFile(join(directory, 'styles.ts'), styles(width, 50));
+    await saveSource('styles.ts', styles(width, 50));
     await expect(panel).toHaveCSS('width', width + 'px');
     await expect(panel).toHaveCSS('height', '50px');
     await expect(page.locator('#count')).toHaveText('1');
@@ -147,13 +178,13 @@ test('real HMR preserves parent state and releases replaced and removed styles',
     expect(stats.rules).toBe(3);
     expect(stats.sources).toBe(3);
   }
-  await writeFile(join(directory, 'App.svelte'), component(12));
+  await saveSource('App.svelte', component(12));
   await expect(panel).toHaveCSS('padding-top', '12px');
   await expect(page.locator('#count')).toHaveText('1');
-  await writeFile(join(directory, 'App.svelte'), component(12, false));
+  await saveSource('App.svelte', component(12, false));
   await expect(panel).not.toHaveAttribute('class', /.+/);
   await expect(page.locator('style[data-zui="hmr"]')).toHaveCount(0);
-  await writeFile(join(directory, 'App.svelte'), component(16));
+  await saveSource('App.svelte', component(16));
   await expect(panel).toHaveCSS('padding-top', '16px');
   await expect(panel).toHaveCSS('width', '180px');
   await expect(page.locator('style[data-zui="hmr"]')).toHaveCount(1);
@@ -166,9 +197,11 @@ test('matches native spread getters, events, bindings and class/style directives
   await page.goto(url + '?compare');
   const native = page.getByTestId('native');
   const compiled = page.getByTestId('compiled');
-  for (const phase of ['initial', 'input', 'update']) {
+  for (const phase of ['initial', 'input', 'toggle', 'update']) {
     for (const target of [native, compiled]) {
       if (phase === 'input') await target.locator('input').fill('edited');
+      if (phase === 'toggle')
+        await target.getByRole('button', { name: 'Toggle only', exact: true }).click();
       if (phase === 'update')
         await target.getByRole('button', { name: 'Update', exact: true }).click();
       await target.getByRole('button', { name: 'Inspect native', exact: true }).click();
@@ -237,5 +270,26 @@ test('releases failed style factories and recovers through a Svelte error bounda
     await page.getByRole('button', { name: 'Recover styles', exact: true }).click();
   }
   await expect(page.getByTestId('fragile')).toHaveCSS('height', '31px');
+  expect(errors).toEqual([]);
+});
+
+test('preserves legacy props and reactive labels while promoting independent client bindings', async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto(url + '?legacy');
+  const left = page.getByTestId('legacy-left');
+  const right = page.getByTestId('legacy-right');
+  await expect(left).toHaveCSS('width', '101px');
+  await expect(right).toHaveCSS('width', '202px');
+  await page.getByRole('button', { name: 'Resize legacy-left', exact: true }).click();
+  await expect(left).toHaveCSS('width', '111px');
+  const promoted = await left.getAttribute('class');
+  await page.getByRole('button', { name: 'Resize legacy-left', exact: true }).click();
+  await expect(left).toHaveCSS('width', '121px');
+  await expect(left).toHaveText('size:121');
+  expect(await left.getAttribute('class')).toBe(promoted);
+  await expect(right).toHaveCSS('width', '202px');
   expect(errors).toEqual([]);
 });

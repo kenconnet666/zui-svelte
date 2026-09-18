@@ -6,6 +6,19 @@ import { styleProtocol } from '@zui/core';
 import { SourceMap } from 'node:module';
 
 describe('class compiler', () => {
+  it('preserves legacy component mode and exported props without injecting runes', () => {
+    const source =
+      '<script>import {css} from "@zui/core";export let width=100;</script><div class={css(s=>{s.width.px(width);})}/>';
+    const result = transformClasses(source, '/app/Legacy.svelte')!;
+    expect(result.code).not.toContain('$props.id');
+    expect(
+      compile(result.code, { filename: 'Legacy.svelte', generate: 'client' }).metadata.runes,
+    ).toBe(false);
+    expect(() =>
+      compile(result.code, { filename: 'Legacy.svelte', generate: 'server' }),
+    ).not.toThrow();
+    expect(transformClasses(result.code, '/app/Legacy.svelte')).toBeUndefined();
+  });
   it('does not treat ordinary marker text or comments as compiled code', () => {
     for (const text of ['<p>zui-class-compiled</p>', '<!-- zui-class-compiled -->']) {
       const source =
@@ -19,7 +32,10 @@ describe('class compiler', () => {
   });
   it('validates the protocol before skipping already compiled components', () => {
     const result = transformClasses('<div class={"panel"}/>', '/app/Protocol.svelte')!;
-    const incompatible = result.code.replace(', ' + styleProtocol.version + ');', ', 0);');
+    const incompatible = result.code.replace(
+      ', ' + styleProtocol.version + ', false);',
+      ', 0, false);',
+    );
     expect(() => transformClasses(incompatible, '/app/Protocol.svelte')).toThrow(
       'protocol mismatch',
     );
@@ -93,7 +109,8 @@ const id=$props.id();
       '<script>const id=$props.id();let rows=[];</script>{#each rows as row (row.id)}<div class={row.class}/>{:else}<div class={"empty"}/>{/each}';
     const result = transformClasses(source, '/app/Existing.svelte')!;
     expect(result.code.match(/\$props\.id\(\)/gu)).toHaveLength(1);
-    expect(result.code.match(/\[row\.id\]/gu)).toHaveLength(1);
+    expect(result.code).toContain('[row.id]');
+    expect(result.code.slice(result.code.indexOf('{:else}'))).not.toContain('row.id');
     expect(() => compile(result.code, { filename: 'Existing.svelte' })).not.toThrow();
   });
   it('compiles native inline CSS for client and server with a source map', () => {
