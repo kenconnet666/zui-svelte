@@ -92,7 +92,15 @@ test('SvelteKit returns the styled shell before server data is released', async 
   const response = await fetch(baseURL + '/?gate=' + gate);
   const reader = response.body!.getReader();
   try {
-    const first = new TextDecoder().decode((await reader.read()).value);
+    // 网络分块不等于 HTML 分块；读到 shell 标记即可，不能假设第一次 read 包含整页。
+    const decoder = new TextDecoder();
+    let first = '';
+    while (!first.includes('initial-shell')) {
+      const chunk = await reader.read();
+      expect(chunk.done).toBe(false);
+      first += decoder.decode(chunk.value, { stream: true });
+      expect(first.length).toBeLessThan(128 * 1024);
+    }
     expect(first).toContain('initial-shell');
     expect(first).toContain('width:120px');
     expect(first).not.toContain('stream-ready');

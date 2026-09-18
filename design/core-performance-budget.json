@@ -1,5 +1,6 @@
 {
   "version": 1,
+  "retainedHeapMaxBytes": 16777216,
   "referenceCommit": "a8cf60f0f1521f76d8e374c937a1ccb584a5e382",
   "referenceRun": "https://github.com/kenconnet666/zui-svelte/actions/runs/35299462819",
   "reference": {

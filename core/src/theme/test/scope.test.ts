@@ -3,6 +3,23 @@ import { bindTheme, ThemeScope, themeVariables } from '../scope.js';
 import { defineTheme, extendTheme, overrideTheme, tokenRef } from '../theme.js';
 
 describe('theme scopes', () => {
+  it('does not deliver obsolete snapshots after a subscriber changes the theme again', () => {
+    const theme = defineTheme({ color: { text: 'red' } });
+    const root = new ThemeScope(theme);
+    const child = root.fork({});
+    const observed: string[] = [];
+    root.subscribe((value) => {
+      if (value.resolved.color.text === 'blue')
+        root.setTheme(overrideTheme(theme, { color: { text: 'green' } }));
+    });
+    root.subscribe((value) => observed.push('root:' + value.resolved.color.text));
+    child.subscribe((value) => observed.push('child:' + value.resolved.color.text));
+    root.setTheme(overrideTheme(theme, { color: { text: 'blue' } }));
+    expect(observed).toEqual(['root:red', 'child:red', 'root:green', 'child:green']);
+    expect(root.theme.resolved.color.text).toBe('green');
+    expect(child.theme.resolved.color.text).toBe('green');
+    root.dispose();
+  });
   it('keeps its original schema when a compatible superset is temporarily selected', () => {
     const base = defineTheme({ color: { text: 'red' } });
     const scope = new ThemeScope(base);
@@ -14,6 +31,20 @@ describe('theme scopes', () => {
     expect(child.theme.resolved.color.text).toBe('green');
     expect(() => scope.setOverrides(null as never)).toThrow('must be an object');
     scope.dispose();
+  });
+  it('keeps a child override made inside a parent notification', () => {
+    const theme = defineTheme({ color: { text: 'red' } });
+    const root = new ThemeScope(theme);
+    const child = root.fork({});
+    const observed: string[] = [];
+    root.subscribe((value) => {
+      if (value.resolved.color.text === 'blue') child.setOverrides({ color: { text: 'green' } });
+    });
+    child.subscribe((value) => observed.push(value.resolved.color.text));
+    root.setTheme(overrideTheme(theme, { color: { text: 'blue' } }));
+    expect(observed).toEqual(['red', 'green']);
+    expect(child.theme.resolved.color.text).toBe('green');
+    root.dispose();
   });
   it('shares repeated bindings and rejects competing scopes on the same element', () => {
     const values = new Map<string, string>();

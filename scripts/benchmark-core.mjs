@@ -92,8 +92,34 @@ const report = {
   cpu: cpus()[0]?.model,
   results,
 };
+// 强制 GC 后记录多批次保留堆，补充显式引用计数无法观察到的全局缓存泄漏。
+assert(globalThis.gc, 'Run this benchmark with --expose-gc.');
+const heapSamples = [];
+for (let batch = 0; batch < 6; batch++) {
+  for (let cycle = 0; cycle < 200; cycle++) {
+    const runtime = createRuntime();
+    const binding = runtime.binding({ source: 'heap-' + batch + '-' + cycle });
+    binding.evaluate((s) => {
+      s.width.px(cycle + 1);
+    });
+    binding.evaluate((s) => {
+      s.width.px(cycle + 2);
+    });
+    assertReleased(runtime);
+  }
+  globalThis.gc();
+  heapSamples.push(process.memoryUsage().heapUsed);
+}
+report.heap = {
+  samplesBytes: heapSamples,
+  retainedGrowthBytes: Math.max(0, ...heapSamples.slice(1).map((value) => value - heapSamples[0])),
+};
 const budget = JSON.parse(
   await readFile(new URL('../design/core-performance-budget.json', import.meta.url), 'utf8'),
+);
+assert(
+  report.heap.retainedGrowthBytes <= budget.retainedHeapMaxBytes,
+  'Retained heap growth budget exceeded.',
 );
 const comparable =
   report.platform === budget.reference.platform &&

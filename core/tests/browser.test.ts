@@ -35,6 +35,30 @@ function runtime(namespace: string) {
 }
 
 describe('real DOM style bindings', () => {
+  it.each(['inline', 'stylesheet'] as const)(
+    'keeps DOM theme values current after a reentrant %s update',
+    (variables) => {
+      const theme = defineTheme({ color: { text: 'red' } });
+      const value = createRuntime({ target: document, namespace: 'reentrant', theme, variables });
+      cleanup.push(() => value.dispose());
+      const scope = new ThemeScope(theme);
+      cleanup.push(() => scope.dispose());
+      scope.subscribe((current) => {
+        if (current.resolved.color.text === 'blue')
+          scope.setTheme(overrideTheme(theme, { color: { text: 'green' } }));
+      });
+      const node = element();
+      cleanup.push(bindTheme(node, scope, value));
+      const binding = value.binding();
+      binding.evaluate((s) => {
+        s.color._text;
+      });
+      cleanup.push(bindElement(node, binding));
+      scope.setTheme(overrideTheme(theme, { color: { text: 'blue' } }));
+      expect(getComputedStyle(node).color).toBe('rgb(0, 128, 0)');
+      expect(scope.theme.resolved.color.text).toBe('green');
+    },
+  );
   it('coalesces sparse chunks during long-lived structural replacement', () => {
     const sheet = new BrowserStyleSheet(document, 'fragmentation');
     cleanup.push(() => sheet.dispose());

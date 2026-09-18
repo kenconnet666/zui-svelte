@@ -25,7 +25,8 @@ for (const engine of process.env.CI ? ['chromium', 'firefox', 'webkit'] : ['chro
       await page.setContent('<main></main>');
       const result = await page.evaluate(
         async ({ moduleUrl, variables }) => {
-          const { createRuntime, bindElement } = await import(moduleUrl);
+          const { createRuntime, bindElement, bindTheme, ThemeScope, lightTheme, darkTheme } =
+            await import(moduleUrl);
           const runtime = createRuntime({
             target: document,
             namespace: 'scale-budget',
@@ -72,6 +73,45 @@ for (const engine of process.env.CI ? ['chromium', 'firefox', 'webkit'] : ['chro
             runtime.dispose();
             host.replaceChildren();
             const released = runtime.stats;
+            const themeRuntime = createRuntime({
+              target: document,
+              namespace: 'theme-budget',
+              variables,
+            });
+            const scope = new ThemeScope(lightTheme);
+            const themeSamples = [];
+            try {
+              bindTheme(host, scope, themeRuntime);
+              const className = themeRuntime.css((s) => {
+                s.color._text;
+              });
+              for (let i = 0; i < 1000; i++) {
+                const node = document.createElement('div');
+                node.className = className;
+                node.textContent = String(i);
+                host.append(node);
+              }
+              for (let round = 0; round < 101; round++) {
+                const dark = round % 2 === 0;
+                const start = performance.now();
+                scope.setTheme(dark ? darkTheme : lightTheme);
+                if (
+                  getComputedStyle(host.lastElementChild).color !==
+                  (dark ? 'rgb(248, 250, 252)' : 'rgb(15, 23, 42)')
+                )
+                  throw new Error('Theme value mismatch');
+                if (round) themeSamples.push(performance.now() - start);
+              }
+              if ([...host.children].some((node) => node.className !== className))
+                throw new Error('Theme switching replaced a consuming class');
+              if (themeRuntime.stats.rules > 2 || themeRuntime.stats.styleEntries > 3)
+                throw new Error('Theme switching accumulated obsolete rules');
+            } finally {
+              scope.dispose();
+              themeRuntime.dispose();
+              host.replaceChildren();
+            }
+            themeSamples.sort((a, b) => a - b);
             for (let cycle = 0; cycle < 100; cycle++) {
               const owner = createRuntime({ target: document, namespace: 'cycle-budget' });
               const node = document.createElement('div');
@@ -90,6 +130,12 @@ for (const engine of process.env.CI ? ['chromium', 'firefox', 'webkit'] : ['chro
             return {
               ...result,
               released,
+              theme: {
+                samplesMs: themeSamples,
+                p50Ms: themeSamples[49],
+                p95Ms: themeSamples[94],
+                released: themeRuntime.stats,
+              },
               remainingNodes: document.querySelectorAll('style[data-zui]').length,
             };
           } finally {
@@ -107,6 +153,12 @@ for (const engine of process.env.CI ? ['chromium', 'firefox', 'webkit'] : ['chro
       for (const name of ['bindings', 'rules', 'sources', 'styleEntries'])
         assert.equal(result.released[name], 0, name);
       assert.equal(result.remainingNodes, 0);
+      for (const name of ['bindings', 'rules', 'sources', 'styleEntries'])
+        assert.equal(result.theme.released[name], 0, 'Theme ' + name);
+      assert(
+        result.theme.p95Ms <= budget.browserUpdateP95Ms,
+        'Catastrophic theme update regression',
+      );
       assert(result.p95Ms <= budget.browserUpdateP95Ms, 'Catastrophic DOM update regression');
       results.push({ engine, variables, version: browser.version(), ...result });
       console.log(JSON.stringify(results.at(-1)));

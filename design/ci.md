@@ -1,6 +1,6 @@
 # GitHub CI 与产物交付
 
-[CI 工作流](https://github.com/kenconnet666/zui-svelte/actions/workflows/ci.yml) 对 master 推送、PR 和手动触发生效。同 ref 新运行取消旧运行；仓库权限只读，第三方 Action 固定 SHA。
+[CI 工作流](https://github.com/kenconnet666/zui-svelte/actions/workflows/ci.yml) 对 master 推送、PR 和手动触发生效。master 按提交保留验收，避免持续推送取消上一候选；同 PR 新运行取消旧运行。仓库权限只读，第三方 Action 固定 SHA。
 
 ## 验收顺序
 

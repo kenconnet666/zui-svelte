@@ -2,7 +2,7 @@
 
 框架无关的 CSS 与主题系统工作区。已配置 TypeScript 构建、类型声明、Stylis 与 CSS 类型依赖。
 
-已实现生成式属性/关键字载体、buildStyle、序列化、主题、作用域、规则注册、自动变量提升与全局资源回收。生成器覆盖 857 个属性。class 字符串编译接入仍在验证；下一阶段以 [首版生产可用规划](../design/core-production-plan.md) 为讨论和实施基线，历史状态见 [换机交接](../design/handoff.md)。
+已实现生成式属性/关键字载体、buildStyle、序列化、主题、作用域、规则注册、自动变量提升与全局资源回收。生成器覆盖 857 个属性。class 字符串编译、SSR 与独立包验收入口已建立，当前候选的生产验收状态见 [A01–A40 台账](../design/core-acceptance.md)，设计依据见 [统一重构路线](../design/core-remaining-plan.md)。
 
 - 构建：`pnpm --filter @zui/core build`
 - 类型检查：`pnpm --filter @zui/core check`
@@ -34,6 +34,8 @@ alternate.resolved.color.brandText; // #0f766e
 ```
 
 Token 别名只能引用同类别的已有键，覆盖后从完整定义重新解析；循环、缺失目标和类别错误会报错。`definition` 保留只读原始定义，`resolved` 是只读解析值，不等于浏览器 computed style。主题作用域先验证整棵子树再提交，子级别名失败不会让父级停留在半次更新状态。
+
+订阅回调可同步再次切换主题或修改子级覆盖。新提交生效后，尚未发出的过期快照会跳过，避免消费者退回旧主题；已经开始执行的回调自行遵循普通同步函数语义。通知异常仍继续处理其他有效订阅，再统一上报。
 
 ### 无预设 Token 的基础主题
 

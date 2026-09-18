@@ -74,7 +74,8 @@ export class ThemeScope<T extends TokenSchema> {
     for (const [scope, theme] of pending)
       for (const listener of [...scope.#listeners.keys()]) {
         notifications.push(() => {
-          if (scope.#listeners.has(listener)) listener(theme);
+          // 回调可同步再次切换主题；不得把已被新提交替换的快照发给剩余消费者。
+          if (scope.#theme === theme && scope.#listeners.has(listener)) listener(theme);
         });
       }
     runAll(notifications, 'Theme subscribers failed.');
