@@ -137,3 +137,63 @@ CSS 声明/选择器/层、主题输入/引用和编译协议等接入错误使�
 `runtime.property()` 的同名注册在同一 Document 的 ZUI runtimes 之间协调（含该文档下的 ShadowRoot）。相同定义可共存，不兼容定义立即报错；每个 runtime 保留自己的规则和引用，最后持有者退出后可重新注册。ZUI 不扫描外部 CSS 或 `CSS.registerProperty()`，这些宿主注册需自行避免同名冲突。
 
 绑定的新规则或变量写入失败时保留旧快照；旧规则删除或消费者回调失败发生在提交之后，此时当前快照已是新版。清理会继续处理其余引用，异常统一上报，写入与回滚同时失败时保留两类错误。自定义样式表后端若拒绝删除，物理 CSS 可能仍存在；内部零引用记录不会参与复用，应恢复后端或销毁 runtime 完成物理清理。
+
+## Builder 与宿主 API 速查
+
+样式 factory 必须同步执行并返回 void；使用花括号语句体。async 函数或返回对象不受支持，即使 TypeScript 的 void 回调规则允许赋值，运行时仍会拒绝。函数中的 if/switch/循环为普通 JS 语义。
+
+| Builder 写法                                | 输入与行为                                        |
+| ------------------------------------------- | ------------------------------------------------- |
+| s.display.flex                              | 读取关键字即追加声明；属性及关键字由生成表约束    |
+| s.width.px(240)                             | 单位方法，支持的单位和参数数量由属性决定          |
+| s.color._primary                            | 当前主题类别的 Token 引用；扩展后自动补全         |
+| s.gridTemplateColumns('repeat(3, 1fr)')     | 原生 CSS 值出口；复杂计算仍使用 TS 函数           |
+| s.set('display', 'grid')                    | 标准属性的类型化直接写入                          |
+| s.raw('future-property', 'value')           | 尚未纳入类型表的属性；仍检查声明边界              |
+| s.custom('--app-offset', '12px')            | 自定义变量声明；不同于自动提升后的内部变量        |
+| s._selector('& > button', factory)          | 局部选择器；每个逗号分支必须显式包含根            |
+| s._hover / _focusVisible / _before / _after | 常用伪类/伪元素的局部回调                         |
+| s._media / _supports / _container           | 条件字符串与嵌套 factory，可组合嵌套              |
+| s._important(factory)                       | 为该回调的声明设置优先级，不在值中拼接 !important |
+
+标准值出口中的 null/undefined 按对应签名跳过声明，不生成字符串 null。raw 是未来属性出口，不是任意样式表文本入口；全局选择器和资源使用下面的宿主方法。
+
+高级宿主负责求值时机及销毁，Svelte 用户通常不需要直接调用这些方法：
+
+| API                                          | 返回 / 所有权 / SSR                                                                             |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| createRuntime(options)                       | 一个宿主；无 target 默认内存表，有 target 输出到 Document/ShadowRoot；调用方负责 dispose        |
+| runtime.css(factory, source?)                | string；静态规则保留到 runtime 销毁，不用于无限次高频动态值                                     |
+| runtime.binding(settings?)                   | 动态绑定；id 在 runtime 内唯一，source 决定来源，maxStructures 默认 8，promote 可由高级宿主关闭 |
+| binding.evaluate(factory)                    | 求值并返回当前 string；新快照包含 className、variables、revision                                |
+| binding.subscribe(listener)                  | 立即通知并返回取消订阅函数；更新失败的提交边界见异常说明                                        |
+| binding.dispose() / runtime.release(binding) | 释放绑定；清空快照并通知消费者；release 拒绝其他 runtime 的绑定                                 |
+| bindElement(node, binding)                   | 绑定 DOM class/变量并返回解除函数；解除消费者不自动销毁调用方绑定；仅浏览器使用                 |
+| runtime.global(selector, factory)            | 可 dispose 的全局规则资源，遵循 runtime 层配置                                                  |
+| runtime.themeStyle(selector, theme?)         | 可 dispose 的主题规则资源，默认使用 defaultTheme；SSR 也可输出                                  |
+| runtime.keyframes(frames)                    | 带 name 与 dispose 的动画资源；仅普通声明，不接受嵌套规则或 important                           |
+| runtime.fontFace(descriptors)                | 可 dispose 的字体规则资源；文件加载、授权和缓存由浏览器/应用负责                                |
+| runtime.property(name, registration)         | 可 dispose 的 @property 资源；校验 syntax、inherits、initialValue 及同文档冲突                  |
+| runtime.cssText() / styleTags()              | 当前样式文本 / 带协议与 nonce 的 SSR 标签；不转移资源所有权                                     |
+| runtime.finishHydration()                    | 首轮消费者接管完成后释放未被认领的服务端规则；不能提前到首轮消费之前                            |
+| runtime.stats                                | 只读诊断快照；styleEntries 为逻辑记录数，ruleCompilations 为累计编译次数                        |
+| runtime.dispose()                            | 幂等释放绑定、规则与宿主占用；之后不能继续写入；自定义后端拒绝清理时会上报异常                  |
+
+资源句柄可提前 dispose；未提前释放的资源仍由 runtime 销毁兜底。全局规则、动画与属性注册也必须按 SSR 请求隔离，不能共享一个可变服务端 runtime。
+
+ThemeScope 的 constructor、setTheme、setOverrides、fork、theme/parent 已在主题章节说明。subscribe(listener, cleanup?) 立即发送当前主题，返回取消函数；取消或 scope 销毁会调用对应 cleanup。dispose 会递归销毁 fork 子级，不销毁不可变 Theme 对象。themeVariables(theme) 返回 CSS 变量名到字符串值的只读视图；bindTheme 返回解除函数，scope 及可选 runtime 仍由调用方拥有。
+
+MemoryStyleSheet 和 BrowserStyleSheet 都实现 set/remove/entries/dispose。entries 返回有序逻辑记录快照；BrowserStyleSheet 的物理分片是实现细节。自定义后端必须在方法返回前完成写入、失败时抛错，不使用异步写入协议。内部 StyleProgram、直接构造 StyleBinding、编译求值上下文及 @internal 导出不作为业务扩展面。
+
+## 支持范围与升级
+
+| 范围        | 支持合同                                                                                              |
+| ----------- | ----------------------------------------------------------------------------------------------------- |
+| core 消费   | 统一 ESM 入口、框架无关 TypeScript；不提供 CJS 或其他框架的编译适配                                   |
+| Svelte 接入 | 锁定版本的 Svelte 5 / Vite，包含 runes 与 legacy 组件；插件必须先于 Svelte 编译                       |
+| 服务端      | Node.js 24 的 renderStyled / SvelteKit handle、SSR 与 prerender；Edge runtime 未纳入首版验收          |
+| 浏览器      | CI 锁定 Playwright 对应的 Chromium、Firefox、WebKit；不据此宣称所有历史浏览器或真机设备已测试         |
+| CSP         | inline 默认通道；严格样式策略使用 stylesheet + 同请求 nonce，宿主框架自身样式另遵循其 CSP 合同        |
+| 扩展        | 普通 TS 函数、自定义 Token 类别与映射、自定义 StyleSheet、独立绑定；没有通用插件生命周期或 recipe DSL |
+
+升级前同时重建 core、编译适配器和应用，避免协议 8 与旧 SSR/编译缓存混用；接口迁移见上文。需要回退时回退整组包和应用产物，不仅替换浏览器 runtime。CI 产物的 candidate-evidence.json 关联提交、报告与被测试归档的 hash；这些包仍 private，发布命名和许可另行确定。

@@ -120,5 +120,8 @@
   ],
   "WidenTokens": [
     "export type WidenTokens<T extends TokenSchema> = {\n    readonly [C in keyof T]: {\n        readonly [K in keyof T[C]]: WidenValue<T[C][K]>;\n    };\n};"
+  ],
+  "StyleBinding": [
+    "export declare class StyleBinding<T extends TokenSchema> {\n    readonly registry: StyleRegistry;\n    readonly theme: () => Theme<T>;\n    readonly options: BindingOptions;\n    constructor(registry: StyleRegistry, theme: () => Theme<T>, options: BindingOptions);\n    get snapshot(): StyleSnapshot;\n    get cachedStructures(): number;\n    evaluate(factory: StyleFactory<T>): string;\n    update(program: StyleProgram): string;\n    subscribe(listener: (snapshot: StyleSnapshot) => void): () => void;\n    dispose(): void;\n}"
   ]
 }

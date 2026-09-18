@@ -73,11 +73,12 @@ for (const symbol of checker
   );
 }
 const publicExports = Object.keys(snapshot).length;
-// StyleBuilder 的公开交叉类型依赖这些载体合同，不能只快照它们的名字。
+// 公开签名引用的载体与绑定也要锁定成员，不能只快照返回类型的名字。
 for (const [file, names] of [
   ['css/builder.d.ts', ['StyleHelpers']],
   ['css/carrier.d.ts', ['Carrier']],
   ['theme/types.d.ts', ['ThemeDefinition', 'ResolvedTokens', 'WidenTokens']],
+  ['runtime/binding.d.ts', ['StyleBinding']],
 ]) {
   const path = join(root, 'core/dist', file);
   const parsed = ts.createSourceFile(
