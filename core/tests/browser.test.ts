@@ -9,6 +9,8 @@ import {
   ClassController,
   createCss,
   lightTheme,
+  createStyleModule,
+  css,
 } from '../src/index.js';
 
 const cleanup: (() => void)[] = [];
@@ -29,6 +31,57 @@ function runtime(namespace: string) {
 }
 
 describe('real DOM style bindings', () => {
+  it('isolates a shared module definition in runtimes with different default layers', () => {
+    const module = createStyleModule('shared-module');
+    cleanup.push(() => module.dispose());
+    const shared = module.call('width', css, (s) => {
+      s.width.px(100);
+    });
+    const layers = ['base', 'override', 'app'];
+    const a = createRuntime({ target: document, namespace: 'module-a', layers, layer: 'base' });
+    const b = createRuntime({ target: document, namespace: 'module-b', layers, layer: 'app' });
+    cleanup.push(
+      () => a.dispose(),
+      () => b.dispose(),
+    );
+    const first = new ClassController(a, 'a', 'a');
+    const second = new ClassController(b, 'b', 'b');
+    cleanup.push(
+      () => first.dispose(),
+      () => second.dispose(),
+    );
+    const override = createCss(lightTheme, { layer: 'override' });
+    const left = element();
+    const right = element();
+    left.className = first.resolve(
+      first.run(() => [
+        shared,
+        override((s) => {
+          s.width.px(200);
+        }),
+      ]),
+    );
+    right.className = second.resolve(
+      second.run(() => [
+        shared,
+        override((s) => {
+          s.width.px(200);
+        }),
+      ]),
+    );
+    expect(getComputedStyle(left).width).toBe('200px');
+    expect(getComputedStyle(right).width).toBe('100px');
+    expect(() => createRuntime({ target: document, namespace: 'module-a' })).toThrow(
+      'already owns',
+    );
+    expect(() =>
+      createRuntime({ target: document, namespace: 'module-c', layers: ['app', 'base'] }),
+    ).toThrow('same layer order');
+    a.dispose();
+    expect(getComputedStyle(right).width).toBe('100px');
+    const replacement = createRuntime({ target: document, namespace: 'module-a' });
+    replacement.dispose();
+  });
   it('keeps layer precedence and reversed important order across dynamic promotion', () => {
     const owner = createRuntime({
       target: document,

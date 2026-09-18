@@ -36,8 +36,8 @@ describe('explicit CSS layers', () => {
     });
     const owner = new ClassController(runtime, 'target', 'target');
     owner.resolve([normal, plain]);
-    expect(runtime.cssText()).toContain('@layer app{.' + normal + '{width:10px;}}');
-    expect(runtime.cssText()).toContain('.' + plain + '{height:20px;}');
+    expect(runtime.cssText()).toContain('@layer app{.' + normal + '--z{width:10px;}}');
+    expect(runtime.cssText()).toContain('.' + plain + '--z{height:20px;}');
     expect(runtime.cssText().match(/@layer app\{/gu)).toHaveLength(1);
     runtime.dispose();
     module.dispose();

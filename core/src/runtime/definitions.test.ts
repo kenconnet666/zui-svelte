@@ -16,10 +16,13 @@ describe('module style definitions', () => {
     const second = new ClassController(b, 'b', 'b');
     expect(a.cssText()).toBe('');
     expect(b.cssText()).toBe('');
-    expect(first.resolve(className)).toBe(className);
+    const firstClass = first.resolve(className);
+    expect(firstClass.split(' ')).toContain(className);
     expect(a.cssText()).toContain('width:120px');
     expect(b.cssText()).toBe('');
-    second.resolve(className);
+    const secondClass = second.resolve(firstClass);
+    expect(secondClass).not.toBe(firstClass);
+    expect(secondClass).not.toContain(className + '--z ');
     a.dispose();
     expect(b.cssText()).toContain('width:120px');
     b.dispose();

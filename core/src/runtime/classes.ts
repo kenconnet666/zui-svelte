@@ -83,6 +83,7 @@ export class ClassController<T extends TokenSchema> {
   }
 
   resolve(value: unknown): string {
+    if (this.#disposed) throw new Error('Class controller is disposed.');
     this.#className = normalizeClass(value);
     const acquired: RuleRecord[] = [];
     try {
@@ -100,6 +101,16 @@ export class ClassController<T extends TokenSchema> {
           })
           .filter((entry): entry is RuleRecord => !!entry),
       );
+      const modules = [...next].filter((record) => record.definitionName);
+      if (modules.length) {
+        const names = new Set(modules.map((record) => record.definitionName));
+        // 保留模块标记，替换转发过来的目标别名，避免另一 runtime 的层级泄漏到当前元素。
+        const authored = this.#className.split(/\s+/u).filter((name) => {
+          const boundary = name.indexOf('--');
+          return boundary < 0 || !names.has(name.slice(0, boundary));
+        });
+        this.#className = [...authored, ...modules.map((record) => record.className)].join(' ');
+      }
       // 先保留新引用，再释放旧引用，避免共享规则在两个消费者之间短暂消失。
       for (const record of next)
         if (!this.#records.has(record)) {

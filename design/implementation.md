@@ -95,3 +95,7 @@ a8cf60f 的完整 CI 已通过（35299462819），首份 Node 基线已产生：
 ## P3：异常通知与资源清理
 
 增加共用的小型 runAll 回调工具，更新提交后完整通知消费者，销毁时即使一个回调失败也继续释放其余资源。registry 值写入与通知分离，避免将消费者异常误当作插入失败回滚；首次订阅失败立即移除订阅。局部相关 22 项与聚焦类型检查通过，WebStorm 对 binding/runtime 无错误。将首次 CI 性能样本和同环境回归门槛固化到 core-performance-budget.json；跨机器只记录时间，所有环境仍执行计数硬门槛。
+
+## P3：同目标的 runtime 与模块样式隔离
+
+c047dcb 的完整 CI 已通过（35300813045），包括固定性能门槛。模块定义保留原标记，消费端追加 namespace 别名；跨 runtime 转发时替换旧别名，避免相同定义在不同默认层互相污染。重复 target/namespace 和相同层根的冲突声明明确拒绝，销毁后可重新使用 namespace；runtime 配置采用快照。相关 core 19 项、SSR 3 项、聚焦类型和 WebStorm 检查通过，新增真实 DOM 多 runtime 隔离用例交给 CI。

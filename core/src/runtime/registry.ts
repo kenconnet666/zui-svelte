@@ -18,6 +18,7 @@ export interface RuleRecord {
   readonly listeners: Set<() => void>;
   references: number;
   releaseDefinition?: () => void;
+  definitionName?: string;
 }
 
 function attribute(value: string): string {
@@ -27,6 +28,7 @@ function attribute(value: string): string {
 export class StyleRegistry {
   readonly #records = new Map<string, RuleRecord>();
   readonly #classes = new Map<string, RuleRecord>();
+  readonly #moduleClasses = new Map<string, RuleRecord>();
   readonly #orders = new Map<string, { order: number; references: number }>();
   readonly #hydratedOrders = new Map<string, number>();
   #sequence = 0;
@@ -99,7 +101,7 @@ export class StyleRegistry {
   }
 
   lookup(className: string): RuleRecord | undefined {
-    return this.#classes.get(className);
+    return this.#classes.get(className) ?? this.#moduleClasses.get(className);
   }
 
   acquireDefinition(definition: StyleDefinition): RuleRecord {
@@ -110,17 +112,20 @@ export class StyleRegistry {
       definition.source,
       () => {
         this.#compilations++;
+        const className = definition.className + '--' + this.namespace;
         return {
-          className: definition.className,
+          className,
           css: serializeProgram(
             layerProgram(definition.program, layer),
-            '.' + definition.className,
+            '.' + className,
             this.prefix,
           ),
         };
       },
     );
     record.releaseDefinition ??= retainDefinition(definition);
+    record.definitionName = definition.className;
+    this.#moduleClasses.set(definition.className, record);
     return record;
   }
 
@@ -190,6 +195,7 @@ export class StyleRegistry {
       this.sheet.remove(record.key);
       this.#records.delete(record.key);
       if (record.className) this.#classes.delete(record.className);
+      if (record.definitionName) this.#moduleClasses.delete(record.definitionName);
       record.releaseDefinition?.();
     }
   }
@@ -244,6 +250,7 @@ export class StyleRegistry {
     );
     this.#records.clear();
     this.#classes.clear();
+    this.#moduleClasses.clear();
     this.#orders.clear();
     this.#hydratedOrders.clear();
     runAll([() => this.sheet.dispose(), ...releases], 'Style registry cleanup failed.');

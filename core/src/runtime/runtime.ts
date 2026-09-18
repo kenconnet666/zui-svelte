@@ -11,6 +11,8 @@ import type * as CSS from 'csstype';
 import { validateLayer } from '../css/layers.js';
 import { runAll } from './callbacks.js';
 
+const targets = new WeakMap<Document | ShadowRoot, Map<string, readonly string[]>>();
+
 export interface RuntimeOptions<T extends TokenSchema> {
   theme?: Theme<T>;
   target?: Document | ShadowRoot;
@@ -60,6 +62,7 @@ export interface StyleRuntime<T extends TokenSchema = DefaultTokens> {
 export function createRuntime<T extends TokenSchema = DefaultTokens>(
   options: RuntimeOptions<T> = {},
 ): StyleRuntime<T> {
+  options = { ...options };
   if (options.target && options.sheet)
     throw new TypeError('Choose a target or a stylesheet, not both.');
   if (
@@ -74,6 +77,19 @@ export function createRuntime<T extends TokenSchema = DefaultTokens>(
   if (new Set(layers).size !== layers.length) throw new TypeError('Duplicate CSS layer.');
   if (options.layer !== undefined && !layers.includes(options.layer))
     throw new TypeError('The default CSS layer must be declared.');
+  const owners = options.target
+    ? (targets.get(options.target) ?? new Map<string, readonly string[]>())
+    : undefined;
+  if (owners?.has(namespace))
+    throw new Error('A runtime already owns this target namespace: ' + namespace);
+  for (const existing of owners?.values() ?? []) {
+    const roots = new Set(existing.map((name) => name.split('.')[0]));
+    if (
+      layers.some((name) => roots.has(name.split('.')[0])) &&
+      JSON.stringify(existing) !== JSON.stringify(layers)
+    )
+      throw new Error('Runtimes sharing CSS layer roots must declare the same layer order.');
+  }
   const sheet =
     options.sheet ??
     (options.target
@@ -90,6 +106,10 @@ export function createRuntime<T extends TokenSchema = DefaultTokens>(
   if (layers.length) registry.resource('@layer ' + layers.join(',') + ';', 'layer-order');
   const theme = options.theme ?? (lightTheme as unknown as Theme<T>);
   const resources = createResources(registry, theme, options.layer);
+  if (options.target) {
+    owners!.set(namespace, layers);
+    targets.set(options.target, owners!);
+  }
   const bindings = new Map<string, StyleBinding<T>>();
   const staticRules = new Map<string, RuleRecord>();
   let sequence = 0;
@@ -164,7 +184,14 @@ export function createRuntime<T extends TokenSchema = DefaultTokens>(
       bindings.clear();
       staticRules.clear();
       runAll(
-        [...releases, () => resources.dispose(), () => registry.dispose()],
+        [
+          ...releases,
+          () => resources.dispose(),
+          () => registry.dispose(),
+          () => {
+            owners?.delete(namespace);
+          },
+        ],
         'Style runtime cleanup failed.',
       );
     },
