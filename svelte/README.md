@@ -11,6 +11,75 @@ Svelte 5 组件库工作区，依赖 @zui/core，使用官方 svelte-package 生
 - 开发态验收：`pnpm --filter @zui/svelte test:dev`，CI 使用三浏览器；本机默认复用 Chrome，仅按改动运行相关用例。
 - 完整包外验收：根目录执行 `pnpm test:packages`，由 CI 在构建与浏览器准备后运行。
 
+## 最小接入
+
+普通 Svelte + Vite 项目的 vite.config.ts 中，ZUI 插件放在 Svelte 插件之前。以下写法消费构建后的包，不需要工作区专用的 zui-source 条件：
+
+```ts
+import { defineConfig } from 'vite';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
+import { zui } from '@zui/svelte/compiler';
+
+export default defineConfig({ plugins: [zui(), svelte()] });
+```
+
+业务只写 class，普通 TS 分支和函数仍参与运行时求值。初始值保持静态，同一绑定观察到安全值变化后才自动提升：
+
+```svelte
+<script lang="ts">
+  import { css } from '@zui/core';
+  let width = $state(160);
+</script>
+
+<button
+  onclick={() => (width += 20)}
+  class={css((s) => {
+    s.display.inlineFlex;
+    s.width.px(width);
+    s.gap.px(12);
+    s.color._text;
+  })}
+>
+  增加宽度
+</button>
+```
+
+默认浏览器 runtime 随实际样式消费者创建和回收。自定义主题、严格 CSP、ShadowRoot 或 SSR 接管应显式配置 runtime。
+
+### SvelteKit
+
+Vite 插件使用 `plugins: [zui(), sveltekit()]`，导入 sveltekit 的来源为 `@sveltejs/kit/vite`。在 src/hooks.server.ts 创建请求级收集器：
+
+```ts
+import { createStyleHandle } from '@zui/svelte/server';
+export const handle = createStyleHandle();
+```
+
+在 src/app.html 的 head 中加入 `<!--zui:styles-->`。根 +layout.svelte 为浏览器创建对应的宿主，服务端则由 handle 提供请求 runtime：
+
+```svelte
+<script lang="ts">
+  import { onMount, onDestroy, type Snippet } from 'svelte';
+  import { createRuntime } from '@zui/core';
+  import { provideStyleRuntime } from '@zui/svelte';
+  let { children }: { children: Snippet } = $props();
+
+  if (typeof document !== 'undefined') {
+    const runtime = createRuntime({ target: document });
+    runtime.themeStyle(':where(:root)');
+    provideStyleRuntime(runtime);
+    onMount(() => runtime.finishHydration());
+    onDestroy(() => runtime.dispose());
+  }
+</script>
+
+{@render children()}
+```
+
+自定义主题须在两端传入兼容配置。启用 CSP 时使用 stylesheet 变量通道，nonce 由宿主逐请求产生并传到客户端，服务端 style 标签和客户端 runtime 使用同值。测试夹具里的固定 nonce 仅用于可重复测试，不能照搬为部署策略。完整可运行接入及严格 CSP 边界见 tests/kit，独立安装配置见 tests/package。
+
+## 编译与运行时合同
+
 编译后的原生元素可以自动提升安全动态值。组件 class/slotProps 边界默认传递完整规则，不根据相对路径或文件扩展名猜测内部变量的消费能力；未使用 ZUI 编译的组件只要正常转发 class 即可接收样式。这条边界优先保证正确性，不承诺跨组件提升。
 
 属性表达式由生成的 snippet 参数交给 Svelte 自身 memo，样式生产者与最终 class 消费分离；无关状态改变不会重新执行其他属性 getter。class/style 的 nullish 值及未改写的组件 ClassValue 形态保留。legacy 组件不会因插件注入 rune 而改变 export let、普通 let 或 $:；legacy SSR 输出完整规则，客户端用 runtime 分配的独立 ID 开始自动提升。新编译桥使用协议 8，升级时应一起重建 core、适配器与应用产物。

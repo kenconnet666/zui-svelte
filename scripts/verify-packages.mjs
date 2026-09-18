@@ -47,11 +47,9 @@ try {
     run(['pack', '--pack-destination', directory], join(root, workspace));
   const archives = (await readdir(directory)).filter((name) => name.endsWith('.tgz'));
   assert.equal(archives.length, 2);
-  await mkdir(reportDirectory, { recursive: true });
-  // 保存被安装验证的原始归档，交付时无需重新打包产生另一份产物。
+  // 先记录安装输入的 hash；Playwright 会清理输出目录，须等测试结束后再复制。
   for (const name of archives) {
     const bytes = await readFile(join(directory, name));
-    await writeFile(join(reportDirectory, name), bytes);
     report.archives.push({ name, sha256: createHash('sha256').update(bytes).digest('hex') });
   }
   const archive = (name) => {
@@ -134,6 +132,11 @@ try {
   report.success = true;
 } finally {
   await mkdir(reportDirectory, { recursive: true });
+  for (const archive of report.archives) {
+    const bytes = await readFile(join(directory, archive.name));
+    assert.equal(createHash('sha256').update(bytes).digest('hex'), archive.sha256);
+    await writeFile(join(reportDirectory, archive.name), bytes);
+  }
   await writeFile(join(reportDirectory, 'verification.json'), JSON.stringify(report, null, 2));
   // 仅删除本脚本创建的临时项目；失败时保留以便诊断。
   if (report.success) {

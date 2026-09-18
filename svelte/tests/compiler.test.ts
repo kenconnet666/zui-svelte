@@ -4,8 +4,21 @@ import { transformClasses } from '../src/compiler/preprocess.js';
 import { createStyleScope } from '../src/runtime/scope.js';
 import { styleProtocol } from '@zui/core';
 import { SourceMap } from 'node:module';
+import { readFileSync } from 'node:fs';
 
 describe('class compiler', () => {
+  it('compiles the documented Svelte examples for both client and server', () => {
+    const readme = readFileSync(new URL('../README.md', import.meta.url), 'utf8');
+    const examples = [...readme.matchAll(/```svelte\r?\n([\s\S]*?)```/gu)];
+    expect(examples.length).toBeGreaterThanOrEqual(3);
+    for (const [index, match] of examples.entries()) {
+      const source = match[1]!;
+      const filename = '/app/Readme' + index + '.svelte';
+      const code = transformClasses(source, filename)?.code ?? source;
+      for (const generate of ['client', 'server'] as const)
+        expect(() => compile(code, { filename, generate })).not.toThrow();
+    }
+  });
   it('treats dynamic and recursive legacy components as component boundaries', () => {
     for (const source of [
       '<script>import Child from "./Child.svelte";let className="panel";</script><svelte:component this={Child} class={className}/>',

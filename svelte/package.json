@@ -46,8 +46,7 @@
   "dependencies": {
     "typescript": "catalog:",
     "magic-string": "catalog:",
-    "@zui/core": "workspace:^",
-    "@lucide/svelte": "catalog:"
+    "@zui/core": "workspace:^"
   },
   "peerDependencies": {
     "@sveltejs/kit": "^2.70.3",

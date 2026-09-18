@@ -8,7 +8,7 @@ P0–P5 的主要实现已进入仓库：CSS-only baseTheme 与亮暗扩展、�
 
 剩余工作是候选全矩阵收口与发现问题后的修复，不重新启动另一套架构。详细合同见 [验收台账](core-acceptance.md)，设计依据见 [统一路线](core-remaining-plan.md)，历史实施见 implementation.md。
 
-最近核实 ebbdeed17017fa448d8d51beb1e7856daa1aa3b5 的 CI 35366193117：类型规模、生成、单元/编译、构建、API/体积、Node 预算、Docs 和真实 HMR 三浏览器通过；core DOM 的旧 fixture 漏传自定义主题，后续步骤跳过。本批修正该 fixture，Chrome 聚焦通过；增加实际测试 tarball 的保留/hash 与候选报告清单。推送后不等新 CI，下次推进时先检查。
+最近核实 7e77ed091f48f09e0293906222f96b250f987d8b 的 CI 35367508108：所有产品步骤通过，包括三浏览器、真实 Kit 和独立安装包；最后证据整理因归档被 Playwright 清理而失败。本批改为测试后复制实际安装归档并复核 hash。58eab65 已追加主题重入修复和堆/主题规模预算，本批检查时仍运行；推送后不等新 CI，下次推进时先检查。接入文档已补普通 Vite/Kit 可编译示例，Svelte 包删除未使用图标依赖。
 
 ## 接续方式
 

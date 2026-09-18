@@ -4,6 +4,8 @@
 
 ## 当前证据
 
+- 最新核实：7e77ed091f48f09e0293906222f96b250f987d8b 的 [CI 35367508108](https://github.com/kenconnet666/zui-svelte/actions/runs/35367508108) 已通过全部产品验收步骤；最终证据整理因 Playwright 清理了提前复制的归档而失败。本批改为测试后复制并校验原归档。后续主题重入和堆/主题规模预算属于更新实现，仍待新候选完整确认。
+
 - c2c772e 的 [完整 CI 35346989755](https://github.com/kenconnet666/zui-svelte/actions/runs/35346989755) 成功，属于协议 7 后端基线。
 - 协议 8 候选 ebbdeed17017fa448d8d51beb1e7856daa1aa3b5 的 [CI 35366193117](https://github.com/kenconnet666/zui-svelte/actions/runs/35366193117) 已通过格式、类型规模、生成、Node/编译合同、构建、API/体积、Node 预算、三浏览器 Docs 和真实 HMR。
 - 该轮 core DOM 三浏览器都在同一个旧 fixture 上失败：自定义 scope 未与 runtime 默认主题保持兼容。现已显式把 fixture 的 theme 传入 runtime，本机 Chrome 聚焦回归通过。后续浏览器预算、Kit 和包外步骤被跳过，仍须下一候选 CI 确认。
