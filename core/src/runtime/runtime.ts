@@ -95,16 +95,9 @@ export function createRuntime<T extends TokenSchema = DefaultTokens>(
     (options.target
       ? new BrowserStyleSheet(options.target, namespace, options.nonce)
       : new MemoryStyleSheet());
-  const registry = new StyleRegistry(
-    sheet,
-    namespace,
-    options.prefix,
-    options.variables,
-    layers,
-    options.layer,
-  );
-  if (layers.length) registry.resource('@layer ' + layers.join(',') + ';', 'layer-order');
   const theme = options.theme ?? (lightTheme as unknown as Theme<T>);
+  const registry = new StyleRegistry(sheet, { ...options, namespace, layers, theme });
+  if (layers.length) registry.resource('@layer ' + layers.join(',') + ';', 'layer-order');
   const resources = createResources(registry, theme, options.layer);
   if (options.target) {
     owners!.set(namespace, layers);

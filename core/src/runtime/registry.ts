@@ -5,6 +5,18 @@ import type { StyleSheet } from './sheet.js';
 import { retainDefinition, type StyleDefinition } from './definitions.js';
 import { validateLayer, layerProgram } from '../css/layers.js';
 import { runAll } from './callbacks.js';
+import { assertTokenUses, tokenUses } from '../theme/requirements.js';
+import { lightTheme } from '../theme/presets.js';
+import type { Theme, TokenSchema } from '../theme/types.js';
+
+interface RegistryOptions {
+  namespace?: string;
+  prefix?: boolean;
+  variables?: 'inline' | 'stylesheet';
+  layers?: readonly string[];
+  layer?: string;
+  theme?: Theme<TokenSchema>;
+}
 
 export interface RuleRecord {
   readonly key: string;
@@ -26,6 +38,12 @@ function attribute(value: string): string {
 }
 
 export class StyleRegistry {
+  readonly namespace: string;
+  readonly prefix: boolean;
+  readonly variables: 'inline' | 'stylesheet';
+  readonly layers: readonly string[];
+  readonly layer?: string;
+  readonly theme: Theme<TokenSchema>;
   readonly #records = new Map<string, RuleRecord>();
   readonly #classes = new Map<string, RuleRecord>();
   readonly #moduleClasses = new Map<string, RuleRecord>();
@@ -36,13 +54,15 @@ export class StyleRegistry {
   #compilations = 0;
   constructor(
     readonly sheet: StyleSheet,
-    readonly namespace = 'z',
-    readonly prefix = true,
-    readonly variables: 'inline' | 'stylesheet' = 'inline',
-    readonly layers: readonly string[] = [],
-    readonly layer?: string,
+    options: RegistryOptions = {},
   ) {
-    if (!/^[a-zA-Z][\w-]*$/u.test(namespace)) throw new TypeError('Invalid style namespace.');
+    this.namespace = options.namespace ?? 'z';
+    this.prefix = options.prefix ?? true;
+    this.variables = options.variables ?? 'inline';
+    this.layers = options.layers ?? [];
+    this.layer = options.layer;
+    this.theme = options.theme ?? lightTheme;
+    if (!/^[a-zA-Z][\w-]*$/u.test(this.namespace)) throw new TypeError('Invalid style namespace.');
     for (const entry of sheet.entries()) {
       this.#hydratedOrders.set(entry.key, entry.order);
       this.#sequence = Math.max(this.#sequence, entry.order + 1);
@@ -90,6 +110,7 @@ export class StyleRegistry {
   }
 
   acquire(program: StyleProgram, source: string): RuleRecord {
+    this.assertTheme(program);
     const record = this.#retain(JSON.stringify([source, canonicalize(program)]), source, (key) => {
       this.#compilations++;
       const className = this.namespace + '-r-' + key;
@@ -105,6 +126,7 @@ export class StyleRegistry {
   }
 
   acquireDefinition(definition: StyleDefinition): RuleRecord {
+    assertTokenUses(definition.tokens, this.theme);
     const layer = definition.layer === undefined ? this.layer : (definition.layer ?? undefined);
     this.assertLayer(layer);
     const record = this.#retain(
@@ -132,6 +154,10 @@ export class StyleRegistry {
   assertLayer(layer?: string): void {
     if (layer !== undefined && !this.layers.includes(validateLayer(layer)))
       throw new Error('CSS layer must be declared by the runtime: ' + layer);
+  }
+
+  assertTheme(program: StyleProgram): void {
+    assertTokenUses(tokenUses(program), this.theme);
   }
 
   updateValues(

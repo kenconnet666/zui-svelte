@@ -64,6 +64,7 @@ export class StyleBinding<T extends TokenSchema> {
 
   update(program: StyleProgram): string {
     if (this.#disposed) throw new Error('Style binding is disposed.');
+    this.registry.assertTheme(program);
     const structure = structureOf(program);
     const current = declarationsOf(program);
     const history = this.#history.get(structure);

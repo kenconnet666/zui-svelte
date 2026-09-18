@@ -99,3 +99,7 @@ a8cf60f 的完整 CI 已通过（35299462819），首份 Node 基线已产生：
 ## P3：同目标的 runtime 与模块样式隔离
 
 c047dcb 的完整 CI 已通过（35300813045），包括固定性能门槛。模块定义保留原标记，消费端追加 namespace 别名；跨 runtime 转发时替换旧别名，避免相同定义在不同默认层互相污染。重复 target/namespace 和相同层根的冲突声明明确拒绝，销毁后可重新使用 namespace；runtime 配置采用快照。相关 core 19 项、SSR 3 项、聚焦类型和 WebStorm 检查通过，新增真实 DOM 多 runtime 隔离用例交给 CI。
+
+## P2：Token 需求与实际消费环境
+
+19730c1 的完整 CI 已通过（35301277901）。Builder 为快捷 Token 引用记录只读需求，随 StyleProgram 弱引用回收；模块定义携带相同需求，目标 runtime 在插入/更新前校验 namespace、实际使用的键和值种类。允许兼容主题子集，不扫描或猜测任意 CSS 字符串。失败发生在创建新绑定之前，已存在绑定保留旧快照。registry 初始化改用具名配置，减少位置参数。局部相关 core 15 项，补充需求用例后 10 项、SSR 3 项及聚焦类型/ESLint/WebStorm 检查通过。

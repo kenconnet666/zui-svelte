@@ -2,6 +2,7 @@ import { buildStyle } from '../css/builder.js';
 import type { StyleProgram } from '../css/program.js';
 import { canonicalize, hashText } from '../css/serialize.js';
 import { withCssEvaluation } from './evaluation.js';
+import { tokenUses, type TokenUse } from '../theme/requirements.js';
 
 export interface StyleDefinition {
   readonly className: string;
@@ -9,6 +10,7 @@ export interface StyleDefinition {
   readonly program: StyleProgram;
   readonly canonical: string;
   readonly layer?: string | null;
+  readonly tokens: readonly TokenUse[];
 }
 
 // 这里只保存只读模块定义；请求主题、变量和 DOM 引用始终属于各自 runtime。
@@ -48,11 +50,13 @@ export function createStyleModule(source: string) {
         (factory, theme, layer) => {
           const program = buildStyle(factory, theme);
           const position = source + ':' + site + ':' + slot++;
+          const tokens = tokenUses(program);
           const canonical = JSON.stringify([
             'module',
             position,
             canonicalize(program),
             layer === undefined ? false : layer,
+            tokens,
           ]);
           const className = 'z-m-' + hashText(canonical);
           if (!owned.has(className)) {
@@ -62,6 +66,7 @@ export function createStyleModule(source: string) {
               program,
               canonical,
               layer,
+              tokens,
             });
             owned.set(className, retainDefinition(definition));
           }

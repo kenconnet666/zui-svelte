@@ -7,6 +7,7 @@ import { validateQuery, validateValue } from './validate.js';
 import type { Theme, TokenSchema } from '../theme/types.js';
 import { lightTheme, type DefaultTokens } from '../theme/presets.js';
 import { validateLayer, layerProgram } from './layers.js';
+import { setTokenUses, type TokenUse } from '../theme/requirements.js';
 
 export interface StyleHelpers<T extends TokenSchema> {
   _selector(selector: string, factory: StyleFactory<T>): void;
@@ -49,6 +50,7 @@ export function buildStyle<T extends TokenSchema = DefaultTokens>(
 ): StyleProgram {
   if (layer !== undefined) validateLayer(layer);
   const nodes: Instruction[] = [];
+  const tokens = new Map<string, TokenUse>();
 
   function builder(target: Instruction[], important = false): StyleBuilder<T> {
     const carriers = new Map<string, unknown>();
@@ -117,6 +119,18 @@ export function buildStyle<T extends TokenSchema = DefaultTokens>(
             if (member.startsWith('_')) {
               if (!entry.tokens) throw new TypeError('CSS property has no token category: ' + key);
               append(entry.name, 'var(' + theme.variable(entry.tokens, member.slice(1)) + ')');
+              tokens.set(
+                JSON.stringify([entry.tokens, member]),
+                Object.freeze({
+                  namespace: theme.namespace,
+                  category: entry.tokens,
+                  token: member.slice(1),
+                  kind:
+                    typeof theme.tokens[entry.tokens]![member.slice(1)] === 'number'
+                      ? 'number'
+                      : 'string',
+                }),
+              );
               return undefined;
             }
             const supported: readonly string[] = entry.units ? units[entry.units] : [];
@@ -146,6 +160,7 @@ export function buildStyle<T extends TokenSchema = DefaultTokens>(
   }
 
   invoke(factory, builder(nodes));
-  const program = Object.freeze(nodes);
-  return layerProgram(program, layer);
+  const program = layerProgram(Object.freeze(nodes), layer);
+  setTokenUses(program, [...tokens.values()]);
+  return program;
 }

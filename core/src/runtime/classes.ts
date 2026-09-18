@@ -41,6 +41,8 @@ export class ClassController<T extends TokenSchema> {
     layer: string | null | undefined = this.runtime.layer,
   ): string {
     this.runtime.registry.assertLayer(layer ?? undefined);
+    const program = buildStyle(factory, theme ?? this.runtime.theme, layer ?? undefined);
+    this.runtime.registry.assertTheme(program);
     const slot = this.#cursor++;
     let binding = this.#bindings[slot];
     if (!binding) {
@@ -51,7 +53,7 @@ export class ClassController<T extends TokenSchema> {
       });
       this.#bindings[slot] = binding;
     }
-    return binding.update(buildStyle(factory, theme ?? this.runtime.theme, layer ?? undefined));
+    return binding.update(program);
   }
 
   run<R>(read: () => R): R {
