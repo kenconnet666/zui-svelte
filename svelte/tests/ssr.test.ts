@@ -88,6 +88,8 @@ describe('compiled SSR', () => {
     const result = await renderStyled(Probe, { props: {} });
     expect(result.body).toContain('derived snapshot');
     expect(result.head).toContain('width:100px');
+    expect(result.head).toContain('width:99px');
+    expect(result.head).toContain('width:101px');
   });
   it('collects cached module snapshots for every request without request-global rules', async () => {
     const { default: Probe } = await server.ssrLoadModule('/tests/fixtures/ModuleProbe.svelte');

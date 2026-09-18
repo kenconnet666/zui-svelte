@@ -193,3 +193,9 @@ f90a0d4 的完整 CI 已通过（35310553071），包括未经过 ZUI 编译的 
 模块编译追踪本文件显式 helper 引用与命名空间 css/createCss，对含样式的同步初始化建立一个上下文，覆盖 map 回调、多层 helper、对象方法 this 和嵌套调用；函数体保持原样，含顶层 await 的调用继续在原位置求值。自定义 cssModules 入口支持导入 helper；不声称自动解析任意跨模块调用图或维持跨 await 的同步上下文，README 已明确。
 
 局部编译/SSR 14 项，增加 this/调用次数后定向 8 项通过；源码类型、ESLint、WebStorm 检查通过。静态 fixture 首次 IDE 检查超时，单文件重查通过；真实 fixture 的 each key 已补齐。浏览器 module helper 样式与导航回收交给 CI。
+
+## P4：组件脚本与外部 helper 的快照上下文
+
+5eb82d0 的完整 CI 已通过（35311178346），包括模块 helper/map/方法 this 的浏览器样式与导航回收。组件 scope 将快照收集提为共用函数，编译器为 setup 调用、state 初始值、derived 表达式和 derived.by 回调补充上下文，支持普通跨文件 helper。Rune 保持原声明位置，顶层 await 不搬进同步闭包；仅实际执行 css 时选择 runtime，避免普通初始化抢占默认实例。新内部能力将协议递增为 4。
+
+LifecycleProbe 改为导入普通 TS helper，覆盖 setup/state/两种 derived、100 次逐次更新、隐藏恢复和卸载；相关编译/SSR 12 项、聚焦 TypeScript、ESLint 与 WebStorm 检查通过，浏览器和自定义 CSP runtime 的初始化顺序交给 CI。

@@ -148,61 +148,67 @@ export function createStyleScope(owner: () => string, moduleId: string, protocol
     }
   }
 
+  function snapshot<R>(read: () => R): R {
+    return withCssEvaluation(read, (factory, options = {}) => {
+      const runtime = getRuntime();
+      const { theme, tokenMap } = options;
+      const layer = options.layer === undefined ? runtime.layer : options.layer;
+      runtime.registry.assertLayer(layer ?? undefined);
+      const record = runtime.registry.acquire(
+        buildStyle<TokenSchema, object>(
+          factory,
+          theme ?? runtime.theme,
+          layer ?? undefined,
+          tokenMap,
+        ),
+        moduleId + ':setup',
+      );
+      let released = false;
+      const stop = () => {
+        if (released) return;
+        released = true;
+        snapshots.delete(stop);
+        runtime.registry.release(record);
+      };
+      let tracked = false;
+      // 每次求值单独持有快照，不能因 derived 退出而释放 setup 常量的同一规则。
+      createSubscriber(() => {
+        tracked = true;
+        return stop;
+      })();
+      if (tracked) snapshots.add(stop);
+      else if (statics.has(record.key)) stop();
+      else statics.set(record.key, stop);
+      getRuntime.assertCollected();
+      return record.className;
+    });
+  }
+
   return {
+    snapshot,
+    wrapSnapshot<F extends (...args: never[]) => unknown>(original: F): F {
+      return function (this: unknown, ...args: never[]) {
+        return snapshot(() => original.apply(this, args));
+      } as F;
+    },
     attrs: <P extends Attributes>(
       site: string,
       factory: () => P,
       keys: readonly unknown[] = [],
       transient = false,
     ) => read(site, factory, keys, true, true, transient),
+    // 组件是否消费内部变量不能靠导入路径推断；边界传递完整规则，保持普通 class 转发。
     component: <P extends Attributes>(
       site: string,
       factory: () => P,
       keys: readonly unknown[] = [],
       transient = false,
-      // 组件是否消费内部变量不能靠导入路径推断；边界传递完整规则，保持普通 class 转发。
     ) => read(site, factory, keys, false, false, transient),
     wrapCss<F extends (...args: never[]) => string>(original: F): F {
       // 保留用户的类型化入口；直接替换成默认 css 会丢失自定义主题。
       return ((...args: never[]) => {
         if (hasCssEvaluation()) return original(...args);
-        return withCssEvaluation(
-          () => original(...args),
-          (factory, options = {}) => {
-            const runtime = getRuntime();
-            const { theme, tokenMap } = options;
-            const layer = options.layer === undefined ? runtime.layer : options.layer;
-            runtime.registry.assertLayer(layer ?? undefined);
-            const record = runtime.registry.acquire(
-              buildStyle<TokenSchema, object>(
-                factory,
-                theme ?? runtime.theme,
-                layer ?? undefined,
-                tokenMap,
-              ),
-              moduleId + ':setup',
-            );
-            let released = false;
-            const stop = () => {
-              if (released) return;
-              released = true;
-              snapshots.delete(stop);
-              runtime.registry.release(record);
-            };
-            let tracked = false;
-            // 在响应式求值中由订阅的生命周期释放快照；setup 常量则保留到组件销毁。
-            // 每次调用独立订阅，避免同一个规则被 setup 和 derived 共用时提前释放。
-            createSubscriber(() => {
-              tracked = true;
-              return stop;
-            })();
-            if (tracked) snapshots.add(stop);
-            else if (statics.has(record.key)) stop();
-            else statics.set(record.key, stop);
-            getRuntime.assertCollected();
-            return record.className;
-          },
-        );
+        return snapshot(() => original(...args));
       }) as F;
     },
   };

@@ -1,18 +1,14 @@
 <script lang="ts">
   import { tick } from 'svelte';
-  import { css } from '@zui/core';
+  import { widthStyle } from './style-helper.js';
 
   let width = $state(100);
   let visible = $state(true);
   let completed = $state(0);
-  const fixed = css((s) => {
-    s.width.px(100);
-  });
-  const changing = $derived(
-    css((s) => {
-      s.width.px(width);
-    }),
-  );
+  const fixed = widthStyle(100);
+  const seeded = $state(widthStyle(99));
+  const changing = $derived(widthStyle(width));
+  const byCallback = $derived.by(() => widthStyle(width + 1));
 
   async function updateMany() {
     for (let index = 0; index < 100; index++) {
@@ -28,8 +24,11 @@
 <button onclick={() => (visible = !visible)}>Toggle derived</button>
 <output data-testid="completed">{completed}</output>
 <div data-testid="fixed" class={fixed}>setup constant</div>
+<div data-testid="seeded" class={seeded}>state initializer</div>
 {#if visible}
   <!-- 先在普通文本求值，确保不借用 class 消费端的求值上下文。 -->
   <output data-testid="derived-class">{changing}</output>
   <div data-testid="changing" class={changing}>derived snapshot</div>
+  <output>{byCallback}</output>
+  <div data-testid="by-callback" class={byCallback}>derived callback</div>
 {/if}

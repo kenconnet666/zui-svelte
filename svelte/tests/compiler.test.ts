@@ -5,6 +5,22 @@ import { createStyleScope } from '../src/runtime/scope.js';
 import { styleProtocol } from '@zui/core';
 
 describe('class compiler', () => {
+  it('keeps runes in declaration position and wraps imported helper producers', () => {
+    const source = `<script lang="ts">
+import {make} from './helper';
+const plain=make(10);
+let width=$state(20);
+const computed=$derived(make(width));
+const callback=$derived.by(()=>make(width));
+const id=$props.id();
+</script><div class={[plain,computed,callback]}>{id}</div>`;
+    const result = transformClasses(source, '/app/Helpers.svelte')!;
+    expect(result.code).toContain('$derived(__zuiScope.snapshot');
+    expect(result.code).toContain('$derived.by(__zuiScope.wrapSnapshot');
+    expect(result.code.match(/\$props\.id\(\)/gu)).toHaveLength(1);
+    for (const generate of ['client', 'server'] as const)
+      expect(() => compile(result.code, { filename: 'Helpers.svelte', generate })).not.toThrow();
+  });
   it('rejects a compiler/runtime protocol mismatch before accessing component lifecycle', () => {
     expect(() => createStyleScope(() => 'owner', 'module', styleProtocol.version + 1)).toThrow(
       'protocol mismatch',

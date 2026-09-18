@@ -13,6 +13,8 @@ test('derived snapshots release old rules while setup constants remain available
   await page.getByRole('button', { name: 'Update 100 times', exact: true }).click();
   await expect(page.getByTestId('completed')).toHaveText('1');
   await expect(changing).toHaveCSS('width', '200px');
+  await expect(page.getByTestId('by-callback')).toHaveCSS('width', '201px');
+  await expect(page.getByTestId('seeded')).toHaveCSS('width', '99px');
   await expect(fixed).toHaveCSS('width', '100px');
   await expect
     .poll(() => page.locator('style[data-zui="z"]').count())

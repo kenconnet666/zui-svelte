@@ -1,6 +1,6 @@
 /** @internal 编译产物与 SSR 接管数据共用版本；破坏协议时必须递增。 */
 export const styleProtocol = Object.freeze({
-  version: 3,
+  version: 4,
   check(version: unknown): void {
     if (version !== this.version)
       throw new Error(

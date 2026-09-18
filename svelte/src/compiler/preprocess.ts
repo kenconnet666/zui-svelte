@@ -168,6 +168,59 @@ export function transformClasses(
     );
   }
 
+  const functionTypes = new Set([
+    'FunctionDeclaration',
+    'FunctionExpression',
+    'ArrowFunctionExpression',
+    'ClassDeclaration',
+    'ClassExpression',
+  ]);
+  function hasImmediate(expression: Node, type: string): boolean {
+    let found = false;
+    walk(expression, (node, parents) => {
+      if (!parents.some((parent) => functionTypes.has(parent.type)) && node.type === type)
+        found = true;
+    });
+    return found;
+  }
+  function wrapSnapshot(expression: Node, callback = false) {
+    if (hasImmediate(expression, 'AwaitExpression')) return;
+    magic.appendLeft(
+      expression.start,
+      (callback ? scope + '.wrapSnapshot(' : '') + scope + '.snapshot(() => (',
+    );
+    magic.appendLeft(expression.end, callback ? ')))' : '))');
+  }
+  // 脚本初始化需要自己的生产者上下文；只有真正执行 css 时才选择 runtime。
+  // Rune 保持在原声明位置，避免把 $state/$derived 变成无效的嵌套调用。
+  if (program)
+    walk(program, (node, parents) => {
+      if (
+        node.type !== 'VariableDeclarator' ||
+        parents.some((parent) => functionTypes.has(parent.type))
+      )
+        return;
+      const init = node.init as Node | undefined;
+      if (!init || functionTypes.has(init.type)) return;
+      const callee = init.callee as Node | undefined;
+      const name =
+        callee?.type === 'Identifier'
+          ? (callee.name as string)
+          : callee?.type === 'MemberExpression' &&
+              !callee.computed &&
+              (callee.object as Node).type === 'Identifier'
+            ? (callee.object as Node).name + '.' + (callee.property as Node).name
+            : '';
+      if (name.startsWith('$')) {
+        const argument = (init.arguments as Node[] | undefined)?.[0];
+        if (argument && ['$state', '$state.raw', '$derived', '$derived.by'].includes(name))
+          wrapSnapshot(argument, name === '$derived.by');
+      } else if (hasImmediate(init, 'CallExpression')) {
+        if (!hasImmediate(init, 'AwaitExpression')) wrapSnapshot(init);
+        else if (callee?.type === 'Identifier') wrapSnapshot(callee, true);
+      }
+    });
+
   for (const { node, parents } of targets) {
     const attrs = (node.attributes as Node[]).filter(
       (attr) => attr.type === 'Attribute' || attr.type === 'SpreadAttribute',

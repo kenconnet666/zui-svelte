@@ -15,3 +15,5 @@ Svelte 5 组件库工作区，依赖 @zui/core，使用官方 svelte-package 生
 SvelteKit 中推荐在根 layout 创建并提供客户端 runtime，在 onMount 完成接管，在根销毁时释放；路由组件由编译接入持有自己的样式。服务端使用 createStyleHandle，每个请求单独持有 runtime。可运行写法见 tests/kit/src/routes/+layout.svelte。
 
 模块常量支持直接 css、同文件同步 helper、map 回调和命名空间导入；初始化保留方法 this 和求值次数。自定义样式入口及跨文件 helper 可在 zui({ cssModules: [...] }) 中声明其导入来源。函数体不绑定到某个请求；模板调用使用消费者上下文，模块初始化产生可跨请求收集的只读定义。顶层 await 参数保留原始求值位置；不承诺在异步 helper 的 await 之后延续同步样式上下文。
+
+组件内的 setup 常量、`$state` 初始值和 `$derived`/`$derived.by` 在编译阶段获得独立快照上下文，支持普通跨文件 helper，不需要为动态值增加标记。静态初始快照由组件持有，响应式快照随订阅释放；组件属性转发和这些脚本快照均优先使用完整规则。只有实际调用 css 时才选择 runtime，因此可以先创建和提供自定义 runtime，再生成样式。
