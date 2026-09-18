@@ -28,6 +28,18 @@ afterAll(async () => {
 });
 
 describe('compiled SSR', () => {
+  it('collects cached module snapshots for every request without request-global rules', async () => {
+    const { default: Probe } = await server.ssrLoadModule('/tests/fixtures/ModuleProbe.svelte');
+    const { renderStyled } = await server.ssrLoadModule('/src/server.ts');
+    const [a, b] = await Promise.all([
+      renderStyled(Probe, { props: {} }),
+      renderStyled(Probe, { props: {} }),
+    ]);
+    expect(a.body).toContain('z-m-');
+    expect(a.head).toContain('width:173px');
+    expect(b.head).toContain('width:173px');
+    expect(a.body).toBe(b.body);
+  });
   it('preserves a typed CSS entry in setup snapshots and template evaluation', async () => {
     const { default: Probe } = await server.ssrLoadModule('/tests/fixtures/TypedProbe.svelte');
     const { renderStyled } = await server.ssrLoadModule('/src/server.ts');

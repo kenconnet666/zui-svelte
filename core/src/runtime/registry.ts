@@ -2,6 +2,7 @@ import type { StyleProgram } from '../css/program.js';
 import { canonicalize, hashText, serializeProgram } from '../css/serialize.js';
 import { escapeStyleText } from '../css/validate.js';
 import type { StyleSheet } from './sheet.js';
+import { retainDefinition, type StyleDefinition } from './definitions.js';
 
 export interface RuleRecord {
   readonly key: string;
@@ -14,6 +15,7 @@ export interface RuleRecord {
   variables: Readonly<Record<string, string>>;
   readonly listeners: Set<() => void>;
   references: number;
+  releaseDefinition?: () => void;
 }
 
 function attribute(value: string): string {
@@ -22,6 +24,7 @@ function attribute(value: string): string {
 
 export class StyleRegistry {
   readonly #records = new Map<string, RuleRecord>();
+  readonly #classes = new Map<string, RuleRecord>();
   readonly #orders = new Map<string, { order: number; references: number }>();
   readonly #hydratedOrders = new Map<string, number>();
   #sequence = 0;
@@ -74,6 +77,7 @@ export class StyleRegistry {
     position.references++;
     this.#orders.set(source, position);
     this.#records.set(key, record);
+    if (className) this.#classes.set(className, record);
     return record;
   }
 
@@ -88,10 +92,16 @@ export class StyleRegistry {
   }
 
   lookup(className: string): RuleRecord | undefined {
-    const prefix = this.namespace + '-r-';
-    return className.startsWith(prefix)
-      ? this.#records.get(className.slice(prefix.length))
-      : undefined;
+    return this.#classes.get(className);
+  }
+
+  acquireDefinition(definition: StyleDefinition): RuleRecord {
+    const record = this.#retain(definition.canonical, definition.source, () => ({
+      className: definition.className,
+      css: serializeProgram(definition.program, '.' + definition.className, this.prefix),
+    }));
+    record.releaseDefinition ??= retainDefinition(definition);
+    return record;
   }
 
   updateValues(
@@ -154,6 +164,8 @@ export class StyleRegistry {
       if (this.variables === 'stylesheet') this.sheet.remove(record.key + ':vars');
       this.sheet.remove(record.key);
       this.#records.delete(record.key);
+      if (record.className) this.#classes.delete(record.className);
+      record.releaseDefinition?.();
     }
   }
 
@@ -197,7 +209,9 @@ export class StyleRegistry {
     if (this.#disposed) return;
     this.#disposed = true;
     this.sheet.dispose();
+    for (const record of this.#records.values()) record.releaseDefinition?.();
     this.#records.clear();
+    this.#classes.clear();
     this.#orders.clear();
     this.#hydratedOrders.clear();
   }

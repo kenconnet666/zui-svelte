@@ -1,48 +1,16 @@
 import { clsx, type ClassValue } from 'clsx';
 import { hashText } from '../css/serialize.js';
 import { buildStyle, type StyleFactory } from '../css/builder.js';
-import type { DefaultTokens } from '../theme/presets.js';
 import type { Theme, TokenSchema } from '../theme/types.js';
 import type { StyleRuntime } from './runtime.js';
 import type { StyleBinding } from './binding.js';
 import type { RuleRecord } from './registry.js';
 import { createVariableBinding } from './variables.js';
+import { findDefinition } from './definitions.js';
 
 type ErasedFactory = StyleFactory<TokenSchema>;
-let activeEvaluation: ((factory: ErasedFactory, theme?: Theme<TokenSchema>) => string) | undefined;
-
-/** @internal 只在同步样式求值期间切换上下文，异常和嵌套调用都必须恢复。 */
-export function withCssEvaluation<R>(
-  read: () => R,
-  evaluate: (factory: ErasedFactory, theme?: Theme<TokenSchema>) => string,
-): R {
-  const previous = activeEvaluation;
-  activeEvaluation = evaluate;
-  try {
-    return read();
-  } finally {
-    activeEvaluation = previous;
-  }
-}
-
-export function hasCssEvaluation(): boolean {
-  return activeEvaluation !== undefined;
-}
-
-export function css<T extends TokenSchema = DefaultTokens>(
-  factory: StyleFactory<T>,
-  theme?: Theme<T>,
-): string {
-  if (!activeEvaluation)
-    throw new Error(
-      'css() requires the class compiler; use runtime.css() for explicit runtime ownership.',
-    );
-  return activeEvaluation(factory as unknown as ErasedFactory, theme);
-}
-
-export function createCss<T extends TokenSchema>(theme: Theme<T>) {
-  return (factory: StyleFactory<T>): string => css(factory, theme);
-}
+import { withCssEvaluation } from './evaluation.js';
+export { css, createCss, hasCssEvaluation, withCssEvaluation } from './evaluation.js';
 
 export function normalizeClass(value: unknown): string {
   if (value === null || value === undefined) return '';
@@ -112,27 +80,41 @@ export class ClassController<T extends TokenSchema> {
 
   resolve(value: unknown): string {
     this.#className = normalizeClass(value);
-    const next = new Set(
-      this.#className
-        .split(/\s+/u)
-        .map((name) => this.runtime.registry.lookup(name))
-        .filter((entry): entry is RuleRecord => !!entry),
-    );
-    // 先保留新引用，再释放旧引用，避免共享规则在两个消费者之间短暂消失。
-    for (const record of next)
-      if (!this.#records.has(record)) {
-        this.#records.set(
-          record,
-          this.runtime.registry.subscribe(record, () => this.#refresh()),
-        );
-      }
-    for (const [record, stop] of this.#records)
-      if (!next.has(record)) {
-        stop();
-        this.#records.delete(record);
-      }
-    this.#refresh();
-    return this.#className;
+    const acquired: RuleRecord[] = [];
+    try {
+      const next = new Set(
+        this.#className
+          .split(/\s+/u)
+          .map((name) => {
+            const existing = this.runtime.registry.lookup(name);
+            if (existing) return existing;
+            const definition = findDefinition(name);
+            if (!definition) return undefined;
+            const record = this.runtime.registry.acquireDefinition(definition);
+            acquired.push(record);
+            return record;
+          })
+          .filter((entry): entry is RuleRecord => !!entry),
+      );
+      // 先保留新引用，再释放旧引用，避免共享规则在两个消费者之间短暂消失。
+      for (const record of next)
+        if (!this.#records.has(record)) {
+          this.#records.set(
+            record,
+            this.runtime.registry.subscribe(record, () => this.#refresh()),
+          );
+        }
+      for (const [record, stop] of this.#records)
+        if (!next.has(record)) {
+          stop();
+          this.#records.delete(record);
+        }
+      this.#refresh();
+      return this.#className;
+    } finally {
+      // 消费引用接管后释放注册时的临时引用，失败时也不泄漏。
+      for (const record of acquired) this.runtime.registry.release(record);
+    }
   }
 
   style(authored: string | null | undefined): string | undefined {

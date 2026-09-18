@@ -3,6 +3,7 @@ import { relative } from 'node:path';
 import MagicString from 'magic-string';
 import { parse, type PreprocessorGroup } from 'svelte/compiler';
 import type { Plugin } from 'vite';
+import { transformStyleModule } from './module.js';
 
 interface Node {
   type: string;
@@ -244,8 +245,10 @@ export function zui(options: ClassCompilerOptions = {}): Plugin {
       root ??= config.root;
     },
     transform(code, id) {
-      if (!id.endsWith('.svelte') || id.replaceAll('\\', '/').includes('/node_modules/')) return;
-      return transformClasses(code, id, { ...options, root });
+      if (id.replaceAll('\\', '/').includes('/node_modules/')) return;
+      if (id.endsWith('.svelte')) return transformClasses(code, id, { ...options, root });
+      if (/\.[cm]?[jt]s$/u.test(id))
+        return transformStyleModule(code, id, root ?? process.cwd(), options.cssModules);
     },
   };
 }

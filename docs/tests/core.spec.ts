@@ -1,5 +1,14 @@
 import { expect, test } from '@playwright/test';
 
+test('module style snapshots register in the browser and release on navigation', async ({
+  page,
+}) => {
+  await page.goto('/#/__module-test');
+  await expect(page.getByText('module snapshot', { exact: true })).toHaveCSS('width', '173px');
+  await page.getByRole('navigation').getByRole('link', { name: '概览' }).click();
+  await expect(page.locator('style[data-zui="z"]')).toHaveCount(0);
+});
+
 test('stylesheet variables update under a nonce policy that forbids style attributes', async ({
   page,
 }) => {

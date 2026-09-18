@@ -40,6 +40,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "typescript": "catalog:",
     "magic-string": "catalog:",
     "@zui/core": "workspace:^",
     "@lucide/svelte": "catalog:"
@@ -54,7 +55,6 @@
     "playwright": "catalog:",
     "svelte": "catalog:",
     "svelte-check": "catalog:",
-    "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:",
     "vitest-browser-svelte": "catalog:"
