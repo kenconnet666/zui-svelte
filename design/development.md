@@ -30,13 +30,13 @@
 
 ## 验证边界
 
-目前 core 和 svelte 为空入口，构建通过只代表包配置可用，不代表样式运行时或组件已实现。
+core 已有样式与主题 runtime，svelte 已有 class 编译/SSR 接入原型。构建通过不代表生产验收完成；后续门槛见 [首版生产可用规划](core-production-plan.md)。
 
 Docs 测试覆盖导航、刷新、未知页面、代码高亮、浏览器异常和窄屏溢出。默认使用已安装的 Chrome；其他机器缺少浏览器时，可先安装 Chrome 或按需修改 Playwright 配置。
 
 GitHub CI 使用 Playwright 管理的 Chromium、Firefox、WebKit，测试构建后的 Docs，并上传测试报告与验证通过的构建产物。配置见 [CI 与产物交付](ci.md)。
 
-core 第一批实现后加入算法测试，首个组件实现后加入组件浏览器测试。不要把无测试执行报告为功能验证。
+目前已有 core Node/浏览器、class 编译、SSR 和 Docs 接入测试；真实 SvelteKit、包外消费与完整矩阵仍待补齐。不要把未执行或跳过的测试报告为功能验证。
 
 ## 发布准备
 

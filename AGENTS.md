@@ -4,6 +4,7 @@
 - 三个工作区直接位于根目录：core、svelte、docs。不要增加 packages 或 apps 中间层。
 - 目录保持扁平，每层尽量有 5–30 个直接子项；不为凑数量创建空目录或一文件目录。
 - core 是框架无关的 TypeScript 样式系统，使用自有 runtime 与 Stylis。
+- core 对外统一从 @zui/core 导入，不按样式、主题、预设或 runtime 拆分业务入口；内部职责仍保持清楚。
 - 动态 CSS 值由运行时自动识别和提升。不要要求使用者手动声明动态值、getter 或 dynamic 标记。
 - 普通值初次保持静态，同一绑定内首次检测到值变化才提升；不预先参数化所有值，不分析响应式来源。
 - css() 返回原始字符串，用户只写 class。编译阶段补齐变量、SSR 和生命周期；不公开 css.parts、StyleHandle、panel.props() 或 attachment 绑定 API。

@@ -6,7 +6,7 @@
 
 ## 当前状态
 
-core 已实现生成式 CSS 类型、主题、样式 runtime、自动提升与资源回收；Svelte class 编译与 SSR 接入处于验证阶段，尚未宣称生产完成。换机继续请先读 [交接文档](design/handoff.md) 和 [实施进度](design/implementation.md)。
+core 已实现生成式 CSS 类型、主题、样式 runtime、自动提升与资源回收；Svelte class 编译与 SSR 接入处于验证阶段，尚未宣称生产完成。下一阶段按 [首版生产可用规划](design/core-production-plan.md) 讨论和实施；历史进展见 [交接文档](design/handoff.md) 和 [实施进度](design/implementation.md)。
 
 ## 目录
 
@@ -38,6 +38,7 @@ pnpm test
 
 ## 设计
 
+- [Core 首版生产可用规划：API、阶段与验收](design/core-production-plan.md)
 - [架构与边界](design/architecture.md)
 - [core 设计草案](design/core.md)
 - [选择器、组合与生产级组件](design/core-composition.md)

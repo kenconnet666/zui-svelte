@@ -72,7 +72,7 @@
     {row.id}
   </div>
 {:else}
-  <p class={'empty'}>empty</p>
+  <p class="empty">empty</p>
 {/each}
 
 {#snippet sample(offset: number)}

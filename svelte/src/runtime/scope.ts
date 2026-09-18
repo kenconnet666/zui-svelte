@@ -63,7 +63,6 @@ export function createStyleScope(owner: () => string, moduleId: string) {
     const leaf = branch;
     const runtime = getRuntime();
     const identity = hashText(owner() + ':' + site + ':' + sequence++);
-    let entry: Entry;
     function dispose() {
       if (entry.disposed) return;
       entry.disposed = true;
@@ -89,7 +88,7 @@ export function createStyleScope(owner: () => string, moduleId: string) {
         }
       },
     );
-    entry = {
+    const entry: Entry = {
       controller,
       key: createAttachmentKey(),
       evaluating: false,
