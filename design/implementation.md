@@ -237,3 +237,5 @@ db02c4d 的完整 CI 已通过（35312345458），验证普通 class 页面不�
 本机 setup.ps1 -Verify 已成功：TS/Svelte 错误与修复反复检查、真实 Svelte ComponentProps、hover/定义/引用/补全通过，临时探针已清理；脚本的 PATH 多 Node 命中问题已修复。相关脚本 ESLint 和文档/代码格式检查通过。官方 Svelte MCP 的工具发现和 $props 文档调用通过。全局配置已备份，zui_lsp 与原 svelte 条目完成注册。
 
 Codex CLI 0.154.0 的 daemon version 与 app-server proxy 均无法连接默认控制 socket（Windows 10050）；当前工具目录无重载入口。官方协议支持重载，但本机尚未证明当前桌面任务可热加载，不能以配置写入或独立客户端成功冒充宿主重载成功。独立 MCP 客户端可继续用于关键检查，不阻断 core 工作。
+
+用户重启 Codex 后，原生工具目录已出现 zui_lsp 五个工具，并全部调用成功；官方 Svelte MCP 正常。原生诊断验证 TS/Svelte 各三处错误，修改后清零，临时文件已删除。环境为 PowerShell 7.6.6、Node 24.12.0、pnpm 11.22.0、Codex CLI 0.154.0。08c1c23 的完整 CI 已通过（35321234678）；周额度剩余 40%。本轮只验证环境和补充文档，未修改产品代码。
