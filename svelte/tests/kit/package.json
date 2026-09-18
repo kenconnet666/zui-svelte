@@ -1,4 +1,8 @@
 {
   "private": true,
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@zui/core": "link:../../../core",
+    "@zui/svelte": "link:../.."
+  }
 }

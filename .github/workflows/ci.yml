@@ -42,6 +42,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Prepare SvelteKit fixture links
+        run: pnpm --filter @zui/svelte run test:kit:prepare
+
       - name: Lint and formatting
         run: pnpm run lint
 

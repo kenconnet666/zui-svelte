@@ -65,3 +65,5 @@ b6e3196 的完整 CI 已通过（35297002200），含严格 CSP 生产构建三�
 模块阶段 eed2762 的完整 CI 已通过（35297348116）。锁定 SvelteKit 2.70.3，并核对实际源码：先生成并转换完整 HTML shell，再发送延迟数据片段。createStyleHandle 改用真实 Handle 类型和 transformPageChunk 注入首屏样式，保留响应流、头和背压，结束/取消/AbortSignal/错误时释放请求资源；支持逐请求 runtime 配置，原始非页面响应保持原样。renderStyled 补传 idPrefix/CSP/错误处理选项。局部响应生命周期 4 项、SSR 3 项验证通过；聚焦 TypeScript 检查通过，WebStorm 对 server.ts 和 Kit page 无错误。
 
 已增加真正的 Kit Node 构建/三浏览器 CI fixture，使用显式服务端数据放行验证 styled shell 先返回，并检验 hydration、晚到 await 内容及严格 CSP。本地没有运行完整 Kit 构建或浏览器套件。本实现覆盖锁定 Kit 的数据流式模型，不声称支持任意宿主的晚到 HTML/CSS 分块协议；包外 tarball、静态 prerender 和复杂取消压力仍待后续验收。
+
+4a7cf01 的 CI 35297816273 在 Kit fixture 类型检查失败：独立 package.json 阻断父包自引用解析。为 fixture 显式声明 link 依赖并在 CI 检查前准备本地链接；这仍是 P1 工作区消费验证，不能替代 P6 的 tarball 外部消费。hooks.server.ts 聚焦类型检查通过。后续构建/浏览器结果以新 CI 为准。
