@@ -85,7 +85,13 @@ measure('100-mount-dispose-cycles', () => {
   assertReleased(runtime);
 });
 
-const report = { node: process.version, platform: platform(), cpu: cpus()[0]?.model, results };
+const report = {
+  commit: process.env.GITHUB_SHA ?? null,
+  node: process.version,
+  platform: platform(),
+  cpu: cpus()[0]?.model,
+  results,
+};
 const budget = JSON.parse(
   await readFile(new URL('../design/core-performance-budget.json', import.meta.url), 'utf8'),
 );

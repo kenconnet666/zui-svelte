@@ -1,60 +1,38 @@
 # 开发与构建
 
-## 环境
+使用 Node.js 24、packageManager 指定的 pnpm 11.22.0。命令从项目根目录执行。
 
-使用 Node.js 24 和 packageManager 指定的 pnpm 11.22.0。命令均从项目根目录执行。
+## 常用命令
 
-## 命令
+| 命令                           | 作用                                                   |
+| ------------------------------ | ------------------------------------------------------ |
+| pnpm install --frozen-lockfile | 按锁文件安装依赖                                       |
+| pnpm dev                       | 自动构建 core 后启动 Docs                              |
+| pnpm build                     | 按依赖顺序构建三个工作区                               |
+| pnpm preview                   | 预览 Docs 构建产物                                     |
+| pnpm check                     | 工作区类型、Svelte 与 core 类型规模预算                |
+| pnpm lint                      | ESLint 与格式检查                                      |
+| pnpm generate:check            | 核对 CSS 类型和运行时表的可重复生成                    |
+| pnpm contracts:check           | 核对公开声明快照和浏览器产物预算，须先构建             |
+| pnpm test                      | Docs 浏览器集成测试                                    |
+| pnpm test:packages             | 临时目录独立安装 tarball、类型、构建、SSR 与浏览器验收 |
 
-| 命令                           | 作用                               |
-| ------------------------------ | ---------------------------------- |
-| pnpm install                   | 安装工作区依赖                     |
-| pnpm install --frozen-lockfile | 按已保存的锁文件重装               |
-| pnpm dev                       | 启动 Docs 开发服务器               |
-| pnpm build                     | 按依赖顺序构建 core、svelte、docs  |
-| pnpm preview                   | 预览 Docs 构建产物                 |
-| pnpm check                     | 检查三个工作区的类型与 Svelte 模板 |
-| pnpm lint                      | ESLint 与格式检查                  |
-| pnpm format                    | 格式化源码和设计文档               |
-| pnpm test                      | Docs 浏览器集成测试                |
-| pnpm changeset                 | 编写版本变更记录                   |
+## 构建与入口
 
-## 构建方式
+core 使用 tsc 输出 ESM、声明及 source map；svelte 使用 svelte-package 保留供消费者编译的 Svelte 源组件；docs 使用 Vite 输出普通客户端网站。dist 和测试报告不进入 Git。
 
-- core：tsc 输出 ESM、声明文件和 source map。
-- svelte：svelte-package --input src，保留供使用者编译的 Svelte 源文件。
-- docs：Vite 构建客户端网站，使用相对资源路径及 hash 路由。
-- 各包 dist 是正常构建产物，已被 Git 忽略。
+Docs 启用 zui-source 条件便于源码联调，根 dev 命令仍先构建 core，确保工具链所需入口存在。默认包入口保持 dist。core 可直接由 Node 导入；Svelte 根入口含 .svelte 组件，由 Vite/Kit 消费，不能用无 Svelte loader 的普通 Node 导入代替验证。
 
-文档站显式启用 zui-source 条件，开发时直接解析工作区源码；默认包入口仍是 dist。首次启动 Docs 不依赖预构建。
+## 验证分工
 
-## 验证边界
+本地只做变更相关的关键测试和 WebStorm/LSP 逐文件诊断，不运行完整仓库验收。IDE 空列表不能单独证明 TS 语义通过，必要时补模块类型检查。具体能力发现与配置见 [语言服务](language-services.md)。
 
-core 已有样式与主题 runtime，svelte 已有 class 编译/SSR 接入原型。构建通过不代表生产验收完成；后续门槛见 [首版生产可用规划](core-production-plan.md)。
+完整检查、三浏览器、真实开发态 HMR、生产 Kit、严格 CSP 和独立包消费由 [CI](ci.md) 执行。每批中文提交并推送；推送后不等待、不轮询，下次推送前检查上一批并修复具体失败。报告未执行、跳过或失败的边界，不将旧 SHA 的结果套给新实现。
 
-Docs 测试覆盖导航、刷新、未知页面、代码高亮、浏览器异常和窄屏溢出。默认使用已安装的 Chrome；其他机器缺少浏览器时，可先安装 Chrome 或按需修改 Playwright 配置。
+本地 Playwright 使用已安装 Chrome；CI 使用当前 Playwright 配套的 Chromium、Firefox、WebKit。core 的聚焦浏览器测试可设置 ZUI_BROWSER_CHANNEL=chrome。完整矩阵入口与证据见 [验收台账](core-acceptance.md)。
 
-GitHub CI 使用 Playwright 管理的 Chromium、Firefox、WebKit，测试构建后的 Docs，并上传测试报告与验证通过的构建产物。配置见 [CI 与产物交付](ci.md)。
+## 交付和清理
 
-目前已有 core Node/浏览器、class 编译、SSR 和 Docs 接入测试；真实 SvelteKit、包外消费与完整矩阵仍待补齐。不要把未执行或跳过的测试报告为功能验证。
+包保持 private；当前交付为可下载构建产物和实际验证过的 tarball，未发布 npm、未部署公网。发布前另行确定 scope、版本和许可证。
 
-## 发布准备
-
-所有包保持 private。正式发布前需要确定 npm scope、许可证、Git 主分支和版本策略，并验证实际 tarball 的外部消费。
-
-仓库已连接 kenconnet666/zui-svelte，主分支为 master，Changesets 已使用相同基线。已配置 CI 和构建产物上传，未配置 npm 自动发布或文档站部署。
-
-## 清理规则
-
-旧模板 src、public 与根目录 Vite/Svelte 应用配置已迁移或清理。IDE 配置保留。浏览器测试产生的临时报告在成功验证后清理，失败证据保留到问题解决。
-
-## 本轮验证记录（2026-09-17）
-
-- pnpm install：四个 workspace 项目安装成功，严格 peer 检查通过。
-- pnpm run check：core 检查通过；svelte 与 docs 均为 0 errors / 0 warnings。
-- pnpm run lint：ESLint 与 Prettier 检查通过。
-- pnpm run build：三个工作区构建通过。
-- pnpm run test：Chrome 中两项浏览器集成测试通过。
-- Node 默认导入：两个库包均解析到各自 dist/index.js，导入成功。
-
-上述记录仅验证基础工程，未验证尚未实现的 core 自动提升或组件行为。
+开发态测试仅清理自己创建的 .zui-hmr-* 目录；包外消费成功后只清理已校验路径的临时项目，并保留被测试的归档和报告。失败现场保留用于诊断。不清理共享缓存、已有依赖或用户数据。

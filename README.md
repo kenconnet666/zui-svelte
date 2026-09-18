@@ -6,7 +6,7 @@
 
 ## 当前状态
 
-core 已实现生成式 CSS 类型、主题、样式 runtime、自动提升与资源回收；Svelte class 编译与 SSR 接入处于验证阶段，尚未宣称生产完成。下一阶段按 [首版生产可用规划](design/core-production-plan.md) 讨论和实施；历史进展见 [交接文档](design/handoff.md) 和 [实施进度](design/implementation.md)。
+core 已完成生成式 CSS 类型、CSS-only 基础主题与亮暗扩展、动态值自动提升、有界样式分片和资源回收。Svelte class 编译、真实 HMR、SvelteKit SSR/hydration/CSP 与独立安装包消费均已接入验收。当前正在按 [统一重构路线](design/core-remaining-plan.md) 收口，以 [验收台账](design/core-acceptance.md) 的候选提交证据为准，尚未宣称整个重构生产验收完成。
 
 ## 目录
 
@@ -32,7 +32,7 @@ pnpm build
 pnpm test
 ```
 
-`pnpm dev` 启动 Docs；库包使用本地源码联调，不需要先构建。构建产物位于各工作区的 `dist/`。
+`pnpm dev` 自动先构建 core，再启动 Docs；网站启用工作区源码条件联调，独立消费仍使用包的 `dist/` 入口。构建产物位于各工作区的 `dist/`。
 
 `pnpm test` 检查文档路由与最小 core 接入，使用本机 Chrome。完整类型、构建、core Node/三浏览器和 SSR 验证默认交给 CI；本地只做改动相关的关键检查。
 

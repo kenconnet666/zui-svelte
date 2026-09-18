@@ -107,6 +107,9 @@ jobs:
       - name: Verify packed packages in an independent SvelteKit consumer
         run: pnpm run test:packages
 
+      - name: Associate candidate reports and verified archives
+        run: node scripts/create-evidence.mjs
+
       - name: Upload browser report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -128,5 +131,7 @@ jobs:
             core/dist/
             svelte/dist/
             docs/dist/
+            svelte/test-results/packages/*.tgz
+            svelte/test-results/candidate-evidence.json
           if-no-files-found: error
           retention-days: 14

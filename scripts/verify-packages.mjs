@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import {
   cp,
   mkdir,
@@ -20,7 +21,13 @@ const pnpm = process.env.npm_execpath;
 assert(pnpm, 'Run with pnpm run test:packages.');
 const directory = await mkdtemp(join(tmpdir(), 'zui-packages-'));
 const reportDirectory = join(root, 'svelte/test-results/packages');
-const report = { directory, steps: [], success: false };
+const report = {
+  commit: process.env.GITHUB_SHA ?? null,
+  directory,
+  archives: [],
+  steps: [],
+  success: false,
+};
 
 function run(args, cwd, env = {}) {
   const result = spawnSync(process.execPath, [pnpm, ...args], {
@@ -40,6 +47,13 @@ try {
     run(['pack', '--pack-destination', directory], join(root, workspace));
   const archives = (await readdir(directory)).filter((name) => name.endsWith('.tgz'));
   assert.equal(archives.length, 2);
+  await mkdir(reportDirectory, { recursive: true });
+  // 保存被安装验证的原始归档，交付时无需重新打包产生另一份产物。
+  for (const name of archives) {
+    const bytes = await readFile(join(directory, name));
+    await writeFile(join(reportDirectory, name), bytes);
+    report.archives.push({ name, sha256: createHash('sha256').update(bytes).digest('hex') });
+  }
   const archive = (name) => {
     const match = archives.find((file) => file.startsWith('zui-' + name + '-'));
     assert(match, 'Missing package archive: ' + name);

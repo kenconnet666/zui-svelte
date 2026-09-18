@@ -353,3 +353,11 @@ Codex CLI 0.154.0 的 daemon version 与 app-server proxy 均无法连接默认�
 用户要求尽快收敛并推送远程。50e11d1 的 CI 35327321249 只执行到格式检查，docs/tests/core.spec.ts 的长调用链不符合 Prettier；拆为局部 info 变量并格式化，后续浏览器结果仍由交接提交 CI 验证。
 
 R2 已以失败用例确认两处尚未修复的缺陷：普通 zui-class-compiled 文本误触发跳过；被整体改写的 class 表达式 source map 原始行偏移。为避免临走提交半成品，撤回本轮新增的两个失败测试，完整复现与建议保存在 handoff.md，产品编译器保持原状。当前换机入口以新版 handoff.md 为准，不宣称 core 生产验收完成。
+
+## 生产重构与候选收口（2026-09-19）
+
+目标模式已按 P0–P5 推进。baseTheme 不含默认 Token，亮暗独立扩展；统一 resolved/setTheme/setOverrides/defaultTheme 与主题兼容校验，补 StyleError、原生 color-scheme、长别名链和生成式单位映射。运行时有序存储与最多 64 记录分片、稀疏回收、SSR metadata/CRLF 原子接管已落地。编译器改为 AST 协议识别与保留源码跨度，独立属性 memo、legacy/runes、动态组件、异常恢复和真实 HMR 已补齐。内部协议当前为 8。
+
+c2c772e 的完整 CI 35346989755 成功。之后 ebbdeed 的 CI 35366193117 已通过类型规模、生成/合同/构建、Node 预算、三浏览器 Docs 和真实 HMR，停在 core DOM 旧 fixture 的主题 schema 不匹配。本批显式向 fixture runtime 提供自定义 theme，Chrome 单例通过，WebStorm 重试完成且无错误；zui_lsp 对该测试文件仍报 TS server 内部错误，未计作成功。后续完整验证交下一候选 CI。
+
+增加候选证据清单，核对各报告提交和六个浏览器/变量组合，保留独立安装时测试的 tarball 及 SHA-256。更新开发、CI、交接和 A01–A40 台账，移除当前说明中的过期暂停点；历史段落保留当时语境。仍不把部分 CI 成功写成生产验收完成。

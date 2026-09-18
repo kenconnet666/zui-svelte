@@ -1,46 +1,28 @@
-# GitHub CI 与构建产物交付
+# GitHub CI 与产物交付
 
-工作流：[CI](https://github.com/kenconnet666/zui-svelte/actions/workflows/ci.yml)。配置位于 `.github/workflows/ci.yml`。
+[CI 工作流](https://github.com/kenconnet666/zui-svelte/actions/workflows/ci.yml) 对 master 推送、PR 和手动触发生效。同 ref 新运行取消旧运行；仓库权限只读，第三方 Action 固定 SHA。
 
-## 触发条件
+## 验收顺序
 
-- 推送到 master。
-- 向 master 提交 pull request。
-- 在 GitHub Actions 手动触发 workflow_dispatch。
+1. Ubuntu 24.04、Node 24、pnpm 锁文件安装，准备 Kit fixture。
+2. 格式/lint、类型与 Svelte 检查、500 Token 类型规模预算、生成一致性和覆盖报告。
+3. core Node 合同、class 编译与服务端合同，构建三个工作区。
+4. 公开 API 快照、浏览器依赖及体积预算、基础主题裁剪、Node 性能与资源预算。
+5. Chromium、Firefox、WebKit 的生产 Docs、开发态真实 HMR、core DOM/接管与双变量通道性能验收。
+6. 真实 SvelteKit 生产 SSR、hydration、主题、CSP、路由/错误页/redirect；独立临时目录安装 tarball，重新检查类型、构建、预渲染及三浏览器消费。
+7. 核对报告提交一致性和被测试归档的 SHA-256，生成 candidate-evidence.json，再上传成功构建产物。
 
-同一 ref 的新运行取消旧运行。工作流使用只读仓库权限，第三方 Action 固定到已核对的 commit SHA。
+每一步的成功均是后续步骤的前提。证据清单关联实际报告，不能替代测试断言；最终结果应绑定具体完整 SHA。完整验收范围见 [A01–A40](core-acceptance.md)。
 
-## 执行内容
+## 下载和追溯
 
-1. Ubuntu 24.04、Node 24、packageManager 指定的 pnpm。
-2. `pnpm install --frozen-lockfile`，验证干净环境依赖安装。
-3. ESLint 与 Prettier。
-4. TypeScript 与 Svelte 检查，以及生成 CSS metadata 一致性。
-5. core Node 合同、class 编译与现有 SSR 测试。
-6. 构建 core、svelte、docs；从 docs 消费两个库的默认 dist 入口，验证解析和导入。
-7. 安装当前 Playwright 版本对应的 Chromium、Firefox、WebKit 与系统依赖。
-8. 使用 Vite preview 测试构建后的文档站，并执行 core 三浏览器 DOM/接管测试。
-9. 上传浏览器报告，并在全部验证成功后上传构建产物。
+在运行页面 Artifacts 下载：
 
-## 下载产物
+- workspace-dist-提交SHA：core/dist、svelte/dist、docs/dist，以及经过独立安装验证的两个 .tgz 和 candidate-evidence.json。
+- browser-report-提交SHA：浏览器结果、失败截图/trace、类型/生成/合同/性能报告、包外验证报告及证据清单。
 
-打开某次运行页面的 Artifacts：
+保留 14 天。失败运行保留存在的报告，不上传成功构建产物。归档不重新打包，下载者可用证据清单里的 SHA-256 验证它就是测试过的文件。包仍 private；没有 npm 自动发布或公网部署。
 
-- `workspace-dist-<commit>`：保留 core/dist、svelte/dist、docs/dist 的目录结构。
-- `browser-report-<commit>`：HTML 报告，失败时包含截图和 trace。
+## 本地工作约定
 
-产物保留 14 天。失败运行不发布成功构建产物，测试报告在存在时保留。
-
-## 本地与 CI 差异
-
-本地 `pnpm test` 使用已安装的 Chrome 和开发服务器。
-
-CI 使用三种 Playwright 浏览器和构建后的站点。CI 的浏览器安装是显式步骤，不假设 runner 预装版本匹配。
-
-## 验证范围
-
-当前已配置 Docs 导航与 core 接入、core DOM/接管三浏览器验收，以及 Node、编译和最小 SSR fixture。实际是否执行并通过以对应完整 SHA 的 CI 为准，不固定引用旧测试数量。
-
-当前 HEAD `cc2f9d7` 的 CI [35289205755](https://github.com/kenconnet666/zui-svelte/actions/runs/35289205755) 因两处 Svelte 接入 lint 失败，后续完整验证未获通过证据。下一阶段补真实 SvelteKit、CSP、流式与包外消费，验收矩阵见 [首版生产可用规划](core-production-plan.md)。
-
-本次交付范围是检查、测试、构建与可下载产物，不进行 npm 发布或公网部署。
+本地只执行改动相关的重点检查，优先原生 WebStorm/LSP。浏览器局部验证使用已安装的 Chrome，完整矩阵交 CI。推送后不等待或轮询；继续有意义的工作，并在下次推送前检查上一轮结果。当前阶段状态维护在 [交接文档](handoff.md)，不在多个文档复制易过期的 HEAD/测试数量。

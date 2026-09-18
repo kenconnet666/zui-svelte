@@ -494,13 +494,14 @@ describe('real DOM style bindings', () => {
     }
   });
   it('binds and switches theme scopes through the stylesheet channel', () => {
+    const theme = defineTheme({ color: { primary: 'red' } });
     const owner = createRuntime({
+      theme,
       target: document,
       namespace: 'sheet-theme',
       variables: 'stylesheet',
     });
     cleanup.push(() => owner.dispose());
-    const theme = defineTheme({ color: { primary: 'red' } });
     const scope = new ThemeScope(theme);
     cleanup.push(() => scope.dispose());
     const node = element();
