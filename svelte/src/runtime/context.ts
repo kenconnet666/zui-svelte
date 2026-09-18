@@ -25,8 +25,8 @@ export function captureRuntime(): (() => Runtime) & {
   onDestroy(() => {
     if (fallback) selected?.dispose();
     if (defaultEntry && --defaultEntry.references === 0) {
-      defaultEntry.runtime.dispose();
       defaults.delete(document);
+      defaultEntry.runtime.dispose();
     }
   });
   const get = () => {

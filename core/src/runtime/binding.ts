@@ -124,11 +124,17 @@ export class StyleBinding<T extends TokenSchema> {
     try {
       valuesChanged = this.registry.updateValues(record, variables, program);
     } catch (error) {
-      if (acquired) this.registry.release(record);
+      if (acquired) {
+        try {
+          this.registry.release(record);
+        } catch (cleanupError) {
+          throw new AggregateError([error, cleanupError], 'Style write and rollback failed.');
+        }
+      }
       throw error;
     }
-    // 变量规则也写入成功后再释放旧版本，避免 CSP/样式表异常留下半次更新。
-    if (acquired && this.#record) this.registry.release(this.#record);
+    // 变量规则成功后提交新状态；旧版本删除失败也不能让当前绑定指向已释放的记录。
+    const previousRecord = acquired ? this.#record : undefined;
     this.#record = record;
     this.#structure = structure;
     this.#history.delete(structure);
@@ -141,6 +147,7 @@ export class StyleBinding<T extends TokenSchema> {
           if (record.listeners.has(notify)) notify();
         })
       : [];
+    if (previousRecord) notifications.unshift(() => this.registry.release(previousRecord));
     if (record.className !== this.#snapshot.className || !sameVariables) {
       this.#snapshot = Object.freeze({
         className: record.className,

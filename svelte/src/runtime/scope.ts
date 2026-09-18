@@ -106,16 +106,25 @@ export function createStyleScope(owner: () => string, moduleId: string, protocol
   onDestroy(() => {
     // SSR 的样式由请求收集器在 render 完成后统一释放。
     if (typeof document === 'undefined') return;
-    for (const entry of entries) {
+    const releases = [...entries].map((entry) => {
       entry.disposed = true;
-      entry.controller.dispose();
-    }
+      return () => entry.controller.dispose();
+    });
+    releases.push(...snapshots, ...statics.values());
     entries.clear();
     roots.clear();
-    for (const stop of snapshots) stop();
     snapshots.clear();
-    for (const stop of statics.values()) stop();
     statics.clear();
+    // 适配层也要完整释放本组件的所有者，再把清理异常交给宿主。
+    const errors: unknown[] = [];
+    for (const release of releases) {
+      try {
+        release();
+      } catch (error) {
+        errors.push(error);
+      }
+    }
+    if (errors.length) throw new AggregateError(errors, 'Style scope cleanup failed.');
   });
 
   function read<P extends Attributes>(

@@ -217,12 +217,20 @@ export class StyleRegistry {
     const position = this.#orders.get(record.source)!;
     if (--position.references === 0) this.#orders.delete(record.source);
     if (--record.references === 0) {
-      if (this.variables === 'stylesheet') this.sheet.remove(record.key + ':vars');
-      this.sheet.remove(record.key);
+      // 先撤销逻辑所有权，再完整尝试后端清理；不能留下 references=0 的可复用记录。
       this.#records.delete(record.key);
       if (record.className) this.#classes.delete(record.className);
       if (record.definitionName) this.#moduleClasses.delete(record.definitionName);
-      record.releaseDefinition?.();
+      runAll(
+        [
+          () => {
+            if (this.variables === 'stylesheet') this.sheet.remove(record.key + ':vars');
+          },
+          () => this.sheet.remove(record.key),
+          () => record.releaseDefinition?.(),
+        ],
+        'CSS rule cleanup failed.',
+      );
     }
   }
 
