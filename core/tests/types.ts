@@ -7,6 +7,38 @@ import {
   createCss,
 } from '../src/index.js';
 
+const numberedTheme = defineTheme({
+  color: { 100: '#fff', 200: '#ddd', surface: tokenRef('color', '100') },
+  spacing: { 4: '4px' },
+  opacity: { 50: 0.5 },
+});
+numberedTheme.variable('color', '100');
+numberedTheme.ref('opacity', '50');
+const numberedCss = createCss(numberedTheme);
+numberedCss((s) => {
+  s.color._100;
+  s.gap._4;
+  s.opacity._50;
+  // @ts-expect-error 数字键仍按类别隔离
+  s.gap._100;
+});
+const numberedExtension = extendTheme(numberedTheme, {
+  color: { 100: 'red', 300: tokenRef('color', '200') },
+});
+createCss(numberedExtension)((s) => {
+  s.color._300;
+});
+overrideTheme(numberedTheme, { color: { 100: 'black' }, opacity: { 50: 0.6 } });
+// @ts-expect-error 数字键不能绕过已存在 Token 的值类型约束
+extendTheme(numberedTheme, { opacity: { 50: '0.5' } });
+// @ts-expect-error 不存在的数字键引用
+defineTheme({ color: { 100: tokenRef('color', '999') } });
+const customNumberKeys = defineTheme({ custom: { 100: 1 } });
+// @ts-expect-error 自定义类别也不能用数字键绕过扩展的值类型约束
+extendTheme(customNumberKeys, { custom: { 100: 'changed' } });
+const numberedCategory = defineTheme({ 0: { 100: 'red', alias: tokenRef('0', '100') } });
+numberedCategory.variable('0', '100');
+
 const theme = extendTheme(defineTheme({ color: { primary: 'red' } }), {
   color: { customBrand: 'blue' },
   spacing: { roomy: '24px' },

@@ -10,6 +10,13 @@ export type ThemeDefinition = Readonly<
   Record<string, Readonly<Record<string, TokenValue | TokenReference>>>
 >;
 
+// 对齐 Object.entries 的键语义：100 与 '100' 指向同一 Token，色阶数字键也保留类型提示。
+type NormalizeKeys<T extends ThemeDefinition> = {
+  readonly [C in keyof T as `${C & (string | number)}`]: {
+    readonly [K in keyof T[C] as `${K & (string | number)}`]: T[C][K];
+  };
+};
+
 // 类型与运行时共用类别约束；fontWeight/lineHeight 允许标准字符串或数值。
 export const tokenValueKinds = {
   color: 'string',
@@ -48,15 +55,16 @@ type ResolveValue<T extends ThemeDefinition, V, Depth extends unknown[] = []> =
       ? number
       : string;
 
-export type ResolvedTokens<T extends ThemeDefinition> = {
+type ResolveDefinition<T extends ThemeDefinition> = {
   readonly [C in keyof T]: { readonly [K in keyof T[C]]: ResolveValue<T, T[C][K]> };
 };
+export type ResolvedTokens<T extends ThemeDefinition> = ResolveDefinition<NormalizeKeys<T>>;
 
 export type WidenTokens<T extends TokenSchema> = {
   readonly [C in keyof T]: { readonly [K in keyof T[C]]: T[C][K] extends number ? number : string };
 };
 
-export type ValidReferences<T extends ThemeDefinition, Input extends ThemeDefinition = T> = {
+type ReferenceConstraints<T extends ThemeDefinition, Input extends ThemeDefinition> = {
   readonly [C in keyof Input]: {
     readonly [K in keyof Input[C]]: Input[C][K] extends TokenReference<infer RC, infer RK>
       ? RC extends C
@@ -72,7 +80,12 @@ export type ValidReferences<T extends ThemeDefinition, Input extends ThemeDefini
   };
 };
 
-export type CompatibleExtension<A extends TokenSchema, B extends ThemeDefinition> = {
+export type ValidReferences<
+  T extends ThemeDefinition,
+  Input extends ThemeDefinition = T,
+> = ReferenceConstraints<NormalizeKeys<T>, NormalizeKeys<Input>>;
+
+type ExtensionConstraints<A extends TokenSchema, B extends ThemeDefinition> = {
   readonly [C in keyof B]: {
     readonly [K in keyof B[C]]: C extends keyof A
       ? K extends keyof A[C]
@@ -86,6 +99,11 @@ export type CompatibleExtension<A extends TokenSchema, B extends ThemeDefinition
   };
 };
 
+export type CompatibleExtension<
+  A extends TokenSchema,
+  B extends ThemeDefinition,
+> = ExtensionConstraints<NormalizeKeys<A>, NormalizeKeys<B>>;
+
 export type ThemePatch<T extends TokenSchema> = {
   readonly [C in keyof T]?: {
     readonly [K in keyof T[C]]?:
@@ -93,7 +111,7 @@ export type ThemePatch<T extends TokenSchema> = {
   };
 };
 
-export type ExtendedTokens<A extends ThemeDefinition, B extends ThemeDefinition> = {
+type MergeDefinitions<A extends ThemeDefinition, B extends ThemeDefinition> = {
   readonly [C in keyof A | keyof B]: C extends keyof B
     ? C extends keyof A
       ? Omit<A[C], keyof B[C]> & B[C]
@@ -102,6 +120,12 @@ export type ExtendedTokens<A extends ThemeDefinition, B extends ThemeDefinition>
       ? A[C]
       : never;
 };
+
+// 收窄重映射后的泛型约束，不引入宽索引签名，避免丢失不存在 Token 的诊断。
+export type ExtendedTokens<A extends ThemeDefinition, B extends ThemeDefinition> = Extract<
+  MergeDefinitions<NormalizeKeys<A>, NormalizeKeys<B>>,
+  ThemeDefinition
+>;
 
 export interface Theme<T extends TokenSchema = TokenSchema> {
   readonly namespace: string;

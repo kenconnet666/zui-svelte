@@ -207,3 +207,11 @@ LifecycleProbe 改为导入普通 TS helper，覆盖 setup/state/两种 derived�
 ClassController 接受内部 get/peek 访问器，普通 class/style 只规范化值，不创建默认 runtime 或注入主题；真正产生/消费受管规则时才取得组件引用，之后固定使用同一 runtime。惰性挂载在后续选择 stylesheet 通道时不写内部 style 变量。内部接入协议递增为 5。顺带修复批量丢弃无用 binding 时一个清理异常阻断其余释放的问题。
 
 相关 core 10 项、SSR 6 项、聚焦 TypeScript、ESLint 和 WebStorm 检查通过；新增普通 class 页面验证零 data-zui 样式节点，交给 CI。周额度剩余 46%。
+
+## P2：数字 Token 键的类型一致性
+
+db02c4d 的完整 CI 已通过（35312345458），验证普通 class 页面不创建 data-zui 样式节点，受管样式、SSR 与包外消费均正常。
+
+主题类型将数字类别/Token 键按 Object.entries 语义归一化为字符串，色阶 100/200 支持快捷 Token、引用、别名、扩展与覆盖。合并类型使用局部 Extract 约束，未添加宽字符串索引，错误 Token/类别与既有值类型检查继续有效。类型用例也覆盖自定义数值类别，防止仅依靠 color/opacity 的类别约束掩盖扩展错误。
+
+相关主题/Token 映射 11 项、正反类型与适配层源码类型、ESLint 和 WebStorm 检查通过；包外声明验证由 CI 复用同一类型用例。

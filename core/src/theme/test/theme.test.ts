@@ -5,6 +5,15 @@ import { buildStyle } from '../../css/builder.js';
 import { serializeProgram, serializeTheme } from '../../css/serialize.js';
 
 describe('theme definitions', () => {
+  it('normalizes numeric token keys through aliases, extensions and overrides', () => {
+    const base = defineTheme({ color: { 100: 'red', selected: tokenRef('color', '100') } });
+    expect(base.variable('color', '100')).toBe('--z-color-100');
+    const extended = extendTheme(base, { color: { 100: 'blue', 200: tokenRef('color', '100') } });
+    expect(extended.tokens.color).toEqual({ 100: 'blue', 200: 'blue', selected: 'blue' });
+    const changed = overrideTheme(extended, { color: { 100: 'green' } });
+    expect(changed.tokens.color['200']).toBe('green');
+    expect(changed.tokens.color.selected).toBe('green');
+  });
   it('resolves aliases from final overrides and keeps nested scopes independent', () => {
     const theme = defineTheme({
       color: {
