@@ -6,7 +6,9 @@
 
 最终组合审计结果：6c4c64334c423545746ef3e5a40a817adb9abb03 的 [完整 CI 35370858768](https://github.com/kenconnet666/zui-svelte/actions/runs/35370858768) 成功。新增 /custom 的禁 JS、hydration、动态提升、跨 schema 根切换与回收已在生产三浏览器和独立 tarball 中验证，A21/A22/A26/A28/A37 的该组合缺口闭合。
 
-故障路径审计补充：强制相同哈希的新测试发现同模块复用未比对完整内容；现补齐与跨模块/普通绑定一致的拒绝碰撞策略，相关 5 项和聚焦类型检查通过。最新候选 CI 须包含此修复，不能用前一绿色提交证明尚未执行的变更。
+故障路径审计结果：fec0f049d2d970a0cfaf4946b9d3c8b8debe10af 的 [完整 CI 35371406019](https://github.com/kenconnet666/zui-svelte/actions/runs/35371406019) 成功，同模块/跨模块/绑定的强制哈希碰撞保护已纳入完整矩阵。
+
+最后的 Windows 输入修正：值校验器原先误拒反斜杠加 CRLF 的合法字符串续行，现同时消费 CRLF 两个码元。13 项相关单元及 Chrome 原生 CSS 对照通过，未转义换行仍拒绝；最新候选 CI 须包含此修正后才完成目标。
 
 已核实候选：ff7bf3b687999a4b9af5f40756ab7b37281885df，[完整 CI 35368949928](https://github.com/kenconnet666/zui-svelte/actions/runs/35368949928) 成功。以下 A01–A40 的产品合同在表中注明的支持范围内，均有该候选的类型、Node、编译、Docs/HMR/core DOM 三浏览器、真实 Kit 或独立包消费证据；不能推广到未声明的旧浏览器、Edge SSR 或任意异步 CSS 调用图。
 

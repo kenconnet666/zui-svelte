@@ -9,7 +9,10 @@ describe('local selector boundaries', () => {
       expect(() => validateValue('"text' + newline + '}body{color:red}"')).toThrow(
         'Unescaped newline',
       );
-    expect(validateValue('"a\\\nb"')).toBe('"a\\\nb"');
+    for (const newline of ['\n', '\r', '\r\n', '\f']) {
+      const value = '"a\\' + newline + 'b"';
+      expect(validateValue(value)).toBe(value);
+    }
   });
   it.each([
     '&, body',

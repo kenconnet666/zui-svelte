@@ -8,6 +8,8 @@ export function validateValue(value: string): string {
     const c = value[i]!;
     if (escaped) {
       escaped = false;
+      // CSS 将 CRLF 作为一个换行；反斜杠续行必须同时消费两个码元。
+      if (c === '\r' && value[i + 1] === '\n') i++;
       continue;
     }
     if (c === '\\') {

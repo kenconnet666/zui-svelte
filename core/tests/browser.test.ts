@@ -35,6 +35,17 @@ function runtime(namespace: string) {
 }
 
 describe('real DOM style bindings', () => {
+  it('preserves CSS string continuations across Windows CRLF input', () => {
+    const control = element();
+    const node = element();
+    const value = '"a\\\r\nb"';
+    control.style.content = value;
+    node.className = runtime('escaped-lines').css((s) => {
+      s.content(value);
+    });
+    expect(getComputedStyle(control).content).toBe('"ab"');
+    expect(getComputedStyle(node).content).toBe(getComputedStyle(control).content);
+  });
   it.each(['inline', 'stylesheet'] as const)(
     'keeps DOM theme values current after a reentrant %s update',
     (variables) => {
