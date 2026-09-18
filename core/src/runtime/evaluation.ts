@@ -29,6 +29,8 @@ export function hasCssEvaluation(): boolean {
 }
 
 export function css(factory: StyleFactory<DefaultTokens>): string {
+  if (arguments.length !== 1)
+    throw new StyleError('runtime.context', 'Use createCss(theme) to bind a custom theme.');
   return evaluate(factory);
 }
 

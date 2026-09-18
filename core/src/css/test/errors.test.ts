@@ -6,6 +6,29 @@ import { css } from '../../runtime/evaluation.js';
 import { createRuntime } from '../../runtime/runtime.js';
 
 describe('public diagnostics', () => {
+  it('rejects asynchronous factories once without changing the previous snapshot', async () => {
+    const runtime = createRuntime();
+    const binding = runtime.binding();
+    binding.evaluate((s) => {
+      s.width.px(10);
+    });
+    const previous = binding.snapshot;
+    try {
+      expect(() =>
+        binding.evaluate(async (s) => {
+          s.width.px(20);
+          await Promise.resolve();
+          throw new Error('async factory');
+        }),
+      ).toThrow('must be synchronous');
+      await Promise.resolve();
+      expect(binding.snapshot).toBe(previous);
+      expect(runtime.cssText()).toContain('width:10px');
+      expect(runtime.cssText()).not.toContain('width:20px');
+    } finally {
+      runtime.dispose();
+    }
+  });
   it.each([
     [() => validateValue('red; width: 1px'), 'css.value'],
     [() => validateQuery('body'), 'css.selector'],

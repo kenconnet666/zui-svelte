@@ -1,4 +1,5 @@
 import type * as CSS from 'csstype';
+import { StyleError } from './errors.js';
 import { keywordGroups, propertyMetadata } from './metadata.generated.js';
 import { units } from './schema.js';
 import type { StyleProperties } from './properties.generated.js';
@@ -51,10 +52,10 @@ export function validateTokenMap(
 ): void {
   for (const [property, category] of Object.entries(mapping)) {
     if (!Object.hasOwn(metadata, property))
-      throw new TypeError('Unknown mapped CSS property: ' + property);
+      throw new StyleError('css.value', 'Unknown mapped CSS property: ' + property);
     if (category === undefined) continue;
     if (!Object.hasOwn(theme.resolved, category))
-      throw new TypeError('Unknown mapped token category: ' + category);
+      throw new StyleError('css.value', 'Unknown mapped token category: ' + category);
     const expected = (tokenValueKinds as Readonly<Record<string, string>>)[
       metadata[property]!.tokens ?? ''
     ];
@@ -62,7 +63,10 @@ export function validateTokenMap(
       expected &&
       Object.values(theme.resolved[category]!).some((value) => typeof value !== expected)
     )
-      throw new TypeError('Incompatible token category for CSS property: ' + property);
+      throw new StyleError(
+        'theme.invalid',
+        'Incompatible token category for CSS property: ' + property,
+      );
   }
 }
 
@@ -70,8 +74,19 @@ export function validateTokenMap(
 type RuntimeFactory = (builder: never) => void;
 function invoke(factory: RuntimeFactory, s: unknown): void {
   const result: unknown = factory(s as never);
-  if (result !== undefined)
-    throw new TypeError('A style callback must be synchronous and return void.');
+  if (result !== undefined) {
+    // 已同步拒绝异步回调，消费其拒绝，避免同一误用再产生未处理的 Promise 异常。
+    if (
+      result !== null &&
+      (typeof result === 'object' || typeof result === 'function') &&
+      typeof Reflect.get(result, 'then') === 'function'
+    )
+      void Promise.resolve(result).catch(() => {});
+    throw new StyleError(
+      'runtime.context',
+      'A style callback must be synchronous and return void.',
+    );
+  }
 }
 
 export function buildStyle<T extends TokenSchema = DefaultTokens>(
@@ -101,7 +116,7 @@ export function buildStyle(
     const append = (property: string, value: unknown) => {
       if (value === null || value === undefined) return;
       if (typeof value !== 'string' && (typeof value !== 'number' || !Number.isFinite(value))) {
-        throw new TypeError('Invalid value for CSS property: ' + property);
+        throw new StyleError('css.value', 'Invalid value for CSS property: ' + property);
       }
       target.push(
         Object.freeze({
@@ -130,17 +145,17 @@ export function buildStyle(
       _important: (callback) => invoke(callback, builder(target, true)),
       custom(name, value) {
         if (!/^--[a-zA-Z_][\w-]*$/u.test(name))
-          throw new TypeError('Invalid custom property name.');
+          throw new StyleError('css.value', 'Invalid custom property name.');
         append(name, value);
       },
       set(property, value) {
         const entry = Object.hasOwn(metadata, property) ? metadata[property] : undefined;
-        if (!entry) throw new TypeError('Unknown CSS property: ' + property);
+        if (!entry) throw new StyleError('css.value', 'Unknown CSS property: ' + property);
         append(entry.name, value);
       },
       raw(property, value) {
         if (!/^-?[a-z][a-z0-9-]*$/u.test(property))
-          throw new TypeError('Invalid CSS property name.');
+          throw new StyleError('css.value', 'Invalid CSS property name.');
         append(property, value);
       },
     };
@@ -151,7 +166,7 @@ export function buildStyle(
         if (Object.hasOwn(object, key)) return Reflect.get(object, key);
         if (carriers.has(key)) return carriers.get(key);
         const entry = Object.hasOwn(metadata, key) ? metadata[key] : undefined;
-        if (!entry) throw new TypeError('Unknown CSS property: ' + key);
+        if (!entry) throw new StyleError('css.value', 'Unknown CSS property: ' + key);
         const carrier = new Proxy((value: unknown) => append(entry.name, value), {
           get(_object, member) {
             if (typeof member !== 'string' || member === 'then') return undefined;
@@ -162,7 +177,8 @@ export function buildStyle(
             }
             if (member.startsWith('_')) {
               const category = tokenMap?.[key] ?? entry.tokens;
-              if (!category) throw new TypeError('CSS property has no token category: ' + key);
+              if (!category)
+                throw new StyleError('css.value', 'CSS property has no token category: ' + key);
               append(entry.name, 'var(' + theme.variable(category, member.slice(1)) + ')');
               tokens.set(
                 JSON.stringify([category, member]),
@@ -186,7 +202,10 @@ export function buildStyle(
                   values.length > (entry.arity ?? 1) ||
                   values.some((value) => !Number.isFinite(value))
                 ) {
-                  throw new TypeError('Invalid unit arguments: ' + key + '.' + member);
+                  throw new StyleError(
+                    'css.value',
+                    'Invalid unit arguments: ' + key + '.' + member,
+                  );
                 }
                 append(
                   entry.name,
@@ -195,7 +214,7 @@ export function buildStyle(
                     .join(' '),
                 );
               };
-            throw new TypeError('Unknown CSS keyword or unit: ' + key + '.' + member);
+            throw new StyleError('css.value', 'Unknown CSS keyword or unit: ' + key + '.' + member);
           },
         });
         carriers.set(key, carrier);

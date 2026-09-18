@@ -3,8 +3,28 @@ import { defineTheme, extendTheme, overrideTheme, tokenRef } from '../theme.js';
 import { ThemeScope } from '../scope.js';
 import { buildStyle } from '../../css/builder.js';
 import { serializeProgram, serializeTheme } from '../../css/serialize.js';
+import { StyleError } from '../../css/errors.js';
+import type { TokenReference } from '../types.js';
 
 describe('theme definitions', () => {
+  it('rejects malformed dictionaries instead of treating them as empty themes', () => {
+    const base = defineTheme({ color: { primary: 'red' } });
+    for (const invalid of [null, [], 1, 'bad']) {
+      expect(() => defineTheme(invalid as never)).toThrow(StyleError);
+      expect(() => extendTheme(base, invalid as never)).toThrow(StyleError);
+      expect(() => overrideTheme(base, invalid as never)).toThrow(StyleError);
+    }
+    expect(() => extendTheme(base, { color: 'blue' } as never)).toThrow(StyleError);
+    expect(() => overrideTheme(base, { color: null } as never)).toThrow(StyleError);
+  });
+  it('resolves long programmatically generated alias chains without using the call stack', () => {
+    const color: Record<string, string | TokenReference<'color', string>> = {};
+    for (let index = 0; index < 12000; index++)
+      color['t' + index] = index === 11999 ? 'red' : tokenRef('color', 't' + (index + 1));
+    const theme = defineTheme({ color });
+    expect(theme.resolved.color.t0).toBe('red');
+    expect(theme.resolved.color.t11999).toBe('red');
+  });
   it('treats prototype-like category names as ordinary own keys during extension', () => {
     const base = defineTheme({});
     const extension = JSON.parse('{"__proto__":{"value":"red"},"constructor":{"value":"blue"}}');

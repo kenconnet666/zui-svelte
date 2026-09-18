@@ -1,5 +1,15 @@
 # Core 实施进度
 
+## 生产重构：长期回收与主题输入边界
+
+先复现稀疏分片未收缩、非法主题字典和 12,000 级别名栈溢出，再修复。删除规则后合并相邻稀疏分片，不跨外部节点改变层叠；相关 4 项聚焦 Chrome 回归通过。主题对象输入统一校验，别名改为迭代解析，类型条件改为逐联合成员验证，允许程序生成的值/引用字典；主题/作用域 15 项及新增 schema 回退用例通过。
+
+ThemeScope 用创建时 schema 校验切换，暂选兼容超集后可切回原主题；parent 改为只读 getter，仅 fork 建立父子关系。旧 css 第二参数和旧 parent 构造参数明确报迁移错误。异步 factory 同步拒绝并消费其 Promise 拒绝，保留旧样式快照，避免二次未处理异常；相关诊断回归通过。公开 API 快照同步 parent 构造边界。
+
+推送前修复 a419a3a 的 CI 35351774749：29 项 Docs 浏览器通过，WebKit forced-colors 用例把暗色容器的控件与亮色根下的参考 span 比较。参考改为同父容器下同类型 button，保留系统色断言；局部 Chrome 通过，WebKit 交 CI 复验。Vitest 失败截图改用当前 attachmentsDir 放入 test-results 供 CI 上传，已清理本次旧路径的两个临时 PNG。
+
+LSP 一次测试文件诊断遇到 TypeScript 服务内部 project graph 异常，未当作通过；已补 theme/scope 类型测试与 core/tests/types.ts 的聚焦 tsc 检查，源码 IDE/LSP 检查正常。未因此进行全仓本地验证。
+
 ## 生产重构：错误边界、独立目标和浏览器预算
 
 新增错误 factory 的 Svelte boundary 三轮失败/清理/恢复，以及相同 namespace 的不同 Document 隔离，两项局部 Chrome 验证通过。Kit 和独立包夹具增加 unkeyed 复用、对象 key、递归 snippet hydration、主题 class 稳定切换、无 JS 的默认亮色与 Cookie 暗色首屏；原生 LSP 和对应 lint 通过，生产夹具完整运行交 CI。

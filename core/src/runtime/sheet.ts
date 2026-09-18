@@ -300,12 +300,53 @@ export class BrowserStyleSheet extends MemoryStyleSheet {
 
   override remove(key: string): void {
     const chunk = this.#owners.get(key);
+    const index = chunk ? this.#chunks.indexOf(chunk) : -1;
     if (chunk)
       this.#replace(
         chunk,
         chunk.entries.filter((entry) => entry.key !== key),
       );
     super.remove(key);
+    if (index >= 0) {
+      for (
+        let near = Math.max(0, index - 1);
+        near <= index && near + 1 < this.#chunks.length;
+        near++
+      )
+        this.#merge(near);
+    }
+  }
+
+  #merge(index: number): void {
+    const left = this.#chunks[index]!;
+    const right = this.#chunks[index + 1]!;
+    // 不跨外部节点移动 CSS，保留宿主插入的普通样式与本库的层叠关系。
+    if (
+      left.node.nextSibling !== right.node ||
+      left.entries.length + right.entries.length > styleChunkSize
+    )
+      return;
+    const entries = [...left.entries, ...right.entries];
+    const previous = left.node.textContent;
+    const next = right.node.nextSibling;
+    try {
+      left.node.textContent = entries.map((entry) => entry.css).join('');
+      right.node.remove();
+    } catch (error) {
+      try {
+        left.node.textContent = previous;
+        if (right.node.parentNode !== this.#parent) this.#parent.insertBefore(right.node, next);
+      } catch (rollback) {
+        throw new AggregateError([error, rollback], 'Stylesheet compaction rollback failed.', {
+          cause: rollback,
+        });
+      }
+      // 删除已提交；合并只是优化，成功回滚后保留原分片继续服务。
+      return;
+    }
+    left.entries = entries;
+    this.#chunks.splice(index + 1, 1);
+    for (const entry of right.entries) this.#owners.set(entry.key, left);
   }
   override dispose(): void {
     for (const chunk of this.#chunks) chunk.node.remove();

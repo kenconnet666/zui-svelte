@@ -16,6 +16,11 @@ createCss(baseTheme)((s) => {
   s.color._primary;
 });
 const customBase = extendTheme(baseTheme, { color: { ink: '#123456' } });
+const generatedColors: Record<string, string | ReturnType<typeof tokenRef<'color', string>>> = {
+  source: '#123456',
+  alias: tokenRef('color', 'source'),
+};
+defineTheme({ color: generatedColors });
 createCss(baseTheme)((s) => {
   s.offsetDistance.pct(50);
   s.strokeWidth.px(2);

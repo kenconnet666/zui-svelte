@@ -94,7 +94,7 @@
     "export type ThemePatch<T extends TokenSchema> = {\n    readonly [C in keyof T]?: {\n        readonly [K in keyof T[C]]?: WidenValue<T[C][K]> | TokenReference<C & string, keyof T[C] & string>;\n    };\n};"
   ],
   "ThemeScope": [
-    "export declare class ThemeScope<T extends TokenSchema> {\n    readonly parent?: ThemeScope<T> | undefined;\n    constructor(base: Theme<T>, patch?: ThemePatch<T>, parent?: ThemeScope<T> | undefined);\n    get theme(): Theme<WidenTokens<T>>;\n    fork(patch: ThemePatch<T>): ThemeScope<T>;\n    setTheme(theme: Theme<T>): void;\n    setOverrides(patch: ThemePatch<T>): void;\n    subscribe(listener: (theme: Theme<WidenTokens<T>>) => void, cleanup?: () => void): () => void;\n    dispose(): void;\n}"
+    "export declare class ThemeScope<T extends TokenSchema> {\n    constructor(base: Theme<T>, patch?: ThemePatch<T>);\n    get theme(): Theme<WidenTokens<T>>;\n    get parent(): ThemeScope<T> | undefined;\n    fork(patch: ThemePatch<T>): ThemeScope<T>;\n    setTheme(theme: Theme<T>): void;\n    setOverrides(patch: ThemePatch<T>): void;\n    subscribe(listener: (theme: Theme<WidenTokens<T>>) => void, cleanup?: () => void): () => void;\n    dispose(): void;\n}"
   ],
   "themeVariables": [
     "export declare function themeVariables<T extends TokenSchema>(theme: Theme<T>): Readonly<Record<string, string>>;"

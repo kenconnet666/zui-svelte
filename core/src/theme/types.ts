@@ -84,20 +84,21 @@ export type WidenTokens<T extends TokenSchema> = {
 // 分布式条件保留深别名解析的联合值，避免 string | number 被整体缩窄为 string。
 type WidenValue<V> = V extends number ? number : V extends string ? string : never;
 
-type ReferenceConstraints<T extends ThemeDefinition, Input extends ThemeDefinition> = {
-  readonly [C in keyof Input]: {
-    readonly [K in keyof Input[C]]: Input[C][K] extends TokenReference<infer RC, infer RK>
-      ? RC extends C
-        ? C extends keyof T
-          ? RK extends keyof T[C]
-            ? Input[C][K]
-            : never
+type ValidValue<T extends ThemeDefinition, C, V> =
+  V extends TokenReference<infer RC, infer RK>
+    ? RC extends C
+      ? C extends keyof T
+        ? RK extends keyof T[C]
+          ? V
           : never
         : never
-      : Input[C][K] extends CategoryValue<C>
-        ? Input[C][K]
-        : never;
-  };
+      : never
+    : V extends CategoryValue<C>
+      ? V
+      : never;
+
+type ReferenceConstraints<T extends ThemeDefinition, Input extends ThemeDefinition> = {
+  readonly [C in keyof Input]: { readonly [K in keyof Input[C]]: ValidValue<T, C, Input[C][K]> };
 };
 
 export type ValidReferences<
@@ -109,15 +110,13 @@ type ExtensionConstraints<A extends TokenSchema, B extends ThemeDefinition> = {
   readonly [C in keyof B]: {
     readonly [K in keyof B[C]]: C extends keyof A
       ? K extends keyof A[C]
-        ? B[C][K] extends TokenReference
-          ? B[C][K]
-          : B[C][K] extends WidenValue<A[C][K]>
-            ? B[C][K]
-            : never
+        ? CompatibleValue<A[C][K], B[C][K]>
         : B[C][K]
       : B[C][K];
   };
 };
+
+type CompatibleValue<A, V> = V extends TokenReference ? V : V extends WidenValue<A> ? V : never;
 
 export type CompatibleExtension<
   A extends TokenSchema,

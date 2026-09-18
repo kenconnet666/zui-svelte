@@ -36,10 +36,12 @@ test('composes theme preferences and respects direction and reduced motion', asy
       : 'engine did not activate emulation; forced color comparison unavailable',
   });
   if (forced) {
-    const systemText = await page.evaluate(() => {
-      const reference = document.createElement('span');
+    const systemText = await control.evaluate((node) => {
+      // 系统颜色受原生控件与最近 color-scheme 影响，参考节点必须在同一主题中。
+      const reference = document.createElement('button');
+      reference.type = 'button';
       reference.style.color = 'CanvasText';
-      document.body.append(reference);
+      node.parentElement!.append(reference);
       const color = getComputedStyle(reference).color;
       reference.remove();
       return color;

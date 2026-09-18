@@ -57,6 +57,8 @@ scope.setOverrides({}); // 替换整份覆盖；空对象恢复基础主题。
 
 baseTheme 没有 primary/surface 等系统键；标准属性、关键字、单位与选择器能力不依赖 Token。系统 lightTheme/darkTheme 分别从基础层扩展，默认仍为亮色。显式自定义主题的 runtime/SSR 必须配置兼容 schema，不自动补系统 Token。scope.setTheme(theme) 只在根作用域切换；子级通过 fork 与 setOverrides 保留局部覆盖。
 
+scope 的 schema 以创建时的合同为准，临时选择兼容的更大主题不会阻止随后切回原主题。父子关系只通过 fork 建立，constructor 不再接收 parent 参数。程序生成的 Token 字典可混用普通值与同类别引用；长别名链用迭代解析，循环错误会报告引用链。
+
 原生颜色方案由可选元数据 `colorScheme: 'light' | 'dark'` 表达，不占用 Token 类别。`defineTheme(values, { colorScheme })` 或 `extendTheme(base, values, { colorScheme })` 可显式声明；override/继续 extend 默认保留。基础主题不声明，亮暗预设分别声明。DOM 绑定、Provider 和 SSR 共用声明生成，切换同步更新原生控件的 color-scheme；themeVariables() 仍只返回自定义变量。
 
 ### 本次 API 迁移
@@ -98,6 +100,8 @@ const plainCss = createCss(theme, { layer: null });
 SSR 样式携带内部协议版本，客户端接管前统一校验版本、规则标识、顺序与 nonce；服务端和客户端必须使用相同 nonce。数据不兼容时直接报错并保留原始 SSR 标记，不接管半份样式。编译插件与框架 runtime 也会核对协议，升级时应一起重新构建，不能混用旧编译产物。
 
 当前内部协议为 7。浏览器与 SSR 使用最多 64 条逻辑记录的样式分片；变量更新只重写所在分片，物理 style 数与 stats.styleEntries（逻辑记录数）不同。SSR metadata 记录各条规则的 key、顺序和转义后长度，全部验证后才接管。自定义 StyleSheet 仍按逻辑记录实现，不必模拟浏览器分片。
+
+删除规则时会合并相邻的稀疏分片；不跨外部节点移动 CSS。单次更新仍保持有界分片写入，合并失败但回滚成功时保留原分片继续服务。HTML 的 CRLF 归一化已计入 SSR 长度协议。
 
 ## 自定义 Token 类别
 

@@ -2,11 +2,13 @@ import { createVariableBinding } from '../runtime/variables.js';
 import { bindElement } from '../runtime/element.js';
 import type { StyleRuntime } from '../runtime/runtime.js';
 import { runAll } from '../runtime/callbacks.js';
+import { StyleError } from '../css/errors.js';
 import {
   overrideTheme,
   tokenRef,
   isReference,
   assertThemeCompatible,
+  assertThemeRecord,
   themeDeclarations,
 } from './theme.js';
 import type { Theme, ThemePatch, TokenSchema, WidenTokens } from './types.js';
@@ -14,22 +16,24 @@ import type { Theme, ThemePatch, TokenSchema, WidenTokens } from './types.js';
 export class ThemeScope<T extends TokenSchema> {
   readonly #listeners = new Map<(theme: Theme<WidenTokens<T>>) => void, (() => void) | undefined>();
   readonly #children = new Set<ThemeScope<T>>();
+  readonly #schema: Theme<T>;
+  #parent: ThemeScope<T> | undefined;
   #base: Theme<T>;
   #patch: ThemePatch<T>;
   #theme: Theme<WidenTokens<T>>;
   #disposed = false;
 
-  constructor(
-    base: Theme<T>,
-    patch: ThemePatch<T> = {},
-    readonly parent?: ThemeScope<T>,
-  ) {
+  constructor(base: Theme<T>, patch: ThemePatch<T> = {}) {
+    this.#schema = base;
     this.#base = base;
     this.#patch = this.#copy(patch);
     this.#theme = overrideTheme(base, this.#patch);
   }
 
   #copy(patch: ThemePatch<T>): ThemePatch<T> {
+    assertThemeRecord(patch, 'overrides');
+    for (const [category, values] of Object.entries(patch))
+      if (values !== undefined) assertThemeRecord(values, 'overrides.' + category);
     return Object.freeze(
       Object.fromEntries(
         Object.entries(patch).map(([key, values]) => [
@@ -54,6 +58,8 @@ export class ThemeScope<T extends TokenSchema> {
     patch: ThemePatch<T>,
     pending = new Map<ThemeScope<T>, Theme<WidenTokens<T>>>(),
   ) {
+    if (arguments.length > 2)
+      throw new StyleError('theme.invalid', 'Use scope.fork() to create a child theme scope.');
     const theme = overrideTheme(base, patch);
     pending.set(this, theme);
     // scope 允许值拓宽；子级仍使用相同键结构，实际值类别由 overrideTheme 校验。
@@ -77,16 +83,21 @@ export class ThemeScope<T extends TokenSchema> {
     return this.#theme;
   }
 
+  get parent(): ThemeScope<T> | undefined {
+    return this.#parent;
+  }
+
   fork(patch: ThemePatch<T>): ThemeScope<T> {
     this.#alive();
-    const child = new ThemeScope(this.#theme as unknown as Theme<T>, patch, this);
+    const child = new ThemeScope(this.#theme as unknown as Theme<T>, patch);
+    child.#parent = this;
     this.#children.add(child);
     return child;
   }
   setTheme(theme: Theme<T>): void {
     this.#alive();
     if (this.parent) throw new Error('Update the root theme, or change this scope overrides.');
-    assertThemeCompatible(this.#base, theme);
+    assertThemeCompatible(this.#schema, theme);
     const pending = this.#prepare(theme, this.#patch);
     this.#base = theme;
     this.#commit(pending);

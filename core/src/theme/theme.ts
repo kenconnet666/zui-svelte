@@ -38,6 +38,7 @@ function createTheme(
   namespace: string,
   colorScheme?: 'light' | 'dark',
 ): Theme<TokenSchema> {
+  assertThemeRecord(tokens, 'definition');
   if (!/^[a-zA-Z][\w-]*$/u.test(namespace))
     throw new StyleError('theme.namespace', 'Invalid theme namespace.');
   if (colorScheme !== undefined && colorScheme !== 'light' && colorScheme !== 'dark')
@@ -84,19 +85,37 @@ function createTheme(
   const definition = Object.freeze(copied);
   const resolved: Record<string, Record<string, TokenValue>> = Object.create(null);
   for (const category of Object.keys(definition)) resolved[category] = Object.create(null);
-  const visiting = new Set<string>();
   function resolve(category: string, key: string): TokenValue {
-    if (!Object.hasOwn(definition[category] ?? {}, key))
-      throw new StyleError('theme.reference', 'Unknown theme reference: ' + category + '.' + key);
     if (Object.hasOwn(resolved[category]!, key)) return resolved[category]![key]!;
-    const path = JSON.stringify([category, key]);
-    if (visiting.has(path))
-      throw new StyleError('theme.reference', 'Circular theme reference: ' + category + '.' + key);
-    visiting.add(path);
-    const value = definition[category]![key]!;
-    const result = typeof value === 'object' ? resolve(value.category, value.token) : value;
-    visiting.delete(path);
-    resolved[category]![key] = result;
+    const chain = new Set<string>();
+    let current = key;
+    let result: TokenValue;
+    // 每个 Token 只有一个别名目标；迭代解析避免长链耗尽 JS 调用栈。
+    for (;;) {
+      if (!Object.hasOwn(definition[category]!, current))
+        throw new StyleError(
+          'theme.reference',
+          'Unknown theme reference: ' + category + '.' + current,
+        );
+      if (Object.hasOwn(resolved[category]!, current)) {
+        result = resolved[category]![current]!;
+        break;
+      }
+      if (chain.has(current))
+        throw new StyleError(
+          'theme.reference',
+          'Circular theme reference: ' +
+            [...chain, current].map((token) => category + '.' + token).join(' -> '),
+        );
+      chain.add(current);
+      const value = definition[category]![current]!;
+      if (typeof value !== 'object') {
+        result = value;
+        break;
+      }
+      current = value.token;
+    }
+    for (const token of chain) resolved[category]![token] = result;
     return result;
   }
   for (const [category, entries] of Object.entries(definition)) {
@@ -126,14 +145,17 @@ export function extendTheme<A extends TokenSchema, const B extends ThemeDefiniti
   extension: B & ValidReferences<ExtendedTokens<A, B>, B> & CompatibleExtension<A, B>,
   options: Pick<ThemeOptions, 'colorScheme'> = {},
 ): Theme<ResolvedTokens<ExtendedTokens<A, B>>> {
+  assertThemeRecord(extension, 'extension');
   const merged = Object.assign(
     Object.create(null),
     Object.fromEntries(
       Object.entries(theme.definition).map(([key, values]) => [key, { ...values }]),
     ),
   ) as Record<string, Record<string, TokenValue | TokenReference>>;
-  for (const [key, values] of Object.entries(extension))
+  for (const [key, values] of Object.entries(extension)) {
+    assertThemeRecord(values, 'extension.' + key);
     merged[key] = { ...merged[key], ...values };
+  }
   const result = createTheme(merged, theme.namespace, options.colorScheme ?? theme.colorScheme);
   validateReplacement(theme.resolved, result.resolved);
   return result as Theme<ResolvedTokens<ExtendedTokens<A, B>>>;
@@ -143,6 +165,7 @@ export function overrideTheme<T extends TokenSchema>(
   theme: Theme<T>,
   patch: ThemePatch<T>,
 ): Theme<WidenTokens<T>> {
+  assertThemeRecord(patch, 'overrides');
   const merged = Object.assign(
     Object.create(null),
     Object.fromEntries(
@@ -152,6 +175,7 @@ export function overrideTheme<T extends TokenSchema>(
   for (const [category, values] of Object.entries(patch)) {
     if (!Object.hasOwn(merged, category))
       throw new StyleError('theme.invalid', 'Unknown theme category: ' + category);
+    if (values !== undefined) assertThemeRecord(values, 'overrides.' + category);
     for (const [key, value] of Object.entries(values ?? {})) {
       if (!Object.hasOwn(merged[category]!, key))
         throw new StyleError('theme.token', 'Unknown theme token: ' + category + '.' + key);
@@ -164,6 +188,12 @@ export function overrideTheme<T extends TokenSchema>(
   const result = createTheme(merged, theme.namespace, theme.colorScheme);
   validateReplacement(theme.resolved, result.resolved);
   return result as Theme<WidenTokens<T>>;
+}
+
+/** @internal JS/JSON 消费与 TypeScript 消费遵循相同的对象边界。 */
+export function assertThemeRecord(value: unknown, path: string): void {
+  if (!value || typeof value !== 'object' || Array.isArray(value))
+    throw new StyleError('theme.invalid', 'Theme ' + path + ' must be an object.');
 }
 
 function validateReplacement(previous: TokenSchema, next: TokenSchema): void {

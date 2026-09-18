@@ -35,6 +35,40 @@ function runtime(namespace: string) {
 }
 
 describe('real DOM style bindings', () => {
+  it('coalesces sparse chunks during long-lived structural replacement', () => {
+    const sheet = new BrowserStyleSheet(document, 'fragmentation');
+    cleanup.push(() => sheet.dispose());
+    const expected = new Map<string, string>();
+    const keys: string[] = [];
+    for (let i = 0; i < 256; i++) {
+      const key = 'initial-' + i;
+      const css = '.fragment{width:' + i + 'px}';
+      keys.push(key);
+      expected.set(key, css);
+      sheet.set(key, css, sourceOrder('dynamic'));
+    }
+    for (let round = 0; round < 1024; round++) {
+      const slot = round % 256;
+      const key = 'next-' + ((round * 7919) % 10007) + '-' + round;
+      const css = '.fragment{width:' + (round + 1) + 'px}';
+      sheet.set(key, css, sourceOrder('dynamic'));
+      sheet.remove(keys[slot]!);
+      expected.delete(keys[slot]!);
+      keys[slot] = key;
+      expected.set(key, css);
+    }
+    const nodes = [...document.head.querySelectorAll('style[data-zui="fragmentation"]')];
+    expect(nodes.length).toBeLessThanOrEqual(8);
+    const ordered = [...expected]
+      .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+      .map(([, css]) => css)
+      .join('');
+    expect(nodes.map((node) => node.textContent).join('')).toBe(ordered);
+    expect(sheet.entries()).toHaveLength(256);
+    for (let slot = 0; slot < keys.length; slot++) if (slot % 64) sheet.remove(keys[slot]!);
+    expect(sheet.entries()).toHaveLength(4);
+    expect(document.head.querySelectorAll('style[data-zui="fragmentation"]')).toHaveLength(1);
+  });
   it('hydrates multiline theme values after HTML newline normalization', () => {
     const theme = defineTheme({ spacing: { line: 'calc(1px\r\n + 2px)' } });
     const server = createRuntime({ theme, namespace: 'newlines' });

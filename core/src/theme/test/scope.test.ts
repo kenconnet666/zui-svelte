@@ -1,8 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import { bindTheme, ThemeScope, themeVariables } from '../scope.js';
-import { defineTheme, overrideTheme, tokenRef } from '../theme.js';
+import { defineTheme, extendTheme, overrideTheme, tokenRef } from '../theme.js';
 
 describe('theme scopes', () => {
+  it('keeps its original schema when a compatible superset is temporarily selected', () => {
+    const base = defineTheme({ color: { text: 'red' } });
+    const scope = new ThemeScope(base);
+    const child = scope.fork({ color: { text: 'green' } });
+    scope.setTheme(extendTheme(base, { color: { unused: 'blue' } }));
+    expect(() => scope.setTheme(base)).not.toThrow();
+    expect(child.parent).toBe(scope);
+    expect(child.theme.resolved.color.text).toBe('green');
+    expect(() => scope.setOverrides(null as never)).toThrow('must be an object');
+    scope.dispose();
+  });
   it('shares repeated bindings and rejects competing scopes on the same element', () => {
     const values = new Map<string, string>();
     const node = {
