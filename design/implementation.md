@@ -121,3 +121,9 @@ c047dcb 的完整 CI 已通过（35300813045），包括固定性能门槛。模
 309fce7 的完整 CI 已通过（35306669534），包含迁移后的单元测试发现与重复 DOM 绑定回归。bindTheme 对同一元素、scope 和 runtime 共享订阅与规则，最后一次释放才清理；scope 销毁或初始化失败也撤销元素占用。同一 namespace 的不同 scope/runtime 拒绝竞争，嵌套容器与不同 namespace 仍可独立使用，合同已写入 README。
 
 局部主题 6 项、聚焦 TypeScript、定向 ESLint 和 WebStorm 检查通过；stylesheet 重复绑定的真实 DOM 回归已加入 CI。周额度剩余 49%。
+
+## P4：响应式脚本快照的释放
+
+5efb2de 的完整 CI 已通过（35306872555）。脚本 css 在响应式求值中通过 Svelte 公开 createSubscriber 绑定快照生命周期，重算/消费者销毁后释放旧快照；setup 常量仍保留到组件销毁。同一规则的响应式与 setup 持有者分别计数，防止先释放一个导致另一个失效。该路径保持完整快照，不猜测脚本循环的稳定实例身份。
+
+新增 LifecycleProbe：先在文本中读取 derived，避免测试只覆盖 class 求值上下文；逐次 tick 完成 100 次实际更新，检查规则数有界、setup 样式保留、条件隐藏/恢复和导航回收。相关 SSR 4 项、聚焦 TypeScript、定向 ESLint 与 WebStorm 检查通过；真实浏览器的生命周期结论以本次 CI 为准。

@@ -9,7 +9,7 @@ import {
   hashText,
   type TokenSchema,
 } from '@zui/core';
-import { captureRuntime, type Runtime } from './context.js';
+import { captureRuntime } from './context.js';
 
 type Attributes = Record<string | symbol, unknown>;
 interface Entry {
@@ -30,7 +30,8 @@ export function createStyleScope(owner: () => string, moduleId: string) {
   const getRuntime = captureRuntime();
   const roots = new Map<string, Branch>();
   const entries = new Set<Entry>();
-  const statics = new Map<string, { runtime: Runtime; stop: () => void }>();
+  const statics = new Map<string, () => void>();
+  const snapshots = new Set<() => void>();
   let sequence = 0;
 
   function entryFor(
@@ -110,7 +111,9 @@ export function createStyleScope(owner: () => string, moduleId: string) {
     }
     entries.clear();
     roots.clear();
-    for (const item of statics.values()) item.stop();
+    for (const stop of snapshots) stop();
+    snapshots.clear();
+    for (const stop of statics.values()) stop();
     statics.clear();
   });
 
@@ -177,8 +180,23 @@ export function createStyleScope(owner: () => string, moduleId: string) {
               ),
               moduleId + ':setup',
             );
-            if (statics.has(record.key)) runtime.registry.release(record);
-            else statics.set(record.key, { runtime, stop: () => runtime.registry.release(record) });
+            let released = false;
+            const stop = () => {
+              if (released) return;
+              released = true;
+              snapshots.delete(stop);
+              runtime.registry.release(record);
+            };
+            let tracked = false;
+            // 在响应式求值中由订阅的生命周期释放快照；setup 常量则保留到组件销毁。
+            // 每次调用独立订阅，避免同一个规则被 setup 和 derived 共用时提前释放。
+            createSubscriber(() => {
+              tracked = true;
+              return stop;
+            })();
+            if (tracked) snapshots.add(stop);
+            else if (statics.has(record.key)) stop();
+            else statics.set(record.key, stop);
             getRuntime.assertCollected();
             return record.className;
           },

@@ -28,6 +28,13 @@ afterAll(async () => {
 });
 
 describe('compiled SSR', () => {
+  it('collects setup and derived snapshots with server subscriptions disabled', async () => {
+    const { default: Probe } = await server.ssrLoadModule('/tests/fixtures/LifecycleProbe.svelte');
+    const { renderStyled } = await server.ssrLoadModule('/src/server.ts');
+    const result = await renderStyled(Probe, { props: {} });
+    expect(result.body).toContain('derived snapshot');
+    expect(result.head).toContain('width:100px');
+  });
   it('collects cached module snapshots for every request without request-global rules', async () => {
     const { default: Probe } = await server.ssrLoadModule('/tests/fixtures/ModuleProbe.svelte');
     const { renderStyled } = await server.ssrLoadModule('/src/server.ts');

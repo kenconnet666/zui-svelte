@@ -1,5 +1,32 @@
 import { expect, test } from '@playwright/test';
 
+test('derived snapshots release old rules while setup constants remain available', async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto('/#/__lifecycle-test');
+  const fixed = page.getByTestId('fixed');
+  const changing = page.getByTestId('changing');
+  await expect(changing).toHaveCSS('width', '100px');
+  const initial = await page.locator('style[data-zui="z"]').count();
+  await page.getByRole('button', { name: 'Update 100 times', exact: true }).click();
+  await expect(page.getByTestId('completed')).toHaveText('1');
+  await expect(changing).toHaveCSS('width', '200px');
+  await expect(fixed).toHaveCSS('width', '100px');
+  await expect
+    .poll(() => page.locator('style[data-zui="z"]').count())
+    .toBeLessThanOrEqual(initial + 1);
+  await page.getByRole('button', { name: 'Toggle derived', exact: true }).click();
+  await expect(changing).toHaveCount(0);
+  await expect(fixed).toHaveCSS('width', '100px');
+  await page.getByRole('button', { name: 'Toggle derived', exact: true }).click();
+  await expect(changing).toHaveCSS('width', '200px');
+  expect(errors).toEqual([]);
+  await page.getByRole('navigation').getByRole('link', { name: '概览' }).click();
+  await expect(page.locator('style[data-zui="z"]')).toHaveCount(0);
+});
+
 test('module style snapshots register in the browser and release on navigation', async ({
   page,
 }) => {
