@@ -1,5 +1,6 @@
 export { buildStyle } from './css/builder.js';
 export { createStyleModule } from './runtime/definitions.js';
+export type { CssOptions } from './runtime/evaluation.js';
 export {
   css,
   createCss,

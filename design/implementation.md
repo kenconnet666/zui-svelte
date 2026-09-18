@@ -85,3 +85,9 @@ a31eed1 的 CI 35298784160 已通过 core/Docs 与 Kit 构建；Kit 六项测试
 0b604d1 的完整 CI 已通过（35299148400），包含主题 stylesheet 通道、ZUI 严格 CSP 以及真实 Kit 流式/接管三浏览器验收（Kit 固定播报样式使用精确 hash 例外）。StyleRuntime 改为显式公共 interface，增加只读 stats；规则编译计数用于验证持续更新不反复调用本地规则编译。补上 registry 销毁后拒绝新增资源，以及互斥 target/sheet、变量通道校验。局部 runtime 14 项、聚焦类型和 WebStorm 检查通过。
 
 CI 新增构建产物基准：10,000 次稳定更新、1,000 实例各 100 次更新、100 轮挂载销毁；规则共享、无额外编译和全部活动计数归零作为硬门槛，耗时输出 core/test-results/benchmark.json。首份真实基线尚待本次 CI，不提前给出性能完成结论。
+
+## 显式层级与动态迁移
+
+a8cf60f 的完整 CI 已通过（35299462819），首份 Node 基线已产生：10,000 更新 p95 75.41ms，1,000 实例各 100 更新 p95 806.18ms，100 轮挂载销毁 p95 2.48ms（Linux / Node 24.20.0 / Xeon 8573C；不是浏览器 DOM 性能）。硬计数门槛全部通过。
+
+加入 runtime.layers/layer 和 createCss(theme, {layer})，统一入口，未配置保持原生无层；null 可显式退出默认层。模块定义、setup 快照、模板和普通 binding 共用层合同，安全提升保留层结构；不允许未声明/重复/无效层名。局部相关 core 13 项与 SSR 3 项、后续资源/层级 7 项通过，聚焦类型、ESLint 和 WebStorm 检查通过。新增三浏览器层叠/important 迁移用例交给 CI。多 runtime 共享目标的层序冲突协调仍待后续处理。

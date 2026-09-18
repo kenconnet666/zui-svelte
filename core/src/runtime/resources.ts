@@ -18,7 +18,11 @@ export interface PropertyRegistration {
   initialValue?: string | number;
 }
 
-export function createResources<T extends TokenSchema>(registry: StyleRegistry, theme: Theme<T>) {
+export function createResources<T extends TokenSchema>(
+  registry: StyleRegistry,
+  theme: Theme<T>,
+  layer?: string,
+) {
   const properties = new Map<string, { canonical: string; references: number }>();
   function resource(record: RuleRecord, afterDispose?: () => void): StyleResource {
     let disposed = false;
@@ -41,7 +45,7 @@ export function createResources<T extends TokenSchema>(registry: StyleRegistry, 
         throw new TypeError('Use the dedicated resource API for at-rules.');
       return resource(
         registry.resource(
-          serializeProgram(buildStyle(factory, theme), selector, registry.prefix),
+          serializeProgram(buildStyle(factory, theme, layer), selector, registry.prefix),
           'global:' + selector,
         ),
       );

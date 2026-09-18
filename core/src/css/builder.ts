@@ -6,6 +6,7 @@ import type { Instruction, StyleProgram } from './program.js';
 import { validateQuery, validateValue } from './validate.js';
 import type { Theme, TokenSchema } from '../theme/types.js';
 import { lightTheme, type DefaultTokens } from '../theme/presets.js';
+import { validateLayer, layerProgram } from './layers.js';
 
 export interface StyleHelpers<T extends TokenSchema> {
   _selector(selector: string, factory: StyleFactory<T>): void;
@@ -44,7 +45,9 @@ function invoke<T extends TokenSchema>(factory: StyleFactory<T>, s: StyleBuilder
 export function buildStyle<T extends TokenSchema = DefaultTokens>(
   factory: StyleFactory<T>,
   theme: Theme<T> = lightTheme as unknown as Theme<T>,
+  layer?: string,
 ): StyleProgram {
+  if (layer !== undefined) validateLayer(layer);
   const nodes: Instruction[] = [];
 
   function builder(target: Instruction[], important = false): StyleBuilder<T> {
@@ -143,5 +146,6 @@ export function buildStyle<T extends TokenSchema = DefaultTokens>(
   }
 
   invoke(factory, builder(nodes));
-  return Object.freeze(nodes);
+  const program = Object.freeze(nodes);
+  return layerProgram(program, layer);
 }

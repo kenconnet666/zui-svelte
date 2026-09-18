@@ -8,6 +8,7 @@ import { BrowserStyleSheet, MemoryStyleSheet, type StyleSheet } from './sheet.js
 import { createResources } from './resources.js';
 import type { StyleResource, AnimationResource, PropertyRegistration } from './resources.js';
 import type * as CSS from 'csstype';
+import { validateLayer } from '../css/layers.js';
 
 export interface RuntimeOptions<T extends TokenSchema> {
   theme?: Theme<T>;
@@ -17,6 +18,8 @@ export interface RuntimeOptions<T extends TokenSchema> {
   nonce?: string;
   prefix?: boolean;
   variables?: 'inline' | 'stylesheet';
+  layers?: readonly string[];
+  layer?: string;
 }
 
 export interface RuntimeStats {
@@ -31,6 +34,7 @@ export interface StyleRuntime<T extends TokenSchema = DefaultTokens> {
   /** @internal 编译接入暂用；业务通过其他方法管理样式。 */
   readonly registry: StyleRegistry;
   readonly theme: Theme<T>;
+  readonly layer?: string;
   readonly bindingCount: number;
   readonly stats: RuntimeStats;
   global(selector: string, factory: StyleFactory<T>): StyleResource;
@@ -64,14 +68,27 @@ export function createRuntime<T extends TokenSchema = DefaultTokens>(
   )
     throw new TypeError('Unknown variable output channel.');
   const namespace = options.namespace ?? 'z';
+  if (!/^[a-zA-Z][\w-]*$/u.test(namespace)) throw new TypeError('Invalid style namespace.');
+  const layers = Object.freeze((options.layers ?? []).map(validateLayer));
+  if (new Set(layers).size !== layers.length) throw new TypeError('Duplicate CSS layer.');
+  if (options.layer !== undefined && !layers.includes(options.layer))
+    throw new TypeError('The default CSS layer must be declared.');
   const sheet =
     options.sheet ??
     (options.target
       ? new BrowserStyleSheet(options.target, namespace, options.nonce)
       : new MemoryStyleSheet());
-  const registry = new StyleRegistry(sheet, namespace, options.prefix, options.variables);
+  const registry = new StyleRegistry(
+    sheet,
+    namespace,
+    options.prefix,
+    options.variables,
+    layers,
+    options.layer,
+  );
+  if (layers.length) registry.resource('@layer ' + layers.join(',') + ';', 'layer-order');
   const theme = options.theme ?? (lightTheme as unknown as Theme<T>);
-  const resources = createResources(registry, theme);
+  const resources = createResources(registry, theme, options.layer);
   const bindings = new Map<string, StyleBinding<T>>();
   const staticRules = new Map<string, RuleRecord>();
   let sequence = 0;
@@ -86,6 +103,7 @@ export function createRuntime<T extends TokenSchema = DefaultTokens>(
   return {
     registry,
     theme,
+    layer: options.layer,
     global: resources.global,
     themeStyle: resources.theme,
     keyframes: resources.keyframes,
@@ -93,7 +111,7 @@ export function createRuntime<T extends TokenSchema = DefaultTokens>(
     property: resources.property,
     css(factory: StyleFactory<T>, source = 'static'): string {
       alive();
-      const record = registry.acquire(buildStyle(factory, theme), source);
+      const record = registry.acquire(buildStyle(factory, theme, options.layer), source);
       if (staticRules.has(record.key)) registry.release(record);
       else staticRules.set(record.key, record);
       return record.className;
@@ -109,6 +127,7 @@ export function createRuntime<T extends TokenSchema = DefaultTokens>(
         source: settings.source ?? id,
         maxStructures: settings.maxStructures,
         promote: settings.promote,
+        layer: options.layer,
         onDispose: () => {
           bindings.delete(id);
         },

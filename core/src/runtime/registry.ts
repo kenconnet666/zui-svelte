@@ -3,6 +3,7 @@ import { canonicalize, hashText, serializeProgram } from '../css/serialize.js';
 import { escapeStyleText } from '../css/validate.js';
 import type { StyleSheet } from './sheet.js';
 import { retainDefinition, type StyleDefinition } from './definitions.js';
+import { validateLayer, layerProgram } from '../css/layers.js';
 
 export interface RuleRecord {
   readonly key: string;
@@ -35,6 +36,8 @@ export class StyleRegistry {
     readonly namespace = 'z',
     readonly prefix = true,
     readonly variables: 'inline' | 'stylesheet' = 'inline',
+    readonly layers: readonly string[] = [],
+    readonly layer?: string,
   ) {
     if (!/^[a-zA-Z][\w-]*$/u.test(namespace)) throw new TypeError('Invalid style namespace.');
     for (const entry of sheet.entries()) {
@@ -99,15 +102,30 @@ export class StyleRegistry {
   }
 
   acquireDefinition(definition: StyleDefinition): RuleRecord {
-    const record = this.#retain(definition.canonical, definition.source, () => {
-      this.#compilations++;
-      return {
-        className: definition.className,
-        css: serializeProgram(definition.program, '.' + definition.className, this.prefix),
-      };
-    });
+    const layer = definition.layer === undefined ? this.layer : (definition.layer ?? undefined);
+    this.assertLayer(layer);
+    const record = this.#retain(
+      JSON.stringify([definition.canonical, layer]),
+      definition.source,
+      () => {
+        this.#compilations++;
+        return {
+          className: definition.className,
+          css: serializeProgram(
+            layerProgram(definition.program, layer),
+            '.' + definition.className,
+            this.prefix,
+          ),
+        };
+      },
+    );
     record.releaseDefinition ??= retainDefinition(definition);
     return record;
+  }
+
+  assertLayer(layer?: string): void {
+    if (layer !== undefined && !this.layers.includes(validateLayer(layer)))
+      throw new Error('CSS layer must be declared by the runtime: ' + layer);
   }
 
   updateValues(

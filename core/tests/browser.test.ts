@@ -6,6 +6,9 @@ import {
   defineTheme,
   overrideTheme,
   ThemeScope,
+  ClassController,
+  createCss,
+  lightTheme,
 } from '../src/index.js';
 
 const cleanup: (() => void)[] = [];
@@ -26,6 +29,45 @@ function runtime(namespace: string) {
 }
 
 describe('real DOM style bindings', () => {
+  it('keeps layer precedence and reversed important order across dynamic promotion', () => {
+    const owner = createRuntime({
+      target: document,
+      namespace: 'layers',
+      layers: ['base', 'app'],
+      variables: 'stylesheet',
+    });
+    cleanup.push(() => owner.dispose());
+    const base = createCss(lightTheme, { layer: 'base' });
+    const app = createCss(lightTheme, { layer: 'app' });
+    const producer = new ClassController(owner, 'source', 'source');
+    const consumer = new ClassController(owner, 'target', 'target');
+    cleanup.push(
+      () => producer.dispose(),
+      () => consumer.dispose(),
+    );
+    const node = element();
+    cleanup.push(consumer.mount(node));
+    for (const width of [100, 120, 140]) {
+      node.className = consumer.resolve(
+        producer.run(() => [
+          app((s) => {
+            s.width.px(300);
+            s._important((s) => {
+              s.color('blue');
+            });
+          }),
+          base((s) => {
+            s.width.px(width);
+            s._important((s) => {
+              s.color('red');
+            });
+          }),
+        ]),
+      );
+      expect(getComputedStyle(node).width).toBe('300px');
+      expect(getComputedStyle(node).color).toBe('rgb(255, 0, 0)');
+    }
+  });
   it('binds and switches theme scopes through the stylesheet channel', () => {
     const owner = createRuntime({
       target: document,

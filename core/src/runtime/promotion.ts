@@ -41,7 +41,7 @@ export function canPromote(
   if (
     path.some((query) =>
       query.startsWith('@')
-        ? !/^@(media|supports|container)\s/u.test(query)
+        ? !/^@(media|supports|container|layer)\s/u.test(query)
         : !selfSelector.test(query),
     )
   )

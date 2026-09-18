@@ -31,3 +31,19 @@ Token 别名只能引用同类别的已有键，覆盖后从完整定义重新�
 长度、时间、颜色等类别使用字符串，opacity/zIndex 使用数值；新增值遵守类别约束，覆盖和扩展不能改变已有 Token 的值种类。CSS 标准值的完整语法仍由浏览器解释。
 
 宿主使用 `bindTheme(element, scope, runtime)` 可以沿用 runtime 的变量输出通道；`variables: 'stylesheet'` 时主题切换同样不写 style 属性。返回的清理函数或 scope 销毁会释放对应主题规则。
+
+## 显式层级
+
+宿主一次声明层顺序，类型化 css 入口选择所属层；未配置时保持原生无层样式。
+
+```ts
+const runtime = createRuntime({
+  theme,
+  layers: ['zui.components', 'zui.app'],
+  layer: 'zui.app',
+});
+const componentCss = createCss(theme, { layer: 'zui.components' });
+const plainCss = createCss(theme, { layer: null });
+```
+
+默认层作用于局部 css、普通 binding 和 global 样式，模块静态样式遵守相同规则。`null` 明确选择无层；未声明、重复或无效层名会报错。层顺序并不改变浏览器对 important 的反向优先规则，也不赋予 class 字符串从右向左覆盖语义。

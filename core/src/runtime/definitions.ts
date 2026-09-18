@@ -8,6 +8,7 @@ export interface StyleDefinition {
   readonly source: string;
   readonly program: StyleProgram;
   readonly canonical: string;
+  readonly layer?: string | null;
 }
 
 // 这里只保存只读模块定义；请求主题、变量和 DOM 引用始终属于各自 runtime。
@@ -44,13 +45,24 @@ export function createStyleModule(source: string) {
       let slot = 0;
       return withCssEvaluation(
         () => fn(...args),
-        (factory, theme) => {
+        (factory, theme, layer) => {
           const program = buildStyle(factory, theme);
           const position = source + ':' + site + ':' + slot++;
-          const canonical = JSON.stringify(['module', position, canonicalize(program)]);
+          const canonical = JSON.stringify([
+            'module',
+            position,
+            canonicalize(program),
+            layer === undefined ? false : layer,
+          ]);
           const className = 'z-m-' + hashText(canonical);
           if (!owned.has(className)) {
-            const definition = Object.freeze({ className, source: position, program, canonical });
+            const definition = Object.freeze({
+              className,
+              source: position,
+              program,
+              canonical,
+              layer,
+            });
             owned.set(className, retainDefinition(definition));
           }
           return className;

@@ -16,6 +16,7 @@ export interface BindingOptions {
   readonly supports?: (property: string, value: string) => boolean;
   readonly onDispose?: () => void;
   readonly promote?: boolean;
+  readonly layer?: string;
 }
 interface History {
   program: StyleProgram;
@@ -56,7 +57,7 @@ export class StyleBinding<T extends TokenSchema> {
 
   evaluate(factory: StyleFactory<T>): string {
     if (this.#disposed) throw new Error('Style binding is disposed.');
-    const program = buildStyle(factory, this.theme());
+    const program = buildStyle(factory, this.theme(), this.options.layer);
     return this.update(program);
   }
 

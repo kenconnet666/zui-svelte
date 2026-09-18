@@ -224,7 +224,7 @@ CSS 变量替换可能在计算值阶段才失败，回退行为与直接无效�
 
 `class="a b"` 不保证 b 覆盖 a。原生重要性、层、选择器、style 属性等规则保持不变，见 [CSS Cascade](https://www.w3.org/TR/css-cascade-5/#cascade-sort)。
 
-推荐应用一次声明正常样式层顺序 `zui.reset, zui.theme, zui.components, zui.app, zui.overrides`。应用默认 css 归 zui.app，未来组件默认样式归 zui.components；集成方可固定指定其他层或显式无层。important 的反向层顺序和无层规则必须文档化，不能宣称 overrides 永远最高。
+推荐应用一次声明正常样式层顺序 `zui.reset, zui.theme, zui.components, zui.app, zui.overrides`。显式采用该配置后，应用可将默认层设为 zui.app，组件入口选择 zui.components；集成方可固定指定其他层或通过 null 明确选择无层。未配置时保持原生无层行为，避免悄悄改变已有外部 CSS 的优先级。important 的反向层顺序和无层规则必须文档化，不能宣称 overrides 永远最高。
 
 层配置进入 runtime 与 SSR 的同一 manifest。一个目标出现冲突层顺序必须诊断。配置后不能在同一活跃 runtime 中任意重排层。
 

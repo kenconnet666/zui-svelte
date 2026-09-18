@@ -34,7 +34,12 @@ export class ClassController<T extends TokenSchema> {
     readonly onChange?: () => void,
   ) {}
 
-  #slot(factory: ErasedFactory, theme?: Theme<TokenSchema>): string {
+  #slot(
+    factory: ErasedFactory,
+    theme?: Theme<TokenSchema>,
+    layer: string | null | undefined = this.runtime.layer,
+  ): string {
+    this.runtime.registry.assertLayer(layer ?? undefined);
     const slot = this.#cursor++;
     let binding = this.#bindings[slot];
     if (!binding) {
@@ -45,9 +50,7 @@ export class ClassController<T extends TokenSchema> {
       });
       this.#bindings[slot] = binding;
     }
-    return theme
-      ? binding.update(buildStyle(factory, theme))
-      : binding.evaluate(factory as unknown as StyleFactory<T>);
+    return binding.update(buildStyle(factory, theme ?? this.runtime.theme, layer ?? undefined));
   }
 
   run<R>(read: () => R): R {
@@ -59,7 +62,7 @@ export class ClassController<T extends TokenSchema> {
         for (const binding of this.#bindings.splice(this.#cursor)) binding.dispose();
         return result;
       },
-      (factory, theme) => this.#slot(factory, theme),
+      (factory, theme, layer) => this.#slot(factory, theme, layer),
     );
   }
 

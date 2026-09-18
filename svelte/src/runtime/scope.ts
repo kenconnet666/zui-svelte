@@ -163,10 +163,11 @@ export function createStyleScope(owner: () => string, moduleId: string) {
         if (hasCssEvaluation()) return original(...args);
         return withCssEvaluation(
           () => original(...args),
-          (factory, theme) => {
+          (factory, theme, layer = getRuntime().layer) => {
             const runtime = getRuntime();
+            runtime.registry.assertLayer(layer ?? undefined);
             const record = runtime.registry.acquire(
-              buildStyle(factory, theme ?? runtime.theme),
+              buildStyle(factory, theme ?? runtime.theme, layer ?? undefined),
               moduleId + ':setup',
             );
             if (statics.has(record.key)) runtime.registry.release(record);
