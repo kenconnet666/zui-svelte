@@ -45,6 +45,7 @@ pnpm test
 - [类型生成与主题](design/core-types-theme.md)
 - [依赖说明](design/dependencies.md)
 - [开发与构建](design/development.md)
+- [Codex、WebStorm 与语言服务配置](design/language-services.md)
 - [GitHub CI 与产物交付](design/ci.md)
 - [文档站约定](design/documentation.md)
 

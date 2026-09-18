@@ -229,3 +229,11 @@ db02c4d 的完整 CI 已通过（35312345458），验证普通 class 页面不�
 3ef459f 的 CI 35314320650 在 preserve-caught-error 阻塞：AggregateError 虽包含两个原异常，仍须显式声明 cause。已补充 cause 并单独执行 ESLint 通过。上一批组合命令未在 lint 失败后立即退出，后续 tsc 的成功掩盖了该失败；以本次独立检查和后续 CI 为准。
 
 用户重启 WebStorm 并启用服务驱动类型后，MCP 可返回数字 Token 的 _100: void 和 Svelte derived 的 string 类型，但受控探针的三个 TS 类型错误仍未由 get_file_problems 返回。临时探针已删除。用户授权研究并配置 LSP/MCP，必要时由用户重启 Codex；StyleProvider 容器方案保持已确认，尚未实现。
+
+## 开发工具：可迁移的语言服务与 MCP 配置
+
+54f5eef 的完整 CI 已通过（35315724030）。增加 scripts/language-services 中的只读 MCP 桥接、独立依赖安装脚本和验收脚本，版本集中在 pnpm-workspace.yaml 的 languageServices catalog，不增加产品依赖。design/language-services.md 记录另一台 Windows 电脑的安装、验收、WebStorm 诊断边界和 Codex 重载条件。
+
+本机 setup.ps1 -Verify 已成功：TS/Svelte 错误与修复反复检查、真实 Svelte ComponentProps、hover/定义/引用/补全通过，临时探针已清理；脚本的 PATH 多 Node 命中问题已修复。相关脚本 ESLint 和文档/代码格式检查通过。官方 Svelte MCP 的工具发现和 $props 文档调用通过。全局配置已备份，zui_lsp 与原 svelte 条目完成注册。
+
+Codex CLI 0.154.0 的 daemon version 与 app-server proxy 均无法连接默认控制 socket（Windows 10050）；当前工具目录无重载入口。官方协议支持重载，但本机尚未证明当前桌面任务可热加载，不能以配置写入或独立客户端成功冒充宿主重载成功。独立 MCP 客户端可继续用于关键检查，不阻断 core 工作。
