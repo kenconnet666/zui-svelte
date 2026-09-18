@@ -62,3 +62,5 @@ SSR order 改为字符串键，内部协议从 5 升到 6；自定义 StyleSheet
 新增容器组件、SSR 正负例、公开属性类型检查、共享/嵌套 scope 与 100 次切换的 Docs 回归，以及独立 tarball 的禁 JS 初始主题与客户端切换。A22/A23 已从仅底层能力推进到 Provider 实现；新浏览器/包外回归等待对应提交 CI，Provider 跨 Document/ShadowRoot 接入与多轴偏好仍待补，不能标记整个 R1 完成。
 
 组件使用通用 HTMLAttributes，避免按全部标签展开泛型联合；as 排除 void 标签。根入口包含标准 .svelte 源组件后，普通 Node 直接导入根入口不再是有效消费方式，CI 保留 core 的直接 Node 导入，Svelte 根入口由真实 Vite/Kit 外部安装消费验证。
+
+Provider 基础提交 `734324b` 的完整 CI [35326735754](https://github.com/kenconnet666/zui-svelte/actions/runs/35326735754) 已通过，包含共享/嵌套 scope、100 次主题切换、替换/销毁、独立包禁 JS 和客户端更新。随后增加 ProviderTarget 的 Portal/ShadowRoot 及独立目的地 SSR，PreferenceProbe 的亮暗/密度/对比度/方向/减少动画/forced-colors；新浏览器结果尚待对应 CI。forced-colors 以报告中的媒体能力注解为准，不直接计为所有引擎都已模拟。

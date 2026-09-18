@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { onDestroy, tick } from 'svelte';
-  import { css, createRuntime, lightTheme, ThemeScope } from '@zui/core';
+  import { mount, unmount, onMount, onDestroy, tick } from 'svelte';
+  import { css, createRuntime, lightTheme, ThemeScope, type StyleRuntime } from '@zui/core';
   import { StyleProvider, provideStyleRuntime } from '@zui/svelte';
+  import ProviderTarget from './ProviderTarget.svelte';
 
   const root = new ThemeScope(lightTheme, { color: { text: 'red' } });
   const child = root.fork({ color: { text: 'blue' } });
@@ -10,15 +11,42 @@
   let visible = $state(true);
   let completed = $state(0);
   let clicks = $state(0);
+  let runtime: StyleRuntime | undefined;
   if (typeof document !== 'undefined') {
-    const runtime = createRuntime({
+    runtime = createRuntime({
       target: document,
       namespace: 'provider',
       variables: 'stylesheet',
     });
     provideStyleRuntime(runtime);
-    onDestroy(() => runtime.dispose());
+    onDestroy(() => runtime?.dispose());
   }
+  onMount(() => {
+    const portal = document.createElement('div');
+    const host = document.createElement('div');
+    document.body.append(portal, host);
+    const shadow = host.attachShadow({ mode: 'open' });
+    const shadowRuntime = createRuntime({
+      target: shadow,
+      namespace: 'provider-shadow',
+      variables: 'stylesheet',
+    });
+    const portalComponent = mount(ProviderTarget, {
+      target: portal,
+      props: { scope: root, runtime, label: 'provider-portal' },
+    });
+    const shadowComponent = mount(ProviderTarget, {
+      target: shadow,
+      props: { scope: root, runtime: shadowRuntime, label: 'provider-shadow' },
+    });
+    return () => {
+      void Promise.all([unmount(portalComponent), unmount(shadowComponent)]).finally(() => {
+        shadowRuntime.dispose();
+        portal.remove();
+        host.remove();
+      });
+    };
+  });
   onDestroy(() => {
     root.dispose();
     alternate.dispose();

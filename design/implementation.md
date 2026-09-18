@@ -257,3 +257,11 @@ Codex CLI 0.154.0 的 daemon version 与 app-server proxy 均无法连接默认�
 10 项相关 SSR 测试、svelte-check（0 errors / 0 warnings）、ESLint 和 Svelte autofixer 的结构检查通过。LSP 对组件诊断正常；单独查询 tests/provider-types.ts 时进入未带 zui-source 的推断项目而报包解析错误，此处以项目实际 tsconfig.check.json 的 svelte-check 结果为准，未把 LSP 结果计作通过。独立 Kit/package fixture 尚未本地构建，配置加载日志沿用既有隔离检查边界。
 
 新增 Docs 的共享/嵌套 scope、100 次切换、scope 替换/销毁、容器属性及卸载回收回归；独立 tarball 增加 Provider 禁 JS 首屏、嵌套主题与客户端切换。上述浏览器/包外结果交给 CI。根入口包含 .svelte 后普通 Node 不直接执行该入口，CI 保留 core Node 导入，Svelte 根入口交给真实外部 Vite/Kit 编译消费。R1 的 Portal/ShadowRoot 与偏好探针仍未收口。
+
+## R1：独立主题目标与偏好探针
+
+734324b 的完整 CI 已通过（35326735754）：Provider 共享/嵌套、100 次切换、scope 替换/销毁、禁 JS 独立 tarball 与客户端主题切换均有三浏览器及真实包消费证据。
+
+本批复用 ProviderTarget 验证同一 scope 在 Portal 与 ShadowRoot 的独立挂载，目标显式提供 runtime，增加同步主题与卸载清理回归；SSR 独立目的地继续使用请求 collector。新增 PreferenceProbe，以普通函数组合 light/dark、compact、contrast，CSS 处理减少动画与 forced-colors，HTML dir 处理方向；未增加偏好管理 API。文档站修正旧的未实现说明并展示真实探针。
+
+相关 Svelte 类型检查、ESLint、LSP 文档页诊断、Svelte autofixer 与独立目的地 SSR 单例通过。浏览器结果交给本轮 CI；forced-colors 记录实际媒体模拟能力，不把未激活的引擎算作该项视觉验证完成。

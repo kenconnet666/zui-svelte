@@ -49,6 +49,21 @@ describe('compiled SSR', () => {
     expect(result.head).toContain('--custom-color-brand:green');
     scope.dispose();
   });
+
+  it('renders an independent destination through its request runtime', async () => {
+    const { default: Target } = await server.ssrLoadModule('/tests/fixtures/ProviderTarget.svelte');
+    const { renderStyled } = await server.ssrLoadModule('/src/server.ts');
+    const { ThemeScope, lightTheme } = await server.ssrLoadModule('@zui/core');
+    const scope = new ThemeScope(lightTheme, { color: { text: 'green' } });
+    const result = await renderStyled(Target, {
+      props: { scope, label: 'destination' },
+      runtime: { namespace: 'destination' },
+    });
+    expect(result.body).toContain('data-testid="destination"');
+    expect(result.head).toContain(':where(.destination-theme-');
+    expect(result.head).toContain('--z-color-text:green');
+    scope.dispose();
+  });
   it('collects provider theme styles without subscribing to or disposing the caller scope', async () => {
     const { default: Provider } = await server.ssrLoadModule('/src/StyleProvider.svelte');
     const { renderStyled } = await server.ssrLoadModule('/src/server.ts');

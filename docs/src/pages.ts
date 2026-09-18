@@ -8,6 +8,7 @@ import ModuleProbe from '../../svelte/tests/fixtures/ModuleProbe.svelte';
 import LifecycleProbe from '../../svelte/tests/fixtures/LifecycleProbe.svelte';
 import PlainClassProbe from '../../svelte/tests/fixtures/PlainClassProbe.svelte';
 import ProviderProbe from '../../svelte/tests/fixtures/ProviderProbe.svelte';
+import PreferenceProbe from '../../svelte/tests/fixtures/PreferenceProbe.svelte';
 
 export const pages = [
   { path: '/', title: '概览', component: Home },
@@ -22,6 +23,7 @@ export const routes = {
   '/__lifecycle-test': LifecycleProbe,
   '/__plain-class-test': PlainClassProbe,
   '/__provider-test': ProviderProbe,
+  '/__preferences-test': PreferenceProbe,
   ...Object.fromEntries(pages.map((page) => [page.path, page.component])),
   '*': NotFound,
 };

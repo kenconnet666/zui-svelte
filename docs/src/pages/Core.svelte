@@ -1,8 +1,8 @@
 <script lang="ts">
   import CodeBlock from '../ui/CodeBlock.svelte';
+  import PreferenceProbe from '../../../svelte/tests/fixtures/PreferenceProbe.svelte';
 
-  const example =
-    '.panel {\n  width: var(--z-panel-width);\n}\n\n/* Each element owns its current value. */\n/* style="--z-panel-width: 240px" */';
+  const example = 'css((s) => {\n  s.width.px(width);\n  s.color._text;\n});';
 </script>
 
 <p class="eyebrow">FOUNDATION</p>
@@ -11,17 +11,23 @@
 <section class="article">
   <h2>运行时自动提升</h2>
   <p>
-    目标是在同一声明位置发生值变化时，自动将该值提升为 CSS
-    变量。使用者继续编写普通样式，无需动态值标记。
+    同一绑定的普通值初次保持静态，变化后在安全条件下提升为 CSS
+    变量。使用者继续编写普通样式，无需动态值标记；不满足安全条件时保留完整规则。
   </p>
   <CodeBlock code={example} />
-  <p class="caption">预期输出示意。自动提升机制尚未实现。</p>
+  <p class="caption">返回值为普通 class 字符串；组件需要接入 ZUI 编译插件。</p>
+  <h2>真实主题容器</h2>
+  <p>各偏好通过普通函数组合，局部主题由 StyleProvider 输出；系统减少动画偏好使用 CSS 媒体条件。</p>
+  <PreferenceProbe />
   <h2>职责边界</h2>
   <ul>
     <li>Core 管理 CSS 描述、主题、规则共享、变量提升与样式回收。</li>
     <li>Svelte 负责响应式订阅、DOM 绑定和组件生命周期。</li>
     <li>结构变化重新匹配规则；值变化尽量只更新元素的 CSS 变量。</li>
   </ul>
-  <h2>待讨论</h2>
-  <p>公开 API、绑定方式、主题扩展与自动提升的边界正在规划。完整草案位于仓库 design/core.md。</p>
+  <h2>验收边界</h2>
+  <p>
+    首版仍在收口，主题容器与自动提升已有实现；剩余工作与逐项证据见仓库 design/core-remaining-plan.md
+    和 design/core-acceptance.md。
+  </p>
 </section>

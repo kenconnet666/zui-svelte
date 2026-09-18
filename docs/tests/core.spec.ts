@@ -1,5 +1,54 @@
 import { expect, test } from '@playwright/test';
 
+test('composes theme preferences and respects direction and reduced motion', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference', forcedColors: 'none' });
+  await page.goto('/#/__preferences-test');
+  const control = page.getByTestId('preference-control');
+  await expect(control).toHaveCSS('height', '36px');
+  await expect(control).toHaveCSS('color', 'rgb(15, 23, 42)');
+  await expect(control).toHaveCSS('transition-duration', '0.2s');
+  await expect(page.getByTestId('preference-disabled')).toBeDisabled();
+  await page.getByRole('button', { name: 'Toggle dark' }).click();
+  await expect(control).toHaveCSS('color', 'rgb(248, 250, 252)');
+  await page.getByRole('button', { name: 'Toggle compact' }).click();
+  await expect(control).toHaveCSS('height', '28px');
+  await expect(control).toHaveCSS('color', 'rgb(248, 250, 252)');
+  await page.getByRole('button', { name: 'Toggle contrast' }).click();
+  await expect(control).toHaveCSS('color', 'rgb(255, 255, 255)');
+  await expect(control).toHaveCSS('border-top-width', '2px');
+  await expect(control).toHaveCSS('height', '28px');
+  await page.getByRole('button', { name: 'Toggle direction' }).click();
+  await expect(control).toHaveCSS('direction', 'rtl');
+  await expect(control).toHaveCSS('padding-right', '16px');
+  await expect(control).toHaveCSS('padding-left', '8px');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(control).toHaveCSS('transition-duration', '0s');
+  await page.keyboard.press('Tab');
+  await control.focus();
+  await expect(control).toHaveCSS('outline-width', '2px');
+  await page.emulateMedia({ forcedColors: 'active' });
+  const forced = await page.evaluate(() => matchMedia('(forced-colors: active)').matches);
+  test
+    .info()
+    .annotations.push({
+      type: 'forced-colors-media',
+      description: forced
+        ? 'active'
+        : 'engine did not activate emulation; forced color comparison unavailable',
+    });
+  if (forced) {
+    const systemText = await page.evaluate(() => {
+      const reference = document.createElement('span');
+      reference.style.color = 'CanvasText';
+      document.body.append(reference);
+      const color = getComputedStyle(reference).color;
+      reference.remove();
+      return color;
+    });
+    await expect(control).toHaveCSS('color', systemText);
+  }
+});
+
 test('provider scopes update, replace and release without taking ownership of shared scopes', async ({
   page,
 }) => {
@@ -10,6 +59,8 @@ test('provider scopes update, replace and release without taking ownership of sh
   const shared = page.getByTestId('provider-shared');
   await expect(root).toHaveCSS('color', 'rgb(255, 0, 0)');
   await expect(shared).toHaveCSS('color', 'rgb(255, 0, 0)');
+  await expect(page.getByTestId('provider-portal')).toHaveCSS('color', 'rgb(255, 0, 0)');
+  await expect(page.getByTestId('provider-shadow')).toHaveCSS('color', 'rgb(255, 0, 0)');
   await expect(page.getByTestId('provider-child')).toHaveCSS('color', 'rgb(0, 0, 255)');
   await expect(page.getByTestId('provider-container')).toHaveCSS('padding-top', '7px');
   await expect(page.getByTestId('provider-container')).toHaveClass(/custom-provider/u);
@@ -23,6 +74,8 @@ test('provider scopes update, replace and release without taking ownership of sh
   await expect(page.getByTestId('provider-completed')).toHaveText('1');
   await expect(root).toHaveCSS('color', 'rgb(0, 128, 0)');
   await expect(shared).toHaveCSS('color', 'rgb(0, 128, 0)');
+  await expect(page.getByTestId('provider-portal')).toHaveCSS('color', 'rgb(0, 128, 0)');
+  await expect(page.getByTestId('provider-shadow')).toHaveCSS('color', 'rgb(0, 128, 0)');
   await expect(page.getByTestId('provider-child')).toHaveCSS('color', 'rgb(0, 0, 255)');
   await expect(page.locator('style[data-zui="provider"]')).toHaveCount(count);
   await page.getByRole('button', { name: 'Replace scope' }).click();
@@ -45,6 +98,8 @@ test('provider scopes update, replace and release without taking ownership of sh
   expect(errors).toEqual([]);
   await page.getByRole('navigation').getByRole('link', { name: '概览' }).click();
   await expect(page.locator('style[data-zui="provider"]')).toHaveCount(0);
+  await expect(page.getByTestId('provider-portal')).toHaveCount(0);
+  await expect(page.getByTestId('provider-shadow')).toHaveCount(0);
 });
 
 test('ordinary class bindings do not create a style runtime or inject theme rules', async ({
