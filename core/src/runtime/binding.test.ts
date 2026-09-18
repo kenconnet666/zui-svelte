@@ -2,6 +2,53 @@ import { describe, expect, it } from 'vitest';
 import { createRuntime } from './runtime.js';
 
 describe('runtime promotion', () => {
+  it('commits updates and releases all runtime resources even when a subscriber throws', () => {
+    const runtime = createRuntime();
+    const a = runtime.binding();
+    const b = runtime.binding();
+    a.evaluate((s) => {
+      s.width.px(10);
+    });
+    b.evaluate((s) => {
+      s.height.px(10);
+    });
+    const observed: number[] = [];
+    a.subscribe((snapshot) => {
+      if (snapshot.revision !== 1) throw new Error('consumer failed');
+    });
+    a.subscribe((snapshot) => observed.push(snapshot.revision));
+    expect(() =>
+      a.evaluate((s) => {
+        s.width.px(20);
+      }),
+    ).toThrow('subscribers failed');
+    expect(observed).toEqual([1, 2]);
+    expect(Object.values(a.snapshot.variables)).toEqual(['20px']);
+    expect(() => runtime.dispose()).toThrow('cleanup failed');
+    expect(runtime.stats.bindings).toBe(0);
+    expect(runtime.stats.rules).toBe(0);
+    expect(runtime.stats.sources).toBe(0);
+    expect(runtime.stats.styleEntries).toBe(0);
+    expect(observed).toEqual([1, 2, 0]);
+    expect(() => runtime.dispose()).not.toThrow();
+  });
+
+  it('does not retain a subscriber that fails during initial notification', () => {
+    const runtime = createRuntime();
+    const binding = runtime.binding();
+    let calls = 0;
+    expect(() =>
+      binding.subscribe(() => {
+        calls++;
+        throw new Error('initial failure');
+      }),
+    ).toThrow('initial failure');
+    binding.evaluate((s) => {
+      s.opacity(0.5);
+    });
+    expect(calls).toBe(1);
+    runtime.dispose();
+  });
   it('releases source bookkeeping during repeated mount and dispose', () => {
     const runtime = createRuntime();
     for (let i = 0; i < 1000; i++) {

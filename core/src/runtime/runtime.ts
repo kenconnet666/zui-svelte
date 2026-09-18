@@ -9,6 +9,7 @@ import { createResources } from './resources.js';
 import type { StyleResource, AnimationResource, PropertyRegistration } from './resources.js';
 import type * as CSS from 'csstype';
 import { validateLayer } from '../css/layers.js';
+import { runAll } from './callbacks.js';
 
 export interface RuntimeOptions<T extends TokenSchema> {
   theme?: Theme<T>;
@@ -159,11 +160,13 @@ export function createRuntime<T extends TokenSchema = DefaultTokens>(
     dispose(): void {
       if (disposed) return;
       disposed = true;
-      for (const binding of bindings.values()) binding.dispose();
+      const releases = [...bindings.values()].map((binding) => () => binding.dispose());
       bindings.clear();
       staticRules.clear();
-      resources.dispose();
-      registry.dispose();
+      runAll(
+        [...releases, () => resources.dispose(), () => registry.dispose()],
+        'Style runtime cleanup failed.',
+      );
     },
   };
 }

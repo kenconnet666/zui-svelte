@@ -4,6 +4,7 @@ import { escapeStyleText } from '../css/validate.js';
 import type { StyleSheet } from './sheet.js';
 import { retainDefinition, type StyleDefinition } from './definitions.js';
 import { validateLayer, layerProgram } from '../css/layers.js';
+import { runAll } from './callbacks.js';
 
 export interface RuleRecord {
   readonly key: string;
@@ -132,10 +133,10 @@ export class StyleRegistry {
     record: RuleRecord,
     variables: Readonly<Record<string, string>>,
     program: StyleProgram,
-  ): void {
+  ): boolean {
     if (JSON.stringify(record.variables) === JSON.stringify(variables)) {
       record.program = program;
-      return;
+      return false;
     }
     if (this.variables === 'stylesheet') {
       // 复用实例 class 写变量；严格 CSP 下不生成 style 属性，也不重新运行 Stylis。
@@ -152,7 +153,7 @@ export class StyleRegistry {
     }
     record.program = program;
     record.variables = Object.freeze({ ...variables });
-    for (const notify of record.listeners) notify();
+    return true;
   }
 
   subscribe(record: RuleRecord, notify: () => void): () => void {
@@ -238,11 +239,13 @@ export class StyleRegistry {
   dispose(): void {
     if (this.#disposed) return;
     this.#disposed = true;
-    this.sheet.dispose();
-    for (const record of this.#records.values()) record.releaseDefinition?.();
+    const releases = [...this.#records.values()].flatMap((record) =>
+      record.releaseDefinition ? [record.releaseDefinition] : [],
+    );
     this.#records.clear();
     this.#classes.clear();
     this.#orders.clear();
     this.#hydratedOrders.clear();
+    runAll([() => this.sheet.dispose(), ...releases], 'Style registry cleanup failed.');
   }
 }

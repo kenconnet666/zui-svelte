@@ -3,6 +3,7 @@ import { replaceValues, type StyleProgram } from '../css/program.js';
 import type { Theme, TokenSchema } from '../theme/types.js';
 import { canPromote, declarationsOf, structureOf } from './promotion.js';
 import type { RuleRecord, StyleRegistry } from './registry.js';
+import { runAll } from './callbacks.js';
 
 export interface StyleSnapshot {
   readonly className: string;
@@ -114,8 +115,9 @@ export class StyleBinding<T extends TokenSchema> {
       record = this.registry.acquire(replaceValues(program, slots), this.options.source);
       acquired = true;
     }
+    let valuesChanged: boolean;
     try {
-      this.registry.updateValues(record, variables, program);
+      valuesChanged = this.registry.updateValues(record, variables, program);
     } catch (error) {
       if (acquired) this.registry.release(record);
       throw error;
@@ -129,21 +131,36 @@ export class StyleBinding<T extends TokenSchema> {
     while (this.#history.size > this.#limit)
       this.#history.delete(this.#history.keys().next().value!);
     const sameVariables = JSON.stringify(variables) === JSON.stringify(this.#snapshot.variables);
+    const notifications: (() => void)[] = valuesChanged
+      ? [...record.listeners].map((notify) => () => {
+          if (record.listeners.has(notify)) notify();
+        })
+      : [];
     if (record.className !== this.#snapshot.className || !sameVariables) {
       this.#snapshot = Object.freeze({
         className: record.className,
         variables: Object.freeze(variables),
         revision: this.#snapshot.revision + 1,
       });
-      for (const listener of this.#listeners) listener(this.#snapshot);
+      for (const listener of this.#listeners)
+        notifications.push(() => {
+          if (this.#listeners.has(listener)) listener(this.#snapshot);
+        });
     }
+    // 通知发生在提交之后，不能把消费者异常误判为样式表写入失败而回滚规则。
+    runAll(notifications, 'Style subscribers failed.');
     return this.#snapshot.className;
   }
 
   subscribe(listener: (snapshot: StyleSnapshot) => void): () => void {
     if (this.#disposed) throw new Error('Style binding is disposed.');
     this.#listeners.add(listener);
-    listener(this.#snapshot);
+    try {
+      listener(this.#snapshot);
+    } catch (error) {
+      this.#listeners.delete(listener);
+      throw error;
+    }
     return () => {
       this.#listeners.delete(listener);
     };
@@ -153,11 +170,20 @@ export class StyleBinding<T extends TokenSchema> {
     if (this.#disposed) return;
     this.#disposed = true;
     this.#snapshot = emptySnapshot;
-    for (const listener of this.#listeners) listener(emptySnapshot);
+    const notifications = [...this.#listeners].map((listener) => () => listener(emptySnapshot));
     this.#listeners.clear();
-    if (this.#record) this.registry.release(this.#record);
+    const record = this.#record;
     this.#record = undefined;
     this.#history.clear();
-    this.options.onDispose?.();
+    runAll(
+      [
+        ...notifications,
+        () => {
+          if (record) this.registry.release(record);
+        },
+        () => this.options.onDispose?.(),
+      ],
+      'Style binding cleanup failed.',
+    );
   }
 }

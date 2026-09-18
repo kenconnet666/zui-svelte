@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { cpus, platform } from 'node:os';
 import { performance } from 'node:perf_hooks';
 import { createRuntime } from '../core/dist/index.js';
@@ -86,7 +86,22 @@ measure('100-mount-dispose-cycles', () => {
 });
 
 const report = { node: process.version, platform: platform(), cpu: cpus()[0]?.model, results };
+const budget = JSON.parse(
+  await readFile(new URL('../design/core-performance-budget.json', import.meta.url), 'utf8'),
+);
+const comparable =
+  report.platform === budget.reference.platform &&
+  report.cpu === budget.reference.cpu &&
+  report.node.split('.')[0] === budget.reference.node.split('.')[0];
+report.timingBudget = comparable ? 'enforced' : 'different-environment';
 const directory = new URL('../core/test-results/', import.meta.url);
 await mkdir(directory, { recursive: true });
 await writeFile(new URL('benchmark.json', directory), JSON.stringify(report, null, 2) + '\n');
 console.log(JSON.stringify(report));
+if (comparable) {
+  for (const result of results)
+    assert.ok(
+      result.p95Ms <= budget.p95LimitsMs[result.name],
+      result.name + ' exceeded its p95 budget',
+    );
+}

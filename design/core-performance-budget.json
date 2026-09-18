@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "referenceCommit": "a8cf60f0f1521f76d8e374c937a1ccb584a5e382",
+  "referenceRun": "https://github.com/kenconnet666/zui-svelte/actions/runs/35299462819",
+  "reference": {
+    "node": "v24.20.0",
+    "platform": "linux",
+    "cpu": "INTEL(R) XEON(R) PLATINUM 8573C",
+    "results": [
+      {
+        "name": "10000-stable-updates",
+        "samplesMs": [
+          68.89384100000001, 71.47911200000004, 72.06705499999998, 74.138182, 75.411946
+        ],
+        "p50Ms": 72.06705499999998,
+        "p95Ms": 75.411946
+      },
+      {
+        "name": "1000-instances-100-updates",
+        "samplesMs": [
+          695.3067689999998, 724.76307, 738.4965339999999, 745.5763790000001, 806.181818
+        ],
+        "p50Ms": 738.4965339999999,
+        "p95Ms": 806.181818
+      },
+      {
+        "name": "100-mount-dispose-cycles",
+        "samplesMs": [
+          1.844426999999996, 2.238883999999416, 2.2779600000003484, 2.4750059999996665,
+          2.484570000000531
+        ],
+        "p50Ms": 2.2779600000003484,
+        "p95Ms": 2.484570000000531
+      }
+    ]
+  },
+  "p95LimitsMs": {
+    "10000-stable-updates": 250,
+    "1000-instances-100-updates": 2500,
+    "100-mount-dispose-cycles": 50
+  },
+  "policy": "同 CPU、平台和 Node 主版本约束时延；其他机器仅记录时延。资源与规则计数在所有环境硬校验。"
+}

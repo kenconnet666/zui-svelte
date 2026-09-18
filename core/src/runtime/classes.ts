@@ -7,6 +7,7 @@ import type { StyleBinding } from './binding.js';
 import type { RuleRecord } from './registry.js';
 import { createVariableBinding } from './variables.js';
 import { findDefinition } from './definitions.js';
+import { runAll } from './callbacks.js';
 
 type ErasedFactory = StyleFactory<TokenSchema>;
 import { withCssEvaluation } from './evaluation.js';
@@ -146,11 +147,12 @@ export class ClassController<T extends TokenSchema> {
   dispose(): void {
     if (this.#disposed) return;
     this.#disposed = true;
-    for (const target of this.#targets) target.dispose();
+    const releases = [...this.#targets].map((target) => () => target.dispose());
     this.#targets.clear();
-    for (const stop of this.#records.values()) stop();
+    releases.push(...this.#records.values());
     this.#records.clear();
-    for (const binding of this.#bindings) binding.dispose();
+    releases.push(...this.#bindings.map((binding) => () => binding.dispose()));
     this.#bindings.length = 0;
+    runAll(releases, 'Class controller cleanup failed.');
   }
 }

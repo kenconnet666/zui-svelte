@@ -1,6 +1,7 @@
 import { createVariableBinding } from '../runtime/variables.js';
 import { bindElement } from '../runtime/element.js';
 import type { StyleRuntime } from '../runtime/runtime.js';
+import { runAll } from '../runtime/callbacks.js';
 import { validateValue } from '../css/validate.js';
 import { overrideTheme, tokenRef, isReference } from './theme.js';
 import type { Theme, ThemePatch, TokenSchema, WidenTokens } from './types.js';
@@ -56,17 +57,14 @@ export class ThemeScope<T extends TokenSchema> {
   #commit(pending: Map<ThemeScope<T>, Theme<WidenTokens<T>>>) {
     // 先验证整棵子作用域，再统一提交，避免子级别名失败导致父级已切换。
     for (const [scope, theme] of pending) scope.#theme = theme;
-    const errors: unknown[] = [];
+    const notifications: (() => void)[] = [];
     for (const [scope, theme] of pending)
       for (const listener of [...scope.#listeners.keys()]) {
-        if (!scope.#listeners.has(listener)) continue;
-        try {
-          listener(theme);
-        } catch (error) {
-          errors.push(error);
-        }
+        notifications.push(() => {
+          if (scope.#listeners.has(listener)) listener(theme);
+        });
       }
-    if (errors.length) throw new AggregateError(errors, 'Theme subscribers failed.');
+    runAll(notifications, 'Theme subscribers failed.');
   }
   get theme(): Theme<WidenTokens<T>> {
     return this.#theme;
@@ -109,8 +107,15 @@ export class ThemeScope<T extends TokenSchema> {
       notify(this.#theme);
     } catch (error) {
       this.#listeners.delete(notify);
-      cleanup?.();
-      throw error;
+      runAll(
+        [
+          () => {
+            throw error;
+          },
+          () => cleanup?.(),
+        ],
+        'Initial theme notification failed.',
+      );
     }
     return () => {
       if (this.#listeners.delete(notify)) cleanup?.();
@@ -119,11 +124,12 @@ export class ThemeScope<T extends TokenSchema> {
   dispose(): void {
     if (this.#disposed) return;
     this.#disposed = true;
-    for (const child of this.#children) child.dispose();
+    const releases = [...this.#children].map((child) => () => child.dispose());
     this.#children.clear();
-    for (const cleanup of this.#listeners.values()) cleanup?.();
+    for (const cleanup of this.#listeners.values()) if (cleanup) releases.push(cleanup);
     this.#listeners.clear();
     if (this.parent) this.parent.#children.delete(this);
+    runAll(releases, 'Theme scope cleanup failed.');
   }
 }
 
@@ -160,8 +166,7 @@ export function bindTheme<T extends TokenSchema, U extends TokenSchema = TokenSc
         );
       },
       () => {
-        detach();
-        binding.dispose();
+        runAll([detach, () => binding.dispose()], 'Theme binding cleanup failed.');
       },
     );
   }
