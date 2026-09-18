@@ -82,8 +82,15 @@ export class ClassController<T extends TokenSchema> {
     }
     const changed = JSON.stringify(this.#variables) !== JSON.stringify(values);
     this.#variables = Object.freeze(values);
-    for (const target of this.#targets) target.update(values);
-    if (changed) this.onChange?.();
+    runAll(
+      [
+        ...[...this.#targets].map((target) => () => target.update(values)),
+        () => {
+          if (changed) this.onChange?.();
+        },
+      ],
+      'Class targets failed to update.',
+    );
   }
 
   resolve(value: unknown): string {
@@ -151,11 +158,24 @@ export class ClassController<T extends TokenSchema> {
     if (this.#disposed) throw new Error('Class controller is disposed.');
     if (this.runtime.registry.variables === 'stylesheet') return () => {};
     const target = createVariableBinding(node, false);
+    try {
+      target.update(this.#variables);
+    } catch (error) {
+      // 首次挂载也可能只写入部分变量，失败后不能留下无人持有的节点状态。
+      runAll(
+        [
+          () => {
+            throw error;
+          },
+          () => target.dispose(),
+        ],
+        'Class target initialization failed.',
+      );
+    }
     this.#targets.add(target);
-    target.update(this.#variables);
     return () => {
-      target.dispose();
       this.#targets.delete(target);
+      target.dispose();
     };
   }
 

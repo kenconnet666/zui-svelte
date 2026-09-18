@@ -32,6 +32,23 @@ function runtime(namespace: string) {
 }
 
 describe('real DOM style bindings', () => {
+  it('keeps a hyphenated theme namespace from overwriting an instance variable', () => {
+    const owner = runtime('variable-domains');
+    const node = element();
+    const binding = owner.binding({ id: 'panel' });
+    for (const width of [100, 120])
+      binding.evaluate((s) => {
+        s.width.px(width);
+      });
+    cleanup.push(bindElement(node, binding));
+    const theme = defineTheme({ panel: { '0': 'red' } }, { namespace: 'variable-domains-b' });
+    const scope = new ThemeScope(theme);
+    cleanup.push(() => scope.dispose());
+    cleanup.push(bindTheme(node, scope));
+    expect(getComputedStyle(node).width).toBe('120px');
+    scope.override({ panel: { '0': 'blue' } });
+    expect(getComputedStyle(node).width).toBe('120px');
+  });
   it('keeps inherited values out of variable promotion regardless of spelling', () => {
     const owner = runtime('wide-keywords');
     const parent = element();

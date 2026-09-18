@@ -165,3 +165,9 @@ d815fe4 的完整 CI 已通过（35308700961），包含协议/nonce/重复元�
 67110d8 的完整 CI 已通过（35308963271），包含选择器隔离与 CSS-wide 关键字三浏览器回归。新增 100 个交错 createStyleHandle 请求，实际 Svelte 渲染通过 ALS 获取各自 runtime，分别验证主题、nonce、namespace、width 输出与响应消费后样式表归零。首屏主题规则写入纳入 renderStyled 的 try/finally，初始化失败同样释放 runtime。
 
 相关 SSR/响应生命周期 10 项和聚焦 TypeScript 检查通过。WebStorm 对 server.ts 通过；SSR 测试首轮超时，单文件重查通过。测试替身最初的 Component 返回类型不匹配已修正，未绕过类型检查。
+
+## P3：变量域隔离与 DOM 异常清理
+
+66915d5 的完整 CI 已通过（35309303459），包含百路交错 SSR 请求回收。主题与动态绑定的 namespace 也采用片段编码，保证主题变量的三段结构与绑定变量的四段结构不能相互冒充；内部协议递增为 2，编译产物和 SSR 接管同时核对新版本。加入跨 namespace 的单元和真实 DOM 回归。
+
+ClassController 完整通知各个挂载目标，首次挂载失败撤销部分变量；bindElement 首次订阅失败同样清理，销毁时变量异常不阻断 class/订阅释放。共用既有 runAll，未增加业务 API；测试 DOM 替身集中放在 runtime/test/target.ts，不进入产物。相关 19 项、故障注入与引用相关 13 项、聚焦 TypeScript、ESLint 和 WebStorm 检查通过。格式化曾因临时文件占用失败，单文件重跑已成功。

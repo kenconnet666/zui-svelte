@@ -1,28 +1,23 @@
 import { describe, expect, it } from 'vitest';
 import { createVariableBinding } from '../variables.js';
 import { createRuntime } from '../runtime.js';
-
-function target() {
-  const values = new Map<string, string>();
-  const priorities = new Map<string, string>();
-  const style = {
-    getPropertyValue: (name: string) => values.get(name) ?? '',
-    getPropertyPriority: (name: string) => priorities.get(name) ?? '',
-    setProperty: (name: string, value: string, priority = '') => {
-      values.set(name, value);
-      priorities.set(name, priority);
-    },
-    removeProperty: (name: string) => {
-      const previous = values.get(name) ?? '';
-      values.delete(name);
-      priorities.delete(name);
-      return previous;
-    },
-  };
-  return { node: { style } as unknown as HTMLElement, values };
-}
+import { defineTheme } from '../../theme/theme.js';
+import { elementTarget as target } from './target.js';
 
 describe('shared CSS variable ownership', () => {
+  it('keeps theme namespaces distinct from dynamic binding variables', () => {
+    const theme = defineTheme({ panel: { '0': 'red' } }, { namespace: 'z-b' });
+    const runtime = createRuntime({ namespace: 'z' });
+    const binding = runtime.binding({ id: 'panel' });
+    for (const width of [100, 120])
+      binding.evaluate((s) => {
+        s.width.px(width);
+      });
+    expect(theme.variable('panel', '0')).not.toBe(Object.keys(binding.snapshot.variables)[0]);
+    const escaped = defineTheme({ panel: { '0': 'red' } }, { namespace: 'z_2d_b' });
+    expect(theme.variable('panel', '0')).not.toBe(escaped.variable('panel', '0'));
+    runtime.dispose();
+  });
   it('restores the first original value only after both owners leave', () => {
     const { node, values } = target();
     values.set('--value', 'original');

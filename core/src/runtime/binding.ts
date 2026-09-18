@@ -46,7 +46,8 @@ export class StyleBinding<T extends TokenSchema> {
     readonly options: BindingOptions,
   ) {
     if (!/^[a-zA-Z0-9_-]+$/u.test(options.id)) throw new TypeError('Invalid binding ID.');
-    this.#variablePrefix = '--' + registry.namespace + '-b-' + encodeSegment(options.id) + '-';
+    this.#variablePrefix =
+      '--' + encodeSegment(registry.namespace) + '-b-' + encodeSegment(options.id) + '-';
     this.#limit = options.maxStructures ?? 8;
     if (!Number.isInteger(this.#limit) || this.#limit < 1)
       throw new TypeError('Invalid structure cache size.');

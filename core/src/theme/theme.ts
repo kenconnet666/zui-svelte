@@ -85,10 +85,12 @@ function createTheme(tokens: ThemeDefinition, namespace: string): Theme<TokenSch
     Object.freeze(resolved[category]);
   }
   const snapshot = Object.freeze(resolved);
+  const variablePrefix = '--' + encodeSegment(namespace) + '-';
   function variable(category: string, token: string): string {
     if (!Object.hasOwn(snapshot[category] ?? {}, token))
       throw new TypeError('Unknown theme token: ' + category + '.' + token);
-    return '--' + namespace + '-' + encodeSegment(category) + '-' + encodeSegment(token);
+    // 所有片段均编码：主题变量固定三段，不会冒充四段的动态绑定变量。
+    return variablePrefix + encodeSegment(category) + '-' + encodeSegment(token);
   }
   return Object.freeze({
     namespace,
