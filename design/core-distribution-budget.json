@@ -4,5 +4,7 @@
   "baseGzipBytes": 10000,
   "declarationBytes": 800000,
   "browserUpdateP95Ms": 5000,
+  "typeCheckMaxMs": 60000,
+  "typeMemoryMaxKiB": 800000,
   "policy": "完整 core ESM 浏览器 bundle（含属性元数据）与全部声明的首版上限；升级门槛必须审阅差异，不因失败自动更新。"
 }

@@ -1,5 +1,7 @@
 # Core 性能基线与门槛
 
+类型规模门槛由 core 的 CI check 同时执行：临时生成 500 个精确 Token 键及未知键负例，运行原有完整 core 检查并解析 extendedDiagnostics，记录检查时间、内存和实例化次数。上限为检查 60 秒、TypeScript 堆统计 800,000 KiB，属于防止类型退化的上限；正常退出删除探针。该完整检查不在本地重复执行，报告为 type-budget.json，候选证据以 CI 的实际结果为准。
+
 真实浏览器门槛：`pnpm benchmark:browser` 消费 contracts:check 生成的完整 ESM 浏览器产物，覆盖 inline/stylesheet 两种通道、1,000 实例、预热后五次更新样本与 100 次挂载销毁。检查零额外规则编译、逻辑记录上限、物理分片数量、最终资源归零，并输出 browser-benchmark.json。5,000 ms / 1,000 实例更新 p95 是跨 CI 环境的灾难性退化上限，不是 60fps 或交互延迟承诺。
 
 首次局部 Chrome 152 实测：inline p50 42.3 ms / p95 45.0 ms / 22 个 style；stylesheet p50 152.3 ms / p95 164.1 ms / 45 个 style；两通道额外编译均为 0，释放后均零资源。报告包含 CPU、平台和浏览器版本，不能直接与旧 Node 内存基准比较；三引擎由 CI 实测。

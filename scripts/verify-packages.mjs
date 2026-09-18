@@ -12,7 +12,7 @@ import {
   writeFile,
 } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, join, sep } from 'node:path';
+import { basename, dirname, join, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
@@ -122,6 +122,13 @@ try {
   await mkdir(reportDirectory, { recursive: true });
   await writeFile(join(reportDirectory, 'verification.json'), JSON.stringify(report, null, 2));
   // 仅删除本脚本创建的临时项目；失败时保留以便诊断。
-  if (report.success && dirname(directory) === tmpdir()) await rm(directory, { recursive: true });
-  else console.log('Package verification workspace:', directory);
+  if (report.success) {
+    const target = await realpath(directory);
+    assert(
+      dirname(target) === (await realpath(tmpdir())) &&
+        basename(target).startsWith('zui-packages-'),
+      'Unexpected package cleanup directory.',
+    );
+    await rm(target, { recursive: true });
+  } else console.log('Package verification workspace:', directory);
 }

@@ -1,5 +1,11 @@
 # Core 实施进度
 
+## 生产重构：动态组件、类型规模与验收环境
+
+2026-09-19：加入 SvelteComponent/SvelteSelf 边界识别，动态 legacy 组件将模块 class 转发给未编译依赖的 Chrome 回归通过。core check 增加 500 Token 的自动类型规模探针和时间/内存报告，保留未知键负例；脚本语法、lint 通过，完整执行交 CI。临时 HMR/包外目录清理前增加 realpath、父目录和专属前缀校验。
+
+推送前检查 7ab0420 的 CI 35364401466：Docs 通过，开发态 13 项通过，Firefox/WebKit 的一次快速保存未产生 Vite HMR 日志。测试改用 Vite 文件内容轮询，仍执行真实原子保存、真实 HMR、状态与样式断言，不手动派发更新；局部 HMR 通过，原生 LSP 无错误。
+
 ## 生产重构：原生求值边界与 legacy 模式
 
 补充独立属性 getter 对照后复现：聚合 attrs 回调在无关状态变化时重复调用 style getter。编译改为用 Svelte 原生 snippet 参数保存逐表达式 memo，CSS 生产/消费分开；原表达式移动仍保留精确源码映射。生产异常在消费边界重抛原对象，避免嵌套 derived 错误恢复时读取已销毁值。class/style 的 nullish 值与未改写组件 ClassValue 形态保留。

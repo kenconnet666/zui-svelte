@@ -176,7 +176,12 @@ export function transformClasses(
         );
       }
     }
-    if (!['RegularElement', 'Component', 'SvelteElement'].includes(node.type)) return;
+    if (
+      !['RegularElement', 'Component', 'SvelteElement', 'SvelteComponent', 'SvelteSelf'].includes(
+        node.type,
+      )
+    )
+      return;
     const attrs = node.attributes as Node[];
     if (
       attrs.some(
@@ -306,7 +311,7 @@ export function transformClasses(
       }
       return [];
     });
-    const component = node.type === 'Component';
+    const component = ['Component', 'SvelteComponent', 'SvelteSelf'].includes(node.type);
     // Snippet/await 的一次源码位置可能对应多个并发渲染实例；先走完整规则，避免猜测实例身份。
     const transient = parents.some(
       (parent) => parent.type === 'SnippetBlock' || parent.type === 'AwaitBlock',

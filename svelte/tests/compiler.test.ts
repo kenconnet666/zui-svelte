@@ -6,6 +6,21 @@ import { styleProtocol } from '@zui/core';
 import { SourceMap } from 'node:module';
 
 describe('class compiler', () => {
+  it('treats dynamic and recursive legacy components as component boundaries', () => {
+    for (const source of [
+      '<script>import Child from "./Child.svelte";let className="panel";</script><svelte:component this={Child} class={className}/>',
+      '<script>export let depth=0;let className="panel";</script>{#if depth}<svelte:self depth={depth-1} class={className}/>{/if}',
+    ]) {
+      const result = transformClasses(source, '/app/LegacyBoundary.svelte')!;
+      expect(result.code).toContain('__zuiScope.component');
+      expect(() =>
+        compile(result.code, { filename: 'LegacyBoundary.svelte', generate: 'client' }),
+      ).not.toThrow();
+      expect(() =>
+        compile(result.code, { filename: 'LegacyBoundary.svelte', generate: 'server' }),
+      ).not.toThrow();
+    }
+  });
   it('preserves legacy component mode and exported props without injecting runes', () => {
     const source =
       '<script>import {css} from "@zui/core";export let width=100;</script><div class={css(s=>{s.width.px(width);})}/>';

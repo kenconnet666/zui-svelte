@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
-import { mkdir, mkdtemp, rename, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, realpath, rename, rm, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { createServer, defaultClientConditions, type ViteDevServer } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { zui } from '../src/compiler/preprocess.js';
@@ -76,7 +76,7 @@ test.beforeAll(async () => {
   );
   await writeFile(
     join(directory, 'main.ts'),
-    "import {mount} from 'svelte';import Root from './Root.svelte';import Compare from './Compare.svelte';import Branches from './Branches.svelte';import Boundary from './Boundary.svelte';import LegacyRoot from './LegacyRoot.svelte';mount(location.search.includes('legacy') ? LegacyRoot : location.search.includes('boundary') ? Boundary : location.search.includes('branches') ? Branches : location.search ? Compare : Root,{target:document.getElementById('app')!});",
+    "import {mount} from 'svelte';import Root from './Root.svelte';import Compare from './Compare.svelte';import Branches from './Branches.svelte';import Boundary from './Boundary.svelte';import LegacyRoot from './LegacyRoot.svelte';import Dynamic from './Dynamic.svelte';mount(location.search.includes('dynamic-component') ? Dynamic : location.search.includes('legacy') ? LegacyRoot : location.search.includes('boundary') ? Boundary : location.search.includes('branches') ? Branches : location.search ? Compare : Root,{target:document.getElementById('app')!});",
   );
   await writeFile(
     join(directory, 'Legacy.svelte'),
@@ -117,6 +117,7 @@ const runtime=createRuntime({target:document,namespace:'boundary'});provideStyle
       exports: {
         '.': { svelte: './Native.svelte', default: './Native.svelte' },
         './props': { svelte: './Props.svelte', default: './Props.svelte' },
+        './root': { svelte: './Root.svelte', default: './Root.svelte' },
       },
     }),
   );
@@ -124,6 +125,14 @@ const runtime=createRuntime({target:document,namespace:'boundary'});provideStyle
   await writeFile(
     join(directory, 'node_modules/plain/Props.svelte'),
     `<script>let {class:className='fallback',style='unset'}=$props();</script><span data-props>{className}:{style===null?'null':style}</span>`,
+  );
+  await writeFile(
+    join(directory, 'node_modules/plain/Root.svelte'),
+    `<script>let {class:className}=$props();</script><div data-testid="dynamic-component" class={className}>dynamic component</div>`,
+  );
+  await writeFile(
+    join(directory, 'Dynamic.svelte'),
+    `<svelte:options runes={false}/><script>import Plain from 'plain/root';import {dynamic} from './dynamic';</script><svelte:component this={Plain} class={dynamic}/>`,
   );
   await writeFile(join(directory, 'Subject.svelte'), nativeProbe);
   await writeFile(
@@ -144,16 +153,25 @@ const runtime=createRuntime({target:document,namespace:'boundary'});provideStyle
     configFile: false,
     plugins: [zui({ root: directory }), svelte({ configFile: false })],
     resolve: { conditions: ['zui-source', ...defaultClientConditions] },
-    server: { host: '127.0.0.1', port: 0 },
+    // 仍测试真实文件/HMR；内容轮询隔离 CI 容器对快速原子保存的通知丢失。
+    server: {
+      host: '127.0.0.1',
+      port: 0,
+      watch: { usePolling: true, interval: 50, compareContentsForPolling: true },
+    },
   });
   await server.listen();
   url = server.resolvedUrls!.local[0]!;
 });
 test.afterAll(async () => {
-  try {
-    await server?.close();
-  } finally {
-    if (directory) await rm(directory, { recursive: true, force: true });
+  // 停服失败时保留现场，不能在仍运行的 watcher 下删除目录。
+  await server?.close();
+  if (directory) {
+    const target = await realpath(directory);
+    const parent = await realpath(fileURLToPath(new URL('../', import.meta.url)));
+    if (dirname(target) !== parent || !basename(target).startsWith('.zui-hmr-'))
+      throw new Error('Unexpected HMR cleanup directory.');
+    await rm(target, { recursive: true, force: true });
   }
 });
 
@@ -291,5 +309,15 @@ test('preserves legacy props and reactive labels while promoting independent cli
   await expect(left).toHaveText('size:121');
   expect(await left.getAttribute('class')).toBe(promoted);
   await expect(right).toHaveCSS('width', '202px');
+  expect(errors).toEqual([]);
+});
+
+test('forwards module styles through a dynamic legacy component to an unmanaged dependency', async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto(url + '?dynamic-component');
+  await expect(page.getByTestId('dynamic-component')).toHaveCSS('height', '77px');
   expect(errors).toEqual([]);
 });
