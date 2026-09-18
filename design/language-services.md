@@ -21,7 +21,13 @@ TS/Svelte 临时探针已删除；Chrome/IAB/Edge 测试页已关闭，用户原
 
 ### WebStorm 原生加载排障与最终配置
 
-Codex 桌面本任务启动日志在 2026-09-18 11:37:05 UTC 记录 WebStorm HTTP initialize 收到 503，因此没有进入原生列表。后续 Node SDK 独立客户端无请求头和带项目请求头都连接成功；仅凭这些证据不能认定 503 的确切来源或已经修复。
+Codex 桌面本任务启动日志在 2026-09-18 11:37:05 UTC 记录 WebStorm HTTP initialize 收到 503，因此没有进入原生列表。后续 Node SDK 独立客户端无请求头和带项目请求头都连接成功。用户重启后，12:15:07 和 12:15:28 UTC 仍复现相同 503，未达到 30 秒超时。
+
+进一步对比确认是本地代理路径：相同 initialize 请求直连 127.0.0.1:64542 返回 200，经 127.0.0.1:10808 代理返回 503。使用桌面自带 codex.exe 启动独立 App Server，仅配置 WebStorm，通过 initialize 和 mcpServerStatus/list（不启动模型/对话）验证：无 NO_PROXY 时 0 工具并报相同 503；设置 NO_PROXY=localhost,127.0.0.1,::1 后识别 WebStorm 2026.2.1，返回 43 工具，toolsError=null。
+
+已合并保留原有排除项并在 Windows 用户环境写入 NO_PROXY 的三个 loopback 地址，发送环境变化通知。仅排除本机地址，不关闭外网代理，也不新增项目请求头。当前桌面进程仍持有旧环境，用户需完全退出后从开始菜单重开 Codex；若由旧终端启动，也需先重新打开终端。独立 Codex 原生连接器通过不等于正在运行的任务已热加载，重启后仍须原生工具调用验收。
+
+独立诊断进程已结束；本次临时 CODEX_HOME 目录 zui-native-mcp-probe-bin73v 的递归清理被执行策略拒绝，暂留系统 Temp，不包含复制的用户凭据，不参与正式配置。
 
 本机官方 webstorm64.exe stdioMcpServer 探针失败于 Java loopback/UnixDomainSockets connect。临时安装 mcp-remote 0.14.2 的 Node 转接路径已通过 43 工具枚举和项目检查，但未写入启用配置。按用户最终选择，继续原生 HTTP，去掉固定项目请求头，设置启动 30 秒、调用 90 秒超时：
 
