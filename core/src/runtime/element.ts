@@ -32,7 +32,7 @@ export function bindElement<T extends TokenSchema>(
   let current = '';
   const variables = createVariableBinding(node);
   const unsubscribe = binding.subscribe((snapshot) => {
-    variables.update(snapshot.variables);
+    if (binding.registry.variables === 'inline') variables.update(snapshot.variables);
     if (snapshot.className !== current) {
       retainClass(node, snapshot.className);
       releaseClass(node, current);

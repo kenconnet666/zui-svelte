@@ -101,6 +101,7 @@ export class StyleBinding<T extends TokenSchema> {
       slots.set(index, 'var(' + name + ')');
     }
     let record = this.#record;
+    let acquired = false;
     const onlyVariables =
       !!history &&
       current.every(
@@ -110,8 +111,16 @@ export class StyleBinding<T extends TokenSchema> {
     if (!record || structure !== this.#structure || maskChanged || (changed && !onlyVariables)) {
       // 先取得新规则；失败时原规则和快照仍然有效。
       record = this.registry.acquire(replaceValues(program, slots), this.options.source);
-      if (this.#record) this.registry.release(this.#record);
+      acquired = true;
     }
+    try {
+      this.registry.updateValues(record, variables, program);
+    } catch (error) {
+      if (acquired) this.registry.release(record);
+      throw error;
+    }
+    // 变量规则也写入成功后再释放旧版本，避免 CSP/样式表异常留下半次更新。
+    if (acquired && this.#record) this.registry.release(this.#record);
     this.#record = record;
     this.#structure = structure;
     this.#history.delete(structure);
@@ -127,7 +136,6 @@ export class StyleBinding<T extends TokenSchema> {
       });
       for (const listener of this.#listeners) listener(this.#snapshot);
     }
-    this.registry.updateValues(record, variables, program);
     return this.#snapshot.className;
   }
 

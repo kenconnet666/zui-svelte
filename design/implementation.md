@@ -51,3 +51,7 @@ C4 已加入 class 字符串求值上下文、独立 class 元数据与变量通
 ## P1：类型化 css 求值入口
 
 P0 提交 ef0677a 的完整 CI 已通过（35296371987）。本批修复编译器替换 css 时丢失原函数的问题，改为保留入口并包裹同步求值上下文，兼容自定义 createCss 主题与嵌套异常恢复。局部 core 5 项、编译/SSR 6 项测试通过；WebStorm MCP 对 classes.ts、scope.ts、preprocess.ts 和 TypedProbe.svelte 检查无错误。自定义模块目前仍需 cssModules 配置，自动识别和模块静态定义尚未完成，不宣称 P1 全部完成。
+
+## P1：严格 CSP 的变量输出通道
+
+fb37d44 的完整 CI 已通过（35296738893）。新增 runtime 的 variables: 'stylesheet' 选项，复用实例 class 将变量写入 nonce 样式表，不生成内部 style 属性；inline 默认行为不变。变量更新不重新运行 Stylis，最后消费者释放后清理变量规则，变量规则写入失败保留旧快照。局部相关 15 项测试通过；WebStorm 对 registry.ts、binding.ts、CspProbe.svelte 无错误。已加入真实 CSP 响应头的生产构建三浏览器用例，本次交给 CI，不在推送后等待。主题 scope 的双通道和完整 SSR 接管仍需后续完善。

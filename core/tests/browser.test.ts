@@ -26,6 +26,30 @@ function runtime(namespace: string) {
 }
 
 describe('real DOM style bindings', () => {
+  it('updates promoted stylesheet variables without adding a style attribute', () => {
+    const owner = createRuntime({
+      target: document,
+      namespace: 'sheet-vars',
+      variables: 'stylesheet',
+    });
+    cleanup.push(() => owner.dispose());
+    const binding = owner.binding();
+    binding.evaluate((s) => {
+      s.width.px(100);
+    });
+    const node = element();
+    cleanup.push(bindElement(node, binding));
+    binding.evaluate((s) => {
+      s.width.px(120);
+    });
+    const className = node.className;
+    binding.evaluate((s) => {
+      s.width.px(140);
+    });
+    expect(node.className).toBe(className);
+    expect(node.getAttribute('style')).toBeNull();
+    expect(getComputedStyle(node).width).toBe('140px');
+  });
   it('updates variables and preserves user classes/styles on detach', () => {
     const owner = runtime('browser-one');
     const binding = owner.binding({ id: 'width' });

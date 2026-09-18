@@ -14,6 +14,7 @@ export interface RuntimeOptions<T extends TokenSchema> {
   namespace?: string;
   nonce?: string;
   prefix?: boolean;
+  variables?: 'inline' | 'stylesheet';
 }
 
 export function createRuntime<T extends TokenSchema = DefaultTokens>(
@@ -25,7 +26,7 @@ export function createRuntime<T extends TokenSchema = DefaultTokens>(
     (options.target
       ? new BrowserStyleSheet(options.target, namespace, options.nonce)
       : new MemoryStyleSheet());
-  const registry = new StyleRegistry(sheet, namespace, options.prefix);
+  const registry = new StyleRegistry(sheet, namespace, options.prefix, options.variables);
   const theme = options.theme ?? (lightTheme as unknown as Theme<T>);
   const resources = createResources(registry, theme);
   const bindings = new Map<string, StyleBinding<T>>();

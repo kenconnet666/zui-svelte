@@ -30,6 +30,7 @@ export class StyleRegistry {
     readonly sheet: StyleSheet,
     readonly namespace = 'z',
     readonly prefix = true,
+    readonly variables: 'inline' | 'stylesheet' = 'inline',
   ) {
     if (!/^[a-zA-Z][\w-]*$/u.test(namespace)) throw new TypeError('Invalid style namespace.');
     for (const entry of sheet.entries()) {
@@ -98,8 +99,24 @@ export class StyleRegistry {
     variables: Readonly<Record<string, string>>,
     program: StyleProgram,
   ): void {
+    if (JSON.stringify(record.variables) === JSON.stringify(variables)) {
+      record.program = program;
+      return;
+    }
+    if (this.variables === 'stylesheet') {
+      // 复用实例 class 写变量；严格 CSP 下不生成 style 属性，也不重新运行 Stylis。
+      const declarations = Object.entries(variables).map(
+        ([name, value]) => name + ':' + value + ';',
+      );
+      if (declarations.length)
+        this.sheet.set(
+          record.key + ':vars',
+          '.' + record.className + '{' + declarations.join('') + '}',
+          record.order,
+        );
+      else this.sheet.remove(record.key + ':vars');
+    }
     record.program = program;
-    if (JSON.stringify(record.variables) === JSON.stringify(variables)) return;
     record.variables = Object.freeze({ ...variables });
     for (const notify of record.listeners) notify();
   }
@@ -134,6 +151,7 @@ export class StyleRegistry {
     const position = this.#orders.get(record.source)!;
     if (--position.references === 0) this.#orders.delete(record.source);
     if (--record.references === 0) {
+      if (this.variables === 'stylesheet') this.sheet.remove(record.key + ':vars');
       this.sheet.remove(record.key);
       this.#records.delete(record.key);
     }
@@ -172,7 +190,7 @@ export class StyleRegistry {
   }
   finishHydration(): void {
     for (const entry of this.sheet.entries())
-      if (!this.#records.has(entry.key)) this.sheet.remove(entry.key);
+      if (!this.#records.has(entry.key.replace(/:vars$/u, ''))) this.sheet.remove(entry.key);
     this.#hydratedOrders.clear();
   }
   dispose(): void {

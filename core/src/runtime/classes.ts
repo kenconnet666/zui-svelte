@@ -136,6 +136,7 @@ export class ClassController<T extends TokenSchema> {
   }
 
   style(authored: string | null | undefined): string | undefined {
+    if (this.runtime.registry.variables === 'stylesheet') return authored ?? undefined;
     const variables = Object.entries(this.#variables)
       .map(([name, value]) => name + ':' + value)
       .join(';');
@@ -147,6 +148,7 @@ export class ClassController<T extends TokenSchema> {
 
   mount(node: HTMLElement | SVGElement): () => void {
     if (this.#disposed) throw new Error('Class controller is disposed.');
+    if (this.runtime.registry.variables === 'stylesheet') return () => {};
     const target = createVariableBinding(node, false);
     this.#targets.add(target);
     target.update(this.#variables);
