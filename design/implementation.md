@@ -127,3 +127,11 @@ c047dcb 的完整 CI 已通过（35300813045），包括固定性能门槛。模
 5efb2de 的完整 CI 已通过（35306872555）。脚本 css 在响应式求值中通过 Svelte 公开 createSubscriber 绑定快照生命周期，重算/消费者销毁后释放旧快照；setup 常量仍保留到组件销毁。同一规则的响应式与 setup 持有者分别计数，防止先释放一个导致另一个失效。该路径保持完整快照，不猜测脚本循环的稳定实例身份。
 
 新增 LifecycleProbe：先在文本中读取 derived，避免测试只覆盖 class 求值上下文；逐次 tick 完成 100 次实际更新，检查规则数有界、setup 样式保留、条件隐藏/恢复和导航回收。相关 SSR 4 项、聚焦 TypeScript、定向 ESLint 与 WebStorm 检查通过；真实浏览器的生命周期结论以本次 CI 为准。
+
+## P6：真实 tarball 与 prerender 验收入口
+
+47a3587 的完整 CI 已通过（35307386168），包括响应式快照 100 次逐次渲染、条件隐藏/恢复和导航回收的三浏览器回归。
+
+新增 test:packages：实际打包 core/svelte，在系统临时目录独立安装 tarball，使用包的 compiler/server/root 入口，不设置 zui-source，不链接工作区源码。依赖版本读取集中配置实际安装的版本；复制完整 core 类型正反用例做包外检查，核对安装路径和产物无测试文件。外部项目构建 Node adapter 与 static adapter，再复用 Kit 三浏览器测试，并直接读取 prerender HTML 在禁用 JavaScript 的浏览器验证首屏样式。成功清理临时项目，失败保留路径，CI 保存步骤报告。
+
+脚本语法、定向 ESLint、聚焦 TypeScript 和 WebStorm 检查通过；没有在本地运行完整安装/构建/浏览器流程，结果待本次 CI。阶段额度剩余 48%。
