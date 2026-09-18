@@ -63,7 +63,11 @@ export function createStyleModule(source: string, protocol: number = styleProtoc
             tokens,
           ]);
           const className = 'z-m-' + hashText(canonical);
-          if (!owned.has(className)) {
+          if (owned.has(className)) {
+            // 同一模块的快速复用也必须核对内容，不能只信任哈希相等。
+            if (findDefinition(className)?.canonical !== canonical)
+              throw new Error('Module CSS hash collision.');
+          } else {
             const definition = Object.freeze({
               className,
               source: position,

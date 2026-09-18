@@ -8,7 +8,7 @@ P0–P5 的主要实现已进入仓库：CSS-only baseTheme 与亮暗扩展、�
 
 剩余工作是候选全矩阵收口与发现问题后的修复，不重新启动另一套架构。详细合同见 [验收台账](core-acceptance.md)，设计依据见 [统一路线](core-remaining-plan.md)，历史实施见 implementation.md。
 
-最近核实 5accd126064a2f953859ecbc2fde1360bae849b7 的 CI 35370072639 全部成功，已修正文档测试缺少 Node 类型的问题。此前 ff7bf3b 的成功产物也已下载核对 hash。最终组合审计又发现自定义 baseTheme schema 缺少真实 Kit/包外完整链路，现新增 /custom 验证禁 JS、hydration、自动提升、主题覆盖及跨 schema 根回收，本机 Chrome 两项通过。下一步检查这一批的生产三浏览器和独立包 CI；没有新缺陷就完成目标，不扩大架构。65 Token 清单、500 Token LSP、API/体积/内存预算与最小接入文档均已具备。
+最近核实 6c4c64334c423545746ef3e5a40a817adb9abb03 的 CI 35370858768 全部成功，自定义 baseTheme 的禁 JS、hydration、自动提升和跨 schema 根回收已通过生产三浏览器及独立安装包。随后强制哈希碰撞测试发现同模块的复用分支缺少内容比对，现已修复；5 项局部单元、聚焦类型和 WebStorm 检查通过。下一步只检查含该修复的最新 CI 与产物，没有新缺陷就完成目标。65 Token 清单、500 Token LSP、API/体积/内存预算与最小接入文档均已具备。
 
 ## 接续方式
 
