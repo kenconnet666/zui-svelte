@@ -41,6 +41,8 @@ Token 别名只能引用同类别的已有键，覆盖后从完整定义重新�
 
 宿主使用 `bindTheme(element, scope, runtime)` 可以沿用 runtime 的变量输出通道；`variables: 'stylesheet'` 时主题切换同样不写 style 属性。返回的清理函数或 scope 销毁会释放对应主题规则。
 
+同一元素、scope 和 runtime 的重复绑定共享订阅与规则，最后一个消费者离开时释放；同一元素上同 namespace 的不同 scope/runtime 会立即报错，避免两个主题相互覆盖。嵌套主题绑定到各自的容器元素；不同 namespace 可以共存。
+
 ## 显式层级
 
 宿主一次声明层顺序，类型化 css 入口选择所属层；未配置时保持原生无层样式。

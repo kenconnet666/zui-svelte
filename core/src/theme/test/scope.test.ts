@@ -1,8 +1,41 @@
 import { describe, expect, it } from 'vitest';
-import { ThemeScope, themeVariables } from '../scope.js';
+import { bindTheme, ThemeScope, themeVariables } from '../scope.js';
 import { defineTheme, overrideTheme, tokenRef } from '../theme.js';
 
 describe('theme scopes', () => {
+  it('shares repeated bindings and rejects competing scopes on the same element', () => {
+    const values = new Map<string, string>();
+    const node = {
+      style: {
+        getPropertyValue: (name: string) => values.get(name) ?? '',
+        getPropertyPriority: () => '',
+        setProperty: (name: string, value: string) => values.set(name, value),
+        removeProperty: (name: string) => values.delete(name),
+      },
+    } as unknown as HTMLElement;
+    const theme = defineTheme({ color: { primary: 'red' } });
+    const first = new ThemeScope(theme);
+    const second = first.fork({ color: { primary: 'blue' } });
+    const a = bindTheme(node, first);
+    const b = bindTheme(node, first);
+    expect(() => bindTheme(node, second)).toThrow('already owns');
+    a();
+    first.override({ color: { primary: 'green' } });
+    expect(values.get('--z-color-primary')).toBe('green');
+    b();
+    expect(values.size).toBe(0);
+    const c = bindTheme(node, second);
+    expect(values.get('--z-color-primary')).toBe('blue');
+    first.dispose();
+    expect(values.size).toBe(0);
+    c();
+    // 销毁作用域导致首次订阅失败，也必须撤销元素的 namespace 占用。
+    expect(() => bindTheme(node, first)).toThrow('initialization failed');
+    const replacement = new ThemeScope(theme);
+    bindTheme(node, replacement);
+    replacement.dispose();
+    expect(values.size).toBe(0);
+  });
   it('rejects a parent update atomically when a child override would create a cycle', () => {
     const theme = defineTheme({ color: { a: 'red', b: 'blue' } });
     const root = new ThemeScope(theme);

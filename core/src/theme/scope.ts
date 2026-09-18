@@ -146,33 +146,75 @@ export function themeVariables<T extends TokenSchema>(
   );
 }
 
+interface ThemeBinding {
+  scope: object;
+  runtime: object | undefined;
+  references: number;
+  stop: () => void;
+}
+const themesByNode = new WeakMap<Element, Map<string, ThemeBinding>>();
+
 export function bindTheme<T extends TokenSchema, U extends TokenSchema = TokenSchema>(
   node: HTMLElement | SVGElement,
   scope: ThemeScope<T>,
   runtime?: StyleRuntime<U>,
 ): () => void {
-  if (runtime?.registry.variables === 'stylesheet') {
-    const binding = runtime.binding({ source: 'theme-scope', promote: false });
-    const detach = bindElement(node, binding);
-    return scope.subscribe(
-      (theme) => {
-        binding.update(
-          Object.entries(themeVariables(theme)).map(([property, value]) => ({
-            kind: 'declaration',
-            property,
-            value,
-            important: false,
-          })),
-        );
-      },
-      () => {
-        runAll([detach, () => binding.dispose()], 'Theme binding cleanup failed.');
-      },
-    );
+  const namespace = scope.theme.namespace;
+  let bindings = themesByNode.get(node);
+  if (!bindings) themesByNode.set(node, (bindings = new Map()));
+  let entry = bindings.get(namespace);
+  if (entry && (entry.scope !== scope || entry.runtime !== runtime))
+    throw new Error('A different theme scope or runtime already owns this element namespace.');
+  if (!entry) {
+    entry = { scope, runtime, references: 0, stop: () => {} };
+    bindings.set(namespace, entry);
+    const releases: (() => void)[] = [];
+    let disposed = false;
+    const dispose = () => {
+      if (disposed) return;
+      disposed = true;
+      bindings.delete(namespace);
+      if (!bindings.size) themesByNode.delete(node);
+      runAll(releases, 'Theme binding cleanup failed.');
+    };
+    try {
+      if (runtime?.registry.variables === 'stylesheet') {
+        const binding = runtime.binding({ source: 'theme-scope', promote: false });
+        releases.push(() => binding.dispose());
+        releases.push(bindElement(node, binding));
+        entry.stop = scope.subscribe((theme) => {
+          binding.update(
+            Object.entries(themeVariables(theme)).map(([property, value]) => ({
+              kind: 'declaration',
+              property,
+              value,
+              important: false,
+            })),
+          );
+        }, dispose);
+      } else {
+        const binding = createVariableBinding(node);
+        releases.push(() => binding.dispose());
+        entry.stop = scope.subscribe((theme) => binding.update(themeVariables(theme)), dispose);
+      }
+    } catch (error) {
+      runAll(
+        [
+          () => {
+            throw error;
+          },
+          dispose,
+        ],
+        'Theme binding initialization failed.',
+      );
+    }
   }
-  const binding = createVariableBinding(node);
-  return scope.subscribe(
-    (theme) => binding.update(themeVariables(theme)),
-    () => binding.dispose(),
-  );
+  // 同源重复挂载共享一次订阅；不同主题必须放在不同元素，不能靠挂载顺序竞争变量。
+  entry.references++;
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    if (--entry.references === 0) entry.stop();
+  };
 }

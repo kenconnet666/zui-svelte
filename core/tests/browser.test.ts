@@ -159,12 +159,18 @@ describe('real DOM style bindings', () => {
     });
     cleanup.push(bindElement(node, color));
     const stop = bindTheme(node, scope, owner);
+    const duplicate = bindTheme(node, scope, owner);
     cleanup.push(stop);
+    cleanup.push(duplicate);
+    expect(owner.bindingCount).toBe(2);
     expect(getComputedStyle(node).color).toBe('rgb(255, 0, 0)');
     scope.update(overrideTheme(theme, { color: { primary: 'blue' } }));
     expect(getComputedStyle(node).color).toBe('rgb(0, 0, 255)');
     expect(node.getAttribute('style')).toBeNull();
     stop();
+    expect(owner.bindingCount).toBe(2);
+    expect(getComputedStyle(node).color).toBe('rgb(0, 0, 255)');
+    duplicate();
     expect(owner.bindingCount).toBe(1);
     expect(node.className).toBe(color.snapshot.className);
   });
