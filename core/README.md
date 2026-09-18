@@ -87,3 +87,5 @@ layoutCss((s) => {
 `_selector()` 要求每个逗号分支在函数和属性选择器之外显式包含 `&`。支持 `&:is(.a, .b)`、`.theme &` 和 `& > .label, &:hover`；`:is(&, body)`、`:not(&)` 或仅在引号中出现 `&` 不能证明局部约束，会报错。可将复杂条件放在显式根之后；需要全局规则时使用 runtime.global。
 
 自动提升只作用于确认安全的属性、值和目标组合。CSS-wide 关键字忽略大小写和前后空白识别；转义值及无法确认语义的值保持完整规则。在没有 `CSS.supports` 的 SSR/其他宿主中使用更保守的属性值白名单，避免把原本应由浏览器丢弃的无效声明变成计算值阶段无效的变量声明。
+
+`runtime.property()` 的同名注册在同一 Document 的 ZUI runtimes 之间协调（含该文档下的 ShadowRoot）。相同定义可共存，不兼容定义立即报错；每个 runtime 保留自己的规则和引用，最后持有者退出后可重新注册。ZUI 不扫描外部 CSS 或 `CSS.registerProperty()`，这些宿主注册需自行避免同名冲突。

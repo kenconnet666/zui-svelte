@@ -9,7 +9,7 @@
     "pnpm": ">=11.22.0 <12"
   },
   "scripts": {
-    "dev": "pnpm --filter @zui/docs dev",
+    "dev": "pnpm --filter @zui/core build && pnpm --filter @zui/docs dev",
     "build": "pnpm -r build",
     "preview": "pnpm --filter @zui/docs preview",
     "check": "pnpm -r check",

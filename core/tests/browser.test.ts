@@ -32,6 +32,27 @@ function runtime(namespace: string) {
 }
 
 describe('real DOM style bindings', () => {
+  it('coordinates property registrations across runtimes and releases document claims', () => {
+    const first = runtime('property-first');
+    const second = runtime('property-second');
+    const number = { syntax: '<number>', inherits: false, initialValue: 0 };
+    const color = { syntax: '<color>', inherits: false, initialValue: 'red' };
+    const a = first.property('--zui-shared-registration', number);
+    const b = first.property('--zui-shared-registration', number);
+    const c = second.property('--zui-shared-registration', number);
+    a.dispose();
+    expect(() => second.property('--zui-shared-registration', color)).toThrow('Conflicting');
+    c.dispose();
+    expect(() => second.property('--zui-shared-registration', color)).toThrow('document property');
+    first.dispose();
+    b.dispose();
+    const replacement = second.property('--zui-shared-registration', color);
+    const node = element();
+    node.style.color = 'var(--zui-shared-registration)';
+    expect(getComputedStyle(node).color).toBe('rgb(255, 0, 0)');
+    replacement.dispose();
+    first.dispose();
+  });
   it('keeps a hyphenated theme namespace from overwriting an instance variable', () => {
     const owner = runtime('variable-domains');
     const node = element();

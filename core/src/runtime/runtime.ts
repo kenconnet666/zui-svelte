@@ -98,7 +98,14 @@ export function createRuntime<T extends TokenSchema = DefaultTokens>(
   const theme = options.theme ?? (lightTheme as unknown as Theme<T>);
   const registry = new StyleRegistry(sheet, { ...options, namespace, layers, theme });
   if (layers.length) registry.resource('@layer ' + layers.join(',') + ';', 'layer-order');
-  const resources = createResources(registry, theme, options.layer);
+  const targetDocument =
+    options.target?.nodeType === 9
+      ? (options.target as Document)
+      : (options.target?.ownerDocument ?? undefined);
+  const resources = createResources(registry, theme, {
+    layer: options.layer,
+    document: targetDocument,
+  });
   if (options.target) {
     owners!.set(namespace, layers);
     targets.set(options.target, owners!);
@@ -107,8 +114,6 @@ export function createRuntime<T extends TokenSchema = DefaultTokens>(
   const staticRules = new Map<string, RuleRecord>();
   let sequence = 0;
   let disposed = false;
-  const targetDocument =
-    options.target?.nodeType === 9 ? (options.target as Document) : options.target?.ownerDocument;
   const cssApi = targetDocument?.defaultView?.CSS;
   function alive() {
     if (disposed) throw new Error('Style runtime is disposed.');

@@ -5,6 +5,7 @@ import { canonicalize, hashText, serializeProgram, serializeTheme } from '../css
 import { validateQuery, validateValue } from '../css/validate.js';
 import type { Theme, TokenSchema } from '../theme/types.js';
 import type { RuleRecord, StyleRegistry } from './registry.js';
+import { runAll } from './callbacks.js';
 
 export interface StyleResource {
   dispose(): void;
@@ -17,21 +18,37 @@ export interface PropertyRegistration {
   inherits: boolean;
   initialValue?: string | number;
 }
+interface RegistrationOwner {
+  canonical: string;
+  references: number;
+}
+const documentProperties = new WeakMap<Document, Map<string, Set<RegistrationOwner>>>();
 
 export function createResources<T extends TokenSchema>(
   registry: StyleRegistry,
   theme: Theme<T>,
-  layer?: string,
+  options: { layer?: string; document?: Document } = {},
 ) {
-  const properties = new Map<string, { canonical: string; references: number }>();
+  const properties = new Map<string, RegistrationOwner>();
+  let shared = options.document && documentProperties.get(options.document);
+  if (options.document && !shared) documentProperties.set(options.document, (shared = new Map()));
+  function forget(name: string, owner: RegistrationOwner) {
+    if (properties.get(name) !== owner) return;
+    properties.delete(name);
+    const owners = shared?.get(name);
+    owners?.delete(owner);
+    if (!owners?.size) shared?.delete(name);
+  }
   function resource(record: RuleRecord, afterDispose?: () => void): StyleResource {
     let disposed = false;
     return {
       dispose() {
         if (disposed) return;
         disposed = true;
-        registry.release(record);
-        afterDispose?.();
+        runAll(
+          [() => registry.release(record), () => afterDispose?.()],
+          'Style resource cleanup failed.',
+        );
       },
     };
   }
@@ -45,7 +62,7 @@ export function createResources<T extends TokenSchema>(
         throw new TypeError('Use the dedicated resource API for at-rules.');
       return resource(
         registry.resource(
-          serializeProgram(buildStyle(factory, theme, layer), selector, registry.prefix),
+          serializeProgram(buildStyle(factory, theme, options.layer), selector, registry.prefix),
           'global:' + selector,
         ),
       );
@@ -87,7 +104,8 @@ export function createResources<T extends TokenSchema>(
         .map(([key, value]) => {
           if (
             !/^[a-zA-Z][a-zA-Z0-9]*$/u.test(key) ||
-            (typeof value !== 'string' && typeof value !== 'number')
+            (typeof value !== 'string' && typeof value !== 'number') ||
+            (typeof value === 'number' && !Number.isFinite(value))
           )
             throw new TypeError('Invalid font descriptor.');
           const property = key.replace(/[A-Z]/gu, (letter) => '-' + letter.toLowerCase());
@@ -102,12 +120,18 @@ export function createResources<T extends TokenSchema>(
       if (!/^--[a-zA-Z_][\w-]*$/u.test(name)) throw new TypeError('Invalid custom property name.');
       if (typeof options.syntax !== 'string' || typeof options.inherits !== 'boolean')
         throw new TypeError('Invalid property registration.');
+      if (typeof options.initialValue === 'number' && !Number.isFinite(options.initialValue))
+        throw new TypeError('Invalid property initial value.');
       if (options.syntax !== '*' && options.initialValue === undefined)
         throw new TypeError('A typed property needs an initial value.');
       const canonical = JSON.stringify([options.syntax, options.inherits, options.initialValue]);
       const existing = properties.get(name);
       if (existing && existing.canonical !== canonical)
         throw new Error('Conflicting property registration: ' + name);
+      // 注册名不随 runtime namespace 隔离；同一 Document 的 ZUI 所有者必须保持定义一致。
+      for (const owner of shared?.get(name) ?? [])
+        if (owner.canonical !== canonical)
+          throw new Error('Conflicting document property registration: ' + name);
       const css =
         '@property ' +
         name +
@@ -124,12 +148,17 @@ export function createResources<T extends TokenSchema>(
       const registration = existing ?? { canonical, references: 0 };
       registration.references++;
       properties.set(name, registration);
+      if (shared) {
+        let owners = shared.get(name);
+        if (!owners) shared.set(name, (owners = new Set()));
+        owners.add(registration);
+      }
       return resource(record, () => {
-        if (--registration.references === 0) properties.delete(name);
+        if (--registration.references === 0) forget(name, registration);
       });
     },
     dispose() {
-      properties.clear();
+      for (const [name, owner] of properties) forget(name, owner);
     },
   };
 }

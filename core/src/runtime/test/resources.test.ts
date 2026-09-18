@@ -77,6 +77,16 @@ describe('scoped style resources', () => {
     ).toThrow();
     expect(() => runtime.keyframes({ '101%': () => {} })).toThrow();
     expect(() =>
+      runtime.property('--infinite', {
+        syntax: '<number>',
+        inherits: false,
+        initialValue: Infinity,
+      }),
+    ).toThrow('initial value');
+    expect(() =>
+      runtime.fontFace({ fontFamily: 'test', src: 'url(test.woff2)', fontWeight: Infinity }),
+    ).toThrow('font descriptor');
+    expect(() =>
       runtime.keyframes({
         from: (s) => {
           s._hover((s) => {

@@ -179,3 +179,9 @@ e7edac2 的完整 CI 已通过（35309711239），覆盖协议 2、变量域隔�
 Kit 客户端 runtime 改由根 layout 持有，路由只管理各自规则。独立消费项目增加真实 node_modules 内的无 ZUI 组件包，验证普通 class 转发、连续更新、路由导航释放及返回；fixture 的安装路径另行断言，避免误用工作区编译证明第三方能力。工作区仅使用测试声明补全虚拟包名，包外项目不复制该声明，直接检查真实 .svelte 类型。
 
 局部编译/SSR 13 项、聚焦 TypeScript 和 WebStorm 检查通过；IDE/ESLint 发现 Kit 链接须 resolve() 已修正。新包外导航与转发浏览器用例交给 CI。
+
+## P3：跨 runtime 的属性注册冲突
+
+依据 CSS Properties and Values 的 Document 级注册语义，增加同一 Document 的 ZUI @property 所有者协调（包含关联 ShadowRoot），允许相同定义共存，拒绝不兼容定义；释放资源或 runtime 后撤销自身占用，不影响其他所有者。只管理 ZUI 创建的声明，不扫描外部 CSS/registerProperty。资源清理复用 runAll，补充非有限初始值/字体数值检查。相关资源/层级 7 项、聚焦 TypeScript、ESLint 与 WebStorm 检查通过；真实 DOM 重复引用/销毁/重新注册交给 CI。
+
+39daee7 的 CI 35310155914 在工作区 Svelte 检查失败：两个独立 Kit fixture 的生成路由类型发生交叉，/static 被当作另一个应用的动态路由。工作区类型检查排除 tests/kit 与 tests/package；它们仍由 test:packages 在独立安装、svelte-kit sync 后完整 svelte-check，未减少真实消费者验收。删除为工作区临时补的虚拟包声明，避免掩盖实际依赖类型。根 dev 命令先构建 core，保证编译插件在全新 checkout 可读到依赖协议。周额度剩余 47%。
