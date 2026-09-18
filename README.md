@@ -39,6 +39,7 @@ pnpm test
 ## 设计
 
 - [Core 首版生产可用规划：API、阶段与验收](design/core-production-plan.md)
+- [Core 当前剩余工作与首版收口顺序](design/core-remaining-plan.md)
 - [架构与边界](design/architecture.md)
 - [core 设计草案](design/core.md)
 - [选择器、组合与生产级组件](design/core-composition.md)
