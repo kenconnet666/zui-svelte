@@ -62,9 +62,11 @@ export function createStyleHandle(
           transformPageChunk: ({ html, done }) => {
             if (inserted) return html;
             pending += html;
+            // head 标记可能先于正文样式到达；等页面 HTML 收集完成再一次性输出。
+            // SvelteKit 在页面之后发送的延迟数据仍由下面的流透传，不在这里等待。
+            if (!done) return '';
             if (!pending.includes(placeholder)) {
-              if (done) throw new Error('Add <!--zui:styles--> inside app.html head.');
-              return '';
+              throw new Error('Add <!--zui:styles--> inside app.html head.');
             }
             inserted = true;
             const result = pending.replace(placeholder, placeholder + runtime.styleTags());

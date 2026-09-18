@@ -1,5 +1,21 @@
 import { expect, test } from '@playwright/test';
 
+test('composes real Kit handles and keeps error-page styles and redirect headers', async ({
+  request,
+}) => {
+  const response = await request.get('/failure');
+  expect(response.status()).toBe(500);
+  expect(response.headers()['x-zui-sequence']).toBe('kept');
+  const html = await response.text();
+  expect(html).toContain('Error 500');
+  expect(html).toContain('var(--z-color-danger)');
+  expect(html).toContain('name="zui-sequence"');
+  const redirect = await request.get('/redirect', { maxRedirects: 0 });
+  expect(redirect.status()).toBe(303);
+  expect(redirect.headers().location).toBe('/');
+  expect(redirect.headers()['x-zui-sequence']).toBe('kept');
+});
+
 test('SvelteKit returns the styled shell before server data is released', async ({ baseURL }) => {
   const gate = crypto.randomUUID();
   const response = await fetch(baseURL + '/?gate=' + gate);

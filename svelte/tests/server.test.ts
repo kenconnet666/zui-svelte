@@ -7,6 +7,64 @@ import type { Component } from 'svelte';
 const event = () => ({ request: new Request('https://example.test/') }) as RequestEvent;
 
 describe('SvelteKit response ownership', () => {
+  it('preserves error responses and headers while inserting styles', async () => {
+    const sheet = new MemoryStyleSheet();
+    const handle = createStyleHandle({ sheet });
+    const response = await handle({
+      event: event(),
+      resolve: async (_event, options) => {
+        const html = await options!.transformPageChunk!({
+          html: '<head><!--zui:styles--></head><body>application-error</body>',
+          done: true,
+        });
+        return new Response(html, {
+          status: 500,
+          headers: { 'content-type': 'text/html', 'x-original': 'kept' },
+        });
+      },
+    });
+    expect(response.status).toBe(500);
+    expect(response.headers.get('x-original')).toBe('kept');
+    const body = await response.text();
+    expect(body).toContain('application-error');
+    expect(body).toContain('<style');
+    expect(sheet.entries()).toHaveLength(0);
+  });
+  it('collects new CSS discovered after the head before emitting the completed page', async () => {
+    const sheet = new MemoryStyleSheet();
+    const handle = createStyleHandle({ sheet });
+    const response = await handle({
+      event: event(),
+      resolve: async (_event, options) => {
+        const transform = options!.transformPageChunk!;
+        expect(await transform({ html: '<head><!--zui:styles--></head><body>', done: false })).toBe(
+          '',
+        );
+        sheet.set('late', '.late{color:red}', '0');
+        const html = await transform({ html: '<div class="late">late</div></body>', done: true });
+        expect(html.indexOf('.late{color:red}')).toBeLessThan(html.indexOf('<div class="late">'));
+        return new Response(html, { headers: { 'content-type': 'text/html' } });
+      },
+    });
+    expect(await response.text()).toContain('.late{color:red}');
+    expect(sheet.entries()).toHaveLength(0);
+  });
+  it('preserves redirects and releases resources when a render throws', async () => {
+    const sheet = new MemoryStyleSheet();
+    const handle = createStyleHandle({ sheet });
+    const redirect = new Response(null, { status: 303, headers: { location: '/login' } });
+    expect(await handle({ event: event(), resolve: async () => redirect })).toBe(redirect);
+    expect(sheet.entries()).toHaveLength(0);
+    await expect(
+      handle({
+        event: event(),
+        resolve: async () => {
+          throw new Error('page failed');
+        },
+      }),
+    ).rejects.toThrow('page failed');
+    expect(sheet.entries()).toHaveLength(0);
+  });
   it('disposes a render runtime even when initial theme insertion fails', async () => {
     let disposed = false;
     class FailingSheet extends MemoryStyleSheet {

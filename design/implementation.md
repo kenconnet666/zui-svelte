@@ -1,5 +1,13 @@
 # Core 实施进度
 
+## 生产重构：开发态行为与 SSR 收集边界
+
+新增真实 Vite/Playwright 开发态验收并接入三浏览器 CI：helper/模块/局部样式热更新与删除恢复、不刷新未修改父组件状态、规则来源计数稳定；与 node_modules 中未经过 ZUI 编译的 Svelte 组件对照 spread getter/事件/bind/class/style 指令；snippet/await 多实例更新和移除归零、真实动态 import 样式。三项本机 Chrome 局部用例通过。Svelte 5 原生 HMR 重建被修改组件，测试明确保留的是未修改父组件状态；不引入额外状态保存系统。
+
+createStyleHandle 等页面 HTML 变换 done 后输出收集的 CSS，保留页面后延迟数据流。新增晚于 head 的规则、redirect、失败与 error response 头保留回归；8 项服务端局部用例分别通过。真实 sequence/错误页面/redirect 验证放入 Kit 和包外夹具，由 CI 执行，避免使用缺少 Kit request store 的伪 sequence 环境。热更新临时源码目录在 finally 中清理。
+
+推送前确认 c2c772e 的完整 CI 35346989755 成功，包含协议 7 的三浏览器与包外消费；本批结果等待新 CI，不轮询。
+
 ## 生产重构：有序存储与样式分片
 
 MemoryStyleSheet 改为二分定位的持久顺序表，同位置值更新不再排序/移动全表。BrowserStyleSheet 用最多 64 条逻辑记录的分片；常规更新只重写一个分片，分裂插入失败保留旧 CSS/记录。SSR 使用相同分片格式，内部协议升级 7；接管先完整验证 nonce、版本、重复 key、顺序、长度边界，再保留节点接管。规则与变量逻辑计数保持独立。
