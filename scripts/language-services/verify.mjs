@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { directory, requireTool, root, toolDirectory } from './environment.mjs';
-import { access, unlink, writeFile } from 'node:fs/promises';
+import { access, readFile, unlink, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
 
@@ -29,6 +29,13 @@ const transport = new StdioClientTransport({
 });
 transport.stderr?.on('data', (data) => process.stderr.write(data));
 const report = [];
+async function position(filePath, needle) {
+  const text = await readFile(resolve(root, filePath), 'utf8');
+  const offset = text.indexOf(needle);
+  assert(offset >= 0, 'Missing semantic probe: ' + needle);
+  const before = text.slice(0, offset);
+  return { filePath, line: before.split('\n').length, column: offset - before.lastIndexOf('\n') };
+}
 async function call(name, args) {
   const result = await client.callTool({ name, arguments: args }, undefined, { timeout: 90000 });
   assert(!result.isError, result.content?.[0]?.text);
@@ -92,7 +99,8 @@ export const props: ComponentProps<typeof Probe> = { initialWidth: ${valid ? '10
     assert.equal(result.errors, valid ? 0 : 1);
     if (!valid) assert.equal(Number(result.diagnostics[0].code), 2322);
   }
-  const hover = await call('hover', { filePath: 'core/tests/types.ts', line: 19, column: 11 });
+  const tokenPosition = await position('core/tests/types.ts', '_100;');
+  const hover = await call('hover', tokenPosition);
   assert(JSON.stringify(hover.contents).includes('_100: void'));
   report.push({ hover });
   const svelteHover = await call('hover', {
@@ -112,17 +120,13 @@ export const props: ComponentProps<typeof Probe> = { initialWidth: ${valid ? '10
   report.push({ definition });
   assert(definition.items.some((item) => item.filePath.endsWith('style-helper.ts')));
   const references = await call('references', {
-    filePath: 'core/tests/types.ts',
-    line: 10,
-    column: 8,
+    ...(await position('core/tests/types.ts', 'numberedTheme =')),
     limit: 100,
   });
   assert(references.total > 1);
   report.push({ references });
   const completions = await call('completions', {
-    filePath: 'core/tests/types.ts',
-    line: 19,
-    column: 11,
+    ...tokenPosition,
     prefix: '_1',
     limit: 20,
   });

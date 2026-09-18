@@ -36,9 +36,8 @@ export interface RuntimeStats {
 export interface StyleRuntime<T extends TokenSchema = DefaultTokens> {
   /** @internal 编译接入暂用；业务通过其他方法管理样式。 */
   readonly registry: StyleRegistry;
-  readonly theme: Theme<T>;
+  readonly defaultTheme: Theme<T>;
   readonly layer?: string;
-  readonly bindingCount: number;
   readonly stats: RuntimeStats;
   global(selector: string, factory: StyleFactory<T>): StyleResource;
   themeStyle(selector: string, theme?: Theme<T>): StyleResource;
@@ -121,7 +120,7 @@ export function createRuntime<T extends TokenSchema = DefaultTokens>(
 
   return {
     registry,
-    theme,
+    defaultTheme: theme,
     layer: options.layer,
     global: resources.global,
     themeStyle: resources.theme,
@@ -163,9 +162,6 @@ export function createRuntime<T extends TokenSchema = DefaultTokens>(
     cssText: () => registry.cssText(),
     styleTags: () => registry.styleTags(options.nonce),
     finishHydration: () => registry.finishHydration(),
-    get bindingCount() {
-      return bindings.size;
-    },
     get stats() {
       return Object.freeze({
         bindings: bindings.size,

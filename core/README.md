@@ -6,7 +6,7 @@
 
 - 构建：`pnpm --filter @zui/core build`
 - 类型检查：`pnpm --filter @zui/core check`
-- 规划模块：`css/`、`theme/`、`recipe/`、`runtime/`、`preset/`，有实现后再创建。
+- 实现模块：`css/`、`theme/`、`runtime/`；不增加通用 recipe 或插件配置层。
 
 ## 统一入口与主题
 
@@ -33,7 +33,33 @@ theme.ref('color', 'brandText'); // var(--z-color-brandText)，可用于复杂 C
 alternate.resolved.color.brandText; // #0f766e
 ```
 
-Token 别名只能引用同类别的已有键，覆盖后从完整定义重新解析；循环、缺失目标和类别错误会报错。`definition` 保留只读原始定义，`tokens`/`resolved` 是只读解析值。主题作用域先验证整棵子树再提交，子级别名失败不会让父级停留在半次更新状态。
+Token 别名只能引用同类别的已有键，覆盖后从完整定义重新解析；循环、缺失目标和类别错误会报错。`definition` 保留只读原始定义，`resolved` 是只读解析值，不等于浏览器 computed style。主题作用域先验证整棵子树再提交，子级别名失败不会让父级停留在半次更新状态。
+
+### 无预设 Token 的基础主题
+
+```ts
+import { baseTheme, createCss, extendTheme, ThemeScope } from '@zui/core';
+
+const custom = extendTheme(baseTheme, {
+  color: { ink: '#172554', paper: '#fffdf5' },
+  spacing: { gutter: '18px' },
+});
+const customCss = createCss(custom);
+customCss((s) => {
+  s.display.flex;
+  s.color._ink;
+  s.gap._gutter;
+});
+const scope = new ThemeScope(custom);
+scope.setOverrides({ spacing: { gutter: '12px' } });
+scope.setOverrides({}); // 替换整份覆盖；空对象恢复基础主题。
+```
+
+baseTheme 没有 primary/surface 等系统键；标准属性、关键字、单位与选择器能力不依赖 Token。系统 lightTheme/darkTheme 分别从基础层扩展，默认仍为亮色。显式自定义主题的 runtime/SSR 必须配置兼容 schema，不自动补系统 Token。scope.setTheme(theme) 只在根作用域切换；子级通过 fork 与 setOverrides 保留局部覆盖。
+
+### 本次 API 迁移
+
+`css(factory, theme)` 改为 `createCss(theme)(factory)`；`theme.tokens` 改为 `theme.resolved`；`scope.update/override` 改为 `scope.setTheme/setOverrides`；`runtime.theme` 改为 `runtime.defaultTheme`；`bindingCount` 改为 `stats.bindings`。根入口标记 @internal 的工具属于同版本编译协议，不是稳定业务扩展 API。高级宿主通过 runtime.binding() 管理动态绑定，runtime.css() 持有静态规则直到 runtime 销毁。
 
 主题定义支持 `color: { 100: '#fff' }` 这样的数字色阶键，类型会按 JavaScript 对象键归一化为字符串；可使用 `s.color._100`、`theme.ref('color', '100')` 和 `tokenRef('color', '100')`。扩展与别名遵守相同规则，数字键不能绕过类别或既有值类型检查。
 

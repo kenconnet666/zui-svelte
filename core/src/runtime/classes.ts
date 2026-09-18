@@ -55,7 +55,7 @@ export class ClassController<T extends TokenSchema> {
     this.runtime.registry.assertLayer(layer ?? undefined);
     const program = buildStyle<TokenSchema, object>(
       factory,
-      options.theme ?? this.runtime.theme,
+      options.theme ?? this.runtime.defaultTheme,
       layer ?? undefined,
       options.tokenMap,
     );

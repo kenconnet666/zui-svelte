@@ -45,7 +45,7 @@ let width=$state(10); let node; let props={title:'panel'};
       // 表达式在属性合并后仍映射到它自身，不是 class/spread 起点。
       const entry = map.findEntry(...locate(result.code, needle));
       const expected = locate(source, needle);
-      expect([entry.originalLine, entry.originalColumn]).toEqual(expected);
+      expect(entry).toMatchObject({ originalLine: expected[0], originalColumn: expected[1] });
     }
     for (const generate of ['client', 'server'] as const)
       expect(() => compile(result.code, { filename: 'Mapped.svelte', generate })).not.toThrow();

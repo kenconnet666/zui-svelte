@@ -130,7 +130,7 @@ describe('real DOM style bindings', () => {
     cleanup.push(() => scope.dispose());
     cleanup.push(bindTheme(node, scope));
     expect(getComputedStyle(node).width).toBe('120px');
-    scope.override({ panel: { '0': 'blue' } });
+    scope.setOverrides({ panel: { '0': 'blue' } });
     expect(getComputedStyle(node).width).toBe('120px');
   });
   it('keeps inherited values out of variable promotion regardless of spelling', () => {
@@ -347,16 +347,16 @@ describe('real DOM style bindings', () => {
     const duplicate = bindTheme(node, scope, owner);
     cleanup.push(stop);
     cleanup.push(duplicate);
-    expect(owner.bindingCount).toBe(2);
+    expect(owner.stats.bindings).toBe(2);
     expect(getComputedStyle(node).color).toBe('rgb(255, 0, 0)');
-    scope.update(overrideTheme(theme, { color: { primary: 'blue' } }));
+    scope.setTheme(overrideTheme(theme, { color: { primary: 'blue' } }));
     expect(getComputedStyle(node).color).toBe('rgb(0, 0, 255)');
     expect(node.getAttribute('style')).toBeNull();
     stop();
-    expect(owner.bindingCount).toBe(2);
+    expect(owner.stats.bindings).toBe(2);
     expect(getComputedStyle(node).color).toBe('rgb(0, 0, 255)');
     duplicate();
-    expect(owner.bindingCount).toBe(1);
+    expect(owner.stats.bindings).toBe(1);
     expect(node.className).toBe(color.snapshot.className);
   });
   it('updates promoted stylesheet variables without adding a style attribute', () => {
@@ -460,7 +460,7 @@ describe('real DOM style bindings', () => {
     const portal = element();
     cleanup.push(bindTheme(portal, child));
     portal.style.color = 'var(--z-color-text)';
-    scope.update(overrideTheme(theme, { color: { text: 'rgb(0, 128, 0)' } }));
+    scope.setTheme(overrideTheme(theme, { color: { text: 'rgb(0, 128, 0)' } }));
     expect(getComputedStyle(portal).color).toBe('rgb(0, 128, 0)');
     expect(portal.style.getPropertyValue('--z-color-primary')).toBe('rgb(0, 0, 255)');
   });

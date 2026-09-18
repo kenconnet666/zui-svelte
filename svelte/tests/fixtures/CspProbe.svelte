@@ -16,7 +16,7 @@
   let width = $state(100);
 </script>
 
-<button onclick={() => theme.update(overrideTheme(lightTheme, { color: { primary: 'red' } }))}
+<button onclick={() => theme.setTheme(overrideTheme(lightTheme, { color: { primary: 'red' } }))}
   >Switch theme</button
 >
 <div

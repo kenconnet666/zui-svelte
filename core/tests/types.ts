@@ -5,7 +5,44 @@ import {
   overrideTheme,
   tokenRef,
   createCss,
+  baseTheme,
+  css,
 } from '../src/index.js';
+
+createCss(baseTheme)((s) => {
+  s.display.flex;
+  s.width.px(120);
+  // @ts-expect-error 基础主题不包含系统预设 Token。
+  s.color._primary;
+});
+const customBase = extendTheme(baseTheme, { color: { ink: '#123456' } });
+createCss(customBase)((s) => {
+  s.color._ink;
+  // @ts-expect-error 自定义主题不偷偷补充亮色 Token。
+  s.color._surface;
+});
+// @ts-expect-error 自定义主题统一通过 createCss 绑定。
+css(() => {}, baseTheme);
+const flexibleTheme = defineTheme({ fontWeight: { body: 400 }, lineHeight: { body: 1.5 } });
+overrideTheme(flexibleTheme, { fontWeight: { body: 'bold' }, lineHeight: { body: 'normal' } });
+const longAliases = defineTheme({
+  opacity: {
+    a: 0.5,
+    b: tokenRef('opacity', 'a'),
+    c: tokenRef('opacity', 'b'),
+    d: tokenRef('opacity', 'c'),
+    e: tokenRef('opacity', 'd'),
+    f: tokenRef('opacity', 'e'),
+    g: tokenRef('opacity', 'f'),
+    h: tokenRef('opacity', 'g'),
+    i: tokenRef('opacity', 'h'),
+    j: tokenRef('opacity', 'i'),
+    k: tokenRef('opacity', 'j'),
+  },
+});
+overrideTheme(longAliases, { opacity: { k: 0.8 } });
+// @ts-expect-error 超过递归预算仍保留已知类别的值种类。
+overrideTheme(longAliases, { opacity: { k: 'opaque' } });
 
 const numberedTheme = defineTheme({
   color: { 100: '#fff', 200: '#ddd', surface: tokenRef('color', '100') },

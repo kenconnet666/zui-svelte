@@ -165,7 +165,7 @@ export function createStyleScope(owner: () => string, moduleId: string, protocol
       const record = runtime.registry.acquire(
         buildStyle<TokenSchema, object>(
           factory,
-          theme ?? runtime.theme,
+          theme ?? runtime.defaultTheme,
           layer ?? undefined,
           tokenMap,
         ),

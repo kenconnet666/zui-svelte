@@ -53,14 +53,14 @@ export function validateTokenMap(
     if (!Object.hasOwn(metadata, property))
       throw new TypeError('Unknown mapped CSS property: ' + property);
     if (category === undefined) continue;
-    if (!Object.hasOwn(theme.tokens, category))
+    if (!Object.hasOwn(theme.resolved, category))
       throw new TypeError('Unknown mapped token category: ' + category);
     const expected = (tokenValueKinds as Readonly<Record<string, string>>)[
       metadata[property]!.tokens ?? ''
     ];
     if (
       expected &&
-      Object.values(theme.tokens[category]!).some((value) => typeof value !== expected)
+      Object.values(theme.resolved[category]!).some((value) => typeof value !== expected)
     )
       throw new TypeError('Incompatible token category for CSS property: ' + property);
   }
@@ -171,7 +171,7 @@ export function buildStyle(
                   category,
                   token: member.slice(1),
                   kind:
-                    typeof theme.tokens[category]![member.slice(1)] === 'number'
+                    typeof theme.resolved[category]![member.slice(1)] === 'number'
                       ? 'number'
                       : 'string',
                 }),

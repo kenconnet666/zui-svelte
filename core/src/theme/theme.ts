@@ -11,7 +11,7 @@ import type {
   ResolvedTokens,
   CompatibleExtension,
 } from './types.js';
-import { tokenValueKinds } from './types.js';
+import { matchesTokenKind, tokenValueKinds } from './types.js';
 import { validateValue } from '../css/validate.js';
 import { encodeSegment } from '../css/identifiers.js';
 
@@ -94,7 +94,6 @@ function createTheme(tokens: ThemeDefinition, namespace: string): Theme<TokenSch
   }
   return Object.freeze({
     namespace,
-    tokens: snapshot,
     resolved: snapshot,
     definition,
     variable,
@@ -112,7 +111,7 @@ export function extendTheme<A extends TokenSchema, const B extends ThemeDefiniti
   for (const [key, values] of Object.entries(extension))
     merged[key] = { ...merged[key], ...values };
   const result = createTheme(merged, theme.namespace);
-  validateReplacement(theme.tokens, result.tokens);
+  validateReplacement(theme.resolved, result.resolved);
   return result as Theme<ResolvedTokens<ExtendedTokens<A, B>>>;
 }
 
@@ -136,15 +135,24 @@ export function overrideTheme<T extends TokenSchema>(
     }
   }
   const result = createTheme(merged, theme.namespace);
-  validateReplacement(theme.tokens, result.tokens);
+  validateReplacement(theme.resolved, result.resolved);
   return result as Theme<WidenTokens<T>>;
 }
 
 function validateReplacement(previous: TokenSchema, next: TokenSchema): void {
   for (const [category, tokens] of Object.entries(previous))
-    for (const [key, value] of Object.entries(tokens))
-      if (typeof next[category]?.[key] !== typeof value)
+    for (const [key, value] of Object.entries(tokens)) {
+      if (!Object.hasOwn(next[category] ?? {}, key))
+        throw new TypeError('Missing theme token: ' + category + '.' + key);
+      if (!matchesTokenKind(category, next[category]?.[key], typeof value))
         throw new TypeError('Theme token value type cannot change: ' + category + '.' + key);
+    }
+}
+
+/** @internal 宿主和 scope 共用完整 schema 校验；样式消费另按实际 Token 子集检查。 */
+export function assertThemeCompatible(base: Theme<TokenSchema>, next: Theme<TokenSchema>): void {
+  if (base.namespace !== next.namespace) throw new TypeError('Theme namespace mismatch.');
+  validateReplacement(base.resolved, next.resolved);
 }
 
 export function isReference(value: unknown): value is TokenReference {

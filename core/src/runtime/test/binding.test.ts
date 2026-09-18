@@ -58,7 +58,7 @@ describe('runtime promotion', () => {
       });
       binding.dispose();
     }
-    expect(runtime.bindingCount).toBe(0);
+    expect(runtime.stats.bindings).toBe(0);
     expect(runtime.registry.size).toBe(0);
     expect(runtime.registry.sourceCount).toBe(0);
     runtime.dispose();

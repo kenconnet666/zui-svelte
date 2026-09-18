@@ -51,7 +51,7 @@ describe('explicit CSS layers', () => {
     const owner = new ClassController(runtime, 'unknown', 'unknown');
     const styles = createCss(lightTheme, { layer: 'app' });
     expect(() => owner.run(() => styles(() => {}))).toThrow('declared');
-    expect(runtime.bindingCount).toBe(0);
+    expect(runtime.stats.bindings).toBe(0);
     runtime.dispose();
   });
 });

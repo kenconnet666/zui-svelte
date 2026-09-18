@@ -23,6 +23,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import {
     hashText,
+    assertThemeCompatible,
     type Theme,
     type ThemeScope,
     type TokenSchema,
@@ -47,14 +48,7 @@
   let stop = () => {};
 
   function install(theme: Theme<TokenSchema>): void {
-    if (theme.namespace !== runtime.theme.namespace)
-      throw new Error('StyleProvider theme namespace does not match its runtime.');
-    for (const [category, tokens] of Object.entries(runtime.theme.tokens))
-      for (const [key, value] of Object.entries(tokens))
-        if (typeof theme.tokens[category]?.[key] !== typeof value)
-          throw new Error(
-            'StyleProvider theme is missing a compatible token: ' + category + '.' + key,
-          );
+    assertThemeCompatible(runtime.defaultTheme, theme);
     // 新规则先就绪再释放旧规则；校验/插入失败时保留最后有效主题。
     const next = runtime.themeStyle(selector, theme);
     const previous = resource;

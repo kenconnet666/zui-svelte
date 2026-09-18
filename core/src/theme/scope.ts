@@ -3,7 +3,7 @@ import { bindElement } from '../runtime/element.js';
 import type { StyleRuntime } from '../runtime/runtime.js';
 import { runAll } from '../runtime/callbacks.js';
 import { validateValue } from '../css/validate.js';
-import { overrideTheme, tokenRef, isReference } from './theme.js';
+import { overrideTheme, tokenRef, isReference, assertThemeCompatible } from './theme.js';
 import type { Theme, ThemePatch, TokenSchema, WidenTokens } from './types.js';
 
 export class ThemeScope<T extends TokenSchema> {
@@ -51,7 +51,9 @@ export class ThemeScope<T extends TokenSchema> {
   ) {
     const theme = overrideTheme(base, patch);
     pending.set(this, theme);
-    for (const child of this.#children) child.#prepare(theme as Theme<T>, child.#patch, pending);
+    // scope 允许值拓宽；子级仍使用相同键结构，实际值类别由 overrideTheme 校验。
+    for (const child of this.#children)
+      child.#prepare(theme as unknown as Theme<T>, child.#patch, pending);
     return pending;
   }
   #commit(pending: Map<ThemeScope<T>, Theme<WidenTokens<T>>>) {
@@ -72,27 +74,19 @@ export class ThemeScope<T extends TokenSchema> {
 
   fork(patch: ThemePatch<T>): ThemeScope<T> {
     this.#alive();
-    const child = new ThemeScope(this.#theme as Theme<T>, patch, this);
+    const child = new ThemeScope(this.#theme as unknown as Theme<T>, patch, this);
     this.#children.add(child);
     return child;
   }
-  update(theme: Theme<T>): void {
+  setTheme(theme: Theme<T>): void {
     this.#alive();
     if (this.parent) throw new Error('Update the root theme, or change this scope overrides.');
-    if (theme.namespace !== this.#base.namespace)
-      throw new Error('Theme namespace cannot change in a live scope.');
-    for (const [category, tokens] of Object.entries(this.#base.tokens))
-      for (const [key, value] of Object.entries(tokens))
-        if (
-          !Object.hasOwn(theme.tokens[category] ?? {}, key) ||
-          typeof theme.tokens[category]![key] !== typeof value
-        )
-          throw new Error('Incompatible theme token: ' + category + '.' + key);
+    assertThemeCompatible(this.#base, theme);
     const pending = this.#prepare(theme, this.#patch);
     this.#base = theme;
     this.#commit(pending);
   }
-  override(patch: ThemePatch<T>): void {
+  setOverrides(patch: ThemePatch<T>): void {
     this.#alive();
     const copied = this.#copy(patch);
     const pending = this.#prepare((this.parent?.theme ?? this.#base) as Theme<T>, copied);
@@ -137,7 +131,7 @@ export function themeVariables<T extends TokenSchema>(
   theme: Theme<T>,
 ): Readonly<Record<string, string>> {
   return Object.fromEntries(
-    Object.entries(theme.tokens).flatMap(([category, tokens]) =>
+    Object.entries(theme.resolved).flatMap(([category, tokens]) =>
       Object.entries(tokens).map(([key, value]) => [
         theme.variable(category, key),
         validateValue(String(value)),

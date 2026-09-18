@@ -54,7 +54,7 @@
 
   async function switchTheme() {
     for (let i = 0; i < 100; i++) {
-      root.override({ color: { text: i % 2 ? 'green' : 'red' } });
+      root.setOverrides({ color: { text: i % 2 ? 'green' : 'red' } });
       await tick();
     }
     completed++;

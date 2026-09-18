@@ -29,6 +29,16 @@ afterAll(async () => {
 });
 
 describe('compiled SSR', () => {
+  it('renders a CSS-only custom theme without injecting the system light tokens', async () => {
+    const { default: Probe, theme } = await server.ssrLoadModule(
+      '/tests/fixtures/BaseThemeProbe.svelte',
+    );
+    const { renderStyled } = await server.ssrLoadModule('/src/server.ts');
+    const result = await renderStyled(Probe, { props: {}, runtime: { theme } });
+    expect(result.head).toContain('--z-color-ink:#172554');
+    expect(result.head).not.toContain('--z-color-primary');
+    expect(result.body).toContain('custom base theme');
+  });
   it('collects nested providers after their owner scopes finish server rendering', async () => {
     const { default: Probe } = await server.ssrLoadModule('/tests/fixtures/ProviderProbe.svelte');
     const { renderStyled } = await server.ssrLoadModule('/src/server.ts');
@@ -82,7 +92,7 @@ describe('compiled SSR', () => {
     expect(result.head).toContain(':where(.z-theme-');
     expect(result.head).toContain('--z-color-text:red');
     expect(result.head).toContain('nonce="provider-ssr"');
-    expect(() => scope.override({ color: { text: 'green' } })).not.toThrow();
+    expect(() => scope.setOverrides({ color: { text: 'green' } })).not.toThrow();
     scope.dispose();
   });
 
@@ -92,7 +102,7 @@ describe('compiled SSR', () => {
     const { ThemeScope, lightTheme, defineTheme } = await server.ssrLoadModule('@zui/core');
     for (const [theme, message] of [
       [defineTheme({ color: { text: 'red' } }, { namespace: 'other' }), 'namespace'],
-      [defineTheme({ color: { text: 'red' } }), 'compatible token'],
+      [defineTheme({ color: { text: 'red' } }), 'Missing theme token'],
     ]) {
       const scope = new ThemeScope(theme);
       await expect(renderStyled(Provider, { props: { scope } })).rejects.toThrow(message);

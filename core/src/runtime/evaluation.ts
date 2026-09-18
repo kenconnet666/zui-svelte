@@ -27,11 +27,8 @@ export function hasCssEvaluation(): boolean {
   return activeEvaluation !== undefined;
 }
 
-export function css<T extends TokenSchema = DefaultTokens>(
-  factory: StyleFactory<T>,
-  theme?: Theme<T>,
-): string {
-  return evaluate<T>(factory, theme ? { theme } : undefined);
+export function css(factory: StyleFactory<DefaultTokens>): string {
+  return evaluate(factory);
 }
 
 function evaluate<T extends TokenSchema>(

@@ -9,10 +9,10 @@ describe('theme definitions', () => {
     const base = defineTheme({ color: { 100: 'red', selected: tokenRef('color', '100') } });
     expect(base.variable('color', '100')).toBe('--z-color-100');
     const extended = extendTheme(base, { color: { 100: 'blue', 200: tokenRef('color', '100') } });
-    expect(extended.tokens.color).toEqual({ 100: 'blue', 200: 'blue', selected: 'blue' });
+    expect(extended.resolved.color).toEqual({ 100: 'blue', 200: 'blue', selected: 'blue' });
     const changed = overrideTheme(extended, { color: { 100: 'green' } });
-    expect(changed.tokens.color['200']).toBe('green');
-    expect(changed.tokens.color.selected).toBe('green');
+    expect(changed.resolved.color['200']).toBe('green');
+    expect(changed.resolved.color.selected).toBe('green');
   });
   it('resolves aliases from final overrides and keeps nested scopes independent', () => {
     const theme = defineTheme({
@@ -25,13 +25,13 @@ describe('theme definitions', () => {
     const scope = new ThemeScope(theme);
     const child = scope.fork({ color: { primary: 'blue' } });
     expect(child.theme.resolved.color.label).toBe('blue');
-    scope.update(overrideTheme(theme, { color: { primary: 'green' } }));
-    expect(scope.theme.tokens.color.text).toBe('green');
-    expect(child.theme.tokens.color.text).toBe('blue');
-    expect(theme.tokens.color.text).toBe('red');
+    scope.setTheme(overrideTheme(theme, { color: { primary: 'green' } }));
+    expect(scope.theme.resolved.color.text).toBe('green');
+    expect(child.theme.resolved.color.text).toBe('blue');
+    expect(theme.resolved.color.text).toBe('red');
     expect(theme.ref('color', 'text')).toBe('var(--z-color-text)');
     const extended = extendTheme(theme, { color: { border: tokenRef('color', 'primary') } });
-    expect(overrideTheme(extended, { color: { primary: 'black' } }).tokens.color.border).toBe(
+    expect(overrideTheme(extended, { color: { primary: 'black' } }).resolved.color.border).toBe(
       'black',
     );
     scope.dispose();
@@ -55,9 +55,9 @@ describe('theme definitions', () => {
     const original = defineTheme({ color: { primary: 'red' } });
     const extended = extendTheme(original, { color: { brand: 'blue' }, spacing: { gap: '8px' } });
     const result = overrideTheme(extended, { color: { primary: 'green' } });
-    expect(original.tokens.color.primary).toBe('red');
-    expect(result.tokens.color).toEqual({ primary: 'green', brand: 'blue' });
-    expect(Object.isFrozen(result.tokens.color)).toBe(true);
+    expect(original.resolved.color.primary).toBe('red');
+    expect(result.resolved.color).toEqual({ primary: 'green', brand: 'blue' });
+    expect(Object.isFrozen(result.resolved.color)).toBe(true);
     expect(
       serializeProgram(
         buildStyle((s) => {

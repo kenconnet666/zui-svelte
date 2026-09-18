@@ -45,7 +45,7 @@ type CategoryValue<C> = C extends keyof typeof tokenValueKinds
 type ResolveValue<T extends ThemeDefinition, V, Depth extends unknown[] = []> =
   V extends TokenReference<infer C, infer K>
     ? Depth['length'] extends 8
-      ? TokenValue
+      ? CategoryValue<C>
       : C extends keyof T
         ? K extends keyof T[C]
           ? ResolveValue<T, T[C][K], [...Depth, unknown]>
@@ -56,13 +56,29 @@ type ResolveValue<T extends ThemeDefinition, V, Depth extends unknown[] = []> =
       : string;
 
 type ResolveDefinition<T extends ThemeDefinition> = {
-  readonly [C in keyof T]: { readonly [K in keyof T[C]]: ResolveValue<T, T[C][K]> };
+  readonly [C in keyof T]: {
+    readonly [K in keyof T[C]]: C extends 'fontWeight' | 'lineHeight'
+      ? TokenValue
+      : ResolveValue<T, T[C][K]>;
+  };
 };
+
+/** @internal 合法的双值类别必须与解析类型保持一致。 */
+export function matchesTokenKind(category: string, value: unknown, kind: string): boolean {
+  return (
+    typeof value === kind ||
+    ((category === 'fontWeight' || category === 'lineHeight') &&
+      (typeof value === 'string' || typeof value === 'number'))
+  );
+}
 export type ResolvedTokens<T extends ThemeDefinition> = ResolveDefinition<NormalizeKeys<T>>;
 
 export type WidenTokens<T extends TokenSchema> = {
-  readonly [C in keyof T]: { readonly [K in keyof T[C]]: T[C][K] extends number ? number : string };
+  readonly [C in keyof T]: { readonly [K in keyof T[C]]: WidenValue<T[C][K]> };
 };
+
+// 分布式条件保留深别名解析的联合值，避免 string | number 被整体缩窄为 string。
+type WidenValue<V> = V extends number ? number : V extends string ? string : never;
 
 type ReferenceConstraints<T extends ThemeDefinition, Input extends ThemeDefinition> = {
   readonly [C in keyof Input]: {
@@ -91,7 +107,7 @@ type ExtensionConstraints<A extends TokenSchema, B extends ThemeDefinition> = {
       ? K extends keyof A[C]
         ? B[C][K] extends TokenReference
           ? B[C][K]
-          : B[C][K] extends (A[C][K] extends number ? number : string)
+          : B[C][K] extends WidenValue<A[C][K]>
             ? B[C][K]
             : never
         : B[C][K]
@@ -107,7 +123,7 @@ export type CompatibleExtension<
 export type ThemePatch<T extends TokenSchema> = {
   readonly [C in keyof T]?: {
     readonly [K in keyof T[C]]?:
-      (T[C][K] extends number ? number : string) | TokenReference<C & string, keyof T[C] & string>;
+      WidenValue<T[C][K]> | TokenReference<C & string, keyof T[C] & string>;
   };
 };
 
@@ -129,7 +145,6 @@ export type ExtendedTokens<A extends ThemeDefinition, B extends ThemeDefinition>
 
 export interface Theme<T extends TokenSchema = TokenSchema> {
   readonly namespace: string;
-  readonly tokens: T;
   readonly resolved: T;
   readonly definition: ThemeDefinition;
   variable<C extends keyof T & string>(category: C, token: keyof T[C] & string): string;

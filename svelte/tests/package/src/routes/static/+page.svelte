@@ -7,7 +7,9 @@
   onDestroy(() => scope.dispose());
 </script>
 
-<button onclick={() => scope.override({ color: { text: 'green' } })}>Change package theme</button>
+<button onclick={() => scope.setOverrides({ color: { text: 'green' } })}
+  >Change package theme</button
+>
 <StyleProvider {scope} as="article">
   <div
     data-testid="prerender-target"

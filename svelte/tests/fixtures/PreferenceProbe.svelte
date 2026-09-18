@@ -11,7 +11,7 @@
 
   function apply() {
     // 多轴偏好用普通函数合成确定主题，不把系统监听或持久化塞进 core。
-    scope.update(
+    scope.setTheme(
       overrideTheme(dark ? darkTheme : lightTheme, {
         size: { control: compact ? '28px' : '36px' },
         borderWidth: { thin: contrast ? '2px' : '1px' },

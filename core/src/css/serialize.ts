@@ -35,7 +35,7 @@ export function serializeProgram(program: StyleProgram, selector: string, prefix
 
 export function serializeTheme<T extends TokenSchema>(theme: Theme<T>, selector = ':root'): string {
   validateQuery(selector, true);
-  const declarations = Object.entries(theme.tokens)
+  const declarations = Object.entries(theme.resolved)
     .flatMap(([category, entries]) =>
       Object.entries(entries).map(
         ([token, value]) =>
