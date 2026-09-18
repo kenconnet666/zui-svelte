@@ -8,7 +8,7 @@ test('navigates docs and renders the CSS example', async ({ page }) => {
   await page.getByRole('navigation').getByRole('link', { name: '样式系统' }).click();
   await expect(page).toHaveURL(/#\/core$/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('样式系统');
-  await expect(page.getByLabel('CSS 示例')).toContainText('var(--z-panel-width)');
+  await expect(page.getByLabel('CSS 示例')).toContainText('s.width.px(width)');
   await page.reload();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('样式系统');
   await page.getByRole('navigation').getByRole('link', { name: '组件', exact: true }).click();

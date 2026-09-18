@@ -4,6 +4,10 @@
 
 ## 新电脑先做什么
 
+2026-09-18 新电脑接续核对：本地已同步 `b543cc9`。其 CI [35327943579](https://github.com/kenconnet666/zui-svelte/actions/runs/35327943579) 通过格式、类型、生成一致性、单元测试和构建，停在 Docs 导航测试：断言仍查找 `var(--z-panel-width)`，实际示例已为 `s.width.px(width)`。本次同步该断言，推送后不等待 CI；后续浏览器、Kit 与包外门槛仍须由新一轮完整结果确认。
+
+本机已完成 `pnpm install --frozen-lockfile`、语言服务安装和独立 MCP 客户端验收，并注册 `zui_lsp`、官方 `svelte`、`webstorm`。等待用户重启 Codex 后检查原生工具加载；这次安装状态不沿用旧电脑的重启验收结论。下面两项 R2 缺陷及 R3–R5 仍待继续。
+
 ```powershell
 git clone https://github.com/kenconnet666/zui-svelte.git
 Set-Location zui-svelte
