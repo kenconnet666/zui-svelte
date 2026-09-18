@@ -106,7 +106,8 @@ export function serializeStyleTags(
   const tags: string[] = [];
   for (let start = 0; start < entries.length; start += styleChunkSize) {
     const chunk = entries.slice(start, start + styleChunkSize);
-    const css = chunk.map((entry) => escapeStyleText(entry.css));
+    // HTML 解析会把 CR/CRLF 归一化，长度必须按浏览器实际取得的文本计算。
+    const css = chunk.map((entry) => escapeStyleText(entry.css).replace(/\r\n?/gu, '\n'));
     const metadata = chunk.map((entry, index) => [entry.key, entry.order, css[index]!.length]);
     tags.push(
       '<style data-z-ssr="" data-z-protocol="' +

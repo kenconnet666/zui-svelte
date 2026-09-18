@@ -1,5 +1,9 @@
 # Core 性能基线与门槛
 
+真实浏览器门槛：`pnpm benchmark:browser` 消费 contracts:check 生成的完整 ESM 浏览器产物，覆盖 inline/stylesheet 两种通道、1,000 实例、预热后五次更新样本与 100 次挂载销毁。检查零额外规则编译、逻辑记录上限、物理分片数量、最终资源归零，并输出 browser-benchmark.json。5,000 ms / 1,000 实例更新 p95 是跨 CI 环境的灾难性退化上限，不是 60fps 或交互延迟承诺。
+
+首次局部 Chrome 152 实测：inline p50 42.3 ms / p95 45.0 ms / 22 个 style；stylesheet p50 152.3 ms / p95 164.1 ms / 45 个 style；两通道额外编译均为 0，释放后均零资源。报告包含 CPU、平台和浏览器版本，不能直接与旧 Node 内存基准比较；三引擎由 CI 实测。
+
 分发合同新增 [core-distribution-budget.json](core-distribution-budget.json)：完整 core ESM 浏览器 bundle（含全部属性元数据）上限 300,000 字节、gzip 50,000 字节、全部 d.ts 800,000 字节。首次实际测量为 JS 263,625 / gzip 43,381 / 声明 552,688 字节；最初未落盘估算的 250,000/400,000 低于当前完整产物，审阅后按实际完整分发建立上述首份门槛，未删除属性或放宽已发布基线。后续变更必须解释原因，不能失败后自动刷新上限。
 
 `pnpm contracts:check` 使用构建产物核对公开 API 快照并打包验证浏览器依赖闭合；报告在 core/test-results/contracts.json，CI 携带 GITHUB_SHA。`pnpm generate:check` 同时生成 css-coverage.json，区分属性、单位、Token 类别映射及没有单位/Token 辅助的属性（这些属性仍有标准值与关键字调用）。

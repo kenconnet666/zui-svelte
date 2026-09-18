@@ -95,6 +95,9 @@ jobs:
       - name: Test core DOM and hydration in three browsers
         run: pnpm run test:core:browser
 
+      - name: Measure real browser updates and ownership budgets
+        run: pnpm run benchmark:browser
+
       - name: Build SvelteKit production fixture
         run: pnpm --filter @zui/svelte run test:kit:build
 

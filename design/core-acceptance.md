@@ -1,5 +1,7 @@
 # Core 首版验收台账
 
+边界与规模增量：A13 的错误边界清理/恢复、A20 的多 Document、A28 的 CRLF 接管已通过局部 Chrome。A12 递归/对象 key/unkeyed、A24/A26/A28 默认亮色与 Cookie 暗色/无 JS/切换 class 稳定已加入真实 Kit 与包外矩阵。A38 新增完整产物的三浏览器双通道基准，本机 Chrome 通过，其他引擎及候选 SHA 证据由下一轮 CI 提供。
+
 公共合同增量：已加入原生 color-scheme 元数据及双通道切换、StyleError 分类、主题原型同名键防护；生成器从 csstype 泛型识别额外 208 个单位属性并输出覆盖报告。公开 API 快照与 JS/gzip/声明上限已接入 CI，局部生成一致性和实际 core 构建产物检查通过。完整候选证据等待本批 CI；尚不能把所有 A01–A40 直接标为通过。
 
 开发态/SSR 增量：真实 HMR、原生属性语义对照、snippet/await/动态 chunk 的 3 项 Chrome 局部通过；HTML done 后收集后到 CSS，并保留延迟数据流，服务端相关 8 项已聚焦验证。真实 Kit sequence、错误页与 redirect 已加入 CI，待本批结果。协议 7 后端提交 c2c772e 的完整 CI 35346989755 已通过，新增后端三浏览器与独立包证据可追踪至该 SHA。

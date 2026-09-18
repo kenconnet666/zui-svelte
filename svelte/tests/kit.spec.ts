@@ -1,5 +1,54 @@
 import { expect, test } from '@playwright/test';
 
+test('hydrates unkeyed reuse, object keys and recursive snippets', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto('/structure');
+  for (const name of ['unkeyed', 'object-key']) {
+    await expect(page.getByTestId(name).nth(0)).toHaveCSS('width', '101px');
+    await expect(page.getByTestId(name).nth(1)).toHaveCSS('width', '202px');
+  }
+  await expect(page.locator('[data-depth="2"]')).toHaveCSS('width', '72px');
+  await page.getByRole('button', { name: 'Change structure', exact: true }).click();
+  for (const name of ['unkeyed', 'object-key']) {
+    await expect(page.getByTestId(name).nth(0)).toHaveCSS('width', '202px');
+    await expect(page.getByTestId(name).nth(1)).toHaveCSS('width', '101px');
+  }
+  for (let depth = 0; depth <= 3; depth++)
+    await expect(page.locator('[data-depth="' + depth + '"]')).toHaveCSS(
+      'width',
+      70 + depth + 'px',
+    );
+  expect(errors).toEqual([]);
+});
+
+test('switches theme variables without replacing the consuming class', async ({ page }) => {
+  await page.goto('/theme');
+  const target = page.getByTestId('scheme-target');
+  await expect(target).toHaveCSS('color-scheme', 'light');
+  const className = await target.getAttribute('class');
+  await page.getByRole('button', { name: 'Preview dark', exact: true }).click();
+  await expect(target).toHaveCSS('color-scheme', 'dark');
+  await expect(target).toHaveCSS('color', 'rgb(248, 250, 252)');
+  expect(await target.getAttribute('class')).toBe(className);
+  await page.getByRole('button', { name: 'Preview light', exact: true }).click();
+  await expect(target).toHaveCSS('color', 'rgb(15, 23, 42)');
+});
+
+test.describe('request theme without JavaScript', () => {
+  test.use({ javaScriptEnabled: false });
+  test('defaults to light and renders the saved dark scheme on the next response', async ({
+    page,
+  }) => {
+    await page.goto('/theme');
+    await expect(page.getByTestId('scheme-target')).toHaveCSS('color-scheme', 'light');
+    await page.getByRole('button', { name: 'Save dark', exact: true }).click();
+    await expect(page.getByTestId('scheme-target')).toHaveCSS('color-scheme', 'dark');
+    await page.reload();
+    await expect(page.getByTestId('scheme-target')).toHaveCSS('color', 'rgb(248, 250, 252)');
+  });
+});
+
 test('composes real Kit handles and keeps error-page styles and redirect headers', async ({
   request,
 }) => {

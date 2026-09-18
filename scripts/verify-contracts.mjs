@@ -141,6 +141,7 @@ console.log(JSON.stringify(report));
 for (const key of ['jsBytes', 'gzipBytes', 'declarationBytes'])
   assert(report[key] <= budget[key], `${key}: ${report[key]} exceeds ${budget[key]}`);
 await mkdir(join(root, 'core/test-results'), { recursive: true });
+await writeFile(join(root, 'core/test-results/core-browser.mjs'), code);
 await writeFile(
   join(root, 'core/test-results/contracts.json'),
   JSON.stringify(report, null, 2) + '\n',

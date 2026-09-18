@@ -11,7 +11,7 @@ describe('theme definitions', () => {
     const theme = extendTheme(base, extension);
     expect(Object.hasOwn(theme.resolved, '__proto__')).toBe(true);
     expect(theme.resolved['__proto__']!.value).toBe('red');
-    expect(theme.resolved['constructor']!.value).toBe('blue');
+    expect(theme.resolved['constructor']).toEqual({ value: 'blue' });
     expect(Object.hasOwn(Object.prototype, 'value')).toBe(false);
   });
   it('normalizes numeric token keys through aliases, extensions and overrides', () => {

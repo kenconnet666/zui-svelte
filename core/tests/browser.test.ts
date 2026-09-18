@@ -35,6 +35,57 @@ function runtime(namespace: string) {
 }
 
 describe('real DOM style bindings', () => {
+  it('hydrates multiline theme values after HTML newline normalization', () => {
+    const theme = defineTheme({ spacing: { line: 'calc(1px\r\n + 2px)' } });
+    const server = createRuntime({ theme, namespace: 'newlines' });
+    cleanup.push(() => server.dispose());
+    server.themeStyle(':root');
+    const name = server.css((s) => {
+      s.padding._line;
+    });
+    document.head.insertAdjacentHTML('beforeend', server.styleTags());
+    const node = element();
+    node.className = name;
+    const client = createRuntime({ target: document, theme, namespace: 'newlines' });
+    cleanup.push(() => client.dispose());
+    client.themeStyle(':root');
+    client.css((s) => {
+      s.padding._line;
+    });
+    client.finishHydration();
+    expect(getComputedStyle(node).paddingTop).toBe('3px');
+  });
+  it('keeps independent Documents isolated even with identical runtime names', () => {
+    const frame = document.createElement('iframe');
+    document.body.append(frame);
+    cleanup.push(() => frame.remove());
+    const other = frame.contentDocument!;
+    const main = createRuntime({ target: document, namespace: 'documents' });
+    const remote = createRuntime({ target: other, namespace: 'documents' });
+    cleanup.push(
+      () => main.dispose(),
+      () => remote.dispose(),
+    );
+    const a = element();
+    const b = other.createElement('div');
+    other.body.append(b);
+    const first = main.binding({ id: 'same', source: 'same' });
+    const second = remote.binding({ id: 'same', source: 'same' });
+    cleanup.push(bindElement(a, first), bindElement(b, second));
+    for (const width of [100, 120])
+      first.evaluate((s) => {
+        s.width.px(width);
+      });
+    for (const width of [200, 240])
+      second.evaluate((s) => {
+        s.width.px(width);
+      });
+    expect(getComputedStyle(a).width).toBe('120px');
+    expect(other.defaultView!.getComputedStyle(b).width).toBe('240px');
+    remote.dispose();
+    expect(other.head.querySelectorAll('style[data-zui="documents"]')).toHaveLength(0);
+    expect(getComputedStyle(a).width).toBe('120px');
+  });
   it.each(['inline', 'stylesheet'] as const)(
     'switches the native color scheme through the %s theme channel',
     (variables) => {

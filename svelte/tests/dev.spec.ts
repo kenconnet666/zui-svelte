@@ -62,7 +62,22 @@ test.beforeAll(async () => {
   );
   await writeFile(
     join(directory, 'main.ts'),
-    "import {mount} from 'svelte';import Root from './Root.svelte';import Compare from './Compare.svelte';import Branches from './Branches.svelte';mount(location.search.includes('branches') ? Branches : location.search ? Compare : Root,{target:document.getElementById('app')!});",
+    "import {mount} from 'svelte';import Root from './Root.svelte';import Compare from './Compare.svelte';import Branches from './Branches.svelte';import Boundary from './Boundary.svelte';mount(location.search.includes('boundary') ? Boundary : location.search.includes('branches') ? Branches : location.search ? Compare : Root,{target:document.getElementById('app')!});",
+  );
+  await writeFile(
+    join(directory, 'Fragile.svelte'),
+    `<script lang="ts">import {css} from '@zui/core';let {broken}=$props();</script>
+<div data-testid="fragile" class={css(s=>{s.height.px(31);if(broken)throw new Error('expected-style-error');s.width.px(41);})}>fragile</div>`,
+  );
+  await writeFile(
+    join(directory, 'Boundary.svelte'),
+    `<script lang="ts">
+import {onDestroy} from 'svelte';import {createRuntime} from '@zui/core';import {provideStyleRuntime} from '@zui/svelte';import Fragile from './Fragile.svelte';
+const runtime=createRuntime({target:document,namespace:'boundary'});provideStyleRuntime(runtime);onDestroy(()=>runtime.dispose());let broken=$state(false);let stats=$state('');
+</script>
+<button onclick={()=>broken=true}>Fail styles</button>
+<button onclick={()=>stats=JSON.stringify(runtime.stats)}>Inspect boundary</button><output id="boundary-stats">{stats}</output>
+<svelte:boundary><Fragile {broken}/>{#snippet failed(error,reset)}<button onclick={()=>{broken=false;reset();}}>Recover styles</button>{/snippet}</svelte:boundary>`,
   );
   await writeFile(join(directory, 'Branches.svelte'), branchProbe);
   await writeFile(
@@ -198,5 +213,28 @@ test('isolates snippet and await instances and collects a real dynamic chunk', a
     sources: 0,
     styleEntries: 0,
   });
+  expect(errors).toEqual([]);
+});
+
+test('releases failed style factories and recovers through a Svelte error boundary', async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto(url + '?boundary');
+  for (let round = 0; round < 3; round++) {
+    await expect(page.getByTestId('fragile')).toHaveCSS('width', '41px');
+    await page.getByRole('button', { name: 'Fail styles', exact: true }).click();
+    await expect(page.getByTestId('fragile')).toHaveCount(0);
+    await expect(page.locator('style[data-zui="boundary"]')).toHaveCount(0);
+    await page.getByRole('button', { name: 'Inspect boundary', exact: true }).click();
+    expect(JSON.parse(await page.locator('#boundary-stats').innerText())).toMatchObject({
+      rules: 0,
+      bindings: 0,
+      sources: 0,
+    });
+    await page.getByRole('button', { name: 'Recover styles', exact: true }).click();
+  }
+  await expect(page.getByTestId('fragile')).toHaveCSS('height', '31px');
   expect(errors).toEqual([]);
 });

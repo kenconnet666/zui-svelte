@@ -1,5 +1,13 @@
 # Core 实施进度
 
+## 生产重构：错误边界、独立目标和浏览器预算
+
+新增错误 factory 的 Svelte boundary 三轮失败/清理/恢复，以及相同 namespace 的不同 Document 隔离，两项局部 Chrome 验证通过。Kit 和独立包夹具增加 unkeyed 复用、对象 key、递归 snippet hydration、主题 class 稳定切换、无 JS 的默认亮色与 Cookie 暗色首屏；原生 LSP 和对应 lint 通过，生产夹具完整运行交 CI。
+
+SSR 分片长度按 HTML 的 CR/CRLF 归一化后文本计算，真实 Chrome 多行主题接管通过。新增完整浏览器产物基准，两变量通道的 1,000 实例更新与 100 轮资源回收局部通过，CPU/浏览器与 p50/p95 报告交 CI 归档。
+
+推送前修复 1f16f63 的 CI 35350130909：原型同名键测试通过任意 JSON 推导时，TypeScript 将 constructor 看作 Function；改为直接对该键的整个运行值作结构断言，保留同名键安全验证。原生 LSP 检查该文件及新增 spec 无错误。
+
 ## 生产重构：主题声明、诊断与公共合同
 
 主题增加可选原生 colorScheme 元数据：baseTheme 不声明，light/dark 分别声明，extend/override 保留或显式设置。DOM 绑定、Provider 和 SSR 共用主题声明；原生绑定补齐 runtime schema 校验。两个变量通道的原生 color-scheme 切换/恢复局部 Chrome 回归通过，主题 19 项通过。
