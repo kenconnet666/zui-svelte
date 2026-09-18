@@ -101,6 +101,11 @@ describe('compiled SSR', () => {
     expect(b.head).toContain('width:173px');
     expect(a.head).toContain('width:193px');
     expect(b.head).toContain('width:193px');
+    expect(a.head).toContain('width:203px');
+    expect(b.head).toContain('width:213px');
+    expect(a.head).toContain('width:233px');
+    const module = await server.ssrLoadModule('/tests/fixtures/static-styles.ts');
+    expect(module.helperCalls).toBe(3);
     expect(a.body).toBe(b.body);
   });
   it('preserves a typed CSS entry in setup snapshots and template evaluation', async () => {

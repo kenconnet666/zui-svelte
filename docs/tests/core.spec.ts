@@ -36,6 +36,9 @@ test('module style snapshots register in the browser and release on navigation',
     'width',
     '193px',
   );
+  await expect(page.getByTestId('mapped-panel-0')).toHaveCSS('width', '203px');
+  await expect(page.getByTestId('mapped-panel-1')).toHaveCSS('width', '213px');
+  await expect(page.getByTestId('receiver-panel')).toHaveCSS('width', '233px');
   await page.getByRole('navigation').getByRole('link', { name: '概览' }).click();
   await expect(page.locator('style[data-zui="z"]')).toHaveCount(0);
 });
