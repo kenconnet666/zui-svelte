@@ -8,25 +8,33 @@ import type { Theme, TokenSchema } from '../theme/types.js';
 import { lightTheme, type DefaultTokens } from '../theme/presets.js';
 import { validateLayer, layerProgram } from './layers.js';
 import { setTokenUses, type TokenUse } from '../theme/requirements.js';
+import { tokenValueKinds } from '../theme/types.js';
+import type { PropertyTokenMap } from './carrier.js';
+export type { PropertyTokenMap } from './carrier.js';
 
-export interface StyleHelpers<T extends TokenSchema> {
-  _selector(selector: string, factory: StyleFactory<T>): void;
-  _media(query: string, factory: StyleFactory<T>): void;
-  _supports(query: string, factory: StyleFactory<T>): void;
-  _container(query: string, factory: StyleFactory<T>): void;
-  _hover(factory: StyleFactory<T>): void;
-  _focusVisible(factory: StyleFactory<T>): void;
-  _before(factory: StyleFactory<T>): void;
-  _after(factory: StyleFactory<T>): void;
-  _important(factory: StyleFactory<T>): void;
+export interface StyleHelpers<T extends TokenSchema, M extends PropertyTokenMap<T> = object> {
+  _selector(selector: string, factory: StyleFactory<T, M>): void;
+  _media(query: string, factory: StyleFactory<T, M>): void;
+  _supports(query: string, factory: StyleFactory<T, M>): void;
+  _container(query: string, factory: StyleFactory<T, M>): void;
+  _hover(factory: StyleFactory<T, M>): void;
+  _focusVisible(factory: StyleFactory<T, M>): void;
+  _before(factory: StyleFactory<T, M>): void;
+  _after(factory: StyleFactory<T, M>): void;
+  _important(factory: StyleFactory<T, M>): void;
   custom(name: `--${string}`, value: string | number | null | undefined): void;
   raw(property: string, value: string | number | null | undefined): void;
   set<P extends keyof CSS.Properties>(property: P, value: CSS.Properties[P] | null): void;
 }
 
-export type StyleBuilder<T extends TokenSchema = DefaultTokens> = StyleProperties<T> &
-  StyleHelpers<T>;
-export type StyleFactory<T extends TokenSchema = DefaultTokens> = (s: StyleBuilder<T>) => void;
+export type StyleBuilder<
+  T extends TokenSchema = DefaultTokens,
+  M extends PropertyTokenMap<T> = object,
+> = StyleProperties<T, M> & StyleHelpers<T, M>;
+export type StyleFactory<
+  T extends TokenSchema = DefaultTokens,
+  M extends PropertyTokenMap<T> = object,
+> = (s: StyleBuilder<T, M>) => void;
 
 interface Metadata {
   name: string;
@@ -37,22 +45,58 @@ interface Metadata {
 }
 const metadata: Readonly<Record<string, Metadata>> = propertyMetadata;
 
-function invoke<T extends TokenSchema>(factory: StyleFactory<T>, s: StyleBuilder<T>): void {
-  const result: unknown = factory(s);
+export function validateTokenMap(
+  theme: Theme<TokenSchema>,
+  mapping: Readonly<Record<string, string | undefined>>,
+): void {
+  for (const [property, category] of Object.entries(mapping)) {
+    if (!Object.hasOwn(metadata, property))
+      throw new TypeError('Unknown mapped CSS property: ' + property);
+    if (category === undefined) continue;
+    if (!Object.hasOwn(theme.tokens, category))
+      throw new TypeError('Unknown mapped token category: ' + category);
+    const expected = (tokenValueKinds as Readonly<Record<string, string>>)[
+      metadata[property]!.tokens ?? ''
+    ];
+    if (
+      expected &&
+      Object.values(theme.tokens[category]!).some((value) => typeof value !== expected)
+    )
+      throw new TypeError('Incompatible token category for CSS property: ' + property);
+  }
+}
+
+// 公开重载保留完整类型，收集器擦除回调类型，避免在实现中反复展开全部 CSS 属性。
+type RuntimeFactory = (builder: never) => void;
+function invoke(factory: RuntimeFactory, s: unknown): void {
+  const result: unknown = factory(s as never);
   if (result !== undefined)
     throw new TypeError('A style callback must be synchronous and return void.');
 }
 
 export function buildStyle<T extends TokenSchema = DefaultTokens>(
   factory: StyleFactory<T>,
-  theme: Theme<T> = lightTheme as unknown as Theme<T>,
+  theme?: Theme<T>,
   layer?: string,
+): StyleProgram;
+export function buildStyle<T extends TokenSchema, const M extends PropertyTokenMap<T>>(
+  factory: StyleFactory<T, M>,
+  theme: Theme<T> | undefined,
+  layer: string | undefined,
+  tokenMap: M | undefined,
+): StyleProgram;
+export function buildStyle(
+  factory: RuntimeFactory,
+  theme: Theme<TokenSchema> = lightTheme,
+  layer?: string,
+  tokenMap?: Readonly<Record<string, string | undefined>>,
 ): StyleProgram {
   if (layer !== undefined) validateLayer(layer);
+  if (tokenMap) validateTokenMap(theme, tokenMap);
   const nodes: Instruction[] = [];
   const tokens = new Map<string, TokenUse>();
 
-  function builder(target: Instruction[], important = false): StyleBuilder<T> {
+  function builder(target: Instruction[], important = false): StyleHelpers<TokenSchema> {
     const carriers = new Map<string, unknown>();
     const append = (property: string, value: unknown) => {
       if (value === null || value === undefined) return;
@@ -68,13 +112,13 @@ export function buildStyle<T extends TokenSchema = DefaultTokens>(
         }),
       );
     };
-    const nest = (query: string, callback: StyleFactory<T>) => {
+    const nest = (query: string, callback: RuntimeFactory) => {
       const children: Instruction[] = [];
       invoke(callback, builder(children, important));
       if (children.length)
         target.push(Object.freeze({ kind: 'rule', query, children: Object.freeze(children) }));
     };
-    const helpers: StyleHelpers<T> = {
+    const helpers: StyleHelpers<TokenSchema> = {
       _selector: (query, callback) => nest(validateQuery(query), callback),
       _media: (query, callback) => nest('@media ' + validateQuery(query, true), callback),
       _supports: (query, callback) => nest('@supports ' + validateQuery(query, true), callback),
@@ -117,16 +161,17 @@ export function buildStyle<T extends TokenSchema = DefaultTokens>(
               return undefined;
             }
             if (member.startsWith('_')) {
-              if (!entry.tokens) throw new TypeError('CSS property has no token category: ' + key);
-              append(entry.name, 'var(' + theme.variable(entry.tokens, member.slice(1)) + ')');
+              const category = tokenMap?.[key] ?? entry.tokens;
+              if (!category) throw new TypeError('CSS property has no token category: ' + key);
+              append(entry.name, 'var(' + theme.variable(category, member.slice(1)) + ')');
               tokens.set(
-                JSON.stringify([entry.tokens, member]),
+                JSON.stringify([category, member]),
                 Object.freeze({
                   namespace: theme.namespace,
-                  category: entry.tokens,
+                  category,
                   token: member.slice(1),
                   kind:
-                    typeof theme.tokens[entry.tokens]![member.slice(1)] === 'number'
+                    typeof theme.tokens[category]![member.slice(1)] === 'number'
                       ? 'number'
                       : 'string',
                 }),
@@ -156,7 +201,7 @@ export function buildStyle<T extends TokenSchema = DefaultTokens>(
         carriers.set(key, carrier);
         return carrier;
       },
-    }) as StyleBuilder<T>;
+    });
   }
 
   invoke(factory, builder(nodes));

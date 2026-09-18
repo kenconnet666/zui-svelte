@@ -32,7 +32,7 @@ describe('class-only evaluation', () => {
         ).toBe('outer');
       },
       (factory, selected) => {
-        programs.push(buildStyle(factory, selected));
+        programs.push(buildStyle(factory, selected?.theme));
         return 'outer';
       },
     );

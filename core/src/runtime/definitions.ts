@@ -3,6 +3,7 @@ import type { StyleProgram } from '../css/program.js';
 import { canonicalize, hashText } from '../css/serialize.js';
 import { withCssEvaluation } from './evaluation.js';
 import { tokenUses, type TokenUse } from '../theme/requirements.js';
+import type { TokenSchema } from '../theme/types.js';
 
 export interface StyleDefinition {
   readonly className: string;
@@ -47,8 +48,9 @@ export function createStyleModule(source: string) {
       let slot = 0;
       return withCssEvaluation(
         () => fn(...args),
-        (factory, theme, layer) => {
-          const program = buildStyle(factory, theme);
+        (factory, options = {}) => {
+          const { theme, layer, tokenMap } = options;
+          const program = buildStyle<TokenSchema, object>(factory, theme, undefined, tokenMap);
           const position = source + ':' + site + ':' + slot++;
           const tokens = tokenUses(program);
           const canonical = JSON.stringify([

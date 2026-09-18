@@ -1,16 +1,16 @@
 import { clsx, type ClassValue } from 'clsx';
 import { hashText } from '../css/serialize.js';
 import { buildStyle, type StyleFactory } from '../css/builder.js';
-import type { Theme, TokenSchema } from '../theme/types.js';
+import type { TokenSchema } from '../theme/types.js';
 import type { StyleRuntime } from './runtime.js';
 import type { StyleBinding } from './binding.js';
 import type { RuleRecord } from './registry.js';
 import { createVariableBinding } from './variables.js';
 import { findDefinition } from './definitions.js';
 import { runAll } from './callbacks.js';
+import { withCssEvaluation, type CssEvaluationOptions } from './evaluation.js';
 
 type ErasedFactory = StyleFactory<TokenSchema>;
-import { withCssEvaluation } from './evaluation.js';
 export { css, createCss, hasCssEvaluation, withCssEvaluation } from './evaluation.js';
 
 export function normalizeClass(value: unknown): string {
@@ -35,13 +35,15 @@ export class ClassController<T extends TokenSchema> {
     readonly onChange?: () => void,
   ) {}
 
-  #slot(
-    factory: ErasedFactory,
-    theme?: Theme<TokenSchema>,
-    layer: string | null | undefined = this.runtime.layer,
-  ): string {
+  #slot(factory: ErasedFactory, options: CssEvaluationOptions = {}): string {
+    const layer = options.layer === undefined ? this.runtime.layer : options.layer;
     this.runtime.registry.assertLayer(layer ?? undefined);
-    const program = buildStyle(factory, theme ?? this.runtime.theme, layer ?? undefined);
+    const program = buildStyle<TokenSchema, object>(
+      factory,
+      options.theme ?? this.runtime.theme,
+      layer ?? undefined,
+      options.tokenMap,
+    );
     this.runtime.registry.assertTheme(program);
     const slot = this.#cursor++;
     let binding = this.#bindings[slot];
@@ -65,7 +67,7 @@ export class ClassController<T extends TokenSchema> {
         for (const binding of this.#bindings.splice(this.#cursor)) binding.dispose();
         return result;
       },
-      (factory, theme, layer) => this.#slot(factory, theme, layer),
+      (factory, options) => this.#slot(factory, options),
     );
   }
 

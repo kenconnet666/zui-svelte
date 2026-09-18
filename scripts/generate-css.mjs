@@ -75,7 +75,7 @@ for (const property of properties.sort((a, b) => a.name.localeCompare(b.name, 'e
       (options.arity ?? 1) +
       ', ' +
       JSON.stringify(options.tokens ?? '') +
-      ', T>;',
+      ', T, M>;',
   );
 }
 for (const name of Object.keys(propertyOptions)) {
@@ -95,7 +95,7 @@ const outputs = {
     ' as const;\n',
   'core/src/css/properties.generated.ts':
     header +
-    "import type { Carrier } from './carrier.js';\nimport type { keywordGroups } from './metadata.generated.js';\nimport type { TokenSchema } from '../theme/types.js';\nimport type { DefaultTokens } from '../theme/presets.js';\nexport interface StyleProperties<T extends TokenSchema = DefaultTokens> {\n" +
+    "import type { Carrier, PropertyTokenMap } from './carrier.js';\nimport type { keywordGroups } from './metadata.generated.js';\nimport type { TokenSchema } from '../theme/types.js';\nimport type { DefaultTokens } from '../theme/presets.js';\nexport interface StyleProperties<T extends TokenSchema = DefaultTokens, M extends PropertyTokenMap<T> = object> {\n" +
     typeLines.join('\n') +
     '\n}\n',
 };

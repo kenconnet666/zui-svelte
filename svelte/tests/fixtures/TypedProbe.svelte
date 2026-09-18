@@ -3,6 +3,7 @@
 
   const snapshot = css((s) => {
     s.color._brand;
+    s.gap._space;
   });
 </script>
 

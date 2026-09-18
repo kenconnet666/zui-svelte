@@ -48,6 +48,7 @@ describe('compiled SSR', () => {
     expect(result.head).toContain('color:var(--probe-color-brand)');
     expect(result.head).toContain('background-color:var(--probe-color-brand)');
     expect(result.head).toContain('--probe-color-brand:#0f766e');
+    expect(result.head).toContain('gap:var(--probe-layout-space)');
   });
   it('renders independent requests with collected styles and ordinary class strings', async () => {
     const { default: Probe } = (await server.ssrLoadModule('/tests/fixtures/CoreProbe.svelte')) as {

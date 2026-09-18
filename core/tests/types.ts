@@ -1,4 +1,11 @@
-import { buildStyle, defineTheme, extendTheme, overrideTheme, tokenRef } from '../src/index.js';
+import {
+  buildStyle,
+  defineTheme,
+  extendTheme,
+  overrideTheme,
+  tokenRef,
+  createCss,
+} from '../src/index.js';
 
 const theme = extendTheme(defineTheme({ color: { primary: 'red' } }), {
   color: { customBrand: 'blue' },
@@ -53,3 +60,38 @@ defineTheme({ spacing: { invalid: 8 } });
 defineTheme({ opacity: { invalid: 'opaque' } });
 // @ts-expect-error 扩展不能改变已有 Token 的值种类
 extendTheme(defineTheme({ custom: { numeric: 1 } }), { custom: { numeric: 'text' } });
+
+const mappedTheme = extendTheme(theme, { layoutSpace: { card: '18px' } });
+const mappedCss = createCss(mappedTheme, { tokenMap: { gap: 'layoutSpace' } });
+mappedCss((s) => {
+  s.gap._card;
+  s.gap.px(8, 12);
+  s.gap('normal');
+  s._hover((s) => {
+    s.gap._card;
+  });
+  // @ts-expect-error 映射替换该属性的默认 Token 类别
+  s.gap._roomy;
+  // @ts-expect-error 单位参数约束仍然保留
+  s.gap.px(1, 2, 3);
+});
+// @ts-expect-error 不允许未知映射属性，即使同一个对象包含有效属性
+createCss(mappedTheme, { tokenMap: { gap: 'layoutSpace', typo: 'layoutSpace' } });
+// @ts-expect-error 不允许不存在的类别
+createCss(mappedTheme, { tokenMap: { gap: 'missing' } });
+
+buildStyle(
+  (s) => {
+    s.gap._card;
+  },
+  mappedTheme,
+  undefined,
+  { gap: 'layoutSpace' },
+);
+const optionalMap: { gap?: 'layoutSpace' } = {};
+const optionalCss = createCss(mappedTheme, { tokenMap: optionalMap });
+optionalCss((s) => {
+  s.gap.px(8);
+  // @ts-expect-error 可选映射不能保证自定义类别一定启用
+  s.gap._card;
+});

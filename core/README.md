@@ -13,7 +13,14 @@
 样式、主题、预设和 runtime 均从 `@zui/core` 导入。下面是当前已实现的主题写法；`css()` 的组件/模块调用仍需接入 ZUI 编译插件。
 
 ```ts
-import { createCss, extendTheme, lightTheme, overrideTheme, tokenRef } from '@zui/core';
+import {
+  createCss,
+  createRuntime,
+  extendTheme,
+  lightTheme,
+  overrideTheme,
+  tokenRef,
+} from '@zui/core';
 
 const theme = extendTheme(lightTheme, {
   color: { brandText: tokenRef('color', 'primary') },
@@ -51,3 +58,22 @@ const plainCss = createCss(theme, { layer: null });
 默认层作用于局部 css、普通 binding 和 global 样式，模块静态样式遵守相同规则。`null` 明确选择无层；未声明、重复或无效层名会报错。层顺序并不改变浏览器对 important 的反向优先规则，也不赋予 class 字符串从右向左覆盖语义。
 
 同一 Document/ShadowRoot 中的独立 runtime 使用不同 namespace；也可以由多个组件共享一个 runtime。声明相同层根的 runtime 必须使用一致的完整层序。模块 class 在最终消费时会补充目标别名，以隔离不同 runtime 的样式位置；返回值和转发值仍为普通字符串。
+
+## 自定义 Token 类别
+
+自定义类别在应用入口显式映射到属性，类型提示与运行时使用同一份配置，嵌套规则也继承该映射。
+
+```ts
+const layoutTheme = extendTheme(theme, { layoutSpace: { card: '18px' } });
+const layoutCss = createCss(layoutTheme, { tokenMap: { gap: 'layoutSpace' } });
+
+layoutCss((s) => {
+  s.gap._card;
+  s._hover((s) => {
+    s.gap._card;
+  });
+  s.padding.px(12, 16);
+});
+```
+
+映射替换指定属性的默认类别，不影响它的关键字、单位和普通值调用。配置在入口创建时复制并冻结；未知属性、未知类别和已知的值种类冲突会报错。普通 CSS 值的完整语法仍由浏览器解释。
