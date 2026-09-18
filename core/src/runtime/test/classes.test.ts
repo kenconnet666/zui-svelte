@@ -101,7 +101,7 @@ describe('class-only evaluation', () => {
         ).toBe('outer');
       },
       (factory, selected) => {
-        programs.push(buildStyle(factory, selected?.defaultTheme));
+        programs.push(buildStyle(factory, selected?.theme));
         return 'outer';
       },
     );

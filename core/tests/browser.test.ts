@@ -12,7 +12,9 @@ import {
   createStyleModule,
   css,
   styleProtocol,
+  BrowserStyleSheet,
 } from '../src/index.js';
+import { sourceOrder } from '../src/runtime/sheet.js';
 
 const cleanup: (() => void)[] = [];
 afterEach(() => {
@@ -32,6 +34,57 @@ function runtime(namespace: string) {
 }
 
 describe('real DOM style bindings', () => {
+  it('bounds style nodes and rewrites only the affected chunk for large rule sets', () => {
+    const sheet = new BrowserStyleSheet(document, 'chunk-scale');
+    cleanup.push(() => sheet.dispose());
+    const start = performance.now();
+    for (let i = 0; i < 1000; i++)
+      sheet.set('key' + i, '.chunk-probe{width:' + i + 'px}', sourceOrder('site:' + i));
+    const nodes = [
+      ...document.head.querySelectorAll<HTMLStyleElement>('style[data-zui="chunk-scale"]'),
+    ];
+    expect(nodes.length).toBeLessThanOrEqual(32);
+    const before = nodes.map((node) => node.textContent);
+    const node = element();
+    node.className = 'chunk-probe';
+    expect(getComputedStyle(node).width).toBe('999px');
+    sheet.set('key999', '.chunk-probe{width:1111px}', sourceOrder('site:999'));
+    expect(getComputedStyle(node).width).toBe('1111px');
+    expect(nodes.filter((node, index) => node.textContent !== before[index])).toHaveLength(1);
+    console.info(
+      JSON.stringify({
+        benchmark: '1000-rule-dom',
+        durationMs: performance.now() - start,
+        styleNodes: nodes.length,
+      }),
+    );
+    for (let i = 999; i >= 0; i--) sheet.remove('key' + i);
+    expect(sheet.entries()).toHaveLength(0);
+    expect(document.head.querySelectorAll('style[data-zui="chunk-scale"]')).toHaveLength(0);
+  });
+  it('keeps existing CSS and entries when inserting a split chunk fails', () => {
+    const sheet = new BrowserStyleSheet(document, 'chunk-failure');
+    cleanup.push(() => sheet.dispose());
+    for (let i = 0; i < 64; i++)
+      sheet.set('key' + i, '.x{width:' + i + 'px}', sourceOrder('site:' + i));
+    const before = sheet.entries();
+    const text = document.head.querySelector('style[data-zui="chunk-failure"]')!.textContent;
+    const insert = document.head.insertBefore;
+    document.head.insertBefore = () => {
+      throw new Error('split insert failed');
+    };
+    try {
+      expect(() => sheet.set('last', '.x{width:999px}', sourceOrder('site:999'))).toThrow(
+        'split insert failed',
+      );
+    } finally {
+      document.head.insertBefore = insert;
+    }
+    expect(sheet.entries()).toEqual(before);
+    expect(document.head.querySelector('style[data-zui="chunk-failure"]')!.textContent).toBe(text);
+    sheet.set('last', '.x{width:999px}', sourceOrder('site:999'));
+    expect(sheet.entries()).toHaveLength(65);
+  });
   it.each(['inline', 'stylesheet'] as const)(
     'preserves source precedence after promotion and remount through %s variables',
     (variables) => {
@@ -179,12 +232,10 @@ describe('real DOM style bindings', () => {
   it('validates all hydration metadata before taking ownership of server styles', () => {
     const server = createRuntime({ namespace: 'invalid-hydration', nonce: 'request' });
     cleanup.push(() => server.dispose());
-    server.css((s) => {
-      s.width.px(100);
-    }, 'first');
-    server.css((s) => {
-      s.width.px(120);
-    }, 'second');
+    for (let i = 0; i < 65; i++)
+      server.css((s) => {
+        s.width.px(100 + i);
+      }, 'source:' + i);
     document.head.insertAdjacentHTML('beforeend', server.styleTags());
     const nodes = [
       ...document.head.querySelectorAll<HTMLStyleElement>('style[data-zui="invalid-hydration"]'),
@@ -200,16 +251,25 @@ describe('real DOM style bindings', () => {
     expect(create).toThrow('nonces must match');
     expect(nodes.every((node) => node.hasAttribute('data-z-ssr'))).toBe(true);
     nodes[1]!.nonce = 'request';
-    const key = nodes[1]!.dataset.zKey;
-    nodes[1]!.dataset.zKey = nodes[0]!.dataset.zKey;
+    const original = nodes[1]!.dataset.zEntries!;
+    const metadata = JSON.parse(original) as [string, string, number][];
+    const key = metadata[0]![0];
+    metadata[0]![0] = JSON.parse(nodes[0]!.dataset.zEntries!)[0][0];
+    nodes[1]!.dataset.zEntries = JSON.stringify(metadata);
     expect(create).toThrow('Duplicate server style');
     expect(nodes.every((node) => node.hasAttribute('data-z-ssr'))).toBe(true);
-    nodes[1]!.dataset.zKey = key;
-    const order = nodes[1]!.dataset.zOrder;
-    nodes[1]!.dataset.zOrder = 'invalid';
+    metadata[0]![0] = key;
+    const order = metadata[0]![1];
+    metadata[0]![1] = 'invalid';
+    nodes[1]!.dataset.zEntries = JSON.stringify(metadata);
     expect(create).toThrow('Invalid server style metadata');
     expect(nodes.every((node) => node.hasAttribute('data-z-ssr'))).toBe(true);
-    nodes[1]!.dataset.zOrder = order;
+    metadata[0]![1] = order;
+    metadata[0]![2]++;
+    nodes[1]!.dataset.zEntries = JSON.stringify(metadata);
+    expect(create).toThrow('Invalid server style metadata');
+    expect(nodes.every((node) => node.hasAttribute('data-z-ssr'))).toBe(true);
+    nodes[1]!.dataset.zEntries = original;
     const client = create();
     cleanup.push(() => client.dispose());
     expect(nodes.every((node) => !node.hasAttribute('data-z-ssr'))).toBe(true);

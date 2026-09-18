@@ -1,5 +1,13 @@
 # Core 实施进度
 
+## 生产重构：有序存储与样式分片
+
+MemoryStyleSheet 改为二分定位的持久顺序表，同位置值更新不再排序/移动全表。BrowserStyleSheet 用最多 64 条逻辑记录的分片；常规更新只重写一个分片，分裂插入失败保留旧 CSS/记录。SSR 使用相同分片格式，内部协议升级 7；接管先完整验证 nonce、版本、重复 key、顺序、长度边界，再保留节点接管。规则与变量逻辑计数保持独立。
+
+局部顺序/变量/序列化 10 项回归通过；复用本机 Chrome，针对分片、SSR 反向到达与损坏 metadata 的 4 项浏览器回归通过（其余跳过）。1,000 规则不超过 32 个 style，单条更新只改变一个分片，全部释放后归零。已验证分裂插入失败后可重试；三浏览器完整矩阵交 CI。新增可选 ZUI_BROWSER_CHANNEL 仅供本机局部复用已装浏览器，CI 不设置，继续锁定 Playwright 引擎。
+
+推送前修复 f2fe267 的 CI 35346116634：类型测试中 CssEvaluationOptions 的 theme 被机械改名为 defaultTheme；恢复正确配置字段，聚焦 typed theme 回归通过。runtime 的 defaultTheme 公开改名保留。
+
 ## 生产重构：主题基础层与 API 收敛
 
 加入空 Token 的 baseTheme，light/dark 分别从基础层扩展共享尺度和各自颜色；补主色状态、前景配对、反馈前景与控件尺寸。统一使用 resolved、setTheme/setOverrides、runtime.defaultTheme、stats.bindings，移除 css 的主题第二参数，标记编译桥内部导出；仓库及 SSR/包外夹具同步迁移。scope 与 Provider 共用 schema 校验，字体粗细/行高允许标准字符串与数值切换，深别名递归降级保留已知类别和值联合。语言服务验收脚本改为定位语义片段，不再依赖类型测试固定行号。

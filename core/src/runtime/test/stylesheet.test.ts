@@ -142,7 +142,7 @@ describe('stylesheet variables', () => {
     for (let value = 121; value < 1000; value++) expect(render(value)).toBe(promoted);
     expect(sheet.entries()).toHaveLength(2);
     expect(runtime.cssText()).toContain('999px;');
-    expect(runtime.styleTags().match(/nonce="request-nonce"/gu)).toHaveLength(2);
+    expect(runtime.styleTags().match(/nonce="request-nonce"/gu)).toHaveLength(1);
     source.dispose();
     expect(runtime.cssText()).toContain('999px;');
     consumer.dispose();

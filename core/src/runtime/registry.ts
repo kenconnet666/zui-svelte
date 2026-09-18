@@ -1,14 +1,12 @@
 import type { StyleProgram } from '../css/program.js';
 import { canonicalize, hashText, serializeProgram } from '../css/serialize.js';
-import { escapeStyleText } from '../css/validate.js';
-import { sourceOrder, type StyleSheet } from './sheet.js';
+import { sourceOrder, serializeStyleTags, type StyleSheet } from './sheet.js';
 import { retainDefinition, type StyleDefinition } from './definitions.js';
 import { validateLayer, layerProgram } from '../css/layers.js';
 import { runAll } from './callbacks.js';
 import { assertTokenUses, tokenUses } from '../theme/requirements.js';
 import { lightTheme } from '../theme/presets.js';
 import type { Theme, TokenSchema } from '../theme/types.js';
-import { styleProtocol } from './protocol.js';
 
 interface RegistryOptions {
   namespace?: string;
@@ -32,10 +30,6 @@ export interface RuleRecord {
   references: number;
   releaseDefinition?: () => void;
   definitionName?: string;
-}
-
-function attribute(value: string): string {
-  return value.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;');
 }
 
 export class StyleRegistry {
@@ -247,25 +241,7 @@ export class StyleRegistry {
       .join('');
   }
   styleTags(nonce?: string): string {
-    return this.sheet
-      .entries()
-      .map(
-        (entry) =>
-          '<style data-z-ssr="" data-z-protocol="' +
-          styleProtocol.version +
-          '" data-zui="' +
-          attribute(this.namespace) +
-          '" data-z-key="' +
-          attribute(entry.key) +
-          '" data-z-order="' +
-          attribute(entry.order) +
-          '"' +
-          (nonce ? ' nonce="' + attribute(nonce) + '"' : '') +
-          '>' +
-          escapeStyleText(entry.css) +
-          '</style>',
-      )
-      .join('');
+    return serializeStyleTags(this.sheet.entries(), this.namespace, nonce);
   }
   finishHydration(): void {
     for (const entry of this.sheet.entries())
