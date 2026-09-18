@@ -13,13 +13,7 @@ import type {
 } from './types.js';
 import { tokenValueKinds } from './types.js';
 import { validateValue } from '../css/validate.js';
-
-function encode(value: string): string {
-  // 连分隔符也编码，防止 a-b/c 与 a/b-c 等不同路径产生相同变量名。
-  return [...value]
-    .map((c) => (/[a-zA-Z0-9]/u.test(c) ? c : '_' + c.codePointAt(0)!.toString(16) + '_'))
-    .join('');
-}
+import { encodeSegment } from '../css/identifiers.js';
 
 export function tokenRef<const C extends string, const K extends string>(
   category: C,
@@ -94,7 +88,7 @@ function createTheme(tokens: ThemeDefinition, namespace: string): Theme<TokenSch
   function variable(category: string, token: string): string {
     if (!Object.hasOwn(snapshot[category] ?? {}, token))
       throw new TypeError('Unknown theme token: ' + category + '.' + token);
-    return '--' + namespace + '-' + encode(category) + '-' + encode(token);
+    return '--' + namespace + '-' + encodeSegment(category) + '-' + encodeSegment(token);
   }
   return Object.freeze({
     namespace,

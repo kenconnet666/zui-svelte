@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { ClassController, css, createCss, withCssEvaluation } from './classes.js';
-import { createRuntime } from './runtime.js';
-import { defineTheme } from '../theme/theme.js';
-import { buildStyle } from '../css/builder.js';
+import { ClassController, css, createCss, withCssEvaluation } from '../classes.js';
+import { createRuntime } from '../runtime.js';
+import { defineTheme } from '../../theme/theme.js';
+import { buildStyle } from '../../css/builder.js';
 
 describe('class-only evaluation', () => {
   it('keeps typed theme evaluation and restores nested contexts after errors', () => {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { createRuntime } from './runtime.js';
-import { ClassController, css } from './classes.js';
-import { MemoryStyleSheet } from './sheet.js';
+import { createRuntime } from '../runtime.js';
+import { ClassController, css } from '../classes.js';
+import { MemoryStyleSheet } from '../sheet.js';
 
 describe('stylesheet variables', () => {
   it('preserves the last valid snapshot when the variable sheet rejects an update', () => {

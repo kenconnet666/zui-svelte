@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { defineTheme, extendTheme, overrideTheme, tokenRef } from './theme.js';
-import { ThemeScope } from './scope.js';
-import { buildStyle } from '../css/builder.js';
-import { serializeProgram, serializeTheme } from '../css/serialize.js';
+import { defineTheme, extendTheme, overrideTheme, tokenRef } from '../theme.js';
+import { ThemeScope } from '../scope.js';
+import { buildStyle } from '../../css/builder.js';
+import { serializeProgram, serializeTheme } from '../../css/serialize.js';
 
 describe('theme definitions', () => {
   it('resolves aliases from final overrides and keeps nested scopes independent', () => {

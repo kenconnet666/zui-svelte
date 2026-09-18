@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { createStyleModule, findDefinition } from './definitions.js';
-import { ClassController, css, createCss } from './classes.js';
-import { createRuntime } from './runtime.js';
-import { defineTheme } from '../theme/theme.js';
+import { createStyleModule, findDefinition } from '../definitions.js';
+import { ClassController, css, createCss } from '../classes.js';
+import { createRuntime } from '../runtime.js';
+import { defineTheme } from '../../theme/theme.js';
 
 describe('module style definitions', () => {
   it('collects one module definition independently in each request', () => {

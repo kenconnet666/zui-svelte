@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { ClassController, createCss, css } from './classes.js';
-import { createRuntime } from './runtime.js';
-import { createStyleModule } from './definitions.js';
-import { lightTheme } from '../theme/presets.js';
+import { ClassController, createCss, css } from '../classes.js';
+import { createRuntime } from '../runtime.js';
+import { createStyleModule } from '../definitions.js';
+import { lightTheme } from '../../theme/presets.js';
 
 describe('explicit CSS layers', () => {
   it('declares layer order once and keeps safe promotion inside the selected layer', () => {

@@ -31,6 +31,27 @@ function runtime(namespace: string) {
 }
 
 describe('real DOM style bindings', () => {
+  it('keeps shared variable ownership until the last attachment is released', () => {
+    const owner = runtime('duplicate-binding');
+    const binding = owner.binding();
+    for (const width of [100, 120])
+      binding.evaluate((s) => {
+        s.width.px(width);
+      });
+    const name = Object.keys(binding.snapshot.variables)[0]!;
+    const node = element();
+    node.style.setProperty(name, '7px');
+    const first = bindElement(node, binding);
+    const second = bindElement(node, binding);
+    first();
+    expect(getComputedStyle(node).width).toBe('120px');
+    binding.evaluate((s) => {
+      s.width.px(140);
+    });
+    expect(getComputedStyle(node).width).toBe('140px');
+    second();
+    expect(node.style.getPropertyValue(name)).toBe('7px');
+  });
   it('isolates a shared module definition in runtimes with different default layers', () => {
     const module = createStyleModule('shared-module');
     cleanup.push(() => module.dispose());

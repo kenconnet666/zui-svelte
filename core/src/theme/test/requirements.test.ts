@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { buildStyle } from '../css/builder.js';
-import { createRuntime } from '../runtime/runtime.js';
-import { ClassController, createCss, css } from '../runtime/classes.js';
-import { createStyleModule } from '../runtime/definitions.js';
-import { defineTheme, extendTheme } from './theme.js';
-import { lightTheme } from './presets.js';
+import { buildStyle } from '../../css/builder.js';
+import { createRuntime } from '../../runtime/runtime.js';
+import { ClassController, createCss, css } from '../../runtime/classes.js';
+import { createStyleModule } from '../../runtime/definitions.js';
+import { defineTheme, extendTheme } from '../theme.js';
+import { lightTheme } from '../presets.js';
 
 describe('required theme tokens', () => {
   it('rejects a typed CSS token that is absent from the active runtime before allocating a binding', () => {

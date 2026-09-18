@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { buildStyle } from './builder.js';
-import { propertyMetadata } from './metadata.generated.js';
-import { serializeProgram } from './serialize.js';
+import { buildStyle } from '../builder.js';
+import { propertyMetadata } from '../metadata.generated.js';
+import { serializeProgram } from '../serialize.js';
 
 describe('CSS statements', () => {
   it('covers standard, vendor and SVG properties from csstype', () => {

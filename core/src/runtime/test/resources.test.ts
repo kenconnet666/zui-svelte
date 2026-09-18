@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { createRuntime } from './runtime.js';
-import type { StyleFactory } from '../css/builder.js';
+import { createRuntime } from '../runtime.js';
+import type { StyleFactory } from '../../css/builder.js';
 
 describe('scoped style resources', () => {
   it('rejects new resources after runtime disposal', () => {

@@ -4,6 +4,7 @@ import type { Theme, TokenSchema } from '../theme/types.js';
 import { canPromote, declarationsOf, structureOf } from './promotion.js';
 import type { RuleRecord, StyleRegistry } from './registry.js';
 import { runAll } from './callbacks.js';
+import { encodeSegment } from '../css/identifiers.js';
 
 export interface StyleSnapshot {
   readonly className: string;
@@ -33,6 +34,7 @@ export class StyleBinding<T extends TokenSchema> {
   readonly #history = new Map<string, History>();
   readonly #listeners = new Set<(snapshot: StyleSnapshot) => void>();
   readonly #limit: number;
+  readonly #variablePrefix: string;
   #record: RuleRecord | undefined;
   #structure = '';
   #snapshot = emptySnapshot;
@@ -44,6 +46,7 @@ export class StyleBinding<T extends TokenSchema> {
     readonly options: BindingOptions,
   ) {
     if (!/^[a-zA-Z0-9_-]+$/u.test(options.id)) throw new TypeError('Invalid binding ID.');
+    this.#variablePrefix = '--' + registry.namespace + '-b-' + encodeSegment(options.id) + '-';
     this.#limit = options.maxStructures ?? 8;
     if (!Number.isInteger(this.#limit) || this.#limit < 1)
       throw new TypeError('Invalid structure cache size.');
@@ -99,7 +102,7 @@ export class StyleBinding<T extends TokenSchema> {
     const variables: Record<string, string> = Object.create(null);
     const slots = new Map<number, string>();
     for (const index of promoted) {
-      const name = '--' + this.registry.namespace + '-b-' + this.options.id + '-' + index;
+      const name = this.#variablePrefix + index;
       variables[name] = current[index]!.declaration.value;
       slots.set(index, 'var(' + name + ')');
     }

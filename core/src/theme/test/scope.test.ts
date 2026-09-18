@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { ThemeScope, themeVariables } from './scope.js';
-import { defineTheme, overrideTheme, tokenRef } from './theme.js';
+import { ThemeScope, themeVariables } from '../scope.js';
+import { defineTheme, overrideTheme, tokenRef } from '../theme.js';
 
 describe('theme scopes', () => {
   it('rejects a parent update atomically when a child override would create a cycle', () => {

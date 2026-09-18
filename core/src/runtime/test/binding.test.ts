@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createRuntime } from './runtime.js';
+import { createRuntime } from '../runtime.js';
 
 describe('runtime promotion', () => {
   it('commits updates and releases all runtime resources even when a subscriber throws', () => {
