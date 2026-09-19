@@ -10,17 +10,11 @@
 
 ## 统一入口与主题
 
-样式、主题、预设和 runtime 均从 `@zui/core` 导入。下面是当前已实现的主题写法；`css()` 的组件/模块调用仍需接入 ZUI 编译插件。
+标准 CSS、通用主题引擎和 runtime 从 `@zui/core` 导入，默认主题为空 baseTheme。内置视觉预设与默认主题 css 已移到 `@zui/svelte`；core 不反向依赖组件包。下面演示使用 UI 预设扩展自定义主题；`css()` 的组件/模块调用仍需接入 ZUI 编译插件。
 
 ```ts
-import {
-  createCss,
-  createRuntime,
-  extendTheme,
-  lightTheme,
-  overrideTheme,
-  tokenRef,
-} from '@zui/core';
+import { createCss, createRuntime, extendTheme, overrideTheme, tokenRef } from '@zui/core';
+import { lightTheme } from '@zui/svelte';
 
 const theme = extendTheme(lightTheme, {
   color: { brandText: tokenRef('color', 'primary') },
@@ -57,7 +51,7 @@ scope.setOverrides({ spacing: { gutter: '12px' } });
 scope.setOverrides({}); // 替换整份覆盖；空对象恢复基础主题。
 ```
 
-baseTheme 没有 primary/surface 等系统键；标准属性、关键字、单位与选择器能力不依赖 Token。系统 lightTheme/darkTheme 分别从基础层扩展，默认仍为亮色。显式自定义主题的 runtime/SSR 必须配置兼容 schema，不自动补系统 Token。scope.setTheme(theme) 只在根作用域切换；子级通过 fork 与 setOverrides 保留局部覆盖。
+baseTheme 没有 primary/surface 等系统键；标准属性、关键字、单位与选择器能力不依赖 Token。Svelte 包的 lightTheme/darkTheme 从基础层扩展，Svelte 自动宿主与 SSR 默认亮色；core 的 createRuntime() 默认仍为空基础主题。显式自定义主题必须在宿主配置兼容 schema，不自动补系统 Token。scope.setTheme(theme) 只在根作用域切换；子级通过 fork 与 setOverrides 保留局部覆盖。
 
 scope 的 schema 以创建时的合同为准，临时选择兼容的更大主题不会阻止随后切回原主题。父子关系只通过 fork 建立，constructor 不再接收 parent 参数。程序生成的 Token 字典可混用普通值与同类别引用；长别名链用迭代解析，循环错误会报告引用链。
 
@@ -200,76 +194,6 @@ MemoryStyleSheet 和 BrowserStyleSheet 都实现 set/remove/entries/dispose。en
 
 升级前同时重建 core、编译适配器和应用，避免协议 8 与旧 SSR/编译缓存混用；接口迁移见上文。需要回退时回退整组包和应用产物，不仅替换浏览器 runtime。CI 产物的 candidate-evidence.json 关联提交、报告与被测试归档的 hash；这些包仍 private，发布命名和许可另行确定。
 
-## 默认主题语义清单
+## UI 预设已移至 Svelte
 
-下表列出系统亮暗预设的实际键和值；baseTheme 不含这些键。前景/背景配对是使用约定，覆盖任意品牌色后应重新验证。默认配对的对比度、两套 schema 与此表的值由 presets.test.ts 核对。
-
-| Token                   | 亮色值                        | 暗色值                        | 用途与配对                                                    |
-| ----------------------- | ----------------------------- | ----------------------------- | ------------------------------------------------------------- |
-| `spacing.none`          | `0px`                         | `0px`                         | 布局间距尺度                                                  |
-| `spacing.xs`            | `4px`                         | `4px`                         | 布局间距尺度                                                  |
-| `spacing.small`         | `8px`                         | `8px`                         | 布局间距尺度                                                  |
-| `spacing.medium`        | `12px`                        | `12px`                        | 布局间距尺度                                                  |
-| `spacing.large`         | `16px`                        | `16px`                        | 布局间距尺度                                                  |
-| `spacing.xl`            | `24px`                        | `24px`                        | 布局间距尺度                                                  |
-| `size.controlSmall`     | `28px`                        | `28px`                        | 控件高度或图标尺寸                                            |
-| `size.control`          | `36px`                        | `36px`                        | 控件高度或图标尺寸                                            |
-| `size.controlLarge`     | `44px`                        | `44px`                        | 控件高度或图标尺寸                                            |
-| `size.icon`             | `16px`                        | `16px`                        | 控件高度或图标尺寸                                            |
-| `radius.small`          | `4px`                         | `4px`                         | 圆角尺度；full 表示胶囊/圆形意图                              |
-| `radius.medium`         | `8px`                         | `8px`                         | 圆角尺度；full 表示胶囊/圆形意图                              |
-| `radius.large`          | `12px`                        | `12px`                        | 圆角尺度；full 表示胶囊/圆形意图                              |
-| `radius.full`           | `9999px`                      | `9999px`                      | 圆角尺度；full 表示胶囊/圆形意图                              |
-| `borderWidth.thin`      | `1px`                         | `1px`                         | 细边界或焦点轮廓宽度                                          |
-| `borderWidth.focus`     | `2px`                         | `2px`                         | 细边界或焦点轮廓宽度                                          |
-| `fontFamily.body`       | `system-ui, sans-serif`       | `system-ui, sans-serif`       | 正文或等宽字体栈                                              |
-| `fontFamily.mono`       | `ui-monospace, monospace`     | `ui-monospace, monospace`     | 正文或等宽字体栈                                              |
-| `fontSize.small`        | `12px`                        | `12px`                        | 文字尺寸尺度                                                  |
-| `fontSize.medium`       | `14px`                        | `14px`                        | 文字尺寸尺度                                                  |
-| `fontSize.large`        | `18px`                        | `18px`                        | 文字尺寸尺度                                                  |
-| `fontWeight.normal`     | `400`                         | `400`                         | 字重尺度                                                      |
-| `fontWeight.medium`     | `500`                         | `500`                         | 字重尺度                                                      |
-| `fontWeight.bold`       | `700`                         | `700`                         | 字重尺度                                                      |
-| `lineHeight.normal`     | `1.5`                         | `1.5`                         | 无单位行高比例                                                |
-| `lineHeight.tight`      | `1.25`                        | `1.25`                        | 无单位行高比例                                                |
-| `letterSpacing.normal`  | `0px`                         | `0px`                         | 普通字距                                                      |
-| `duration.fast`         | `120ms`                       | `120ms`                       | 交互过渡时长                                                  |
-| `duration.normal`       | `200ms`                       | `200ms`                       | 交互过渡时长                                                  |
-| `duration.slow`         | `300ms`                       | `300ms`                       | 交互过渡时长                                                  |
-| `easing.standard`       | `ease`                        | `ease`                        | 过渡曲线                                                      |
-| `easing.linear`         | `linear`                      | `linear`                      | 过渡曲线                                                      |
-| `shadow.small`          | `0 1px 3px rgb(0 0 0 / 0.12)` | `0 1px 3px rgb(0 0 0 / 0.12)` | 轻量浮起阴影                                                  |
-| `zIndex.popup`          | `1000`                        | `1000`                        | 弹出层/遮罩/通知的相对层级                                    |
-| `zIndex.overlay`        | `1100`                        | `1100`                        | 弹出层/遮罩/通知的相对层级                                    |
-| `zIndex.notification`   | `1200`                        | `1200`                        | 弹出层/遮罩/通知的相对层级                                    |
-| `opacity.disabled`      | `0.5`                         | `0.5`                         | 禁用状态透明度；不自动满足文字对比度                          |
-| `breakpoint.small`      | `640px`                       | `640px`                       | 媒体查询阈值；通过 resolved 生成查询，不把 var() 放入媒体条件 |
-| `breakpoint.medium`     | `768px`                       | `768px`                       | 媒体查询阈值；通过 resolved 生成查询，不把 var() 放入媒体条件 |
-| `breakpoint.large`      | `1024px`                      | `1024px`                      | 媒体查询阈值；通过 resolved 生成查询，不把 var() 放入媒体条件 |
-| `color.primary`         | `#4f46e5`                     | `#a5b4fc`                     | 主要操作的实色背景；搭配 onPrimary                            |
-| `color.primaryHover`    | `#4338ca`                     | `#c7d2fe`                     | 主要操作悬停背景；搭配 onPrimary                              |
-| `color.primaryActive`   | `#3730a3`                     | `#e0e7ff`                     | 主要操作按下背景；搭配 onPrimary                              |
-| `color.primarySubtle`   | `#eef2ff`                     | `#312e81`                     | 低强调主色背景；搭配 onPrimarySubtle                          |
-| `color.onPrimary`       | `#ffffff`                     | `#1e1b4b`                     | primary/primaryHover/primaryActive 上的文字或图标             |
-| `color.onPrimarySubtle` | `#3730a3`                     | `#e0e7ff`                     | primarySubtle 上的文字或图标                                  |
-| `color.surface`         | `#ffffff`                     | `#1e293b`                     | 普通卡片/容器表面；搭配 text                                  |
-| `color.surfaceRaised`   | `#ffffff`                     | `#334155`                     | 抬高的弹层/浮动表面；搭配 text                                |
-| `color.surfaceSunken`   | `#f1f5f9`                     | `#0f172a`                     | 凹陷区域/次级底色；搭配 text                                  |
-| `color.surfaceHover`    | `#f1f5f9`                     | `#334155`                     | 普通表面的悬停反馈；搭配 text                                 |
-| `color.background`      | `#f8fafc`                     | `#0f172a`                     | 页面基础背景；搭配 text 或 muted                              |
-| `color.text`            | `#0f172a`                     | `#f8fafc`                     | 普通可读正文；搭配 background 或 surface 系列                 |
-| `color.muted`           | `#475569`                     | `#cbd5e1`                     | 次要说明；默认对比度验收使用 background                       |
-| `color.textDisabled`    | `#64748b`                     | `#94a3b8`                     | 不可操作内容的弱化前景，不代替 disabled 属性                  |
-| `color.border`          | `#cbd5e1`                     | `#64748b`                     | 弱分隔线；不单独承担控件状态辨识                              |
-| `color.borderStrong`    | `#64748b`                     | `#94a3b8`                     | 需要强调的边界线                                              |
-| `color.focus`           | `#4f46e5`                     | `#a5b4fc`                     | 焦点指示色；结合 borderWidth.focus 使用                       |
-| `color.danger`          | `#b91c1c`                     | `#fca5a5`                     | 危险/错误实色背景；搭配 onDanger                              |
-| `color.onDanger`        | `#ffffff`                     | `#450a0a`                     | danger 上的前景                                               |
-| `color.success`         | `#15803d`                     | `#86efac`                     | 成功实色背景；搭配 onSuccess                                  |
-| `color.onSuccess`       | `#ffffff`                     | `#052e16`                     | success 上的前景                                              |
-| `color.warning`         | `#92400e`                     | `#fde68a`                     | 警告实色背景；搭配 onWarning                                  |
-| `color.onWarning`       | `#ffffff`                     | `#451a03`                     | warning 上的前景                                              |
-| `color.info`            | `#0369a1`                     | `#7dd3fc`                     | 信息实色背景；搭配 onInfo                                     |
-| `color.onInfo`          | `#ffffff`                     | `#082f49`                     | info 上的前景                                                 |
-
-例如实色主操作使用 s.backgroundColor._primary 和 s.color._onPrimary；柔和强调改用 primarySubtle/onPrimarySubtle。表面嵌套使用 surfaceRaised/surfaceSunken，而不是在组件中判断暗色并写死颜色。减少动画、密度、方向等由普通 TS 覆盖和原生 CSS 条件组合，不引入第二套主题 DSL。
+core 默认只提供 baseTheme。内置亮暗主题、五档尺度、DefaultTokens 及默认主题 css 从 @zui/svelte 导入；详细值与迁移见 [Svelte README](../svelte/README.md)。通用 defineTheme/extendTheme/ThemeScope 仍属于 core。

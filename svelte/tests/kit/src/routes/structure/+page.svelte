@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { css } from '@zui/core';
+  import { css } from '@zui/svelte';
   let rows = $state([
     { id: 'one', width: 101 },
     { id: 'two', width: 202 },

@@ -1,7 +1,7 @@
 <svelte:options runes={false} />
 
 <script>
-  import { css } from '@zui/core';
+  import { css } from '@zui/svelte';
   export let data;
   let width = data.width;
   $: caption = 'size:' + width;

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { defineTheme } from '../../theme/theme.js';
 import { createRuntime } from '../runtime.js';
 import type { StyleFactory } from '../../css/builder.js';
 
@@ -46,7 +47,7 @@ describe('scoped style resources', () => {
     second.dispose();
   });
   it('registers global, theme and font rules with explicit lifetimes', () => {
-    const runtime = createRuntime();
+    const runtime = createRuntime({ theme: defineTheme({ color: { primary: 'red' } }) });
     const reset = runtime.global('body', (s) => {
       s.margin.px(0);
     });

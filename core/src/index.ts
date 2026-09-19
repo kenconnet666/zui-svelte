@@ -22,8 +22,7 @@ export { serializeProgram, serializeTheme, canonicalize, hashText } from './css/
 export { defineTheme, extendTheme, overrideTheme, tokenRef } from './theme/theme.js';
 /** @internal 仅供同版本框架宿主使用。 */
 export { assertThemeCompatible } from './theme/theme.js';
-export { baseTheme, lightTheme, darkTheme } from './theme/presets.js';
-export type { DefaultTokens } from './theme/presets.js';
+export { baseTheme } from './theme/base.js';
 export type {
   Theme,
   ThemeOptions,

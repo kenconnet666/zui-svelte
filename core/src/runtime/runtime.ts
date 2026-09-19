@@ -1,6 +1,6 @@
 import type { StyleFactory } from '../css/builder.js';
 import { buildStyle } from '../css/builder.js';
-import { lightTheme, type DefaultTokens } from '../theme/presets.js';
+import { baseTheme } from '../theme/base.js';
 import type { Theme, TokenSchema } from '../theme/types.js';
 import { StyleBinding } from './binding.js';
 import { StyleRegistry, type RuleRecord } from './registry.js';
@@ -33,7 +33,7 @@ export interface RuntimeStats {
   readonly ruleCompilations: number;
 }
 
-export interface StyleRuntime<T extends TokenSchema = DefaultTokens> {
+export interface StyleRuntime<T extends TokenSchema = Record<never, never>> {
   /** @internal 编译接入暂用；业务通过其他方法管理样式。 */
   readonly registry: StyleRegistry;
   readonly defaultTheme: Theme<T>;
@@ -58,7 +58,7 @@ export interface StyleRuntime<T extends TokenSchema = DefaultTokens> {
   dispose(): void;
 }
 
-export function createRuntime<T extends TokenSchema = DefaultTokens>(
+export function createRuntime<T extends TokenSchema = Record<never, never>>(
   options: RuntimeOptions<T> = {},
 ): StyleRuntime<T> {
   options = { ...options };
@@ -94,7 +94,7 @@ export function createRuntime<T extends TokenSchema = DefaultTokens>(
     (options.target
       ? new BrowserStyleSheet(options.target, namespace, options.nonce)
       : new MemoryStyleSheet());
-  const theme = options.theme ?? (lightTheme as unknown as Theme<T>);
+  const theme = options.theme ?? (baseTheme as unknown as Theme<T>);
   const registry = new StyleRegistry(sheet, { ...options, namespace, layers, theme });
   if (layers.length) registry.resource('@layer ' + layers.join(',') + ';', 'layer-order');
   const targetDocument =

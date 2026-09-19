@@ -153,8 +153,8 @@ const minimalCode = (Array.isArray(minimal) ? minimal : [minimal])
   .map((chunk) => chunk.code)
   .join('\n');
 assert(
-  !minimalCode.includes('#4f46e5') && !minimalCode.includes('#a5b4fc'),
-  'Unused light/dark presets must be tree shaken.',
+  [code, minimalCode].every((output) => !output.includes('#4f46e5') && !output.includes('#a5b4fc')),
+  'Core must not include UI light/dark presets.',
 );
 const declarationFiles = (await readdir(join(root, 'core/dist'), { recursive: true })).filter(
   (file) => file.endsWith('.d.ts'),

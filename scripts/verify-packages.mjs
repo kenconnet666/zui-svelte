@@ -105,6 +105,11 @@ try {
     "'@zui/core'",
   );
   await writeFile(join(directory, 'src/core-types.ts'), types);
+  const themeTypes = (await readFile(join(root, 'svelte/tests/theme-types.ts'), 'utf8')).replace(
+    "'../src/theme.js'",
+    "'@zui/svelte'",
+  );
+  await writeFile(join(directory, 'src/ui-theme-types.ts'), themeTypes);
   run(['install', '--no-frozen-lockfile', '--ignore-scripts'], directory);
   assert(
     (await realpath(join(directory, 'node_modules/zui-fixture-plain'))).includes(

@@ -1,5 +1,6 @@
 import type { ComponentProps } from 'svelte';
-import { lightTheme, ThemeScope, type DefaultTokens } from '@zui/core';
+import { ThemeScope } from '@zui/core';
+import { lightTheme, type DefaultTokens } from '@zui/svelte';
 import { StyleProvider } from '../src/index.js';
 
 type Props = ComponentProps<typeof StyleProvider<DefaultTokens>>;

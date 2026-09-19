@@ -1,10 +1,5 @@
-import {
-  baseTheme,
-  extendTheme,
-  lightTheme,
-  type RuntimeOptions,
-  type TokenSchema,
-} from '@zui/core';
+import { baseTheme, extendTheme, type RuntimeOptions, type TokenSchema } from '@zui/core';
+import { lightTheme } from '@zui/svelte';
 
 export const customTheme = extendTheme(baseTheme, {
   color: { ink: '#172554', paper: '#fffdf5' },

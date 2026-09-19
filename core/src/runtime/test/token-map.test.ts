@@ -3,10 +3,10 @@ import { ClassController, createCss } from '../classes.js';
 import { createStyleModule } from '../definitions.js';
 import { createRuntime } from '../runtime.js';
 import { extendTheme } from '../../theme/theme.js';
-import { lightTheme } from '../../theme/presets.js';
+import { baseTheme } from '../../theme/base.js';
 
 describe('custom token category mapping', () => {
-  const theme = extendTheme(lightTheme, { layoutSpace: { card: '18px' }, counters: { one: 1 } });
+  const theme = extendTheme(baseTheme, { layoutSpace: { card: '18px' }, counters: { one: 1 } });
 
   it('uses the same immutable mapping in nested rules and module snapshots', () => {
     const mapping = { gap: 'layoutSpace' } as const;

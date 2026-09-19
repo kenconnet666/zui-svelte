@@ -29,6 +29,22 @@ afterAll(async () => {
 });
 
 describe('compiled SSR', () => {
+  it('rejects raw HTML output that loses the only rule of a CSS-only request', async () => {
+    const { default: Probe } = await server.ssrLoadModule('/tests/fixtures/ModuleOnlyProbe.svelte');
+    const { createStyleHandle } = await server.ssrLoadModule('/src/server.ts');
+    const { baseTheme } = await server.ssrLoadModule('@zui/core');
+    const { render } = await server.ssrLoadModule('svelte/server');
+    const handle = createStyleHandle({ theme: baseTheme });
+    await expect(
+      handle({
+        event: { request: new Request('https://example.test/') } as RequestEvent,
+        resolve: async () => {
+          const result = await render(Probe);
+          return new Response(result.body, { headers: { 'content-type': 'text/html' } });
+        },
+      }),
+    ).rejects.toThrow('HTML styles require');
+  });
   it('rejects a module-only styled render without a collector before acquiring styles', async () => {
     const { default: Probe } = await server.ssrLoadModule('/tests/fixtures/ModuleOnlyProbe.svelte');
     const { render } = await server.ssrLoadModule('svelte/server');
@@ -68,7 +84,8 @@ describe('compiled SSR', () => {
   it('renders an independent destination through its request runtime', async () => {
     const { default: Target } = await server.ssrLoadModule('/tests/fixtures/ProviderTarget.svelte');
     const { renderStyled } = await server.ssrLoadModule('/src/server.ts');
-    const { ThemeScope, lightTheme } = await server.ssrLoadModule('@zui/core');
+    const { ThemeScope } = await server.ssrLoadModule('@zui/core');
+    const { lightTheme } = await server.ssrLoadModule('/src/theme.ts');
     const scope = new ThemeScope(lightTheme, { color: { text: 'green' } });
     const result = await renderStyled(Target, {
       props: { scope, label: 'destination' },
@@ -82,7 +99,8 @@ describe('compiled SSR', () => {
   it('collects provider theme styles without subscribing to or disposing the caller scope', async () => {
     const { default: Provider } = await server.ssrLoadModule('/src/StyleProvider.svelte');
     const { renderStyled } = await server.ssrLoadModule('/src/server.ts');
-    const { ThemeScope, lightTheme } = await server.ssrLoadModule('@zui/core');
+    const { ThemeScope } = await server.ssrLoadModule('@zui/core');
+    const { lightTheme } = await server.ssrLoadModule('/src/theme.ts');
     const scope = new ThemeScope(lightTheme, { color: { text: 'red' } });
     scope.subscribe = () => {
       throw new Error('SSR must not subscribe');
@@ -104,7 +122,8 @@ describe('compiled SSR', () => {
   it('rejects incompatible provider themes and void containers', async () => {
     const { default: Provider } = await server.ssrLoadModule('/src/StyleProvider.svelte');
     const { renderStyled } = await server.ssrLoadModule('/src/server.ts');
-    const { ThemeScope, lightTheme, defineTheme } = await server.ssrLoadModule('@zui/core');
+    const { ThemeScope, defineTheme } = await server.ssrLoadModule('@zui/core');
+    const { lightTheme } = await server.ssrLoadModule('/src/theme.ts');
     for (const [theme, message] of [
       [defineTheme({ color: { text: 'red' } }, { namespace: 'other' }), 'namespace'],
       [defineTheme({ color: { text: 'red' } }), 'Missing theme token'],
@@ -130,7 +149,8 @@ describe('compiled SSR', () => {
     const { default: Probe } = await server.ssrLoadModule('/tests/fixtures/CoreProbe.svelte');
     const { createStyleHandle } = await server.ssrLoadModule('/src/server.ts');
     const { render } = await server.ssrLoadModule('svelte/server');
-    const { MemoryStyleSheet, lightTheme, overrideTheme } = await server.ssrLoadModule('@zui/core');
+    const { MemoryStyleSheet, overrideTheme } = await server.ssrLoadModule('@zui/core');
+    const { lightTheme } = await server.ssrLoadModule('/src/theme.ts');
     const sheets = Array.from({ length: 100 }, () => new MemoryStyleSheet());
     const handle = createStyleHandle(async (event: RequestEvent) => {
       const index = Number(new URL(event.request.url).searchParams.get('index'));

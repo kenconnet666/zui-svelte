@@ -24,7 +24,9 @@
 - 语言工具配置与验收见 .design/language-services.md。WebStorm 的空问题列表不能单独证明 TS 语义通过；必要时补充 zui_lsp 的逐文件诊断或相关模块类型检查。
 - 完整类型检查、测试、构建与浏览器验收交给 GitHub CI。每个可构建阶段中文提交并推送，推送后不等待或轮询 CI；下次推送前检查上一轮并修复具体失败。
 - 属性、关键字与类型使用可重复的生成脚本，运行时表和声明共用数据，不靠手写覆盖全部 CSS。
-- 基础主题只含标准 CSS 能力、不含预设 Token/视觉值；亮暗主题由基础层扩展。用户可 extend 基础层、亮色或暗色，默认使用亮色，显式自定义主题不静默补系统 Token。
+- core 保留标准 CSS 属性/关键字/单位、通用主题引擎与空 baseTheme；lightTheme/darkTheme、五档尺度、DefaultTokens 和默认主题 css 放在 svelte/src/theme.ts。core 默认空主题，Svelte 默认宿主/SSR 为亮色；显式自定义主题不静默补 UI Token。
 - 用户已取消 token/周额度保留线与定期检查要求；不再主动轮询用量，按任务质量和完成条件推进。
 - 工具使用与本机能力验证见 .design/language-services.md；每次新会话先发现能力并做必要轻量探针，不将配置存在等同于已连接。优先原生 MCP/LSP，浏览器和桌面工具用于其适合的真实交互验证。
 - 包名 @zui/core、@zui/svelte 暂用于本地工作区，包保持 private，发布名称另行确定。
+
+- 已确认组件方向：Lucide 组件直传；一体 Input 集成 label/help/error，对内组合公共 FieldFrame；Dialog 为完整组件。尺度优先 xs/sm/md/lg/xl，none/full 仅用于有意义的类别；语义角色允许例外。

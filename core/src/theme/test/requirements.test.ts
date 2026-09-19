@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { buildStyle } from '../../css/builder.js';
 import { createRuntime } from '../../runtime/runtime.js';
-import { ClassController, createCss, css } from '../../runtime/classes.js';
+import { ClassController, createCss } from '../../runtime/classes.js';
 import { createStyleModule } from '../../runtime/definitions.js';
 import { defineTheme, extendTheme } from '../theme.js';
-import { lightTheme } from '../presets.js';
+import { baseTheme } from '../base.js';
 
 describe('required theme tokens', () => {
   it('rejects a typed CSS token that is absent from the active runtime before allocating a binding', () => {
-    const appTheme = extendTheme(lightTheme, { color: { brand: 'red' } });
+    const appTheme = extendTheme(baseTheme, { color: { brand: 'red' } });
     const styles = createCss(appTheme);
     const runtime = createRuntime();
     const frame = new ClassController(runtime, 'app', 'app');
@@ -46,9 +46,13 @@ describe('required theme tokens', () => {
 
   it('requires only the tokens actually used by a module definition', () => {
     const module = createStyleModule('minimum-theme');
-    const name = module.call('primary', css, (s) => {
-      s.color._primary;
-    });
+    const name = module.call(
+      'primary',
+      createCss(defineTheme({ color: { primary: 'red' } })),
+      (s) => {
+        s.color._primary;
+      },
+    );
     const runtime = createRuntime({ theme: defineTheme({ color: { primary: 'green' } }) });
     const frame = new ClassController(runtime, 'consumer', 'consumer');
     expect(() => frame.resolve(name)).not.toThrow();

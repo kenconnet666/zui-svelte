@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from '$app/state';
-  import { css } from '@zui/core';
+  import { css } from '@zui/svelte';
 </script>
 
 <h1

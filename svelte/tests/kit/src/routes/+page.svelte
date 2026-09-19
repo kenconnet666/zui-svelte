@@ -1,6 +1,6 @@
 <script lang="ts">
   import { untrack } from 'svelte';
-  import { css } from '@zui/core';
+  import { css } from '@zui/svelte';
 
   let { data }: { data: { width: number; delayed: Promise<string> } } = $props();
   let width = $state(untrack(() => data.width));

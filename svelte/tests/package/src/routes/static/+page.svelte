@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
-  import { css, lightTheme, ThemeScope } from '@zui/core';
+  import { ThemeScope } from '@zui/core';
+  import { css, lightTheme } from '@zui/svelte';
   import { StyleProvider } from '@zui/svelte';
   const scope = new ThemeScope(lightTheme, { color: { text: 'red' } });
   const child = scope.fork({ color: { text: 'blue' } });

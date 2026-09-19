@@ -2,7 +2,7 @@
 
 Svelte 5 组件库工作区，依赖 @zui/core，使用官方 svelte-package 生成发布产物。
 
-当前实现验证 core 所需的 class 编译插件、运行时桥和 SSR 收集，没有业务组件库。真实 SvelteKit、独立 tarball 与 prerender 已通过 [core 验收](../.design/core-acceptance.md)。下一阶段组件 API 见 [讨论稿](../.design/svelte-components.md)，尚未实施业务组件。
+当前实现 class 编译插件、运行时桥、SSR 收集，以及 UI 亮暗预设、五档尺度和带主题补全的 css，尚无业务组件。真实 SvelteKit、独立 tarball 与 prerender 的既有基线见 [验收台账](../.design/core-acceptance.md)，本次主题分包由新 CI 验证。组件 API 见 [讨论稿](../.design/svelte-components.md)。
 
 - 构建：`pnpm --filter @zui/svelte build`
 - 类型检查：`pnpm --filter @zui/svelte check`
@@ -27,7 +27,7 @@ export default defineConfig({ plugins: [zui(), svelte()] });
 
 ```svelte
 <script lang="ts">
-  import { css } from '@zui/core';
+  import { css } from '@zui/svelte';
   let width = $state(160);
 </script>
 
@@ -61,11 +61,11 @@ export const handle = createStyleHandle();
 <script lang="ts">
   import { onMount, onDestroy, type Snippet } from 'svelte';
   import { createRuntime } from '@zui/core';
-  import { provideStyleRuntime } from '@zui/svelte';
+  import { provideStyleRuntime, lightTheme } from '@zui/svelte';
   let { children }: { children: Snippet } = $props();
 
   if (typeof document !== 'undefined') {
-    const runtime = createRuntime({ target: document });
+    const runtime = createRuntime({ target: document, theme: lightTheme });
     runtime.themeStyle(':where(:root)');
     provideStyleRuntime(runtime);
     onMount(() => runtime.finishHydration());
@@ -103,8 +103,8 @@ Kit 接入会将页面 HTML 的 transformPageChunk 缓存到 done 后插入完�
 ```svelte
 <script lang="ts">
   import { onDestroy } from 'svelte';
-  import { lightTheme, ThemeScope } from '@zui/core';
-  import { StyleProvider } from '@zui/svelte';
+  import { ThemeScope } from '@zui/core';
+  import { StyleProvider, lightTheme } from '@zui/svelte';
   const scope = new ThemeScope(lightTheme, { color: { text: '#0f766e' } });
   onDestroy(() => scope.dispose());
 </script>
@@ -123,3 +123,161 @@ SSR 必须通过 renderStyled 或 Kit style handle 收集，初始主题直接�
 缺少 SSR 收集器时，首次实际消费样式（包括仅一个模块 class）立即报 runtime.context，不再创建会静默丢失样式的临时 runtime。普通 class、不执行 css 的组件仍可使用原生 Svelte render。
 
 包内 `.svelte` 组件由消费方的 Svelte/Vite 编译器处理。普通 Node 不能直接执行包含组件的根入口；服务端工具仍从 `@zui/svelte/server` 导入，组件 SSR 由 Svelte 集成编译后执行。
+
+## 默认主题语义清单
+
+下表列出系统亮暗预设的实际键和值；baseTheme 不含这些键。前景/背景配对是使用约定，覆盖任意品牌色后应重新验证。默认配对的对比度、两套 schema 与此表的值由 presets.test.ts 核对。
+
+| Token                   | 亮色值                          | 暗色值                          | 用途与配对                                                 |
+| ----------------------- | ------------------------------- | ------------------------------- | ---------------------------------------------------------- |
+| `spacing.none`          | `0px`                           | `0px`                           | 间距五档；none 为零间距                                    |
+| `spacing.xs`            | `4px`                           | `4px`                           | 间距五档；none 为零间距                                    |
+| `spacing.sm`            | `8px`                           | `8px`                           | 间距五档；none 为零间距                                    |
+| `spacing.md`            | `12px`                          | `12px`                          | 间距五档；none 为零间距                                    |
+| `spacing.lg`            | `16px`                          | `16px`                          | 间距五档；none 为零间距                                    |
+| `spacing.xl`            | `24px`                          | `24px`                          | 间距五档；none 为零间距                                    |
+| `size.none`             | `0px`                           | `0px`                           | 控件/图标尺寸档；control/icon 为默认角色引用，full 为 100% |
+| `size.controlXs`        | `24px`                          | `24px`                          | 控件/图标尺寸档；control/icon 为默认角色引用，full 为 100% |
+| `size.controlSm`        | `28px`                          | `28px`                          | 控件/图标尺寸档；control/icon 为默认角色引用，full 为 100% |
+| `size.controlMd`        | `36px`                          | `36px`                          | 控件/图标尺寸档；control/icon 为默认角色引用，full 为 100% |
+| `size.controlLg`        | `44px`                          | `44px`                          | 控件/图标尺寸档；control/icon 为默认角色引用，full 为 100% |
+| `size.controlXl`        | `52px`                          | `52px`                          | 控件/图标尺寸档；control/icon 为默认角色引用，full 为 100% |
+| `size.iconXs`           | `12px`                          | `12px`                          | 控件/图标尺寸档；control/icon 为默认角色引用，full 为 100% |
+| `size.iconSm`           | `14px`                          | `14px`                          | 控件/图标尺寸档；control/icon 为默认角色引用，full 为 100% |
+| `size.iconMd`           | `16px`                          | `16px`                          | 控件/图标尺寸档；control/icon 为默认角色引用，full 为 100% |
+| `size.iconLg`           | `20px`                          | `20px`                          | 控件/图标尺寸档；control/icon 为默认角色引用，full 为 100% |
+| `size.iconXl`           | `24px`                          | `24px`                          | 控件/图标尺寸档；control/icon 为默认角色引用，full 为 100% |
+| `size.full`             | `100%`                          | `100%`                          | 控件/图标尺寸档；control/icon 为默认角色引用，full 为 100% |
+| `size.control`          | `36px`                          | `36px`                          | 控件/图标尺寸档；control/icon 为默认角色引用，full 为 100% |
+| `size.icon`             | `16px`                          | `16px`                          | 控件/图标尺寸档；control/icon 为默认角色引用，full 为 100% |
+| `radius.none`           | `0px`                           | `0px`                           | 圆角五档；none 为直角，full 为胶囊/圆形意图                |
+| `radius.xs`             | `2px`                           | `2px`                           | 圆角五档；none 为直角，full 为胶囊/圆形意图                |
+| `radius.sm`             | `4px`                           | `4px`                           | 圆角五档；none 为直角，full 为胶囊/圆形意图                |
+| `radius.md`             | `8px`                           | `8px`                           | 圆角五档；none 为直角，full 为胶囊/圆形意图                |
+| `radius.lg`             | `12px`                          | `12px`                          | 圆角五档；none 为直角，full 为胶囊/圆形意图                |
+| `radius.xl`             | `16px`                          | `16px`                          | 圆角五档；none 为直角，full 为胶囊/圆形意图                |
+| `radius.full`           | `9999px`                        | `9999px`                        | 圆角五档；none 为直角，full 为胶囊/圆形意图                |
+| `borderWidth.none`      | `0px`                           | `0px`                           | 边框五档；none 为零宽，thin/focus 为角色引用               |
+| `borderWidth.xs`        | `1px`                           | `1px`                           | 边框五档；none 为零宽，thin/focus 为角色引用               |
+| `borderWidth.sm`        | `1.5px`                         | `1.5px`                         | 边框五档；none 为零宽，thin/focus 为角色引用               |
+| `borderWidth.md`        | `2px`                           | `2px`                           | 边框五档；none 为零宽，thin/focus 为角色引用               |
+| `borderWidth.lg`        | `3px`                           | `3px`                           | 边框五档；none 为零宽，thin/focus 为角色引用               |
+| `borderWidth.xl`        | `4px`                           | `4px`                           | 边框五档；none 为零宽，thin/focus 为角色引用               |
+| `borderWidth.thin`      | `1px`                           | `1px`                           | 边框五档；none 为零宽，thin/focus 为角色引用               |
+| `borderWidth.focus`     | `2px`                           | `2px`                           | 边框五档；none 为零宽，thin/focus 为角色引用               |
+| `fontFamily.body`       | `system-ui, sans-serif`         | `system-ui, sans-serif`         | 正文或等宽字体栈                                           |
+| `fontFamily.mono`       | `ui-monospace, monospace`       | `ui-monospace, monospace`       | 正文或等宽字体栈                                           |
+| `fontSize.xs`           | `12px`                          | `12px`                          | 文字尺寸五档                                               |
+| `fontSize.sm`           | `14px`                          | `14px`                          | 文字尺寸五档                                               |
+| `fontSize.md`           | `16px`                          | `16px`                          | 文字尺寸五档                                               |
+| `fontSize.lg`           | `18px`                          | `18px`                          | 文字尺寸五档                                               |
+| `fontSize.xl`           | `20px`                          | `20px`                          | 文字尺寸五档                                               |
+| `fontWeight.light`      | `300`                           | `300`                           | 保留轻/常规/中等/半粗/粗的字重语义                         |
+| `fontWeight.normal`     | `400`                           | `400`                           | 保留轻/常规/中等/半粗/粗的字重语义                         |
+| `fontWeight.medium`     | `500`                           | `500`                           | 保留轻/常规/中等/半粗/粗的字重语义                         |
+| `fontWeight.semibold`   | `600`                           | `600`                           | 保留轻/常规/中等/半粗/粗的字重语义                         |
+| `fontWeight.bold`       | `700`                           | `700`                           | 保留轻/常规/中等/半粗/粗的字重语义                         |
+| `lineHeight.xs`         | `1`                             | `1`                             | 无单位行高五档；tight/normal 为角色引用                    |
+| `lineHeight.sm`         | `1.25`                          | `1.25`                          | 无单位行高五档；tight/normal 为角色引用                    |
+| `lineHeight.md`         | `1.5`                           | `1.5`                           | 无单位行高五档；tight/normal 为角色引用                    |
+| `lineHeight.lg`         | `1.75`                          | `1.75`                          | 无单位行高五档；tight/normal 为角色引用                    |
+| `lineHeight.xl`         | `2`                             | `2`                             | 无单位行高五档；tight/normal 为角色引用                    |
+| `lineHeight.tight`      | `1.25`                          | `1.25`                          | 无单位行高五档；tight/normal 为角色引用                    |
+| `lineHeight.normal`     | `1.5`                           | `1.5`                           | 无单位行高五档；tight/normal 为角色引用                    |
+| `letterSpacing.xs`      | `-0.025em`                      | `-0.025em`                      | 字距五档，允许负值；normal 引用 md                         |
+| `letterSpacing.sm`      | `-0.0125em`                     | `-0.0125em`                     | 字距五档，允许负值；normal 引用 md                         |
+| `letterSpacing.md`      | `0em`                           | `0em`                           | 字距五档，允许负值；normal 引用 md                         |
+| `letterSpacing.lg`      | `0.025em`                       | `0.025em`                       | 字距五档，允许负值；normal 引用 md                         |
+| `letterSpacing.xl`      | `0.05em`                        | `0.05em`                        | 字距五档，允许负值；normal 引用 md                         |
+| `letterSpacing.normal`  | `0em`                           | `0em`                           | 字距五档，允许负值；normal 引用 md                         |
+| `duration.none`         | `0ms`                           | `0ms`                           | 过渡时长五档；none 为即时完成                              |
+| `duration.xs`           | `75ms`                          | `75ms`                          | 过渡时长五档；none 为即时完成                              |
+| `duration.sm`           | `120ms`                         | `120ms`                         | 过渡时长五档；none 为即时完成                              |
+| `duration.md`           | `200ms`                         | `200ms`                         | 过渡时长五档；none 为即时完成                              |
+| `duration.lg`           | `300ms`                         | `300ms`                         | 过渡时长五档；none 为即时完成                              |
+| `duration.xl`           | `500ms`                         | `500ms`                         | 过渡时长五档；none 为即时完成                              |
+| `easing.standard`       | `ease`                          | `ease`                          | 缓动角色，不强行套大小档位                                 |
+| `easing.linear`         | `linear`                        | `linear`                        | 缓动角色，不强行套大小档位                                 |
+| `shadow.none`           | `none`                          | `none`                          | 阴影五档；暗色使用更强透明度，none 关闭阴影                |
+| `shadow.xs`             | `0 1px 2px rgb(0 0 0 / 0.08)`   | `0 1px 2px rgb(0 0 0 / 0.24)`   | 阴影五档；暗色使用更强透明度，none 关闭阴影                |
+| `shadow.sm`             | `0 1px 3px rgb(0 0 0 / 0.12)`   | `0 1px 3px rgb(0 0 0 / 0.32)`   | 阴影五档；暗色使用更强透明度，none 关闭阴影                |
+| `shadow.md`             | `0 4px 8px rgb(0 0 0 / 0.14)`   | `0 4px 8px rgb(0 0 0 / 0.40)`   | 阴影五档；暗色使用更强透明度，none 关闭阴影                |
+| `shadow.lg`             | `0 8px 16px rgb(0 0 0 / 0.16)`  | `0 8px 16px rgb(0 0 0 / 0.48)`  | 阴影五档；暗色使用更强透明度，none 关闭阴影                |
+| `shadow.xl`             | `0 16px 32px rgb(0 0 0 / 0.20)` | `0 16px 32px rgb(0 0 0 / 0.56)` | 阴影五档；暗色使用更强透明度，none 关闭阴影                |
+| `zIndex.base`           | `0`                             | `0`                             | 层叠职责角色；受所在 stacking context 约束                 |
+| `zIndex.sticky`         | `100`                           | `100`                           | 层叠职责角色；受所在 stacking context 约束                 |
+| `zIndex.popup`          | `1000`                          | `1000`                          | 层叠职责角色；受所在 stacking context 约束                 |
+| `zIndex.overlay`        | `1100`                          | `1100`                          | 层叠职责角色；受所在 stacking context 约束                 |
+| `zIndex.notification`   | `1200`                          | `1200`                          | 层叠职责角色；受所在 stacking context 约束                 |
+| `opacity.none`          | `0`                             | `0`                             | 透明度五档；none=0、full=1，disabled 引用 md               |
+| `opacity.xs`            | `0.1`                           | `0.1`                           | 透明度五档；none=0、full=1，disabled 引用 md               |
+| `opacity.sm`            | `0.25`                          | `0.25`                          | 透明度五档；none=0、full=1，disabled 引用 md               |
+| `opacity.md`            | `0.5`                           | `0.5`                           | 透明度五档；none=0、full=1，disabled 引用 md               |
+| `opacity.lg`            | `0.75`                          | `0.75`                          | 透明度五档；none=0、full=1，disabled 引用 md               |
+| `opacity.xl`            | `0.9`                           | `0.9`                           | 透明度五档；none=0、full=1，disabled 引用 md               |
+| `opacity.full`          | `1`                             | `1`                             | 透明度五档；none=0、full=1，disabled 引用 md               |
+| `opacity.disabled`      | `0.5`                           | `0.5`                           | 透明度五档；none=0、full=1，disabled 引用 md               |
+| `breakpoint.xs`         | `480px`                         | `480px`                         | 媒体查询阈值；使用 resolved 值，不把 var() 放进媒体条件    |
+| `breakpoint.sm`         | `640px`                         | `640px`                         | 媒体查询阈值；使用 resolved 值，不把 var() 放进媒体条件    |
+| `breakpoint.md`         | `768px`                         | `768px`                         | 媒体查询阈值；使用 resolved 值，不把 var() 放进媒体条件    |
+| `breakpoint.lg`         | `1024px`                        | `1024px`                        | 媒体查询阈值；使用 resolved 值，不把 var() 放进媒体条件    |
+| `breakpoint.xl`         | `1280px`                        | `1280px`                        | 媒体查询阈值；使用 resolved 值，不把 var() 放进媒体条件    |
+| `color.primary`         | `#4f46e5`                       | `#a5b4fc`                       | 主要操作的实色背景；搭配 onPrimary                         |
+| `color.primaryHover`    | `#4338ca`                       | `#c7d2fe`                       | 主要操作悬停背景；搭配 onPrimary                           |
+| `color.primaryActive`   | `#3730a3`                       | `#e0e7ff`                       | 主要操作按下背景；搭配 onPrimary                           |
+| `color.primarySubtle`   | `#eef2ff`                       | `#312e81`                       | 低强调主色背景；搭配 onPrimarySubtle                       |
+| `color.onPrimary`       | `#ffffff`                       | `#1e1b4b`                       | primary/primaryHover/primaryActive 上的文字或图标          |
+| `color.onPrimarySubtle` | `#3730a3`                       | `#e0e7ff`                       | primarySubtle 上的文字或图标                               |
+| `color.surface`         | `#ffffff`                       | `#1e293b`                       | 普通卡片/容器表面；搭配 text                               |
+| `color.surfaceRaised`   | `#ffffff`                       | `#334155`                       | 抬高的弹层/浮动表面；搭配 text                             |
+| `color.surfaceSunken`   | `#f1f5f9`                       | `#0f172a`                       | 凹陷区域/次级底色；搭配 text                               |
+| `color.surfaceHover`    | `#f1f5f9`                       | `#334155`                       | 普通表面的悬停反馈；搭配 text                              |
+| `color.background`      | `#f8fafc`                       | `#0f172a`                       | 页面基础背景；搭配 text 或 muted                           |
+| `color.text`            | `#0f172a`                       | `#f8fafc`                       | 普通可读正文；搭配 background 或 surface 系列              |
+| `color.muted`           | `#475569`                       | `#cbd5e1`                       | 次要说明；默认对比度验收使用 background                    |
+| `color.textDisabled`    | `#64748b`                       | `#94a3b8`                       | 不可操作内容的弱化前景，不代替 disabled 属性               |
+| `color.border`          | `#cbd5e1`                       | `#64748b`                       | 弱分隔线；不单独承担控件状态辨识                           |
+| `color.borderStrong`    | `#64748b`                       | `#94a3b8`                       | 需要强调的边界线                                           |
+| `color.focus`           | `#4f46e5`                       | `#a5b4fc`                       | 焦点指示色；结合 borderWidth.focus 使用                    |
+| `color.danger`          | `#b91c1c`                       | `#fca5a5`                       | 危险/错误实色背景；搭配 onDanger                           |
+| `color.onDanger`        | `#ffffff`                       | `#450a0a`                       | danger 上的前景                                            |
+| `color.success`         | `#15803d`                       | `#86efac`                       | 成功实色背景；搭配 onSuccess                               |
+| `color.onSuccess`       | `#ffffff`                       | `#052e16`                       | success 上的前景                                           |
+| `color.warning`         | `#92400e`                       | `#fde68a`                       | 警告实色背景；搭配 onWarning                               |
+| `color.onWarning`       | `#ffffff`                       | `#451a03`                       | warning 上的前景                                           |
+| `color.info`            | `#0369a1`                       | `#7dd3fc`                       | 信息实色背景；搭配 onInfo                                  |
+| `color.onInfo`          | `#ffffff`                       | `#082f49`                       | info 上的前景                                              |
+
+例如实色主操作使用 s.backgroundColor._primary 和 s.color._onPrimary；柔和强调改用 primarySubtle/onPrimarySubtle。表面嵌套使用 surfaceRaised/surfaceSunken，而不是在组件中判断暗色并写死颜色。减少动画、密度、方向等由普通 TS 覆盖和原生 CSS 条件组合，不引入第二套主题 DSL。
+
+## 主题尺度与迁移
+
+内置预设已归属 svelte/src/theme.ts，从 @zui/svelte 导入 css、lightTheme、darkTheme、DefaultTokens；core 只提供标准 CSS、空 baseTheme 和通用主题引擎。Svelte 自动宿主与 SSR 默认亮色，显式 core.createRuntime 应传入 theme。旧的 @zui/core 预设导出不保留同义转发，避免反向依赖。
+
+```ts
+import { css, lightTheme, darkTheme } from '@zui/svelte';
+import { createCss, createRuntime, extendTheme, ThemeScope } from '@zui/core';
+const custom = extendTheme(lightTheme, { color: { brand: '#0f766e' } });
+const runtime = createRuntime({ theme: custom, target: document });
+const customCss = createCss(custom);
+```
+
+| 尺度          | xs       | sm        | md    | lg      | xl     | 端点/角色                   |
+| ------------- | -------- | --------- | ----- | ------- | ------ | --------------------------- |
+| spacing       | 4px      | 8px       | 12px  | 16px    | 24px   | none=0                      |
+| size.control* | 24px     | 28px      | 36px  | 44px    | 52px   | control 引用 controlMd      |
+| size.icon*    | 12px     | 14px      | 16px  | 20px    | 24px   | icon 引用 iconMd            |
+| radius        | 2px      | 4px       | 8px   | 12px    | 16px   | none=0、full=9999px         |
+| borderWidth   | 1px      | 1.5px     | 2px   | 3px     | 4px    | none=0，thin=xs、focus=md   |
+| fontSize      | 12px     | 14px      | 16px  | 18px    | 20px   | 无 none/full                |
+| lineHeight    | 1        | 1.25      | 1.5   | 1.75    | 2      | tight=sm、normal=md         |
+| letterSpacing | -0.025em | -0.0125em | 0em   | 0.025em | 0.05em | normal=md                   |
+| duration      | 75ms     | 120ms     | 200ms | 300ms   | 500ms  | none=0ms                    |
+| opacity       | 0.1      | 0.25      | 0.5   | 0.75    | 0.9    | none=0、full=1、disabled=md |
+| breakpoint    | 480px    | 640px     | 768px | 1024px  | 1280px | 无 none/full                |
+
+shadow 为五档加 none，亮暗保持相同几何、不同透明度，具体值见语义清单。size 另有 none=0px/full=100%，但不据此要求所有组件提供 size="none/full"。fontWeight、fontFamily、easing、zIndex 和颜色使用有意义的角色，不机械凑档。
+
+兼容变化：spacing/radius/breakpoint 的 small/medium/large → sm/md/lg；fontSize 的 small/medium/large → xs/sm/lg（按旧数值对应，新的 md=16px）；duration 的 fast/normal/slow → sm/md/lg；shadow.small → sm；size.controlSmall/controlLarge → controlSm/controlLg。control/icon、thin/focus、disabled 等角色保留为真正的 Token 引用，覆盖对应尺度会联动，也可以显式覆盖角色断开引用。
+
+例如 s.padding._sm、s.borderRadius._full、s.height._controlLg。自定义主题可以使用自己的键；这些改名只针对内置预设，不修改用户的独立 schema。五档值是当前起点，组件落地后按实际密度、可读性和触控需求评审，不为了五档数量硬造不适用的参数。

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { css } from '@zui/core';
+  import { css } from '@zui/svelte';
   import { resolve } from '$app/paths';
   import Plain from 'zui-fixture-plain';
   let width = $state(100);

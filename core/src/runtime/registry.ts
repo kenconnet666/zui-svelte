@@ -5,7 +5,7 @@ import { retainDefinition, type StyleDefinition } from './definitions.js';
 import { validateLayer, layerProgram } from '../css/layers.js';
 import { runAll } from './callbacks.js';
 import { assertTokenUses, tokenUses } from '../theme/requirements.js';
-import { lightTheme } from '../theme/presets.js';
+import { baseTheme } from '../theme/base.js';
 import type { Theme, TokenSchema } from '../theme/types.js';
 
 interface RegistryOptions {
@@ -54,7 +54,7 @@ export class StyleRegistry {
     this.variables = options.variables ?? 'inline';
     this.layers = options.layers ?? [];
     this.layer = options.layer;
-    this.theme = options.theme ?? lightTheme;
+    this.theme = options.theme ?? baseTheme;
     if (!/^[a-zA-Z][\w-]*$/u.test(this.namespace)) throw new TypeError('Invalid style namespace.');
   }
 

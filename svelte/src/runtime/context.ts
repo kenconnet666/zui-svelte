@@ -1,5 +1,6 @@
 import { getAllContexts, onDestroy, setContext } from 'svelte';
 import { createRuntime, StyleError, type StyleRuntime, type TokenSchema } from '@zui/core';
+import { lightTheme } from '../theme.js';
 
 export const STYLE_RUNTIME = Symbol.for('@zui/style-runtime');
 export type Runtime = StyleRuntime<TokenSchema>;
@@ -39,7 +40,10 @@ export function captureRuntime(): (() => Runtime) & {
       }
       defaultEntry = defaults.get(document);
       if (!defaultEntry) {
-        defaultEntry = { runtime: createRuntime<TokenSchema>({ target: document }), references: 0 };
+        defaultEntry = {
+          runtime: createRuntime<TokenSchema>({ target: document, theme: lightTheme }),
+          references: 0,
+        };
         defaultEntry.runtime.themeStyle(':where(:root)');
         defaults.set(document, defaultEntry);
       }

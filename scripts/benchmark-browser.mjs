@@ -10,6 +10,9 @@ const requireCore = createRequire(join(root, 'core/package.json'));
 const playwright = requireCore('playwright');
 const code = await readFile(join(root, 'core/test-results/core-browser.mjs'), 'utf8');
 const moduleUrl = 'data:text/javascript;base64,' + Buffer.from(code).toString('base64');
+// 预设数据来自 UI 包；被测 core 浏览器 bundle 不依赖或内置这些视觉值。
+const { lightTheme: lightPreset, darkTheme: darkPreset } = await import('../svelte/dist/theme.js');
+const themes = { light: lightPreset.definition, dark: darkPreset.definition };
 const budget = JSON.parse(
   await readFile(join(root, '.design/core-distribution-budget.json'), 'utf8'),
 );
@@ -24,9 +27,10 @@ for (const engine of process.env.CI ? ['chromium', 'firefox', 'webkit'] : ['chro
       const page = await browser.newPage();
       await page.setContent('<main></main>');
       const result = await page.evaluate(
-        async ({ moduleUrl, variables }) => {
-          const { createRuntime, bindElement, bindTheme, ThemeScope, lightTheme, darkTheme } =
-            await import(moduleUrl);
+        async ({ moduleUrl, variables, themes }) => {
+          const { createRuntime, bindElement, bindTheme, ThemeScope, defineTheme } = await import(
+            moduleUrl
+          );
           const runtime = createRuntime({
             target: document,
             namespace: 'scale-budget',
@@ -73,7 +77,10 @@ for (const engine of process.env.CI ? ['chromium', 'firefox', 'webkit'] : ['chro
             runtime.dispose();
             host.replaceChildren();
             const released = runtime.stats;
+            const lightTheme = defineTheme(themes.light, { colorScheme: 'light' });
+            const darkTheme = defineTheme(themes.dark, { colorScheme: 'dark' });
             const themeRuntime = createRuntime({
+              theme: lightTheme,
               target: document,
               namespace: 'theme-budget',
               variables,
@@ -143,7 +150,7 @@ for (const engine of process.env.CI ? ['chromium', 'firefox', 'webkit'] : ['chro
             host.replaceChildren();
           }
         },
-        { moduleUrl, variables },
+        { moduleUrl, variables, themes },
       );
       assert.equal(result.extraCompilations, 0);
       assert.equal(result.stats.rules, 1000);

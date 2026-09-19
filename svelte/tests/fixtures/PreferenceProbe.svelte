@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
-  import { css, lightTheme, darkTheme, overrideTheme, ThemeScope } from '@zui/core';
+  import { overrideTheme, ThemeScope } from '@zui/core';
+  import { css, lightTheme, darkTheme } from '@zui/svelte';
   import { StyleProvider } from '@zui/svelte';
   let dark = $state(false);
   let compact = $state(false);
@@ -52,10 +53,10 @@
       s.borderStyle.solid;
       s.borderWidth._thin;
       s.borderColor._border;
-      s.paddingInlineStart._large;
-      s.paddingInlineEnd._small;
+      s.paddingInlineStart._lg;
+      s.paddingInlineEnd._sm;
       s.transitionProperty('background-color');
-      s.transitionDuration._normal;
+      s.transitionDuration._md;
       s._focusVisible((s) => {
         s.outlineStyle.solid;
         s.outlineWidth._focus;

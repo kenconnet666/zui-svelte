@@ -9,6 +9,13 @@ import {
   css,
 } from '../src/index.js';
 
+css((s) => {
+  s.display.flex;
+  s.width.px(100);
+  // @ts-expect-error core 默认只含标准 CSS，不带组件库主题键。
+  s.color._primary;
+});
+
 createCss(baseTheme)((s) => {
   s.display.flex;
   s.width.px(120);

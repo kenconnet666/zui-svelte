@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy, untrack } from 'svelte';
-  import { css, lightTheme, darkTheme, ThemeScope } from '@zui/core';
+  import { ThemeScope } from '@zui/core';
+  import { css, lightTheme, darkTheme } from '@zui/svelte';
   import { StyleProvider } from '@zui/svelte';
   import type { PageData } from './$types';
   let { data }: { data: PageData } = $props();

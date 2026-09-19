@@ -1,6 +1,6 @@
 <script lang="ts">
   import { untrack } from 'svelte';
-  import { css } from '@zui/core';
+  import { css } from '@zui/svelte';
   import SlotProbe from './SlotProbe.svelte';
 
   let { initialWidth = 100 }: { initialWidth?: number } = $props();

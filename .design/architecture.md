@@ -19,7 +19,7 @@ scripts/    生成、合同、交付及开发工具脚本
 - core 保持 css、theme、runtime 职责；统一从 @zui/core 导入，使用自有 runtime 与 Stylis，不依赖 Svelte。
 - css() 返回普通 string；用户绑定 class，编译接入补变量、SSR 与生命周期。首次静态，值变化才安全提升，结构变化保留完整规则；不分析响应式来源、不要求 getter/dynamic 标记。
 - 子元素独立绑定；参数与复用优先普通 TS 函数，多个 class 自由组合。复杂组件通过 slotProps 转发已公开节点的属性、class/style 等，不引入 css.parts 或公开样式句柄。
-- baseTheme 没有系统 Token/视觉值；亮暗预设从它扩展，默认亮色。显式自定义主题不静默补系统值。
+- core 的 baseTheme 没有 UI Token/视觉值；亮暗预设、五档尺度与默认主题 css 属于 svelte，从 baseTheme 扩展。core 默认空主题，Svelte 自动宿主/SSR 默认亮色；显式自定义主题不静默补 UI 值。
 - svelte 自行实现有样式组件，不引入无样式组件库；定位、日期等专项工具仅在具体需求出现时选择。
 - docs 使用 .svelte 页面及真实示例，不引入 Markdown 内容管线。SvelteKit 只用于消费与 SSR 验证，不成为第四个产品工作区。
 - 库默认 exports 指向 dist；zui-source 仅用于仓库联调。包保持 private，正式发布名称、许可证和部署另定。

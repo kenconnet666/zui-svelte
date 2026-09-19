@@ -1,12 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import type { Handle, RequestEvent } from '@sveltejs/kit';
-import { MemoryStyleSheet } from '@zui/core';
+import { MemoryStyleSheet, baseTheme } from '@zui/core';
 import { createStyleHandle, renderStyled } from '../src/server.js';
 import type { Component } from 'svelte';
 
 const event = () => ({ request: new Request('https://example.test/') }) as RequestEvent;
 
 describe('SvelteKit response ownership', () => {
+  it('excludes configured layer and empty-theme resources when checking raw endpoints', async () => {
+    const sheet = new MemoryStyleSheet();
+    const handle = createStyleHandle({ sheet, theme: baseTheme, layers: ['app'], layer: 'app' });
+    const response = new Response('<p>endpoint</p>', { headers: { 'content-type': 'text/html' } });
+    expect(await handle({ event: event(), resolve: async () => response })).toBe(response);
+    expect(sheet.entries()).toHaveLength(0);
+  });
   it('preserves error responses and headers while inserting styles', async () => {
     const sheet = new MemoryStyleSheet();
     const handle = createStyleHandle({ sheet });

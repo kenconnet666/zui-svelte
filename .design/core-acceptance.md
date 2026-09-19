@@ -2,6 +2,8 @@
 
 既定 P0–P5 与 A01–A40 的 core 目标已完成，当前合同见 [core-contracts.md](core-contracts.md)，日常 API 见包 README。组件库的新 API 讨论不属于已实现能力。
 
+后续已授权变更：内置预设和默认主题 css 移至 svelte/src/theme.ts，core 默认空 baseTheme；UI 尺度统一五档并保留适用的 none/full。预设类型/对比度/清单测试移到 ST/theme.test.ts、theme-types.ts，包外同时验证 core 与 UI 的类型入口。下方旧候选证明重构前基线，此次边界调整由新提交 CI 单独验收。
+
 ## 已核验候选
 
 提交 ffe054a2289cd2f0bb537949712b7ffd3e077386 的 [完整 CI 35371966458](https://github.com/kenconnet666/zui-svelte/actions/runs/35371966458) 成功，验收步骤无失败或跳过。包括自定义基础主题的生产 Kit/包外完整链路、强制哈希碰撞保护和 Windows CRLF 字符串续行回归。

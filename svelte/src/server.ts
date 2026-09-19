@@ -4,6 +4,7 @@ import type { Component } from 'svelte';
 import type { Handle, RequestEvent } from '@sveltejs/kit';
 import { createRuntime, type RuntimeOptions, type TokenSchema } from '@zui/core';
 import { STYLE_RUNTIME, setServerRuntimeResolver, type Runtime } from './runtime/context.js';
+import { lightTheme } from './theme.js';
 
 const requests = new AsyncLocalStorage<Runtime>();
 setServerRuntimeResolver(() => requests.getStore());
@@ -23,6 +24,7 @@ export async function renderStyled<P extends Record<string, unknown>>(
     throw new Error('Style and render CSP nonces must match.');
   const runtime = createRuntime<TokenSchema>({
     ...options.runtime,
+    theme: options.runtime?.theme ?? lightTheme,
     nonce: options.runtime?.nonce ?? options.csp?.nonce,
   });
   try {
@@ -51,9 +53,13 @@ export function createStyleHandle(
 ): Handle {
   return async ({ event, resolve }) => {
     const settings = typeof options === 'function' ? await options(event) : options;
-    const runtime = createRuntime<TokenSchema>(settings);
+    const runtime = createRuntime<TokenSchema>({
+      ...settings,
+      theme: settings.theme ?? lightTheme,
+    });
     try {
       runtime.themeStyle(':where(:root)');
+      const initialRules = runtime.registry.size;
       return await requests.run(runtime, async () => {
         const placeholder = '<!--zui:styles-->';
         let inserted = false;
@@ -79,7 +85,7 @@ export function createStyleHandle(
           return response;
         }
         if (!inserted) {
-          if (runtime.registry.size > 1)
+          if (runtime.registry.size > initialRules)
             throw new Error('HTML styles require the SvelteKit page transform.');
           runtime.dispose();
           return response;

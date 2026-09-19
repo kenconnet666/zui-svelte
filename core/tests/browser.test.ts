@@ -8,8 +8,7 @@ import {
   ThemeScope,
   ClassController,
   createCss,
-  lightTheme,
-  darkTheme,
+  baseTheme,
   createStyleModule,
   css,
   styleProtocol,
@@ -160,14 +159,14 @@ describe('real DOM style bindings', () => {
     (variables) => {
       const value = createRuntime({ target: document, namespace: 'scheme', variables });
       cleanup.push(() => value.dispose());
-      const scope = new ThemeScope(lightTheme);
+      const scope = new ThemeScope(defineTheme({}, { colorScheme: 'light' }));
       cleanup.push(() => scope.dispose());
       const node = element();
       if (variables === 'inline') node.style.colorScheme = 'light dark';
       const stop = bindTheme(node, scope, value);
       cleanup.push(stop);
       expect(getComputedStyle(node).colorScheme).toBe('light');
-      scope.setTheme(darkTheme);
+      scope.setTheme(defineTheme({}, { colorScheme: 'dark' }));
       expect(getComputedStyle(node).colorScheme).toBe('dark');
       if (variables === 'stylesheet') expect(node.hasAttribute('style')).toBe(false);
       stop();
@@ -457,7 +456,7 @@ describe('real DOM style bindings', () => {
       () => first.dispose(),
       () => second.dispose(),
     );
-    const override = createCss(lightTheme, { layer: 'override' });
+    const override = createCss(baseTheme, { layer: 'override' });
     const left = element();
     const right = element();
     left.className = first.resolve(
@@ -497,8 +496,8 @@ describe('real DOM style bindings', () => {
       variables: 'stylesheet',
     });
     cleanup.push(() => owner.dispose());
-    const base = createCss(lightTheme, { layer: 'base' });
-    const app = createCss(lightTheme, { layer: 'app' });
+    const base = createCss(baseTheme, { layer: 'base' });
+    const app = createCss(baseTheme, { layer: 'app' });
     const producer = new ClassController(owner, 'source', 'source');
     const consumer = new ClassController(owner, 'target', 'target');
     cleanup.push(

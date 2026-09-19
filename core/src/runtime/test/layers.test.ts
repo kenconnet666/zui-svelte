@@ -2,12 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { ClassController, createCss, css } from '../classes.js';
 import { createRuntime } from '../runtime.js';
 import { createStyleModule } from '../definitions.js';
-import { lightTheme } from '../../theme/presets.js';
+import { baseTheme } from '../../theme/base.js';
 
 describe('explicit CSS layers', () => {
   it('declares layer order once and keeps safe promotion inside the selected layer', () => {
     const runtime = createRuntime({ layers: ['base', 'app'], layer: 'app' });
-    const styles = createCss(lightTheme, { layer: 'base' });
+    const styles = createCss(baseTheme, { layer: 'base' });
     const owner = new ClassController(runtime, 'layered', 'site');
     const render = (width: number) =>
       owner.run(() =>
@@ -31,7 +31,7 @@ describe('explicit CSS layers', () => {
     const normal = module.call('normal', css, (s) => {
       s.width.px(10);
     });
-    const plain = module.call('plain', createCss(lightTheme, { layer: null }), (s) => {
+    const plain = module.call('plain', createCss(baseTheme, { layer: null }), (s) => {
       s.height.px(20);
     });
     const owner = new ClassController(runtime, 'target', 'target');
@@ -46,10 +46,10 @@ describe('explicit CSS layers', () => {
   it('rejects ambiguous or undeclared layer configuration before creating bindings', () => {
     expect(() => createRuntime({ layers: ['app', 'app'] })).toThrow('Duplicate');
     expect(() => createRuntime({ layer: 'missing' })).toThrow('declared');
-    expect(() => createCss(lightTheme, { layer: 'INITIAL' })).toThrow('Invalid');
+    expect(() => createCss(baseTheme, { layer: 'INITIAL' })).toThrow('Invalid');
     const runtime = createRuntime();
     const owner = new ClassController(runtime, 'unknown', 'unknown');
-    const styles = createCss(lightTheme, { layer: 'app' });
+    const styles = createCss(baseTheme, { layer: 'app' });
     expect(() => owner.run(() => styles(() => {}))).toThrow('declared');
     expect(runtime.stats.bindings).toBe(0);
     runtime.dispose();

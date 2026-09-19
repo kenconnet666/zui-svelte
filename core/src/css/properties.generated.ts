@@ -2,9 +2,8 @@
 import type { Carrier, PropertyTokenMap } from './carrier.js';
 import type { keywordGroups } from './metadata.generated.js';
 import type { TokenSchema } from '../theme/types.js';
-import type { DefaultTokens } from '../theme/presets.js';
 export interface StyleProperties<
-  T extends TokenSchema = DefaultTokens,
+  T extends TokenSchema = Record<never, never>,
   M extends PropertyTokenMap<T> = object,
 > {
   /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */

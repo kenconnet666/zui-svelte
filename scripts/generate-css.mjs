@@ -131,7 +131,7 @@ const outputs = {
     ' as const;\n',
   'core/src/css/properties.generated.ts':
     header +
-    "import type { Carrier, PropertyTokenMap } from './carrier.js';\nimport type { keywordGroups } from './metadata.generated.js';\nimport type { TokenSchema } from '../theme/types.js';\nimport type { DefaultTokens } from '../theme/presets.js';\nexport interface StyleProperties<T extends TokenSchema = DefaultTokens, M extends PropertyTokenMap<T> = object> {\n" +
+    "import type { Carrier, PropertyTokenMap } from './carrier.js';\nimport type { keywordGroups } from './metadata.generated.js';\nimport type { TokenSchema } from '../theme/types.js';\nexport interface StyleProperties<T extends TokenSchema = Record<never, never>, M extends PropertyTokenMap<T> = object> {\n" +
     typeLines.join('\n') +
     '\n}\n',
 };

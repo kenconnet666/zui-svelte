@@ -1,6 +1,5 @@
 import { StyleError } from '../css/errors.js';
 import { validateTokenMap, type StyleFactory, type PropertyTokenMap } from '../css/builder.js';
-import type { DefaultTokens } from '../theme/presets.js';
 import type { Theme, TokenSchema } from '../theme/types.js';
 import { validateLayer } from '../css/layers.js';
 
@@ -28,7 +27,7 @@ export function hasCssEvaluation(): boolean {
   return activeEvaluation !== undefined;
 }
 
-export function css(factory: StyleFactory<DefaultTokens>): string {
+export function css(factory: StyleFactory<Record<never, never>>): string {
   if (arguments.length !== 1)
     throw new StyleError('runtime.context', 'Use createCss(theme) to bind a custom theme.');
   return evaluate(factory);

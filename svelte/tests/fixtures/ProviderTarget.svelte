@@ -1,6 +1,7 @@
 <script lang="ts">
   import { untrack } from 'svelte';
-  import { css, type DefaultTokens, type StyleRuntime, type ThemeScope } from '@zui/core';
+  import { type StyleRuntime, type ThemeScope } from '@zui/core';
+  import { css, type DefaultTokens } from '@zui/svelte';
   import { StyleProvider, provideStyleRuntime } from '@zui/svelte';
   let {
     scope,

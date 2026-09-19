@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte';
-  import { css, createRuntime, bindTheme, lightTheme, overrideTheme, ThemeScope } from '@zui/core';
+  import { createRuntime, bindTheme, overrideTheme, ThemeScope } from '@zui/core';
+  import { css, lightTheme } from '@zui/svelte';
   import { provideStyleRuntime } from '@zui/svelte';
 
   const runtime = createRuntime({ target: document, variables: 'stylesheet', nonce: 'zui-probe' });

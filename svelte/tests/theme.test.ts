@@ -1,13 +1,68 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { baseTheme, darkTheme, lightTheme } from '../presets.js';
-import { extendTheme, overrideTheme } from '../theme.js';
-import { ThemeScope, themeVariables } from '../scope.js';
-import { createRuntime } from '../../runtime/runtime.js';
+import { darkTheme, lightTheme } from '../src/theme.js';
+import {
+  baseTheme,
+  extendTheme,
+  overrideTheme,
+  ThemeScope,
+  themeVariables,
+  createRuntime,
+} from '@zui/core';
 
 describe('theme presets', () => {
+  it('uses five ordered grades and only meaningful none/full endpoints', () => {
+    const grades = ['xs', 'sm', 'md', 'lg', 'xl'] as const;
+    for (const theme of [lightTheme, darkTheme]) {
+      const tokens = theme.resolved;
+      expect(Object.keys(tokens.spacing)).toEqual(['none', ...grades]);
+      expect(Object.keys(tokens.radius)).toEqual(['none', ...grades, 'full']);
+      for (const category of ['fontSize', 'breakpoint'] as const)
+        expect(Object.keys(tokens[category])).toEqual(grades);
+      for (const category of ['duration', 'shadow'] as const)
+        expect(Object.keys(tokens[category])).toEqual(['none', ...grades]);
+      for (const category of [
+        'spacing',
+        'radius',
+        'borderWidth',
+        'fontSize',
+        'duration',
+        'breakpoint',
+        'lineHeight',
+        'opacity',
+        'letterSpacing',
+      ] as const) {
+        const values = grades.map((grade) => Number.parseFloat(String(tokens[category][grade])));
+        expect(values.every((value, index) => index === 0 || value > values[index - 1]!)).toBe(
+          true,
+        );
+      }
+      expect(tokens.size.full).toBe('100%');
+      expect(tokens.opacity.none).toBe(0);
+      expect(tokens.opacity.full).toBe(1);
+      expect(tokens.duration.none).toBe('0ms');
+      expect(tokens.shadow.none).toBe('none');
+    }
+  });
+  it('keeps semantic roles linked to grades while allowing direct role overrides', () => {
+    for (const theme of [lightTheme, darkTheme]) {
+      const changed = overrideTheme(theme, {
+        size: { controlMd: '40px', iconMd: '18px' },
+        borderWidth: { md: '3px' },
+        opacity: { md: 0.4 },
+      });
+      expect(changed.resolved.size.control).toBe('40px');
+      expect(changed.resolved.size.icon).toBe('18px');
+      expect(changed.resolved.borderWidth.focus).toBe('3px');
+      expect(changed.resolved.opacity.disabled).toBe(0.4);
+      const compact = overrideTheme(changed, { size: { control: '28px' } });
+      expect(compact.resolved.size.control).toBe('28px');
+      expect(compact.resolved.size.controlMd).toBe('40px');
+      expect(theme.resolved.size.control).toBe('36px');
+    }
+  });
   it('keeps the documented semantic inventory complete and consistent with both presets', () => {
-    const readme = readFileSync(new URL('../../../README.md', import.meta.url), 'utf8');
+    const readme = readFileSync(new URL('../README.md', import.meta.url), 'utf8');
     const rows = readme.split('\n').filter((line) => /^\|\s*`\w+\.\w+`\s*\|/u.test(line));
     const entries = rows.map((line) =>
       line
@@ -55,7 +110,7 @@ describe('theme presets', () => {
     }
     expect(baseTheme.resolved).toEqual({});
   });
-  it('shares the preset schema and defaults to light without an explicit theme', () => {
+  it('shares the preset schema and supports explicit runtime consumption', () => {
     expect(lightTheme.colorScheme).toBe('light');
     expect(darkTheme.colorScheme).toBe('dark');
     expect(extendTheme(darkTheme, {}).colorScheme).toBe('dark');
@@ -65,7 +120,7 @@ describe('theme presets', () => {
         Object.entries(values).map(([key, value]) => [key, typeof value]),
       ]);
     expect(schema(darkTheme)).toEqual(schema(lightTheme));
-    const runtime = createRuntime();
+    const runtime = createRuntime({ theme: lightTheme });
     expect(runtime.defaultTheme).toBe(lightTheme);
     runtime.dispose();
   });

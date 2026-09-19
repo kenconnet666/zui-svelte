@@ -6,7 +6,7 @@ import type { StyleProperties } from './properties.generated.js';
 import type { Instruction, StyleProgram } from './program.js';
 import { validateQuery, validateValue } from './validate.js';
 import type { Theme, TokenSchema } from '../theme/types.js';
-import { lightTheme, type DefaultTokens } from '../theme/presets.js';
+import { baseTheme } from '../theme/base.js';
 import { validateLayer, layerProgram } from './layers.js';
 import { setTokenUses, type TokenUse } from '../theme/requirements.js';
 import { tokenValueKinds } from '../theme/types.js';
@@ -29,11 +29,11 @@ export interface StyleHelpers<T extends TokenSchema, M extends PropertyTokenMap<
 }
 
 export type StyleBuilder<
-  T extends TokenSchema = DefaultTokens,
+  T extends TokenSchema = Record<never, never>,
   M extends PropertyTokenMap<T> = object,
 > = StyleProperties<T, M> & StyleHelpers<T, M>;
 export type StyleFactory<
-  T extends TokenSchema = DefaultTokens,
+  T extends TokenSchema = Record<never, never>,
   M extends PropertyTokenMap<T> = object,
 > = (s: StyleBuilder<T, M>) => void;
 
@@ -89,7 +89,7 @@ function invoke(factory: RuntimeFactory, s: unknown): void {
   }
 }
 
-export function buildStyle<T extends TokenSchema = DefaultTokens>(
+export function buildStyle<T extends TokenSchema = Record<never, never>>(
   factory: StyleFactory<T>,
   theme?: Theme<T>,
   layer?: string,
@@ -102,7 +102,7 @@ export function buildStyle<T extends TokenSchema, const M extends PropertyTokenM
 ): StyleProgram;
 export function buildStyle(
   factory: RuntimeFactory,
-  theme: Theme<TokenSchema> = lightTheme,
+  theme: Theme<TokenSchema> = baseTheme,
   layer?: string,
   tokenMap?: Readonly<Record<string, string | undefined>>,
 ): StyleProgram {

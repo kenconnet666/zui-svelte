@@ -1,10 +1,10 @@
 # Core 当前合同
 
-本文合并早期 core、组合、类型、主题和生产规划，保留已经选择的方案。详细签名、65 个系统 Token 与使用示例见 [core README](../core/README.md)；编译与宿主配置见 [svelte README](../svelte/README.md)；验收范围保留 [A01–A40](core-acceptance.md)。
+本文合并早期 core、组合、类型、主题和生产规划，保留已经选择的方案。通用引擎签名见 [core README](../core/README.md)，UI Token 与尺度见 [Svelte README](../svelte/README.md)；编译与宿主配置见 [svelte README](../svelte/README.md)；验收范围保留 [A01–A40](core-acceptance.md)。
 
 ## 样式求值与组合
 
-css(factory) 返回原始 string，默认亮色；自定义主题使用 createCss(theme, options)。factory 同步执行并返回 void，if/switch/循环/普通 TS 函数保持 JS 语义。推荐模板内 class={css(...)}，复杂或复用逻辑再提取函数。
+css(factory) 返回原始 string。@zui/core 的入口只含标准 CSS，@zui/svelte 的入口绑定内置亮色主题；自定义主题使用 core.createCss(theme, options)。factory 同步执行并返回 void，if/switch/循环/普通 TS 函数保持 JS 语义。推荐模板内 class={css(...)}，复杂或复用逻辑再提取函数。
 
 普通值初次静态。同一绑定发现安全值变化才提升；不因存在 $state 而提前参数化常量。结构、目标或值无法证明等价时换完整规则；CSS-wide、转义、重复回退声明、简写/继承等保持保守处理。声明顺序不为哈希去重而排序。
 
@@ -17,7 +17,7 @@ css(factory) 返回原始 string，默认亮色；自定义主题使用 createCs
 csstype + TypeScript Compiler API + CSS schema 生成属性载体和运行时表，二者共用数据。生成输入为已安装的锁定依赖，输出稳定，不依赖抓网页或机器绝对路径。generate:check 比较内容并报告属性/关键字/单位/Token 映射；不能把未映射语义的属性当作不支持，也不能让未知能力变成 any。
 
 - baseTheme 是 defineTheme({})，标准 CSS 关键字/单位不依赖主题 Token。
-- lightTheme/darkTheme 从基础层分别扩展，schema 一致；默认亮色，显式自有 schema 不混入系统键。
+- lightTheme/darkTheme、五档尺度和 DefaultTokens 属于 svelte 包，从 core.baseTheme 分别扩展，schema 一致。core runtime 默认空主题；Svelte 自动宿主/SSR 默认亮色，显式自有 schema 不混入 UI 键。
 - defineTheme 从零定义；extendTheme 新增键并兼容覆盖；overrideTheme 只覆盖已知键。tokenRef 只引用同类别，缺失/循环报错，长别名链迭代解析。
 - definition 保存原定义，resolved 保存解析值，ref/variable 返回 CSS 引用与变量名。resolved 可能含 calc/外部 var，不等于 computed style。
 - ThemeScope 用 setTheme/setOverrides/fork 管理切换；schema 以创建时为准。先验证子树再提交，重入更新跳过过期通知；父子关系由 fork 建立，不由 DOM 嵌套隐式建立。
