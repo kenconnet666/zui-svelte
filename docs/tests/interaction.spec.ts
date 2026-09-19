@@ -23,9 +23,21 @@ test('keyboard scopes preserve native editing and IME while pointer capture canc
   await page.mouse.move(rect.x + 120, rect.y + 10);
   await page.mouse.up();
   await expect(page.getByTestId('drag-state')).toHaveText('complete');
+  await slider.evaluate((node) => {
+    node.addEventListener(
+      'pointerdown',
+      (event) =>
+        node.setAttribute('data-test-pointer-id', String((event as PointerEvent).pointerId)),
+      { once: true },
+    );
+  });
   await page.mouse.move(rect.x + 10, rect.y + 10);
   await page.mouse.down();
-  await slider.dispatchEvent('pointercancel', { pointerId: 1 });
+  await expect(page.getByTestId('drag-state')).toHaveText('dragging');
+  // 浏览器可使用不同鼠标 pointerId；取消必须针对刚捕获的那根指针。
+  const pointerId = Number(await slider.getAttribute('data-test-pointer-id'));
+  expect(await slider.evaluate((node, id) => node.hasPointerCapture(id), pointerId)).toBe(true);
+  await slider.dispatchEvent('pointercancel', { pointerId });
   await page.mouse.up();
   await expect(page.getByTestId('drag-state')).toHaveText('canceled');
   await page.getByRole('button', { name: '切换交互宿主' }).click();
