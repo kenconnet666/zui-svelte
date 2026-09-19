@@ -1,6 +1,6 @@
 # 第一阶段：架构与基础设施实施计划
 
-状态：用户已批准，正在实施。本文只记录执行顺序、交付物与退出门槛；业务 API/类型/slotProps/Zod/Decimal 的唯一合同仍是 [组件主规划](svelte-components.md)，依赖职责见 [依赖取舍](dependencies.md)。不重新维护一份架构草案。
+状态：代码与组合验收已落地，最终候选由 CI 验证。本文记录交付物、验收证据和边界；业务 API/类型/slotProps/Zod/Decimal 的唯一合同仍是 [组件主规划](svelte-components.md)，依赖职责见 [依赖取舍](dependencies.md)。第二阶段只提出 [组件实施计划](svelte-phase2.md)，没有提前铺视觉组件。
 
 ## 目标与阶段边界
 
@@ -33,8 +33,8 @@ P1-02/P1-03 等可以在原型证明必要时调整文件粒度，但不能绕�
 ## 依赖与工具策略
 
 - 已采用：Svelte 5、core/Stylis、Lucide、Zod、decimal.js、@internationalized/date；axe 仅测试。使用原生公开 API，版本集中 catalog。
-- P1-05：以 @floating-ui/dom 为定位候选；focus-trap/tabbable 先验证与统一 Layer 的分工，只保留一个焦点陷阱责任方。验证后再锁依赖，不提前复制其算法。
-- P1-06：验证 TanStack Virtual 的官方适配或核心薄接入，只保留一种路径；若不满足活动项/CSP/SSR 合同先修订方案，不并行自建第二套虚拟化框架。
+- P1-05：已锁定 @floating-ui/dom 与 focus-trap/tabbable；定位只提供几何，Document 层管理只保留一个有效模态焦点陷阱，关闭/归属由 ZUI 负责。
+- P1-06：已锁定 @tanstack/virtual-core 的薄接入，不再引入另一套虚拟化框架。活动项额外进入窗口、动态测量、断开观察器和 SSR 初始范围均有测试。
 - 动效、Pointer Events、Intl、ResizeObserver/VisualViewport 等原生优先。复杂排序拖放、富文本、图表、图片裁剪暂不引入；与本阶段消费者无关的功能不作为“预留扩展”写入运行时。
 - 每次会话先核对原生 MCP/LSP。局部优先 WebStorm，超时不计通过，可用逐文件 LSP/小范围 TypeScript 与必要 Chrome 用例替代；完整类型、浏览器和包外验收由 CI 执行，不轮询等待。
 
@@ -54,18 +54,39 @@ P1-02/P1-03 等可以在原型证明必要时调整文件粒度，但不能绕�
 
 用户已批准本阶段实施，并要求适当参考成熟项目后取舍。实施记录与候选证据在本文件持续更新，第二阶段只规划，不在本阶段提前铺组件实现。
 
-## 参考与取舍记录
+## 已落地交付与证据
 
-实施进度：P1-01 的作者编译、配置基础与合并原型已落地；9 个聚焦单元用例、SSR 原型、公开声明正负例及 Chrome 配置更新用例通过。包构建已改为从当前源码 bootstrap 编译器并排除测试，独立 node_modules 预编译消费用例进入 CI。P1-02 的 UI 层序及后续基础设施继续实施，第一阶段尚未完成。
+| 交付              | 实际入口与验收                                                                                                                                                                     |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 配置与作者编译    | ConfigProvider、runtime/config/props、compiler/components；登记真实路径和允许键，自动生成声明；动态嵌套、false/undefined、Symbol、事件一次执行、包内预编译由独立 node_modules 消费 |
+| UI 样式层与主题桥 | createStyleRuntime、StyleProvider/theme-context；components/defaults/app 同序；Portal 复用 marker 与方向，null dir 在宿主归一为 undefined                                          |
+| 字段与校验        | internal/form/field/path/values；Zod jitless，唯一模型，草稿/IME/提交版本/reset/服务端错误/动态字段路径与完整 schema；公共视觉组件尚未交付                                         |
+| 领域值            | Decimal 构造器和精度快照、日期/时间/时区实例、明确字符串 transport；Map/Set 表单模型明确拒绝，未知不可变实例保留引用，不假造通用克隆                                               |
+| 层与交互生命周期  | internal/layers/portal/floating/presence/dom；3 层关闭顺序、取消/退出、ShadowRoot、触发器移除、100 轮释放、CSP 与 viewport 更新                                                    |
+| 集合与请求        | internal/collection/request/virtual；对象保留、重复 key 拒绝、异步失序/中止/重试/分页、10000 项窗口化、活动节点和动态高度                                                          |
+| 跨组件交互        | internal/interaction/announce/text；局部键盘不抢 IME/修饰键/输入框/Escape、Pointer Capture 清理、分级去重播报、grapheme 与精确数值编辑边界、原生媒体偏好                           |
+| 消费与规模        | Docs dist 消费、真实 Kit、独立 tarball、1000 控件与资源基线；新增用例加入既有 CI，不引入只跑本机的验收通道                                                                         |
 
-第二个可构建阶段：UI 三层工厂和自动/显式/SSR 宿主已统一；FieldScope/FormController、路径、领域快照/比较与 Zod 解释器初始化已实现。字段草稿、初次 blur、IME、异步过期、提交版本、reset 与服务端错误有聚焦用例；不是公共视觉 Form/Field。上一轮 CI 的 sourcemap 测试类型问题已修复，后续以完整 CI 和组合探针继续验证。
+候选 a61c0fa 的[完整 CI 35434309749](https://github.com/kenconnet666/zui-svelte/actions/runs/35434309749) 已通过，包含三浏览器、SSR/hydration、包外消费、产物和资源预算。补充候选 e9ece7a 增加 1000 控件、交互/axe、并发 SSR 配置隔离和重排字段测试；CI 的 84 个生产浏览器用例通过 83 个，仅 Firefox 指针取消夹具误写死 pointerId。49f8ba6 改为读取真实 ID，并断言实际捕获；其 CI 35434960943 在文档收尾检查时仍执行中。最后还通过 svelte/events.on 对齐子元素 preventDefault 顺序，并补了相关 Chrome 用例。最终 HEAD 的完整结果留到下次推送前核对，不等待或轮询。源码与包外消费者不使用 declare module 或路径别名来掩盖类型错误。
 
-第三个可构建阶段：Floating UI、focus-trap/tabbable 和 TanStack Virtual Core 的薄接入已实现。Chrome 通过三层嵌套/关闭取消/退出保留/ShadowRoot/一百轮销毁，以及严格样式 CSP 下 Portal 主题方向和定位更新、一万项虚拟列表活动节点保留与动态行高。集合/异步/退出/文本边界 9 个聚焦单元用例通过。P1-07 的局部键盘、指针和播报实现继续补组合验收。CI d975d38 暴露的两项 server 失败已处理：更新 UI 层合同，并修复 core 工厂首次插入失败时的样式表清理；server 9 个用例通过。测试目录新增常规 tsconfig，修复 IDE 对共享 Svelte 夹具的包解析。
+本地重点证据：层/Portal/虚拟化、配置规模、键盘/指针、减少动态效果/高对比与 axe 的相关 Chrome 用例通过；相关 Svelte 文件经 WebStorm/LSP 和官方 autofixer 检查。server 9 项、集合/请求/退出/文本 9 项、表单/文本补充 11 项、配置 SSR 2 项在各自修改后通过。完整验证以候选 CI 为准，不把这些分批数量相加当成独立测试总量。
 
-候选 `a61c0fa` 的[完整 CI 35434309749](https://github.com/kenconnet666/zui-svelte/actions/runs/35434309749) 已通过，包含三浏览器、SSR/hydration、包外消费和产物。最后一批补充了 1000 控件配置/释放、局部键盘/IME/指针取消、播报/减少动态效果/高对比与 axe、并发 SSR 配置隔离、数组重排字段路径测试；本地相关 Chrome 与聚焦单元/SSR 用例已通过，其完整候选验收随新提交交 CI。性能用例记录浏览器版本、挂载耗时与资源基线，不以一次本机耗时虚构跨设备时间门槛。
+## 明确边界
+
+- 这是一套可供库内组件复用的基础，internal 不是承诺长期兼容的公共 headless 产品。后续组件必须复用已经明确的资源/错误/模型所有权。
+- Portal 不跨 Document/ShadowRoot 偷搬 DOM。跨根显式挂载 runtime + StyleProvider 子树；同 Document 多个应用共用层协调时必须使用相同 nonce/基础 z-index。
+- 原生事件和 CSS 层叠规则保留。未分层样式、内联 style 和 !important 不服从 class 字符串顺序；组件作者显式规定可取消事件先后。
+- 局部键盘监听通过 svelte/events.on 尊重子元素委托事件的 preventDefault；Escape 只有 Layer 一套责任方。一次外部点击只请求最上层关闭，父层显式销毁会关闭全部子层，不能给遮罩另加重复关闭链。
+- LiveAnnouncer 是作用域内两种优先级的最新状态播报和短时去重，不把每次搜索中间结果排成长队。真正的读屏朗读质量仍需设备验收。
+- 数值编辑使用 locale 小数分隔与数字，拒绝分组/货币/百分比的含混输入，不经过 Number 丢失精度；科学计数法、位数/舍入属于 DecimalInput 第二阶段的明确选择。
+- 已测试 DOM/浏览器模拟不能冒充 NVDA/VoiceOver、移动 Safari 软键盘和触控滚动锁的设备结论；这些是公开组件发布前的明确验收项。
+- 时间/堆没有编造普适阈值。配置规模用例附浏览器与耗时 JSON，绑定/监听/样式资源有确定归零或回到基线的断言；既有 core 数值预算继续执行。
+
+## 参考与取舍
 
 | 参考                                                                                                                                                          | 采用                                             | 舍弃/调整                                                                                |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ | ---------------------------------------------------------------------------------------- |
 | [MUI slot 合并](https://mui.com/material-ui/guides/composition/#forwarding-slot-props)、[Bits mergeProps](https://www.bits-ui.com/docs/utilities/merge-props) | class/style 与普通属性区别处理、嵌套定制保留     | 不引入依赖，不复制 sx/React ref/按名字猜测事件串联；普通数据不深合并，事件由作者明确调用 |
 | [Svelte context](https://svelte.dev/docs/svelte/context)                                                                                                      | 原生 createContext、稳定 getter 视图和原生 Props | 不用 effect 把 Provider 复制到另一份 store，不用受控/非受控镜像                          |
 | [Floating UI](https://floating-ui.com/docs/autoUpdate)、[focus-trap](https://github.com/focus-trap/focus-trap)                                                | 专项定位与焦点算法、明确挂载/更新/清理           | 关闭顺序、父子归属仍由统一层服务管理，不让两个库争抢 Escape/恢复焦点                     |
+| [TanStack Virtual](https://tanstack.com/virtual/latest/docs/api/virtualizer)                                                                                  | 复用窗口、测量与稳定 key 算法                    | 使用 virtual-core 薄接入，几何由 css 消费；活动项补入窗口，不引入其他 UI 框架            |

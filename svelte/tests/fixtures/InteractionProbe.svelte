@@ -95,6 +95,9 @@
       aria-valuemax="100"
       aria-valuenow={value}
       tabindex="0"
+      onkeydown={(event) => {
+        if (event.key === 'ArrowLeft') event.preventDefault();
+      }}
       onpointerdown={pointer}
       {@attach attachPointer}
       class={css((s) => {

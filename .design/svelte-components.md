@@ -2,7 +2,7 @@
 
 已确认：共享响应式模型可直接修改；Lucide 组件直传；Field 独立负责 label/help/error，Input/Select 等专注控件本身；Dialog 为完整组件；五档使用 xs/sm/md/lg/xl；标准 CSS 与通用主题引擎留 core，UI 预设与默认主题 css 在 svelte；Button 使用 color + variant + size，Select 默认返回整条选项数据，集中默认配置与统一浮层管理。业务组件尚未实施，本文明确区分已经确认的边界与后续建议。
 
-作者侧偏好已更新：专用样式直接写在模板，类型按需内联/复用，默认值只写在 $props() 解构；配置接入可由编译器生成。上层复用底层 Props 和嵌套 slotProps，不强制 ControlAppearance 或另一套组件定义语法。第 8 节记录这些约定及待验证边界；第 16 节是待评审的具体组件目录，不能视为已实现或已全部批准发布。
+作者侧偏好已更新：专用样式直接写在模板，类型按需内联/复用，默认值只写在 $props() 解构；配置接入可由编译器生成。上层复用底层 Props 和嵌套 slotProps，不强制 ControlAppearance 或另一套组件定义语法。第 8 节记录作者约定；其编译/合并基础已经过第一阶段验证。第 16 节是长期组件目录，第二阶段的建议实施范围单独见 svelte-phase2.md，不把全部目录视为已批准发布。
 
 ## 1. 包与默认值边界
 
@@ -109,7 +109,7 @@ type Submission = z.output<typeof schema>;
 
 ZUI 直接使用 Zod 的解析、错误与类型能力；自定义业务规则用 refine 等原生能力，不再同时设计 rules/validator/Standard Schema 适配层。业务可以直接 import { z } from 'zod' 使用同一库；给不经过 Svelte 编译的独立 Node 后端共享 schema 时，不应强制依赖 UI 包主入口。
 
-按用户要求采用推荐方案推进文档合同：Form bind:value={model} schema={schema} onvalid={save}；同一份业务 $state，Field.name 关联错误路径/注册，Input 显式 bind:value。onvalid 接收校验输出，onsubmit 保留原生事件。Form/Field 调度仍待实现，安装 Zod 不等于完整校验系统已经完成。
+按用户要求采用推荐方案推进文档合同：Form bind:value={model} schema={schema} onvalid={save}；同一份业务 $state，Field.name 关联错误路径/注册，Input 显式 bind:value。onvalid 接收校验输出，onsubmit 保留原生事件。FormController/FieldScope 已实现并验证调度、草稿、异步版本、reset 与字段关联；公共视觉 Form/Field 在第二阶段实现。
 
 深度集成的具体范围：
 
@@ -181,7 +181,7 @@ total.toFixed(2); // '59.70'；接口边界保留字符串。
 
 其他类型按需求处理：bigint 用于大整数而非小数，传输需显式编码；Date 要区分时间点和无时区日期，留给日期域；File/Blob 由 Upload 管理引用与资源生命周期。不要为了“可扩展”现在就预装全部库或为每种类型建立公共基类。
 
-已完成依赖安装/主入口导出，并通过小范围精确步进、Zod finite/保留实例、字符串 codec 与 clone 构造器探针；独立安装包的实例/命名空间类型用例交 CI。DecimalInput 和 Form 特殊值处理尚未实现；进入实现前仍要完成位数/舍入/locale/极长输入/科学计数法/清空/非法草稿/相等性/reset/SSR/打包体积验收，不能把依赖安装等同于全部支持。
+已完成依赖安装/主入口导出，并通过小范围精确步进、Zod finite/保留实例、字符串 codec 与 clone 构造器探针；独立安装包的实例/命名空间类型用例交 CI。Form 特殊值快照/比较、locale 数值草稿边界和 Kit transport 已实现。DecimalInput 仍需在第二阶段完成位数/舍入/极长输入/科学计数法策略、编辑清空、步进及组件体积验收，不能把领域值支持等同于完整控件。
 
 依据：[decimal.js API](https://mikemcl.github.io/decimal.js/)、[不可变运算](https://github.com/MikeMcl/decimal.js)、[big.js](https://github.com/MikeMcl/big.js)、[Zod codecs](https://zod.dev/codecs)、[Svelte 类实例](https://svelte.dev/docs/svelte/$state#Classes)、[TC39 Decimal 提案](https://tc39.es/proposal-decimal/)。
 
@@ -379,7 +379,7 @@ Dialog.slotProps.closeButton 接收 Button 参数，并保留 closeButton.slotPr
 
 有限编译增强可为已登记 slot 的消费位置生成 class/style/slotProps 合并，作者保留普通 spread；原生 Svelte spread 本身只按覆盖规则工作。不得改写所有业务 spread、猜测事件语义、在纯包装中反复合并同一份 Button 配置。无编译增强的业务包装若主动添加定制，可显式调用同一个小型合并工具；不能维护两套规则。
 
-层序建议 zui.components → zui.defaults → zui.app，需统一自动 CSR、显式 runtime、SSR 与模块样式；详细覆盖边界见第 14 节。现有 class 编译器已识别 slotProps/CSS 传递，但没有完整的通用 slot 合并实现。
+层序已实现为 zui.components → zui.defaults → zui.app，自动 CSR、createStyleRuntime、SSR 使用一致顺序；详细覆盖边界见第 14 节。已登记组件的编译接入使用同一 mergeProps/mergeSlotProps，保留嵌套定制与 Symbol attachments，普通值/事件仍遵循明确覆盖。
 
 验收须覆盖多层包装/嵌套 slot 的类型正负例、透传/覆盖/undefined、符号 attachment、事件只执行一次、属性移除、共享同一 slot 对象给多实例、响应式重赋值与数组变更、CSP/SSR/hydration 和底层组件独立发布。不能因为小样本可编译就宣称这些全部通过。
 
@@ -415,19 +415,19 @@ Provider 默认只提供逻辑上下文，不为配置新增布局 DOM；即使�
       └─ 子菜单或提示
 ```
 
-| 操作/责任                      | 默认建议                                                                           |
-| ------------------------------ | ---------------------------------------------------------------------------------- |
-| Select 在 Dialog 中展开        | 注册为 Dialog 子层，挂到所属弹窗的浮层容器，不盲目丢到 body                        |
-| Escape                         | 先关最上面的可关闭层；关 Select 后再按一次才关 Dialog；IME 组合输入中不抢 Escape   |
-| 点击 Dialog 内容但在 Select 外 | 关闭 Select，Dialog 保持                                                           |
-| 点击 Select 的 Portal 内容     | 仍算 Dialog 内部交互，不能误触发父层 outside                                       |
-| 明确点击 Dialog 遮罩           | 只有允许遮罩关闭时才关 Dialog，同时释放其子层；同一事件不重复派发多次关闭          |
-| 焦点范围                       | 模态 Dialog 的焦点范围包含注册的子浮层，不把 Select 的焦点拉走                     |
-| 恢复焦点                       | 关 Select 回触发点；关 Dialog 回原入口；入口已移除或已打开新模态层时不能强行抢焦点 |
-| 滚动锁与背景不可交互           | 按实际模态层持有数量管理，关内层不能提前解锁外层                                   |
-| 退出动画                       | 关闭请求与物理移除分开处理，避免穿透点击、提前放开焦点或泄漏资源                   |
-| 主题/配置                      | Portal 保留逻辑配置，并显式继承/绑定同一 ThemeScope；不能因为 DOM 搬家丢主题变量   |
-| CSP/SSR                        | 定位和滚动补偿沿用已有样式通道；SSR 不碰 document，不产生跨请求可变层列表          |
+| 操作/责任                      | 默认建议                                                                                                  |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| Select 在 Dialog 中展开        | 注册为 Dialog 子层，显式选择同渲染根内的挂载目标；主题与焦点按父子归属处理                                |
+| Escape                         | 先关最上面的可关闭层；关 Select 后再按一次才关 Dialog；IME 组合输入中不抢 Escape                          |
+| 点击 Dialog 内容但在 Select 外 | 关闭 Select，Dialog 保持                                                                                  |
+| 点击 Select 的 Portal 内容     | 仍算 Dialog 内部交互，不能误触发父层 outside                                                              |
+| 明确点击 Dialog 遮罩           | 一次外部事件只请求最上层关闭；若 Select 在上层则先关它，再次点击才关 Dialog。显式关闭父层时释放其全部子层 |
+| 焦点范围                       | 模态 Dialog 的焦点范围包含注册的子浮层，不把 Select 的焦点拉走                                            |
+| 恢复焦点                       | 关 Select 回触发点；关 Dialog 回原入口；入口已移除或已打开新模态层时不能强行抢焦点                        |
+| 滚动锁与背景不可交互           | 按实际模态层持有数量管理，关内层不能提前解锁外层                                                          |
+| 退出动画                       | 关闭请求与物理移除分开处理，避免穿透点击、提前放开焦点或泄漏资源                                          |
+| 主题/配置                      | Portal 保留逻辑配置，并显式继承/绑定同一 ThemeScope；不能因为 DOM 搬家丢主题变量                          |
+| CSP/SSR                        | 定位和滚动补偿沿用已有样式通道；SSR 不碰 document，不产生跨请求可变层列表                                 |
 
 层管理是 svelte 内部的小型服务，先不做公开的万能 LayerManager 类。组件自己处理业务状态，管理器负责栈、归属与清理。多应用根在同一 Document 时要协调焦点和模态锁；ShadowRoot 的宿主与样式目标要明确。若使用原生顶层弹窗能力，挂载策略必须随之验证，不能假设调高 z-index 就够了。
 
@@ -775,20 +775,20 @@ Dialog 不默认强加“确认/取消”业务流程。ConfirmDialog、SearchIn
 根目录仍是 core/svelte/docs。svelte/src 当前的入口、theme.ts、StyleProvider、runtime/compiler 保留。组件增多时按 controls、overlays、display、navigation、data 分组，内部共享实现放 internal，locale 按实际数据量产生目录；一组放多个 .svelte/TS 文件，不为每个组件创建单文件目录。测试放所属模块 test 中。类型先少量平坦文件，目录按实际文件形成，不一次性生成空骨架。
 
 - 已有：Svelte 原生响应式/context/snippet/attachment、core runtime/Stylis、Lucide。不要叠加第二套样式或 headless 组件运行时。
-- 定位：优先验证 @floating-ui/dom；只在目标挂载时订阅，卸载/重定位时释放。
-- 焦点：对比 focus-trap/tabbable 与 Layer 的职责，选一种策略，不同时运行多套陷阱。
-- 虚拟化：TanStack Virtual 为候选，与 Svelte adapter/核心薄接入比较后决定；先验证活动项可达、动态高度、SSR 与体积，不直接承诺选型。
+- 定位：已采用 @floating-ui/dom；只在目标挂载时订阅，卸载/重定位时释放；输出几何交给 css，不直接写内联 style。
+- 焦点：已采用 focus-trap/tabbable，每个 Document 由 Layer 持有一个有效模态陷阱，关闭和恢复焦点只由 Layer 处理。
+- 虚拟化：已采用 @tanstack/virtual-core 的薄接入，保持 key、活动节点、动态测量和观察器生命周期；10000 项窗口化有真实浏览器探针。
 - 校验：已安装并直接绑定 Zod 4，原生 z 从 @zui/svelte 主入口导出；不再增加多库适配/规则 DSL。Form/Field 调度与深度集成规划见第 3 节，不自动回写转换后的数据。
 - 精确数字与日期领域已安装 decimal.js 和 @internationalized/date；Intl 负责格式化，不假设它提供可靠的任意文本解析或日期算术。
 
-Zod 与 decimal.js 已进入产品 catalog 并安装；其余专项依赖仍在对应基础阶段验证后加入。依据：[Floating UI autoUpdate](https://floating-ui.com/docs/autoUpdate)、[focus-trap](https://github.com/focus-trap/focus-trap)、[TanStack Virtual](https://tanstack.com/virtual/latest)、[Zod API](https://zod.dev/api)。
+上述已采用依赖均进入产品 catalog 并安装；不再并列保留未采用的算法实现。依据：[Floating UI autoUpdate](https://floating-ui.com/docs/autoUpdate)、[focus-trap](https://github.com/focus-trap/focus-trap)、[TanStack Virtual](https://tanstack.com/virtual/latest)、[Zod API](https://zod.dev/api)。
 
 ### 已确认的实施方向与待确认项
 
 1. Field 已确认公开，且标题/帮助/错误移出 Input 等控件；现在讨论字段上下文、原生约束和第三方控件接入，不再讨论是否保留一体 Input。
 2. Zod、触发/清空策略已确认；按用户授权采用推荐的 reset 基线、提交版本、错误生命周期、字段接入与 CSP 初始化规划，见第 3 节。接下来是实现与验收，不另建一套表单 store。
 3. Select/Autocomplete 已确认分开；Select 标准对象默认 id/label，同 key 刷新保留原绑定对象及其展示。下一步讨论远程搜索/分页的数据输入协议，值模型不再重复选择。
-4. 默认值编译登记使用集中清单还是组件内轻量标记；推荐集中清单，源码只保留普通类型/默认值。先做正负类型、动态配置、SSR 和独立包原型再冻结。
+4. 默认值编译已选集中清单，源码只保留普通类型/默认值；原型已通过正负类型、动态配置、SSR 和独立 node_modules 预编译消费。组件实际配置类型随清单生成。
 5. decimal.js 已安装并从主入口导出 Decimal，独立 DecimalInput 的使用形态已采用；剩余精度/编辑草稿/快照/传输等为实现验收，不再讨论多 Decimal 库或万能值适配器。
 
 上面分别标明已确认合同、实施验证和待确认选择；不能把尚待讨论的数据源/组件目录等写成已接受，也不因出现名称就擅自安装依赖或铺开实现。
@@ -808,11 +808,11 @@ Zod 与 decimal.js 已进入产品 catalog 并安装；其余专项依赖仍在�
 
 ## 17. 研究依据与下一步讨论
 
-第一阶段执行计划已经单独收敛为 [架构与基础设施实施计划](svelte-phase1.md)，只记录顺序/交付/门槛并引用本文件的合同。用户要求审阅后开始执行；当前依赖与消费者测试准备不代表第一阶段已开工。
+第一阶段执行计划已经单独收敛为 [架构与基础设施实施计划](svelte-phase1.md)，只记录顺序/交付/门槛并引用本文件的合同。用户已批准并执行第一阶段，当前实现与 CI 证据集中维护在该文件；[第二阶段计划](svelte-phase2.md) 供继续审阅。
 
 Svelte 官方：[state](https://svelte.dev/docs/svelte/$state)、[bindable](https://svelte.dev/docs/svelte/$bindable)、[derived](https://svelte.dev/docs/svelte/$derived)、[context](https://svelte.dev/docs/svelte/context)、[attachments](https://svelte.dev/docs/svelte/@attach)、[泛型与原生属性](https://svelte.dev/docs/svelte/typescript)、[transition](https://svelte.dev/docs/svelte/transition)。对照：[Vue defineModel](https://vuejs.org/guide/components/v-model.html)、[Vue reactive](https://vuejs.org/guide/essentials/reactivity-fundamentals.html)、[React useState](https://react.dev/reference/react/useState)、[React 19 ref](https://react.dev/reference/react/forwardRef)、[React Compiler/memo](https://react.dev/reference/react/memo)。
 
-下一轮先评审基础架构，不再先扩列组件 Props：
+后续审查基础组件时，继续沿用已经验证的约束：
 
 1. 确定配置、组件默认样式和实例样式的解析/层序合同，完成 CSR/SSR/显式 runtime 一致性原型。
 2. 确定字段值、对象身份、空值、原生表单序列化和校验责任；Select 默认整项保持已确认，ID 适配只作为边界能力。

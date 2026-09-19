@@ -1,3 +1,5 @@
+import { on } from 'svelte/events';
+
 /** 局部键盘行为只处理本组件明确消费的键；Escape 统一交给 Layer。 */
 export function keyboardScope(
   element: HTMLElement,
@@ -24,8 +26,8 @@ export function keyboardScope(
       return;
     if (handle(event)) event.preventDefault();
   };
-  element.addEventListener('keydown', keydown);
-  return () => element.removeEventListener('keydown', keydown);
+  // 先运行 Svelte 委托的子元素处理器，使用者 preventDefault 才能取消库行为。
+  return on(element, 'keydown', keydown);
 }
 
 export interface PointerSession {

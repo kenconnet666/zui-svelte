@@ -11,6 +11,8 @@ test('keyboard scopes preserve native editing and IME while pointer capture canc
   await slider.focus();
   await page.keyboard.press('ArrowRight');
   await expect(page.getByTestId('key-count')).toHaveText('1');
+  await page.keyboard.press('ArrowLeft');
+  await expect(page.getByTestId('key-count')).toHaveText('1');
   await slider.dispatchEvent('keydown', { key: 'ArrowRight', isComposing: true, bubbles: true });
   await page.keyboard.press('Control+ArrowRight');
   await page.keyboard.press('Escape');

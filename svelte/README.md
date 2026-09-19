@@ -2,7 +2,7 @@
 
 Svelte 5 组件库工作区，依赖 @zui/core，使用官方 svelte-package 生成发布产物。
 
-当前实现 class 编译插件、运行时桥、SSR 收集，以及 UI 亮暗预设、五档尺度和带主题补全的 css，尚无业务组件。真实 SvelteKit、独立 tarball 与 prerender 的既有基线见 [验收台账](../.design/core-acceptance.md)，本次主题分包由新 CI 验证。组件 API 见 [讨论稿](../.design/svelte-components.md)。
+当前提供 class 编译/SSR 样式桥、UI 亮暗主题、ConfigProvider/StyleProvider，以及字段校验、层/焦点、定位、集合/异步/虚拟化和跨组件交互基础。尚未导出 Button/Input/Dialog 等视觉组件。基础设施的候选与边界见 [第一阶段台账](../.design/svelte-phase1.md)，视觉组件的实施建议见 [第二阶段计划](../.design/svelte-phase2.md)。
 
 - 构建：`pnpm --filter @zui/svelte build`
 - 类型检查：`pnpm --filter @zui/svelte check`
@@ -27,7 +27,7 @@ const nextDay = parseDate('2026-09-19').add({ days: 1 });
 nextDay.toString(); // '2026-09-20'，没有隐式时区转换。
 ```
 
-Form/Field/DecimalInput 尚未实现，当前只是依赖和统一导出接入。独立 Node 后端若不经过 Svelte 编译，可直接从 zod/decimal.js 导入共享规则和数值类型，不强制加载 UI 入口。Decimal 业务值从字符串构造，运算后赋回响应式属性，接口使用明确十进制字符串，不默认转回 number。
+Form/Field 的内部协调器和特殊值快照已实现，公共视觉 Form/Field/DecimalInput 在第二阶段交付。独立 Node 后端若不经过 Svelte 编译，可直接从 zod/decimal.js 导入共享规则和数值类型，不强制加载 UI 入口。Decimal 业务值从字符串构造，运算后赋回响应式属性，接口使用明确十进制字符串，不默认转回 number。
 
 日期公开入口包括 CalendarDate、CalendarDateTime、Time、ZonedDateTime、createCalendar 及 parseDate/parseDateTime/parseTime/parseZonedDateTime。独立后端可直接使用 @internationalized/date；纯日期与时区时间不是同一种业务值。Kit 自定义值传输范例见 tests/kit/src/hooks.ts，完整协议与限制见 [.design](../.design/svelte-components.md#日期类型已接入ssr-传输复用宿主协议)。
 
@@ -153,6 +153,8 @@ Kit 接入会将页面 HTML 的 transformPageChunk 缓存到 done 后插入完�
 ```
 
 Provider 复用当前 runtime，只拥有自己的主题规则与订阅，不销毁传入的 scope。同一 scope 可用于多个容器，卸载其中一个不影响其他容器。`scope.fork()` 才建立主题父子关系，DOM 嵌套不会自动改变 scope 的继承关系；替换 scope prop 会先建立新订阅再释放旧订阅。scope 主动销毁后撤销相应主题规则。
+
+库内 Portal 复用主题 marker 和方向，逻辑 Svelte context 保持不变；它只在同一 Document/ShadowRoot 中移动。跨 ShadowRoot 需要在那里显式挂载带 runtime/StyleProvider 的子树，不能假定外部样式表能够穿透边界。Layer 按 Document 统一焦点陷阱、inert 与滚动锁；同一 Document 的多个宿主须约定相同 nonce 和层级基线。内部服务属于组件实现协议，当前不承诺它们是独立的公共 headless 产品。
 
 容器主题必须与 runtime 使用相同主题 namespace，并包含 runtime 基础主题的全部键及兼容值种类；允许额外键。自定义 Token 应同时配置应用根 runtime / SSR options 与 Provider，不能仅在 Provider 内换一套不兼容 schema。主题规则总是通过 runtime 样式表输出，因此遵守其 nonce，不额外写 style 属性；作者传入的 style 仍受宿主 CSP 策略约束。
 
@@ -293,7 +295,7 @@ SSR 必须通过 renderStyled 或 Kit style handle 收集，初始主题直接�
 内置预设已归属 svelte/src/theme.ts，从 @zui/svelte 导入 css、lightTheme、darkTheme、DefaultTokens；core 只提供标准 CSS、空 baseTheme 和通用主题引擎。Svelte 自动宿主与 SSR 默认亮色，Svelte 显式宿主使用 createStyleRuntime 自动声明 UI 层序；core-only runtime 继续由 core 创建。旧的 @zui/core 预设导出不保留同义转发，避免反向依赖。
 
 ```ts
-import { css, lightTheme, darkTheme } from '@zui/svelte';
+import { css, lightTheme, darkTheme, createStyleRuntime } from '@zui/svelte';
 import { createCss, extendTheme, ThemeScope } from '@zui/core';
 const custom = extendTheme(lightTheme, { color: { brand: '#0f766e' } });
 const runtime = createStyleRuntime({ theme: custom, target: document });
