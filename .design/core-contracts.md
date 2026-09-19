@@ -2,7 +2,7 @@
 
 本文合并早期 core、组合、类型、主题和生产规划，保留已经选择的方案。通用引擎签名见 [core README](../core/README.md)，UI Token 与尺度见 [Svelte README](../svelte/README.md)；编译与宿主配置见 [svelte README](../svelte/README.md)；验收范围保留 [A01–A40](core-acceptance.md)。
 
-下一阶段只增强系统/`_` 主题关键字的成员及字符串入口、类型体验与必要的实现整理，见 [组件规划第 18 节](svelte-components.md#18-coresvelte-编写体验与架构优化阶段待审阅)。独立组件 Token/变量层已取消，主题结构与覆盖边界不重建；下述现行合同尚未被候选方案替换。
+下一阶段采用不可调用的 CSS 属性对象，第三层提供关键字/单位、严格 token 与开放 raw，并完善类型/悬停/生成器及模块整理，见 [组件规划第 18 节](svelte-components.md#18-coresvelte-属性对象类型体验与模块整理待审阅)。独立组件 Token/变量层已取消；下述仍为当前 P1 合同，三段式迁移尚未实施。
 
 ## 样式求值与组合
 

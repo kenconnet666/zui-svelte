@@ -822,46 +822,100 @@ Svelte 官方：[state](https://svelte.dev/docs/svelte/$state)、[bindable](http
 
 经过基础验证后，再冻结 label/snippet、少量 imperative 方法、具体空值与交互默认等组件 API 细节。已确认的易用方向不撤回，新增高级机制只有在真实能力缺口需要时才引入。
 
-## 18. Core/Svelte 编写体验与架构优化阶段（待审阅）
+## 18. Core/Svelte 属性对象、类型体验与模块整理（待审阅）
 
-本阶段重新收敛为：两种现有 CSS 写法的字面量补全与主题引用增强，以及 core/svelte 的类型体验、正确性、实现复杂度、命名和目录整理。用户明确放弃组件 Token/变量/继承/挂载点这一层；不将早先讨论当作后续实施授权。
+本阶段采用新的统一方向：CSS 属性第二层不可调用，第三层以关键字读取或方法调用完成声明；token 是严格入口，raw 是带补全的开放入口。当前提交 5bbf22a 仍是可调用属性的 P1 版本，新方向尚未落地。前一轮 .token() 试点是“可调用对象再加方法”，本轮是删除第二层调用签名，不保留两套长期并行 API。
 
-用户随后批准先做 P1 最小实现：成员/字符串主题引用已共用写入路径，参数类型保留原生和主题字面量候选及原始字符串。Modal 的 widths 仍在组件内维护，值改为带 `_` 的主题引用后直接传入属性函数。生成文档、目录与更广泛的实现整理尚未执行。真实载体的 TS LanguageService 补全已加入回归测试，避免 NonNullable 包装再次吞掉候选。
+组件内部映射、模板内 class 回调、普通 TS 计算和原生 Svelte 写法保持。不恢复独立组件 Token/变量/继承/挂载点，不引入新的样式覆盖框架。本规划覆盖类型/鼠标悬停/生成器、core/svelte 正确性与简化、命名/目录、工具和迁移；不是仅换几个调用名字。尚未开始整阶段实施。
 
-P1 本地验证：相关 9 项单元测试、库构建与 API 合同通过；原生 TS LSP 的公开 dist 消费探针、Svelte LSP 的 Modal 字符串参数各返回 38 个系统/主题候选，映射值提供五档 `_panel` 候选；Modal 语义诊断与 WebStorm 检查无错误。临时探针已清理。全量 CI 仍交推送后的流水线，真实 WebStorm 弹窗体验留给用户试用。
-
-2026-09-20 对照研究：相同开放联合用于直接调用与 `.raw()` 方法时，TS/Svelte 的系统/主题候选相同，悬停仅显示为函数或方法；方法名不提高类型安全。只有将主入口收紧到有限联合、raw 接受原生字符串，才会让主入口拒绝未知主题键，同时也拒绝不在联合中的 calc 表达式。当前保留开放主入口，不新增属性级 raw；已有 s.raw/s.set 保留强制原始输出用途。对照探针已清理，严格入口方案未实现。
-
-### 固定边界与明确舍弃
-
-- CSS 工具只有系统关键字与主题关键字：系统无前缀，主题用 `_`。保留 `s.xx.xx` 和 `s.xx('xx')`，以及原有单位函数、普通 CSS 字符串、TS 函数/switch、class 编译与动态提升。
-- 不新增 `$` 组件关键字、componentTokens/componentVars、变量描述符、组件继承/挂载点、s.tokens 写入接口、Provider tokens 或 ThemeScope components。此前 `.token()` 试点已经回滚，也不恢复。
-- 组件尺度/状态映射由组件内部普通 TS 对象或分支维护。只有确实跨组件共享的数据才提取，不再为了删除一个 widths 对象引入框架层。
-- 不改变主题的类别/键二级结构，不迁移 panelXs 等现有键。ThemeScope、ConfigProvider、class/style/slotProps 的既有职责与 CSS 层序保留；只修重复实现和明确缺陷，不重建覆盖系统。
-- 本阶段不铺开 Button/Form/Select 等后续视觉组件。已有基础设施和布局/浮层的必要修复在范围内；大规模公共 API/协议/目录边界变动仍先举例讨论。
-
-### 唯一新增的 CSS 作者能力
-
-| 类别         | 成员写法                           | 参数写法                            |
-| ------------ | ---------------------------------- | ----------------------------------- |
-| 系统关键字   | `s.inlineSize.auto`                | `s.inlineSize('auto')`              |
-| 连字符关键字 | `s.inlineSize.maxContent`          | `s.inlineSize('max-content')`       |
-| 主题 Token   | `s.inlineSize._panelXs`            | `s.inlineSize('_panelXs')`          |
-| 普通 CSS     | `s.inlineSize.pct(100)` 等单位函数 | `s.inlineSize('calc(100% - 2rem)')` |
-
-参数补全包含当前属性合法的系统字面量和 `_主题键`，同时保留开放字符串。成员用现有 camelCase，参数关键字是原生 CSS 拼写；不把 'maxContent' 自动翻译为 max-content，不把 'panelXs' 猜成主题键。声明来自锁定 csstype/schema/主题数据，不另维护手写全量清单。
-
-推荐将完整 `_key` 参数与 `._key` 统一到既有主题引用路径，保留 TokenUse、namespace、宿主兼容检查与纯主题变量更新行为。只识别完整标记，不 trim 后猜测、不替换 calc/url/content 内部片段。未知的完整主题引用应报清楚的运行时错误；由于字符串类型开放，不能承诺所有拼写错误都有静态诊断。
-
-任意字符串透传仍受现有声明边界校验，不能注入另一条 CSS 声明；浏览器是否接受其语法另论。`_name` 也可能是合法原生自定义标识符，使用现有 `s.raw('animation-name', '_name')` 强制原样输出。s.set 保持原生值语义。`$...` 不再是保留的组件引用，按普通 CSS 字符串对待；系统不会为它补全或承诺它是有效 CSS。
-
-null/undefined 仍省略，数值与单位参数约束不放宽。无主题时不补不存在的主题键；extendTheme、新增数字键、可选 PropertyTokenMap 的安全交集均保留。不能用 any/宽索引签名掩盖类型错误，也不追求模板字符串内部片段的补全。
-
-### 组件内部写法与覆盖边界
+### 目标作者合同
 
 ```ts
-// 组件专用映射继续留在组件内；显式约束改善编辑时的值候选。
-type SizeToken = `_${keyof DefaultTokens['size'] & string}`;
+s.inlineSize.auto;
+s.inlineSize.maxContent;
+s.inlineSize._panelXs;
+s.inlineSize.px(240);
+s.inlineSize.pct(100);
+s.inlineSize.token('auto');
+s.inlineSize.token('max-content');
+s.inlineSize.token('_panelXs');
+s.inlineSize.raw('auto');
+s.inlineSize.raw('_panelXs');
+s.inlineSize.raw('calc(100% - 2rem)');
+s.opacity.raw(0.5);
+```
+
+- s.inlineSize 是普通不可调用属性对象，移除调用签名；获取对象不写 CSS。关键字/主题成员为只读终结操作，token/raw/单位函数返回 void，不返回链式 builder。
+- `s.inlineSize('auto')`、未知成员、`token('_missing')`、`token('calc(...)')`、终结后继续样式链应产生类型错误。token 运行时也校验，用于 JS 或被强制转换的输入。
+- token 只接受当前属性的已知系统字符串字面量与 `_主题键`；参数保留真实 CSS 拼写，如 max-content，不反向猜 camelCase。强校验针对已知枚举，不声称完整验证所有 CSS 语法。
+- raw 仍提示相同系统/主题候选，额外接受普通 CSS 字符串与该属性原来允许的数值；不是 any，也不能让所有长度属性任意接收无单位 number。null/undefined 推荐沿用省略语义，不能放宽有效值的范围。
+- raw 按已知完整 `_key` 解析主题，其他字符串原样进入既有值校验，作为开放逃生舱。因此 raw('_typo') 可以不报错但被浏览器忽略，拼写检查应使用 token；不得宣称 raw 中所有错误都有诊断。raw 是“开放值”而非“禁止主题解析”。
+- 主题键和原生下划线标识符重名时，现有 s.raw/s.set 提供明确的纯原始输出；raw 中不扫描/替换 calc、url、content 的内部片段。原有注入/边界/非有限数值检查保留。
+- CSS 属性三段式不强套到 _selector/_media/_hover、自定义属性和其他已有辅助 API。单独的 `s.width;` 属于 JS 合法的无效果读取，可借 lint 提示，不增加专用语言语法。
+- 保留主题类别映射 PropertyTokenMap；可选映射仍按安全交集处理。只有系统/主题两类关键字，`$` 没有组件语义。
+
+### 现有证据与下一步基线
+
+原生 TS/Svelte 探针已确认：不可调用对象的第三层候选包含系统/主题成员、token/raw/单位；token 和 raw 参数均能提示已知键；第二层调用、未知严格键、严格入口任意表达式、void 后继续链式操作被拒绝。当前全部生成关键字/单位没有 token/raw 命名冲突，但生成脚本必须持续检测，不能把一次检查当作永久保证。
+
+真实载体的当前 P1 还验证了 NonNullable 包装可吞掉开放联合的字面量候选；回归测试已加入。已知体验缺口包括悬停展开中间泛型、主题成员仅 void、单位参数 values_0、JSDoc 只保留 Baseline 首行、MCP 丢弃补全详情。新阶段保留这些证据，先测新声明在真实源码/发布产物中的表现，不用孤立接口探针冒充产品完成。
+
+### 类型结构与鼠标悬停
+
+1. carrier.ts/Carrier 当前表达“可调用载体”；随实质结构变更推荐改为 property.ts/CssProperty。公共 StyleBuilder/StyleFactory 名称保持，无收益的内部泛型重命名不批量做。
+2. 将属性对象定义为普通方法/只读成员集合；在通用属性语义中区分系统值、主题键、单位参数。使用具名类型控制公开悬停长度，不用 any/宽 string 索引或深层递归换取短表象。
+3. token 的闭合联合与 raw 的开放联合分开生成/组合。不能从包含 string 的 Native 类型直接得到“强校验”；也不能加回会吞补全的 NonNullable 包装。strict string、动态有限联合、普通 string、数字和 null/undefined 均有正负例。
+4. 原生 CSS 值、参数允许的值与成员别名是两份视图：字符串使用 max-content/-webkit-*，成员使用 maxContent/Webkit 等既有规则。不可直接用 keyof 成员表充当 token 参数值。
+5. 主题键来自实际 Theme 类型，保留 extendTheme、新增数字键与自定义类别的精确推导。不同属性只补相关类别，无主题时不提供虚构主题键。
+6. 主题成员应尽量展示来源类别、用途、声明默认值/引用目标与定义位置。默认值不等于当前 ThemeScope 的 computed style；一般用户主题的映射类型若无法保留逐键 JSDoc，不虚构精确说明，先在原型中验证可达性。
+7. Svelte Props/事件/snippet/bind/slotProps 的说明来自组件源码；保留 ComponentProps/Pick/Omit 和 $props 默认值。声明与 source map/定义导航要覆盖公开 dist 和外部消费，不能只在源码别名下好用。
+
+期望悬停的内容目标（示意，实际形式受 IDE 影响）：
+
+```text
+inlineSize — 元素在行内轴方向上的尺寸
+允许：系统关键字、size 类别主题 Token、长度单位
+
+inlineSize.token(value: InlineSizeToken): void
+严格写入已知系统值或主题引用；未知键报错
+
+inlineSize.raw(value: InlineSizeValue): void
+开放 CSS 值；保留系统/主题候选，已知主题键仍解析
+
+inlineSize.px(value: number): void
+以 px 写入行内尺寸
+```
+
+参数名必须符合具体语义：物理 padding/margin 简写的上下/左右、逻辑 start/end、gap 的 row/column 和圆角轴向不能统统叫 block/inline。由少量语义覆盖数据配合生成器命名，无法确定时使用中性而准确的名称。
+
+### 类型生成脚本与单一来源
+
+| 位置                                                 | 计划                                                                            | 保持的边界                                                                       |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| scripts/generate-css.mjs                             | 扩展原始字面量集合、合法成员别名、单位签名、JSDoc 和命名冲突检查                | 继续读锁定 csstype + schema，稳定排序/去重，不手写数百属性或构建时抓网页         |
+| core/src/css/schema.ts                               | 保存必要的单位/类别/参数语义覆盖                                                | 只补不能可靠自动推导的语义，不变成第二套完整 CSS 数据                            |
+| metadata/properties.generated.ts                     | runtime 闭合值校验与声明共用同一来源                                            | 分组去重必须同时考虑原始值与成员别名，防止类型允许而运行时拒绝                   |
+| svelte/src/compiler/components.ts + svelte/build.mjs | 改善组件默认配置类型生成、命名与注释保留，产物改为 component-types.generated.ts | 不复制组件 Props，不创建另一份 fallback/defaults 表，冷启动可构建                |
+| 可选 generate-theme-types.mjs                        | 仅在通用映射无法提供足够悬停文档时，为内置主题生成有注释的类别声明              | 先原型证明收益；不强迫业务执行 typegen，不运行任意业务模块，不新增运行时主题副本 |
+| scripts/language-services/verify.mjs 与现有类型测试  | 固化属性对象、严格/开放参数、悬停与定义样本                                     | 使用虚拟/自清理探针，既检查候选存在，也检查不应存在的候选                        |
+| scripts/measure-types.mjs / verify-contracts.mjs     | 更新 500 Token 类型/内存/补全基线与对象式 API 快照                              | 沿用预算，不因类型变复杂而直接提高门槛                                           |
+
+生成 JSDoc 优先提取属性用途/示例/链接，不再只取第一行兼容性文字；保留上游归属。不会为生成类型新增一个必须常驻的服务。若拆分脚本，只按稳定职责拆为少量模块，不创建一层层仅转发的工具目录。
+
+### core 实现与正确性
+
+- 属性对象由 Proxy 普通对象承载，取消函数 target；对象按 builder/属性缓存，保留 then/Symbol/自有属性边界，不额外暴露函数的 call/apply/bind 原型成员。
+- 系统成员/token、主题成员/token/raw、原始值/raw 分流到少量共享写入路径；所有实际主题引用都记录 TokenUse，保持 namespace/宿主兼容检查。严格入口和开放入口的不同仅在接受值规则，不重复维护两份主题解析器。
+- token 的类型与运行时合法值同源；来自 JS/any 的非法输入仍清楚报错，包含属性、类别、值上下文。raw 仍检查声明边界，但不成为不完整 CSS 语法验证器。
+- 声明顺序、重复回退、important、嵌套选择器、哈希/缓存、自动动态提升与生命周期保持。只在证明重复或有问题后精简校验/分配，不删异常恢复、资源所有权或请求隔离。
+- 主题结构、ThemeScope、tokenRef 与亮暗预设不重写，不加入组件 Token。纯主题引用仍随变量更新，不能把新 API 变成每次重建主题对象。
+- 检查新声明是否改变模块快照或编译协议；按真实序列化变化决定版本，而不是逢重构一律升级。旧 runtime 执行新作者 API 会失败，workspace/产物必须协调重建并更新兼容声明。
+
+### Svelte 接入与迁移
+
+组件内部映射保留：
+
+```ts
 const widths = {
   xs: '_panelXs',
   sm: '_panelSm',
@@ -869,66 +923,63 @@ const widths = {
   lg: '_panelLg',
   xl: '_panelXl',
   full: '_full',
-} as const satisfies Record<Size | 'full', SizeToken>;
-
-// 新参数语义实现后，局部映射直接保存可调用的值，不另包转换函数。
-s.inlineSize(widths[size]);
+} as const;
+s.inlineSize.token(widths[size]);
 ```
 
-这只是迁移示例，尚未修改组件。若映射对象的初始化位置没有良好补全，可按实际效果用已有 keyof 组合或由主题推导的小型具名类型进行 satisfies 约束；不先新增庞大的公开类型 DSL。另一种合法形态仍是映射保存 panelXs，然后使用 theme.ref；不强制为了统一写法批量迁移。
+仅 CSS 调用形态改变，默认值仍放 $props，局部类型/常量/分支/样式留在组件中。ConfigProvider 的默认参数、ThemeScope 的主题与 class/style/slotProps 覆盖及层序保持，不重建覆盖体系。
 
-ThemeScope 负责主题视觉值与亮暗，ConfigProvider 负责白名单默认参数和现有整类 class/slotProps，实例使用 class/style/slotProps 定制。三个既有层 zui.components/defaults/app 保留。公共主题尺度不足时仍可普通 extendTheme，不把业务命名的主题键升级成新的组件 Token 种类。
+| 旧用法                             | 迁移目标                                      |
+| ---------------------------------- | --------------------------------------------- |
+| s.width('auto')                    | s.width.auto 或 s.width.token('auto')         |
+| s.width('_panelMd')                | s.width._panelMd 或 s.width.token('_panelMd') |
+| s.width('100%')                    | s.width.pct(100) 或 s.width.raw('100%')       |
+| s.width(theme.ref(...))            | s.width.raw(theme.ref(...))                   |
+| s.width(宽 string 表达式)          | s.width.raw(表达式)                           |
+| s.width(已知有限键联合)            | s.width.token(表达式)                         |
+| 单位函数/关键字成员/选择器辅助方法 | 保留                                          |
 
-### 类型、悬停与补全工作
+迁移范围包含 core/svelte 源码、所属测试、Docs 真实 Demo、SSR/HMR/包外夹具、性能/生成脚本内嵌示例和 README。不得正则批量替换所有形如 s.foo() 的调用；优先 TS/Svelte AST + 类型/绑定归属，保护 selector/custom/set 等 helper 以及无关业务对象。若用 codemod，应有 check/write 两种模式，不能确定严格键时保守迁到 raw 并列清单人工复核。
 
-已有实测证据：`_full` 悬停仅 void，单位参数为 values_0，属性悬停展开多层 ResolveDefinition/NormalizeKeys/MergeDefinitions；生成器只取上游注释首行，有些只剩浏览器兼容性描述。明确字面量加开放字符串的探针能返回候选，直接 `字面量 | string` 的探针没有返回候选。优化以实际项目语言服务为准，不以“类型可编译”代替体验。
+用户正在编辑的 Modal 保留独立工作区改动，迁移时先核对差异。私有包阶段不长期兼容第二层直接调用，否则补全又回到两种入口；提供迁移说明而非隐藏兼容层。
 
-1. 参数保持已知字面量候选与开放字符串并存；先在锁定版本上验证一个属性，再由生成器覆盖标准/vendor/SVG 属性，保留原有原生类型范围。
-2. 改善公开签名/类别别名/接口命名，减少悬停中的内部类型展开；不重复生成每个主题的 857 份属性，不引入更深的条件类型。跨文件声明和发布 dist 同时验证。
-3. 属性 JSDoc 优先说明用途，补单位、参数数量、Token 类别和来源链接；兼容性文字作为附加内容。保留上游归属和可重复生成，不在构建时抓网页。
-4. 单位函数参数采用 value、block/inline 等准确名称；保留单/双/四值的合法范围。标准关键字、raw、custom、set、辅助方法的发现性与命名一并审计，但不批量增加同义 API。
-5. 主题 Token 尽量显示类别、用途、声明默认值/引用与定义位置；不能把默认值写成 ThemeScope 运行结果。生成数据不能成为第二份手写主题；对通用映射类型无法提供的逐键文档如实记录限制。
-6. Svelte Props/事件/bind/snippet/slotProps 的说明和导航应来自组件源码；保留 ComponentProps/Pick/Omit 组合与 $props 默认值，不引入统一基础 Props 或单独默认值对象。
-7. 典型场景同时比较 TS、Svelte、WebStorm 查询、原生 LSP、公开 dist 与外部包消费；WebStorm 弹窗体验需要首个小样用户确认，MCP 空问题列表不是完整语义通过。
+检查 class 编译、source map、HMR、模块样式和默认参数转换是否依赖旧调用结构；审计 mergeProps/slotProps 重复逻辑、Symbol attachment 与事件顺序，保持真实语义。Modal/Popup 的共享生命周期和较长 layers.ts 按职责审核，不拆走局部 CSS、不引入 BaseComponent，也不顺带实现新业务组件。
 
-### core 与 Svelte 的实现审计
+### 命名与目录目标
 
-| 范围                   | 检查重点                                                              | 允许的精简与边界                                                           |
-| ---------------------- | --------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| core 声明收集/属性载体 | 成员和参数的关键词/主题值处理、错误上下文、TokenUse                   | 共用主题引用写入逻辑，避免两条路径；不取消声明顺序/重复回退/单位约束       |
-| core 主题与运行时      | 类型与运行时同源、覆盖失败原子性、绑定/资源释放、缓存边界             | 先确认重复校验/分配是否必要再合并；不删异常恢复或 SSR 请求隔离             |
-| core 公共入口          | 内部协议导出与业务补全噪声、类型签名可读性                            | 先用文档/明确命名/稳定入口处理；新增子入口属大改动，不默认执行             |
-| Svelte 编译            | class/source map/HMR、默认 Props 转换、源码与发布模式                 | 仅消除已证明等价的重复遍历/转换；不增加新元编程机制                        |
-| Svelte 配置与转发      | defaults 合并、class/style/slotProps、Symbol attachment、事件顺序     | 共用已有合并工具；不把普通业务对象深合并，不自动串联事件                   |
-| Svelte 布局与浮层      | Dialog/Drawer/Modal 与 Popover/Tooltip/Popup 复用、Portal/焦点/滚动锁 | 保持普通组件组合和局部 CSS；按所有权提取真正共享操作，不引入 BaseComponent |
-| 工程与发布             | 生成文件清理、源码条件与 dist、导出边界、合同预算                     | 消除失效脚本/重复配置必须有使用证据；不顺带升级依赖或抬预算                |
+确定与此改动有直接关系的调整：carrier.ts/Carrier → property.ts/CssProperty；component-types.ts → component-types.generated.ts；生成别名 C0/P0 改为可读的组件名。同步生成脚本、契约快照、导入/导出与构建清理，避免生成文件误当手写文件。
 
-审计项不是已确认缺陷。每次重构先给出现有职责、具体重复/问题及修改收益；不能因文件长就拆分，不能为减少行数损害清理、可访问性或错误定位。发现超出局部修改的方向时先展示同一场景前后 API、兼容性和迁移量，再讨论。
+core 保持 css/theme/runtime，生成文件放所属模块。svelte 保持 compiler/runtime/layout/overlays；internal.ts 的协议入口与 internal/ 中的表单/集合混放是待审计项，可按真实依赖迁至 forms/collections，少量跨域工具才留 shared。text.ts 混合职责、Panel.svelte → OverlayHost.svelte、layers.ts 的滚动锁/焦点分工先检查消费者与生命周期再决定，不为目录数量凑文件。
 
-### 语言工具与目录整理
+不默认重构公共包入口、主题数据树、整个层管理系统或所有 Provider。对于确有价值的大改动，先提交同一场景的前后 API、依赖变化、迁移量与验证方案，另行讨论。
 
-zui_lsp 的 completions 保留必要的 documentation、labelDetails、insertText/textEdit、sort/filter、isIncomplete，并按服务能力按需解析少量候选详情，不一次 resolve 全量属性。hover/定义位置、失败/超时和空结果保持可区分；不另造语言服务器，也不通过改 MCP 输出伪装 IDE 体验改善。
+### MCP/LSP 与验证能力
 
-core 的 css/theme/runtime 结构保留。carrier.ts/Carrier 是否更名以悬停和维护收益为准，不为统一名词造成大面积噪声。生成文件继续放所属模块，保持单元测试归属。
+保留项目级工具配置，先轻量验证当前会话。补全桥保留 documentation/labelDetails/textEdit/insertText/sort/filter/isIncomplete，并按能力按需 resolve 有限候选；hover/定义/超时与空结果分清。修复桥的结果保真不等于改进 IDE，WebStorm 的真实悬停弹窗仍需用户试用。
 
-svelte 保留 compiler/runtime/layout/overlays。优先审计 internal.ts 协议入口与 internal/ 混合设施的命名冲突；表单/字段/路径、集合/异步/虚拟化可按真实消费者归属 forms/collections，确实跨域的少量工具才放 shared。先画依赖关系再迁移，不创建单文件目录或空文件凑数量。
+长会话已出现旧声明和 Svelte 虚假语法诊断：先验证文件监听/缓存刷新及服务所有权，再决定是否增加受控的刷新机制。不能用频繁重启掩盖产品类型问题，不能杀掉无关 Node/IDE 进程，也不新增另一套语言服务器。
 
-component-types.ts 建议改为 component-types.generated.ts，并将 C0/P0 这类生成别名改得易读；同步构建/清理/导出路径。Panel.svelte 是否改 OverlayHost.svelte，layers.ts 是否拆滚动锁/焦点隔离，作为带证据的局部审计项，不预先承诺全部改名。
+测试文件的语言服务归属也纳入审计：core 的源码测试在原生 LSP 中曾缺少 node 类型，而使用 core/tsconfig.check.json 的单文件检查正常。不能把服务项目选择问题误判为产品错误，也不能为了测试把 Node 类型注入浏览器生产声明。此前补全测试的 LanguageServiceHost.useCaseSensitiveFileNames 被 CI 检出布尔值/函数签名不匹配，已定点修复并通过实际检查配置与该测试；全量结果仍以新 CI 为准。
 
-### 实施顺序与验收
+完整验收矩阵：
 
-| 批次          | 工作                                                               | 完成条件                                                    |
-| ------------- | ------------------------------------------------------------------ | ----------------------------------------------------------- |
-| P0 基线       | 典型悬停/补全/诊断/定义样本，公开产物与现有性能预算                | 真实 TS/Svelte 工具结果；确认缓存和包解析路径               |
-| P1 最小增强   | 系统/主题字面量候选，`_key` 参数与成员同语义，原始值逃生舱         | 正负例、CSS 输出/依赖一致；用户确认 WebStorm 的真实补全体验 |
-| P2 提示完善   | 生成文档、单位参数、公共类型、组件 Props/slotProps 和 MCP 信息保真 | 源码/dist/外部消费有效，500 Token 类型与补全预算不退化      |
-| P3 局部完善   | 实际缺陷、重复实现、少量组件内部映射迁移                           | 修改均有收益证据；生命周期/SSR/Portal/覆盖行为保持          |
-| P4 目录与交付 | 必要命名/目录整理、清除过期规划、更新合同和说明                    | 导入/生成/打包一致，完整 CI 和候选产物通过                  |
+- 第二层不可调用/无写入，第三层成员和方法终结；不存在主题/未知成员/未知 token 报错。
+- 标准/vendor/SVG 字面量、真实 CSS 拼写、单位参数与数值、null/undefined、动态有限联合与宽 string。
+- raw 的系统/主题候选和任意字符串、未知 _ 前缀的透传、明确纯原始逃生、CSS 颜色/url/content/calc 与声明注入边界。
+- 用户扩展主题、数字键、自定义类别、可选映射安全交集、主题切换与 TokenUse/SSR 宿主校验。
+- 源码/公开 dist/外部 tarball 的 TS 与 Svelte 补全、悬停、定义导航和 Props/slotProps；大主题 500 Token 的耗时/内存/声明体积。
+- CSS 顺序/层/important、动态提升/结构切换、HMR、Portal/焦点/清理、SSR/hydration/CSP；与现有 CI 验收保持一致。
 
-核心验收矩阵：系统 CSS 值的原始拼写；原有单位和数值范围；`._key` 与 `('_key')`；空主题/用户扩展主题/数字键/属性类别重映射；原始下划线标识符；null/undefined/未知引用；hash/动态提升/重复声明与层叠；模块编译/SSR/hydration/CSP/HMR；配置继承、slotProps/附件/事件；实际组件中的映射值输入；源码/Docs dist/tarball 的悬停补全与导航。
+### 分批交付与审阅边界
 
-本地只做当批关键验证，必要时构建库声明供真实消费者与 IDE 使用；完整仓库类型/测试/构建/三浏览器/SSR/包消费交 CI。沿用现有类型/分发与回收预算，记录 500 Token 冷暖耗时，不承诺未经测量的性能提升，不因失败自动抬门槛。每批中文提交推送，推送前检查上一轮具体结果；运行中的 CI 不等待、不轮询。
+| 阶段                | 交付                                                          | 门槛                                                        |
+| ------------------- | ------------------------------------------------------------- | ----------------------------------------------------------- |
+| P0 合同与基线       | 冻结 token/raw 值处理规则、样本和迁移清单                     | 已知值/未知值/原始值/空值行为可说明，记录当前预算           |
+| P1 真实属性对象试点 | 生成闭合值/对象式声明、token/raw 运行时和少量真实消费样例     | 原生 TS/Svelte 工具与 WebStorm 实际体验通过，非仅 mock 接口 |
+| P2 提示和生成完善   | 属性/单位/主题/Props 文档、公开签名、必要的生成脚本与工具保真 | 悬停有用、补全稳定，冷启动生成与发布声明正确，预算不退化    |
+| P3 协调迁移         | 源码/Docs/所有夹具迁到第三层操作，保持组件内部映射            | 不残留第二层 CSS 调用，辅助方法/业务调用不误改，产品可构建  |
+| P4 局部精简与整理   | 有证据的重复实现、命名/目录整理，更新公共文档与合同           | 行为不变，完整 CI/包消费/浏览器验收与产物通过               |
 
-### 本轮审阅结论边界
+P1 到 P3 的跨层变更应作为可构建的协调候选，不能先推送破坏全部消费者的核心半成品；中途可用隔离的编译/类型夹具验证。每个可构建阶段中文提交推送；本地只做相关关键检查，必要时 build:libs 更新 IDE 消费声明，全仓矩阵交 CI。推送前检查上一轮结果，运行中的 CI 不等待/不轮询，不因预算失败自动提高阈值。
 
-已确认舍弃组件 Token 层，已明确新 CSS 能力范围。以上是重新收敛的实施规划，不是已开始执行。无需再选择组件变量继承、挂载、描述符和覆盖 API。主题结构/公共入口/全新配置机制等大重构不在默认范围内，只有发现明确问题后才另行讨论。
+用户已选择统一三段式、严格 token 与开放 raw 的方向；本文是完整实施规划。raw 对未知 _ 值的透传、纯原始 helper 例外、nil 省略等为推荐合同，实施前一起确认；未授权恢复组件变量层或扩大为整库无边界重写。当前工作区仍可试用上一版 P1，规划提交不会覆盖它或用户编辑。

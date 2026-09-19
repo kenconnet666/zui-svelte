@@ -56,4 +56,4 @@
 
 - 本项目的 zui_lsp 与官方 svelte MCP 使用项目级配置；.codex/config.example.toml 随 Git 保存，setup.ps1 生成忽略的本机 config.toml，明确 Node/仓库绝对路径，不再注册到全局。依赖均为根开发依赖。WebStorm 与独立 LSP 共用版本但独立进程，IDE MCP 空诊断不能替代 LSP 语义复核。换机运行 scripts/language-services/setup.ps1 -Verify，按 .design/language-services.md 信任项目、配置 IDE 并重载 Codex，检查实际原生工具。
 
-- 下一阶段以 .design/svelte-components.md 第 18 节的最新收敛规划为准：用户已放弃独立组件 Token/变量/继承/挂载点方案，CSS 工具仅保留系统关键字与 `_` 主题关键字，增强成员及字符串入口的字面量补全。组件映射由组件内部普通 TS 维护；不新增 `$`、componentTokens/componentVars、s.tokens、Provider tokens 或 ThemeScope components。此前 `.token()` 试点已回滚。继续规划类型/悬停/补全、生成器/MCP/LSP、core/svelte 必要修复与实现精简、命名目录审计；沿用现有样式覆盖体系，大重构先举例讨论。当前只是重新规划，不能视为已经批准实施整个阶段。
+- 下一阶段以 .design/svelte-components.md 第 18 节为准：用户选定 CSS 属性第二层不可调用，第三层关键字读取/单位函数/token/raw 终结；token 严格接受系统字面量与 `_` 主题键，raw 保留相同候选并开放 CSS 字符串。当前 5bbf22a 仍是可调用属性的 P1，三段式迁移尚未实施。独立组件 Token/变量/继承/挂载点及 `$` 方案已取消，映射由组件内部 TS 维护；不新增覆盖框架。规划同时完善类型/悬停、同源生成器、MCP/LSP、core/svelte 实现精简与命名目录审计；大改动先举例讨论，保护用户工作区编辑，不将规划汇报当作已完成实施。
