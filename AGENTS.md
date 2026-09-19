@@ -45,3 +45,5 @@
 - 用户已接受入口隔离：业务从 @zui/svelte 统一导入，compiler/server/internal 保留构建期、Node SSR 和生成代码协议边界，不将 Node 专用实现静态并入浏览器入口。
 - 精确十进制已选择 decimal.js，作为 svelte 直接依赖并从 @zui/svelte 导出原生 Decimal；规划独立 DecimalInput 绑定 Decimal | undefined，NumberInput 继续 number。精确参数/传输用字符串，不走 Number/parseFloat/toNumber，不新增万能值适配器；DecimalInput 与表单特殊值支持尚待实现。
 - Select 对象默认读取 id/label，非标准对象用 getKey/getLabel，不猜字段名；options 刷新同 key 时保留绑定对象和该对象的选中展示，缺项也不自动清空。Autocomplete 独立绑定自由文本，复用集合/搜索/浮层基础，不混入 Select 的对象值模型。
+- 日期使用已安装的 @internationalized/date，日期/时间值与解析函数从 svelte 主入口导出；@axe-core/playwright 仅供 docs 开发/CI。docs 通过公开 dist 入口消费库，不启用 zui-source 或相对导入库 src；开发前先 build:libs，源码联调由专门 HMR 夹具验证。
+- 当前仅完成依赖、消费者与 CI 验收准备；第一阶段架构/基础设施计划见 .design/svelte-phase1.md，须用户审阅后才开始正式阶段实施，不将本轮消费夹具冒充公共 Form/Field/DecimalInput 等组件实现。

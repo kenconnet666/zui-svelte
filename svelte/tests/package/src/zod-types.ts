@@ -1,4 +1,4 @@
-import { Decimal, z } from '@zui/svelte';
+import { CalendarDate, Decimal, parseDate, parseZonedDateTime, z } from '@zui/svelte';
 
 // 独立安装包只依赖 ZUI，仍应得到原生 Zod 的值与输入/输出类型。
 const schema = z.object({ quantity: z.string().transform(Number) });
@@ -20,3 +20,9 @@ const rounding: Decimal.Rounding = Decimal.ROUND_HALF_UP;
 const invalidAmount: z.output<typeof decimalSchema> = '0.3';
 
 void [sum, rounding, invalidAmount];
+
+const date: CalendarDate = parseDate('2026-09-19').add({ days: 1 });
+const zoned = parseZonedDateTime('2026-09-19T09:30[Asia/Shanghai]');
+// @ts-expect-error 日期领域值不自动退化为带时区的原生 Date。
+const invalidDate: Date = date;
+void [zoned, invalidDate];

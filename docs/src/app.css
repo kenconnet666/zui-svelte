@@ -107,6 +107,7 @@ main {
   color: var(--muted);
 }
 .badge {
+  color: #51596e;
   padding: 5px 9px;
   background: #eceef5;
   border-radius: 6px;

@@ -3,6 +3,8 @@
   import { ThemeScope } from '@zui/core';
   import { css, lightTheme } from '@zui/svelte';
   import { StyleProvider } from '@zui/svelte';
+  import type { Values } from '../../value-fixture.js';
+  let { data }: { data: Values } = $props();
   const scope = new ThemeScope(lightTheme, { color: { text: 'red' } });
   const child = scope.fork({ color: { text: 'blue' } });
   onDestroy(() => scope.dispose());
@@ -12,6 +14,9 @@
   >Change package theme</button
 >
 <StyleProvider {scope} as="article">
+  <p data-testid="prerender-values">
+    {data.amount.plus('0.20').toFixed(2)} / {data.day.toString()}
+  </p>
   <div
     data-testid="prerender-target"
     class={css((s) => {

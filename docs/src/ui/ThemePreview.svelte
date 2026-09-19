@@ -1,4 +1,5 @@
 <script lang="ts">
+  // 文档示例只消费包公开入口，也供浏览器回归复用。
   import { onDestroy } from 'svelte';
   import { overrideTheme, ThemeScope } from '@zui/core';
   import { css, lightTheme, darkTheme } from '@zui/svelte';

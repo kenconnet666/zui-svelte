@@ -13,19 +13,23 @@ Svelte 5 组件库工作区，依赖 @zui/core，使用官方 svelte-package 生
 
 ## 导入与运行环境
 
-业务组件、公共类型、主题 css、Zod 和 Decimal 统一使用主入口；不再按 Button/Form/主题等拆分业务子入口。已安装并直接导出原生 Zod 4 和 decimal.js：
+业务组件、公共类型、主题 css、Zod、Decimal 和日期类型统一使用主入口；不再按 Button/Form/主题等拆分业务子入口。已接入 Zod 4、decimal.js 和 @internationalized/date：
 
 ```ts
-import { Decimal, z, css, lightTheme } from '@zui/svelte';
+import { Decimal, parseDate, z, css, lightTheme } from '@zui/svelte';
 
 const schema = z.object({ name: z.string().min(2, '名称至少两个字符') });
 type Model = z.input<typeof schema>;
 
 const amount = new Decimal('0.1').plus('0.2');
 amount.toFixed(2); // '0.30'；传输保留字符串。
+const nextDay = parseDate('2026-09-19').add({ days: 1 });
+nextDay.toString(); // '2026-09-20'，没有隐式时区转换。
 ```
 
 Form/Field/DecimalInput 尚未实现，当前只是依赖和统一导出接入。独立 Node 后端若不经过 Svelte 编译，可直接从 zod/decimal.js 导入共享规则和数值类型，不强制加载 UI 入口。Decimal 业务值从字符串构造，运算后赋回响应式属性，接口使用明确十进制字符串，不默认转回 number。
+
+日期公开入口包括 CalendarDate、CalendarDateTime、Time、ZonedDateTime、createCalendar 及 parseDate/parseDateTime/parseTime/parseZonedDateTime。独立后端可直接使用 @internationalized/date；纯日期与时区时间不是同一种业务值。Kit 自定义值传输范例见 tests/kit/src/hooks.ts，完整协议与限制见 [.design](../.design/svelte-components.md#日期类型已接入ssr-传输复用宿主协议)。
 
 | 路径                 | 使用者与边界                                                          |
 | -------------------- | --------------------------------------------------------------------- |

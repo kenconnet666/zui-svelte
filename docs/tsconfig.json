@@ -5,7 +5,6 @@
     "checkJs": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,
-    "customConditions": ["zui-source"],
     "types": ["svelte", "vite/client", "node"]
   },
   "include": [

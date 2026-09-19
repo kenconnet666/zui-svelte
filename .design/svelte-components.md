@@ -185,6 +185,27 @@ total.toFixed(2); // '59.70'；接口边界保留字符串。
 
 依据：[decimal.js API](https://mikemcl.github.io/decimal.js/)、[不可变运算](https://github.com/MikeMcl/decimal.js)、[big.js](https://github.com/MikeMcl/big.js)、[Zod codecs](https://zod.dev/codecs)、[Svelte 类实例](https://svelte.dev/docs/svelte/$state#Classes)、[TC39 Decimal 提案](https://tc39.es/proposal-decimal/)。
 
+### 日期类型已接入，SSR 传输复用宿主协议
+
+已安装 @internationalized/date 并从 @zui/svelte 导出 CalendarDate、CalendarDateTime、Time、ZonedDateTime、createCalendar 和对应 parse 函数。它是独立日期工具，不引入 React 组件；DatePicker/Calendar 的视觉与交互尚未实现。纯日期、纯时间、本地日期时间和时区时间保持不同语义，不统一强制转换成原生 Date。
+
+SSR 采用明确的边界，不建立新的通用序列化框架：
+
+| 消费方式                    | 处理                                                                                                   |
+| --------------------------- | ------------------------------------------------------------------------------------------------------ |
+| 普通 Svelte/Vite + JSON API | DTO 与领域对象通过 Zod codec/显式函数转换；不会因安装日期库就自动反序列化                              |
+| SvelteKit load/actions      | 在 universal hooks.ts 登记原生 transport；服务端 encode、浏览器 decode，都通过公共 UI 入口获得同一类型 |
+| 普通 Node renderStyled      | 渲染本身可接收领域实例，但应用自行负责提供给客户端的数据编码/还原；不能假装 HTML 输出携带类原型        |
+| SSR 请求与配置              | 编解码函数保持无请求可变状态；不通过全局 locale/Decimal.set/时区设置重建每次请求配置                   |
+
+真实范例见 [Kit hooks.ts](../svelte/tests/kit/src/hooks.ts)。成功编码返回数组，即使值为零/午夜也不会被 transport 当作未匹配；不匹配返回 false。Decimal 使用保留负零的字符串，不通过 number，范例只承诺默认构造器，clone 的特殊运算配置需业务另行登记。日期编码保存 calendar identifier、era、日期和时间字段；ZonedDateTime 额外保存 IANA timeZone 与 offset，不能只 toString 再 parse 丢掉历法/时代或重新猜测夏令时重复小时。
+
+transport 是宿主边界适配，不是输入验证或业务 API codec。只登记明确的类型，未知值不猜 class、不自动恢复任意原型；API 输入仍由 Zod 校验。hooks 两端执行，不能从 @zui/svelte/server 导入 Node-only API，也不把 Kit 类型作为普通浏览器业务包的强制依赖。
+
+新增 CI 覆盖默认 Decimal、负零、四类日期/时间、佛历元数据、DST 重复小时 offset、SSR 无 JS、hydration、客户端导航、enhanced/native form action，以及独立 tarball 的类型和预渲染。这里只说明新用例范围，当前完整矩阵结果仍以该候选 CI 为准。
+
+依据：[Kit transport](https://svelte.dev/docs/kit/hooks#Universal-hooks-transport)、[Internationalized Date](https://react-aria.adobe.com/internationalized/date/)、[CalendarDate 历法与时代](https://react-aria.adobe.com/internationalized/date/CalendarDate)。
+
 ## 4. Lucide 与内容
 
 ```svelte
@@ -758,7 +779,7 @@ Dialog 不默认强加“确认/取消”业务流程。ConfirmDialog、SearchIn
 - 焦点：对比 focus-trap/tabbable 与 Layer 的职责，选一种策略，不同时运行多套陷阱。
 - 虚拟化：TanStack Virtual 为候选，与 Svelte adapter/核心薄接入比较后决定；先验证活动项可达、动态高度、SSR 与体积，不直接承诺选型。
 - 校验：已安装并直接绑定 Zod 4，原生 z 从 @zui/svelte 主入口导出；不再增加多库适配/规则 DSL。Form/Field 调度与深度集成规划见第 3 节，不自动回写转换后的数据。
-- 精确数字已选 decimal.js 并安装；日期领域在模型明确后选择专项库。Intl 负责格式化，不假设它提供可靠的任意文本解析或日期算术。
+- 精确数字与日期领域已安装 decimal.js 和 @internationalized/date；Intl 负责格式化，不假设它提供可靠的任意文本解析或日期算术。
 
 Zod 与 decimal.js 已进入产品 catalog 并安装；其余专项依赖仍在对应基础阶段验证后加入。依据：[Floating UI autoUpdate](https://floating-ui.com/docs/autoUpdate)、[focus-trap](https://github.com/focus-trap/focus-trap)、[TanStack Virtual](https://tanstack.com/virtual/latest)、[Zod API](https://zod.dev/api)。
 
@@ -786,6 +807,8 @@ Zod 与 decimal.js 已进入产品 catalog 并安装；其余专项依赖仍在�
 默认配置登记暂按集中清单做原型；class/slotProps、SSR/CSP、资源清理、发布声明、跨浏览器和性能预算属于既定工程责任，先做必要探针验证，不再要求用户对每个内部工具函数逐项选择。
 
 ## 17. 研究依据与下一步讨论
+
+第一阶段执行计划已经单独收敛为 [架构与基础设施实施计划](svelte-phase1.md)，只记录顺序/交付/门槛并引用本文件的合同。用户要求审阅后开始执行；当前依赖与消费者测试准备不代表第一阶段已开工。
 
 Svelte 官方：[state](https://svelte.dev/docs/svelte/$state)、[bindable](https://svelte.dev/docs/svelte/$bindable)、[derived](https://svelte.dev/docs/svelte/$derived)、[context](https://svelte.dev/docs/svelte/context)、[attachments](https://svelte.dev/docs/svelte/@attach)、[泛型与原生属性](https://svelte.dev/docs/svelte/typescript)、[transition](https://svelte.dev/docs/svelte/transition)。对照：[Vue defineModel](https://vuejs.org/guide/components/v-model.html)、[Vue reactive](https://vuejs.org/guide/essentials/reactivity-fundamentals.html)、[React useState](https://react.dev/reference/react/useState)、[React 19 ref](https://react.dev/reference/react/forwardRef)、[React Compiler/memo](https://react.dev/reference/react/memo)。
 

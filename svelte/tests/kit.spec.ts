@@ -1,5 +1,44 @@
 import { expect, test } from '@playwright/test';
 
+test('transports domain values through hydration, actions and client navigation', async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto('/values');
+  await expect(page.locator('html')).toHaveAttribute('data-zui-ready', 'z');
+  await expect(page.getByTestId('transport-types')).toHaveText('restored');
+  await expect(page.getByTestId('transport-amount')).toHaveText('0.30');
+  await expect(page.getByTestId('transport-zero')).toHaveText('-0');
+  await expect(page.getByTestId('transport-calendar')).toHaveText('buddhist:BE:2569');
+  await expect(page.getByTestId('transport-clock')).toHaveText('09:30:15.25');
+  await expect(page.getByTestId('transport-local')).toHaveText('2026-09-19T09:30:15.25');
+  await expect(page.getByTestId('transport-zone')).toHaveText('America/New_York:-14400000');
+  await page.getByRole('button', { name: '增加日期', exact: true }).click();
+  await expect(page.getByTestId('transport-day')).toHaveText('2026-09-20');
+  await page.getByRole('button', { name: '提交特殊值', exact: true }).click();
+  await expect(page.getByTestId('transport-amount')).toHaveText('0.50');
+  await expect(page.getByTestId('transport-types')).toHaveText('restored');
+  await page.getByRole('link', { name: '离开页面', exact: true }).click();
+  await expect(page.getByTestId('kit-target')).toBeVisible();
+  await page.goBack();
+  await expect(page.getByTestId('transport-types')).toHaveText('restored');
+  await expect(page.getByTestId('transport-amount')).toHaveText('0.30');
+  expect(errors).toEqual([]);
+});
+
+test.describe('domain values without JavaScript', () => {
+  test.use({ javaScriptEnabled: false });
+  test('renders values and form actions on the server', async ({ page }) => {
+    await page.goto('/values');
+    await expect(page.getByTestId('transport-types')).toHaveText('restored');
+    await expect(page.getByTestId('transport-amount')).toHaveText('0.30');
+    await page.getByRole('button', { name: '提交特殊值', exact: true }).click();
+    await expect(page.getByTestId('transport-amount')).toHaveText('0.50');
+    await expect(page.getByTestId('transport-calendar')).toHaveText('buddhist:BE:2569');
+  });
+});
+
 test('hydrates a CSS-only custom schema and releases it when the root schema changes', async ({
   page,
   request,

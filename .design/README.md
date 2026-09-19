@@ -8,6 +8,7 @@
 | [core-contracts.md](core-contracts.md)       | core 已实现合同及关键取舍；用法以包 README 为准                     |
 | [core-acceptance.md](core-acceptance.md)     | A01–A40 与完整候选 CI、产物证据                                     |
 | [svelte-components.md](svelte-components.md) | 编写偏好、默认值编译、slotProps 组合、基础设施/组件目录与 A0–E 验收 |
+| [svelte-phase1.md](svelte-phase1.md)         | 第一阶段架构与基础设施执行计划；待用户审阅后启动                    |
 | [development.md](development.md)             | 开发命令、本地关键检查和清理规则                                    |
 | [ci.md](ci.md)                               | 完整 CI、安装包和报告交付                                           |
 | [dependencies.md](dependencies.md)           | 依赖职责与新增依赖准入                                              |

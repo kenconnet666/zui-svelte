@@ -5,11 +5,11 @@
 ## 验收顺序
 
 1. Ubuntu 24.04、Node 24、pnpm 锁文件安装，准备 Kit fixture。
-2. 格式/lint、类型与 Svelte 检查、500 Token 类型规模预算、生成一致性和覆盖报告。
-3. core Node 合同、class 编译与服务端合同，构建三个工作区。
+2. 格式/lint，先构建库分发产物，再执行类型与 Svelte 检查、500 Token 类型规模预算、生成一致性和覆盖报告；docs 的类型不走源码条件。
+3. core Node 合同、class 编译与服务端合同；docs 消费 dist 构建，实际模块图必须通过源码泄漏检查。
 4. 公开 API 快照、浏览器依赖及体积预算、基础主题裁剪、Node 性能与资源预算。
-5. Chromium、Firefox、WebKit 的生产 Docs、开发态真实 HMR、core DOM/接管与双变量通道性能验收。
-6. 真实 SvelteKit 生产 SSR、hydration、主题、CSP、路由/错误页/redirect；独立临时目录安装 tarball，重新检查类型、构建、预渲染及三浏览器消费。
+5. Chromium、Firefox、WebKit 的生产 Docs 交互/axe 无障碍检查、开发态真实 HMR、core DOM/接管与双变量通道性能验收。axe 报告附入浏览器结果，不能代替人工键盘/读屏。
+6. 真实 SvelteKit 生产 SSR、hydration、主题、CSP、路由/错误页/redirect；特殊值 transport 验证 Decimal/日期类型、非公历、时区 offset、action 和客户端导航。独立临时目录安装 tarball，重新检查类型、构建、预渲染及三浏览器消费，不能只验证 workspace 链接。
 7. 核对报告提交一致性和被测试归档的 SHA-256，生成 candidate-evidence.json，再上传成功构建产物。
 
 每一步的成功均是后续步骤的前提。证据清单关联实际报告，不能替代测试断言；最终结果应绑定具体完整 SHA。完整验收范围见 [A01–A40](core-acceptance.md)。

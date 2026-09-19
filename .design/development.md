@@ -7,7 +7,8 @@
 | 命令                           | 作用                                                   |
 | ------------------------------ | ------------------------------------------------------ |
 | pnpm install --frozen-lockfile | 按锁文件安装依赖                                       |
-| pnpm dev                       | 自动构建 core 后启动 Docs                              |
+| pnpm dev                       | 构建 core/svelte 的公开产物后启动 Docs                 |
+| pnpm build:libs                | 只构建两个库，供 docs/工具链按消费者方式解析           |
 | pnpm build                     | 按依赖顺序构建三个工作区                               |
 | pnpm preview                   | 预览 Docs 构建产物                                     |
 | pnpm check                     | 工作区类型、Svelte 与 core 类型规模预算                |
@@ -21,7 +22,7 @@
 
 core 使用 tsc 输出 ESM、声明及 source map；svelte 使用 svelte-package 保留供消费者编译的 Svelte 源组件；docs 使用 Vite 输出普通客户端网站。dist 和测试报告不进入 Git。
 
-Docs 启用 zui-source 条件便于源码联调，根 dev 命令仍先构建 core，确保工具链所需入口存在。默认包入口保持 dist。core 可直接由 Node 导入；Svelte 根入口含 .svelte 组件，由 Vite/Kit 消费，不能用无 Svelte loader 的普通 Node 导入代替验证。
+Docs 的运行、编译插件和类型均消费 dist，不再启用 zui-source。首次 dev/check 前运行 build:libs，根 dev 已自动执行；库改动后重新构建库，源码 HMR 继续由专门测试夹具负责。core 可直接由 Node 导入；Svelte 根入口含 .svelte 组件，由 Vite/Kit 消费，不能用无 Svelte loader 的普通 Node 导入代替验证。
 
 ## 验证分工
 

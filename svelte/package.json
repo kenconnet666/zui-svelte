@@ -39,11 +39,12 @@
     "check": "svelte-check --tsconfig ./tsconfig.check.json",
     "test": "vitest run",
     "test:dev": "playwright test --config playwright.dev.config.ts",
-    "test:kit:prepare": "pnpm --dir tests/kit install --ignore-workspace --ignore-scripts --no-lockfile",
+    "test:kit:prepare": "pnpm --dir tests/kit install --ignore-workspace --ignore-scripts --no-lockfile && cd tests/kit && node ../../node_modules/@sveltejs/kit/svelte-kit.js sync",
     "test:kit:build": "cd tests/kit && vite build",
     "test:kit": "playwright test"
   },
   "dependencies": {
+    "@internationalized/date": "catalog:",
     "typescript": "catalog:",
     "magic-string": "catalog:",
     "@zui/core": "workspace:^",

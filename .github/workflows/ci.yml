@@ -43,11 +43,15 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Prepare SvelteKit fixture links
+      - name: Prepare SvelteKit fixture links and generated types
         run: pnpm --filter @zui/svelte run test:kit:prepare
 
       - name: Lint and formatting
         run: pnpm run lint
+
+      - name: Build library distributions for consumers
+        # Docs 的类型也消费 dist；先生成库产物，禁止回退源码条件。
+        run: pnpm run build:libs
 
       - name: Type and Svelte checks
         run: pnpm run check
@@ -61,8 +65,8 @@ jobs:
       - name: Test class compiler contracts
         run: pnpm --filter @zui/svelte run test
 
-      - name: Build all workspaces
-        run: pnpm run build
+      - name: Build docs as a distribution consumer
+        run: pnpm --filter @zui/docs build
 
       - name: Verify public API and browser distribution budgets
         run: pnpm run contracts:check
@@ -87,7 +91,7 @@ jobs:
       - name: Install browser engines
         run: pnpm --filter @zui/docs exec playwright install --with-deps chromium firefox webkit
 
-      - name: Test production docs in three browsers
+      - name: Test production docs and accessibility in three browsers
         run: pnpm run test
 
       - name: Test development HMR in three browsers
