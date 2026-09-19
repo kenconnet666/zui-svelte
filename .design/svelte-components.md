@@ -821,3 +821,67 @@ Svelte 官方：[state](https://svelte.dev/docs/svelte/$state)、[bindable](http
 5. 固定浏览器、Node SSR、无障碍、依赖/体积与发布验证范围；未支持的宿主如 Edge SSR 不伪称通过，但不得跳过已承诺的能力。
 
 经过基础验证后，再冻结 label/snippet、少量 imperative 方法、具体空值与交互默认等组件 API 细节。已确认的易用方向不撤回，新增高级机制只有在真实能力缺口需要时才引入。
+
+## 18. Core/Svelte 编写体验复审（讨论中，2026-09-19）
+
+本节为下一轮候选规划，不改变已实现合同；先确认公共 API 和主题命名，再以 Container/Modal 试点，不直接批量迁移。保留组件局部 class 回调、原生 TS 类型组合与 $props 默认值。
+
+### 实测问题
+
+- 原生 zui_lsp 验证现有 `_full`、`_panelMd`、`pct(100)` 和动态 ``s.gap[`_${gap}`]`` 可通过类型检查。`inlineSize` 提供 24 个尺寸 Token 补全，主题 Token 并非缺失；Container/Modal 的尺度映射仍手写重复。
+- `_full` 悬停只有 `void`，`pct` 参数显示 `values_0`；属性悬停展开 ResolveDefinition/NormalizeKeys/MergeDefinitions 等长泛型。WebStorm 的对应声明查询也显示生成载体与浏览器兼容性文字。
+- generate-css.mjs 仅取上游 JSDoc 第一行，当前部分属性第一行是 Baseline 兼容性介绍，丢失了属性用途。应调整文档生成，不逐属性手工维护另一套定义。
+- MCP completions 仅返回 label/kind/detail，丢弃 documentation、textEdit、sortText、isIncomplete 等信息，且没有按需 resolve。它影响 Codex 能看到的补全信息；WebStorm 编辑器体验仍需从声明和 IDE 实测改善，不能靠修改 MCP 返回值宣称 IDE 变好了。
+- 源码 `_full` 生成 `var(--z-size-full)`；`pct(100)` 和 `'100%'` 都生成固定 `100%`。内部几何约束优先固定百分比，允许主题改变的尺度使用 Token，不能机械替换。
+
+### 推荐的 API 收敛
+
+保留标准关键字、单位、静态 Token 和原始 CSS 四条明确通路，补充动态 Token 方法（尚未实现）：
+
+```ts
+s.display.flex;
+s.inlineSize.pct(100); // 固定比例，不随主题改变
+s.inlineSize._full; // 已支持，主题中的 size.full
+s.inlineSize._panelMd; // 已支持的现有命名
+s.gap.token(gap); // 候选：按属性所属类别检查动态键
+s.inlineSize.token(`panel.${size}`); // 候选：配合下述 B 方案
+s.inlineSize('calc(100% - 2rem)'); // 保留普通 CSS 表达式
+```
+
+`token(key)` 与 `_key` 共用类别映射、TokenUse 记录和宿主兼容性验证；不把普通字符串调用改成“猜是 Token 还是 CSS”。继续保留 theme.ref 用于复合值，ref 返回字符串与声明写入要区分。方法名称需对全量关键字/单位做碰撞检查，不能悄悄遮蔽原有成员。
+
+尺度命名有三个方向，B 为推荐讨论项：
+
+| 方向                   | 示例（均为候选）                            | 收益与代价                                                                                    |
+| ---------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| A 保留 camelCase Token | `s.inlineSize.token(panelSizes[size])`      | 尺度映射集中到公共主题文件；改动最小，但映射本身仍存在                                        |
+| B 平铺键按家族命名     | ``s.inlineSize.token(`panel.${size}`)``     | size 类别保留，将 panelMd 改为字符串键 panel.md；普通 TS 模板字符串即可推导，无需递归主题模型 |
+| C 嵌套主题与引用树     | `s.inlineSize(theme.vars.size.panel[size])` | 分层补全直观，但需重做主题定义、覆盖/别名/引用类型和路径协议，属于较大重构                    |
+
+B 下 size 类别包含 panel.xs/sm/md/lg/xl/full、container._、control._、icon.*；只给适用家族 full/none。panel.full/container.full 显式引用同类别 full，不增加“缺失键自动回退”。现有自定义 Token 不强制改名。迁移内置键会影响覆盖对象与变量名，须同步亮暗主题、测试、Docs 与合同；私有包阶段不长期维持两套同义键。
+
+临时消费方探针已验证：使用现有 extendTheme/tokenRef 建立平铺点号键后，``s.inlineSize[`_panel.${size}`]`` 和 ``theme.ref('size', `panel.${size}`)`` 均通过，非法 `_missingSize`/`panel.missing` 分别检出 2339/2345。该探针仅证明现有类型/键编码可承载 B；没有实现 token 方法，也未宣称新主题迁移已完成。探针源码已清理。类型原理参考 [TypeScript 模板字面量类型](https://www.typescriptlang.org/docs/handbook/2/template-literal-types.html)。
+
+### 类型与工具验收
+
+1. 从上游生成属性用途、相关值/单位/Token 类别和文档链接；不再只保留首行兼容性文字。单位函数采用 value、block/inline 等有意义的参数名和对应说明。
+2. 收敛公共声明中的中间类型展开，先尝试具名接口/入口别名与有边界的生成式声明；禁止用 any、宽 string 索引、无限递归类型或复制整套属性换取“看起来短”。悬停是否变短由实际 LS 输出判定。
+3. 内置 Token 提示优先展示类别、用途、引用目标和默认值；默认值不冒充 ThemeScope 实际运行值。自定义主题保留精确键和定义导航，生成的提示元数据不能成为第二份手写主题。
+4. 组件 Props/slotProps 补充职责、默认值和转发对象说明，保留 ComponentProps/Omit 复用。检查生成后的 .d.ts 是否保留说明；component-types.ts 改为显式 .generated 命名并改善 C0/P0 这类生成别名。
+5. MCP 补全保留必要编辑/文档字段，提供有上限的详情解析；不为每次补全解析全部 857 个属性。尊重服务端排序和不完整标志。该桥仍只是协议客户端，不另造语言服务器。
+6. 验收覆盖标准属性/关键字/单位、静态和动态 Token、extend 自定义键、继承 Props/嵌套 slotProps 的补全、悬停、定义和错误定位；比较 TS、Svelte、公开 dist 与独立包消费，不能只测源码别名。
+7. 保留 500 Token 基线并记录冷暖耗时、声明体积；完整类型/SSR/hydration/CSP/动态提升/HMR/包消费交 CI。本地只做这轮变更相关探针。
+
+### 命名与目录候选
+
+core/css、theme、runtime 当前分别 12/6/14 个直接子项，职责总体合理，保留。carrier.ts 可改为 property.ts 并用 CssProperty 等较清楚的内部类型名，但须先验证声明可读性收益，不只替换单词。不要把生成文件随意搬到通用 generated 大目录。
+
+svelte/layout、overlays 保留。internal.ts 是协议入口，internal/ 却混放表单、集合、输入解析、DOM，容易混淆；下一批按引用关系归属 forms（字段/表单/路径/特殊值）与 collections（集合/异步/虚拟化），真正跨域的 DOM/交互/播报留 shared。text.ts 同时涉及字素和数字解析，先识别消费者再拆，不因目录名称迁错职责。不新增单组件一目录；文件数量只作为参考。
+
+Panel.svelte 当前核心职责是发布浮层上下文，可候选 OverlayHost.svelte，避免与有视觉样式的通用面板混淆。layers.ts 约 598 行，按生命周期边界判断是否拆分滚动锁/焦点隔离；不按行数硬拆共享状态。Modal/Popup 保持内部复用，不拆走各自局部样式或新造 BaseComponent。
+
+### 实施顺序与待确认项
+
+第一批做生成文档、具名参数、公共声明与 MCP 信息保真，行为保持；第二批在确认 A/B/C 后实现动态 Token API，试点 Container/Modal 并验证主题切换；第三批按消费者关系迁移目录和生成文件命名。每批可独立构建、中文提交推送，下次推送前处理上一轮 CI，推送后不等待。
+
+本轮不建议引入整套 sx/recipe DSL、不识别 $state 来源、不把全量主题 Token 注入每个属性补全、不取消原始 CSS 能力、不为改善提示强升 TypeScript 大版本。C 或 core 新增内部包子入口等公共边界调整需另行讨论。
