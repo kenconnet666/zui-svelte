@@ -2,7 +2,7 @@
 
 本文合并早期 core、组合、类型、主题和生产规划，保留已经选择的方案。通用引擎签名见 [core README](../core/README.md)，UI Token 与尺度见 [Svelte README](../svelte/README.md)；编译与宿主配置见 [svelte README](../svelte/README.md)；验收范围保留 [A01–A40](core-acceptance.md)。
 
-下一阶段的字符串补全、`_` 主题/`$` 组件 Token、类型声明与覆盖体系优化见 [组件规划第 18 节](svelte-components.md#18-coresvelte-编写体验与架构优化阶段待审阅)。符号已选定，具体 API 与主题结构仍待审阅；下述现行合同尚未被候选方案替换。
+下一阶段只增强系统/`_` 主题关键字的成员及字符串入口、类型体验与必要的实现整理，见 [组件规划第 18 节](svelte-components.md#18-coresvelte-编写体验与架构优化阶段待审阅)。独立组件 Token/变量层已取消，主题结构与覆盖边界不重建；下述现行合同尚未被候选方案替换。
 
 ## 样式求值与组合
 

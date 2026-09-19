@@ -34,7 +34,7 @@
 - Select 已确定默认返回整条选项数据，稳定 key 用于身份匹配，不要求业务绑定 ID；是否取消独立 ID 模式、用 Svelte 函数绑定适配仍属讨论项。
 - Svelte 组件优先利用 $state/$bindable/$derived、snippet、原生属性类型、createContext、bind:this 与 attachment，避免照搬 React/Vue 的状态同步或 ref 包装。采用新能力前核对锁定版本和现有 class 编译桥，CSS 接入仍只要求 class。
 - Svelte 生态选择性参考 shadcn-svelte、Flowbite Svelte、Bits UI 等；只吸收有证据的 API/行为/测试，不引入无样式组件库或替换现有样式引擎。实施阶段和验收见 .design/svelte-components.md。
-- 组件主题覆盖要完整且复用现有能力：当前方案用 ThemeScope、组件默认 Props/class/slotProps、按需组件 Token 和明确 CSS 层序，覆盖全局/整类/实例；不因避免 styleOverrides DSL 而省掉整类任意 CSS 覆盖，也不制造每实例全量主题。
+- 组件主题覆盖要完整且复用现有能力：当前方案用 ThemeScope、组件默认 Props/class/slotProps、按需普通主题扩展和明确 CSS 层序，覆盖全局/整类/实例；不因避免 styleOverrides DSL 而省掉整类任意 CSS 覆盖，也不制造每实例全量主题。
 - 规划与实现顺序必须基础架构/共享基础设施先行，再冻结和实现基础组件 API，最后组合上层。生产必需能力和验收不能以“简化版/以后再补”跳过；简洁体现在职责清楚、复用原生能力/已有组件/专项依赖，以及舍弃重复机制。
 - 类型优先内联组合原生元素属性、ComponentProps、Pick/Omit 等普通 TS 能力；Size/Color 等底层联合类型按需共享，不强制 ControlAppearance/万能基础 Props，不设计组件工厂或复杂类型 DSL。类型较长或确有复用时可以命名。
 - 组件默认值只在 let { size = 'md', block = false, ... } = $props() 中声明；需要配置继承时以受限编译转换接入小型运行时，作者侧不再维护 ButtonDefaults/fallback/getComponentDefaults。此为已选作者形态，转换、白名单、类型生成与发布合同尚待实现和验收。
@@ -56,4 +56,4 @@
 
 - 本项目的 zui_lsp 与官方 svelte MCP 使用项目级配置；.codex/config.example.toml 随 Git 保存，setup.ps1 生成忽略的本机 config.toml，明确 Node/仓库绝对路径，不再注册到全局。依赖均为根开发依赖。WebStorm 与独立 LSP 共用版本但独立进程，IDE MCP 空诊断不能替代 LSP 语义复核。换机运行 scripts/language-services/setup.ps1 -Verify，按 .design/language-services.md 信任项目、配置 IDE 并重载 Codex，检查实际原生工具。
 
-- 下一阶段完整规划见 .design/svelte-components.md 第 18 节：用户已选定系统关键字无前缀、主题 Token 用 `_`、组件 Token 用 `$`，成员和字符串两种入口；组件 Token 只依赖系统值/主题/原始 CSS，不引入组件引用循环图。此前 `.token()` 试点已回滚。声明、运行时与覆盖 API 尚未实现/批准，不将符号选择等同整阶段实施授权。规划须同时改善类型/悬停/补全、生成器、MCP/LSP、命名目录。用户纠正：覆盖系统精简的依据是组件 Token 进入 CSS 系统；优先审阅复用 class/CSS 层叠，不默认新增 ThemeScope.components 或 ConfigProvider.tokens 两套覆盖。大改动先举例讨论。
+- 下一阶段以 .design/svelte-components.md 第 18 节的最新收敛规划为准：用户已放弃独立组件 Token/变量/继承/挂载点方案，CSS 工具仅保留系统关键字与 `_` 主题关键字，增强成员及字符串入口的字面量补全。组件映射由组件内部普通 TS 维护；不新增 `$`、componentTokens/componentVars、s.tokens、Provider tokens 或 ThemeScope components。此前 `.token()` 试点已回滚。继续规划类型/悬停/补全、生成器/MCP/LSP、core/svelte 必要修复与实现精简、命名目录审计；沿用现有样式覆盖体系，大重构先举例讨论。当前只是重新规划，不能视为已经批准实施整个阶段。

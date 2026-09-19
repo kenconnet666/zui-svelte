@@ -494,17 +494,17 @@ ConfigProvider 建议用类型化 context 和稳定视图，让内层未覆盖�
 
 ## 14. 组件主题覆盖：能力完整，入口复用
 
-目标是生产可用的完整覆盖能力，简洁是减少重复机制，不是删除高级定制场景。既有实现以第一、二阶段验收为准；本节保留覆盖能力边界，新的 Token 与覆盖体系收敛方案见第 18 节，未审阅前不改变已有 API。
+目标是生产可用的完整覆盖能力，简洁是减少重复机制，不是删除高级定制场景。既有实现以第一、二阶段验收为准；本节保留覆盖能力边界，第 18 节已取消独立组件 Token/变量层；沿用本节的主题、参数和 class/slotProps 覆盖边界，不新增覆盖框架。
 
 成熟库依据：MUI 把 defaultProps、styleOverrides、variants 分开；Naive UI 有 common、组件覆盖及更深的 peers；Element Plus 支持 CSS 变量定制。这里只吸收“系统值、组件默认值和局部定制职责不同”，不照搬多层 overrides/peers 结构或另一套样式引擎。[MUI](https://mui.com/material-ui/customization/theme-components/)、[Naive UI](https://github.com/tusen-ai/naive-ui/blob/main/demo/pages/docs/customize-theme/zhCN/index.md)、[Element Plus](https://element-plus.org/en-US/guide/theming)。
 
 ### 三种需求分开处理，不新增一份万能主题对象
 
-| 要改什么                               | 唯一入口建议                                           | 例子                                                                        |
-| -------------------------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------- |
-| 品牌色、间距等系统视觉值；局部区域明暗 | 现有 ThemeScope + overrideTheme/extendTheme/fork       | 改 color.primary；在某个区域切暗色                                          |
-| 所有某类组件默认怎么使用               | ConfigProvider.components 的白名单默认 Props           | Button 默认 color=primary、variant=soft；Input 默认 clearable               |
-| 某个组件独有且值得稳定公开的视觉值     | 现有分类内的少量组件 Token，同类别 tokenRef 引用系统值 | color.inputBorder → color.border；color.dialogSurface → color.surfaceRaised |
+| 要改什么                               | 唯一入口建议                                     | 例子                                                                        |
+| -------------------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------- |
+| 品牌色、间距等系统视觉值；局部区域明暗 | 现有 ThemeScope + overrideTheme/extendTheme/fork | 改 color.primary；在某个区域切暗色                                          |
+| 所有某类组件默认怎么使用               | ConfigProvider.components 的白名单默认 Props     | Button 默认 color=primary、variant=soft；Input 默认 clearable               |
+| 某个组件独有且值得稳定公开的视觉值     | 按需扩展普通主题键，或通过 class/slotProps 定制  | color.inputBorder → color.border；color.dialogSurface → color.surfaceRaised |
 
 整类组件和单实例都必须能覆盖任意 CSS 与公开内部节点，建议复用 class/slotProps；不把“没有 styleOverrides 这个名字”误解为不提供整类样式覆盖。下面明确 CSS 层序，不靠 class 拼接顺序。
 
@@ -562,9 +562,9 @@ components.Button 保持扁平的默认参数和样式入口，不再套 default
 
 状态覆盖优先使用公开的 data-variant/data-color/data-size 和原生 disabled/aria-busy/伪类合同，不公开内部 class 名或所有私有状态。需要运行时计算时沿用普通 TS + css；不能为了“动态主题”新增另一套响应式系统。按实例私有状态任意生成全局默认样式的回调，不自动纳入接口，须由真实场景证明必要性；不能绕开已确认的组件封装边界。
 
-### 组件 Token 仍在现有分类中
+### 按需扩展普通主题键，不设独立组件 Token 层
 
-以下是后续实现对应组件时可引入的例子，当前预设尚未包含：
+以下只是普通主题扩展的例子，当前预设尚未包含；不代表 `$` 组件 Token 或专门的组件变量系统，也不作为本阶段新增任务：
 
 ```ts
 // 演示向 UI 主题增加少量组件别名；当前组件尚未消费这些候选键。
@@ -580,7 +580,7 @@ const componentTheme = extendTheme(lightTheme, {
 
 改 color.border 时 inputBorder 跟随；显式覆盖 inputBorder 后只影响使用这个键的组件，不会把 Select 或 Dialog 的所有颜色一起改掉。亮暗主题分别保留引用并保持 schema 一致，ThemeScope 切换和局部 fork 沿用现有行为。
 
-如果某属性已经由 size/radius/variant 选择，组件 Token 要表示该选择对应的值，例如 size=md 读取 buttonMd；不要再加一个优先级含糊的 buttonHeight 覆盖所有档位。公共尺度足够时直接使用公共尺度；radius 已能用组件默认 prop 区分，就不自动生成七个 Button 圆角别名。只有真实独立定制需求才扩展。
+如果某属性已经由 size/radius/variant 选择，专用主题键应表示该选择对应的值，例如 size=md 读取 buttonMd；不要再加一个优先级含糊的 buttonHeight 覆盖所有档位。公共尺度足够时直接使用公共尺度；radius 已能用组件默认 prop 区分，就不自动生成七个 Button 圆角别名。只有真实独立定制需求才扩展。
 
 不增加嵌套 components.Button.theme 格式到 core。core TokenSchema 目前是类别/键两层，tokenRef 同类别；把组件名作为 Token 前缀即可得到类型检查与别名联动，不需要更改通用引擎。
 
@@ -591,7 +591,7 @@ const componentTheme = extendTheme(lightTheme, {
 - 不为每个实例创建一份全量主题/ThemeScope；按现有主题容器输出和继承，不制造大量重复变量规则。
 - ThemeScope 只保存 Token 主题；默认 Props 与 class/slotProps 属于 UI 配置。业务可在同一普通 TS 文件导出 theme 和 defaults，无需新 createComponentTheme 工厂。
 - 全局任意 CSS 覆盖是必需能力，使用上面的 class/slotProps 与已声明层序完成；不另抄一套 styleOverrides/variants 数组语法，也不把预先生成的 class 偷偷改到另一个层。
-- 预设显式扩展后才能覆盖新增键；未知组件 Token 报错，不静默补值。自定义 baseTheme 用系统组件仍要满足其实际 Token 合同。
+- 预设显式扩展后才能覆盖新增键；未知主题键报错，不静默补值。自定义 baseTheme 用系统组件仍要满足其实际 Token 合同。
 
 验收重点：全局 Token 联动、组件专属覆盖不影响其他组件、实例 Props 覆盖默认值、嵌套配置继承、亮暗/fork、Portal 同主题、三浏览器与严格 CSP、千组件下不出现每实例全量主题拷贝。
 
@@ -616,7 +616,7 @@ flowchart TD
 | ---------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
 | 宿主与样式       | UI 默认层序、主题桥、SSR 收集/hydration、nonce、模块样式、Portal/ShadowRoot、多根           | 复用 core；不把 UI 预设搬回 core，不修改已运行的层序掩盖配置错误                                       |
 | 作者编译与类型   | 原生解构默认值接入、可配置字段校验、slot 定向合并、声明输出、源码映射、HMR、发布预处理      | 保留普通 Svelte/TS 作者形态；运行时只读作用域，不能扩成通用组件 DSL 或改写任意业务 spread              |
-| 配置与组件主题   | 动态继承、组件默认值、系统/组件 Token、整类与实例 CSS 覆盖、类型和合并规则                  | createContext + ThemeScope + class/slotProps；不重复造主题 controller                                  |
+| 配置与组件主题   | 动态继承、组件默认值、主题 Token、组件内部映射、整类与实例 CSS 覆盖、类型和合并规则         | createContext + ThemeScope + class/slotProps；不重复造主题 controller                                  |
 | 字段语义         | ID/label/help/error/required/disabled/readonly、消息空间、原生表单关联、值/显示值区别       | 公开 Field + 内部字段协议；控件独立可用，需要标题/错误时组合 Field                                     |
 | 交互与元素接入   | 指针/键盘/IME、事件委托顺序、可取消动作、attachment/ref、禁用及读写边界                     | 原生 Svelte/DOM；副作用清理属于元素或组件，不用全局轮询                                                |
 | 浮层归属         | 父子层、outside 判定、Escape、挂载目标、焦点恢复、滚动锁/inert、退出状态、多 Document       | 每个相关宿主统一管理；组件不再分别注册互相冲突的全局策略                                               |
@@ -824,192 +824,105 @@ Svelte 官方：[state](https://svelte.dev/docs/svelte/$state)、[bindable](http
 
 ## 18. Core/Svelte 编写体验与架构优化阶段（待审阅）
 
-本阶段包含类型/悬停/补全、样式 API、组件 Token、编译与运行时边界、工具链、命名和目录审计。不是仅增加一个前缀，也不顺带铺开 Button/表单/选择等新组件。以下区分已确认方向、推荐合同和需审阅的大改动；审阅完成前不实施公共 API 重构。
+本阶段重新收敛为：两种现有 CSS 写法的字面量补全与主题引用增强，以及 core/svelte 的类型体验、正确性、实现复杂度、命名和目录整理。用户明确放弃组件 Token/变量/继承/挂载点这一层；不将早先讨论当作后续实施授权。
 
-### 已确认与现状证据
+### 固定边界与明确舍弃
 
-- 系统关键字不加前缀，主题 Token 用 `_`，组件 Token 用 `$`；成员访问与字符串参数采用相同来源约定。`.token()` 与 panel.* 别名试点已回滚，不再作为迁移目标。
-- 保留普通 CSS 字符串、单位函数、普通 TS 计算、模板内 class 回调和自动动态提升；不要求用户标记动态值。组件 Token 只依赖系统值/主题 Token/原始 CSS，不增加组件间 Token 引用图和循环检测。
-- 原生 TS/Svelte LSP 实测 `$panelXs`、`_panelXs` 的成员和字符串候选均正常；WebStorm 能找到 `$panelXs` 的声明/说明，Svelte 模板表达式编译通过。仅验证了探针声明，产品尚未实现新语义。
-- 现有 `_full` 悬停仅 void，单位参数为 values_0，属性悬停展开多层 ResolveDefinition/NormalizeKeys/MergeDefinitions。生成器只取上游 JSDoc 首行，部分属性因此只显示 Baseline 兼容性说明。
-- MCP completions 丢弃 documentation、textEdit、sortText、isIncomplete 等信息，没有按需 resolve。修 MCP 只能改善 Codex 获取的信息，不能据此声称 WebStorm 补全已经改善。
-- 普通 `字面量 | string` 的临时探针没有候选；显式候选联合加 `(string & {})` 返回候选且接受任意字符串。模板字符串静态片段的补全不足不能靠换一个前缀解决。
+- CSS 工具只有系统关键字与主题关键字：系统无前缀，主题用 `_`。保留 `s.xx.xx` 和 `s.xx('xx')`，以及原有单位函数、普通 CSS 字符串、TS 函数/switch、class 编译与动态提升。
+- 不新增 `$` 组件关键字、componentTokens/componentVars、变量描述符、组件继承/挂载点、s.tokens 写入接口、Provider tokens 或 ThemeScope components。此前 `.token()` 试点已经回滚，也不恢复。
+- 组件尺度/状态映射由组件内部普通 TS 对象或分支维护。只有确实跨组件共享的数据才提取，不再为了删除一个 widths 对象引入框架层。
+- 不改变主题的类别/键二级结构，不迁移 panelXs 等现有键。ThemeScope、ConfigProvider、class/style/slotProps 的既有职责与 CSS 层序保留；只修重复实现和明确缺陷，不重建覆盖系统。
+- 本阶段不铺开 Button/Form/Select 等后续视觉组件。已有基础设施和布局/浮层的必要修复在范围内；大规模公共 API/协议/目录边界变动仍先举例讨论。
 
-### 目标 API 与解析规则
+### 唯一新增的 CSS 作者能力
 
-| 来源         | 成员                               | 参数                                |
+| 类别         | 成员写法                           | 参数写法                            |
 | ------------ | ---------------------------------- | ----------------------------------- |
 | 系统关键字   | `s.inlineSize.auto`                | `s.inlineSize('auto')`              |
 | 连字符关键字 | `s.inlineSize.maxContent`          | `s.inlineSize('max-content')`       |
 | 主题 Token   | `s.inlineSize._panelXs`            | `s.inlineSize('_panelXs')`          |
-| 组件 Token   | `s.inlineSize.$md`                 | `s.inlineSize('$md')`               |
-| 普通 CSS     | 单位函数如 `s.inlineSize.pct(100)` | `s.inlineSize('calc(100% - 2rem)')` |
+| 普通 CSS     | `s.inlineSize.pct(100)` 等单位函数 | `s.inlineSize('calc(100% - 2rem)')` |
 
-以下是推荐合同，需连同本阶段审阅：
+参数补全包含当前属性合法的系统字面量和 `_主题键`，同时保留开放字符串。成员用现有 camelCase，参数关键字是原生 CSS 拼写；不把 'maxContent' 自动翻译为 max-content，不把 'panelXs' 猜成主题键。声明来自锁定 csstype/schema/主题数据，不另维护手写全量清单。
 
-1. 参数解析只识别完整的 `_key`/`$key`；不 trim 后猜引用，不展开复合 CSS 字符串，不把无前缀名称自动当 Token。关键字参数沿用真实 CSS 拼写，成员沿用现有 camelCase。
-2. 已声明引用使用 CSS 变量或组件叶值；未知的完整引用明确报错，包含属性/类别/名称。开放字符串类型不保证拼写检查，成员访问继续严格检查。普通字符串沿用已有声明边界校验，不承诺浏览器接受所有 CSS。
-3. `_foo` 也可能是合法原生自定义标识符，不能声称绝无冲突。调用方用现有 `s.raw('animation-name', '_foo')` 明确透传；`s.set` 保留原生赋值行为，不偷偷增加 Token 解析。内容字符串、url、外部 var 原样保留。
-4. null/undefined 保持原有省略行为，数值规则和单位参数约束不变。不能为开放字符串扩大数值类型范围。
-5. 属性仍按 CSS→类别映射获得主题/组件候选。现有 core PropertyTokenMap 是属性类别扩展能力，与已否决的组件 widths 转换表不是一回事，不误删。
-6. 前缀只表示引用来源。`_full` 当前默认为 100%，仍可被主题覆盖；固定几何约束继续用 pct(100)，不批量替换所有原始百分比。
+推荐将完整 `_key` 参数与 `._key` 统一到既有主题引用路径，保留 TokenUse、namespace、宿主兼容检查与纯主题变量更新行为。只识别完整标记，不 trim 后猜测、不替换 calc/url/content 内部片段。未知的完整主题引用应报清楚的运行时错误；由于字符串类型开放，不能承诺所有拼写错误都有静态诊断。
 
-### 组件 Token 声明候选
+任意字符串透传仍受现有声明边界校验，不能注入另一条 CSS 声明；浏览器是否接受其语法另论。`_name` 也可能是合法原生自定义标识符，使用现有 `s.raw('animation-name', '_name')` 强制原样输出。s.set 保持原生值语义。`$...` 不再是保留的组件引用，按普通 CSS 字符串对待；系统不会为它补全或承诺它是有效 CSS。
 
-推荐复用 createCss 的 options，不另造组件工厂、recipe 或全局注册器。名字 componentTokens 为待审阅的选项；组件内维护唯一一份声明，类型/默认值/覆盖表从它推导：
+null/undefined 仍省略，数值与单位参数约束不放宽。无主题时不补不存在的主题键；extendTheme、新增数字键、可选 PropertyTokenMap 的安全交集均保留。不能用 any/宽索引签名掩盖类型错误，也不追求模板字符串内部片段的补全。
+
+### 组件内部写法与覆盖边界
 
 ```ts
-const css = createCss(lightTheme, {
-  layer: 'zui.components',
-  componentTokens: {
-    size: {
-      xs: '_containerXs',
-      sm: '_containerSm',
-      md: '_containerMd',
-      lg: '_containerLg',
-      xl: '_containerXl',
-      full: '100%',
-      fit: 'max-content',
-    },
-    spacing: { inset: '_md' },
-  },
-});
+// 组件专用映射继续留在组件内；显式约束改善编辑时的值候选。
+type SizeToken = `_${keyof DefaultTokens['size'] & string}`;
+const widths = {
+  xs: '_panelXs',
+  sm: '_panelSm',
+  md: '_panelMd',
+  lg: '_panelLg',
+  xl: '_panelXl',
+  full: '_full',
+} as const satisfies Record<Size | 'full', SizeToken>;
 
-css((s) => {
-  s.maxInlineSize('$md');
-  s.paddingInline.$inset;
-});
+// 新参数语义实现后，局部映射直接保存可调用的值，不另包转换函数。
+s.inlineSize(widths[size]);
 ```
 
-`$md` 归当前 css 描述符所有，不自动搜索父组件同名 Token。同名声明互相隔离；跨组件复用可以共享普通只读常量，但覆盖身份仍属于公开组件。不会将组件 Token 混入 lightTheme/darkTheme 的系统 Token 清单。
+这只是迁移示例，尚未修改组件。若映射对象的初始化位置没有良好补全，可按实际效果用已有 keyof 组合或由主题推导的小型具名类型进行 satisfies 约束；不先新增庞大的公开类型 DSL。另一种合法形态仍是映射保存 panelXs，然后使用 theme.ref；不强制为了统一写法批量迁移。
 
-声明的分类与主题一致，但值不必是主题键：无前缀的字符串是原生值，`_key` 只指同类别主题键。普通字符串无法同时做完整 CSS 语法验证，不新增不完整 CSS 解析器。数值类别沿用既有校验，禁止非有限数值和注入额外声明。
+ThemeScope 负责主题视觉值与亮暗，ConfigProvider 负责白名单默认参数和现有整类 class/slotProps，实例使用 class/style/slotProps 定制。三个既有层 zui.components/defaults/app 保留。公共主题尺度不足时仍可普通 extendTheme，不把业务命名的主题键升级成新的组件 Token 种类。
 
-直接 `$other` 叶值拒绝为组件间引用；这是引用种类限制，不是循环检测。显式原始值叶 `{ raw: '_customName' }` 作为有冲突时的候选逃生舱，不增加函数/条件/递归 Token DSL；普通 `#fff` 直接作为 CSS 颜色。外部 var() 的循环由浏览器负责，已有主题别名校验不删除。
+### 类型、悬停与补全工作
 
-动态 size 仍可使用普通 TS 表达式或 switch，不能承诺模板片段补全。先比较完整 `$md` 和成员 `.$md` 的体验，再决定是否推荐动态索引；不为了这一点新增第二张 widths 表。声明本身就是尺寸语义的对应关系，不宣传“对应关系完全不存在”。
+已有实测证据：`_full` 悬停仅 void，单位参数为 values_0，属性悬停展开多层 ResolveDefinition/NormalizeKeys/MergeDefinitions；生成器只取上游注释首行，有些只剩浏览器兼容性描述。明确字面量加开放字符串的探针能返回候选，直接 `字面量 | string` 的探针没有返回候选。优化以实际项目语言服务为准，不以“类型可编译”代替体验。
 
-### 组件基本变量：声明继承、挂载点与默认值（新增候选）
+1. 参数保持已知字面量候选与开放字符串并存；先在锁定版本上验证一个属性，再由生成器覆盖标准/vendor/SVG 属性，保留原有原生类型范围。
+2. 改善公开签名/类别别名/接口命名，减少悬停中的内部类型展开；不重复生成每个主题的 857 份属性，不引入更深的条件类型。跨文件声明和发布 dist 同时验证。
+3. 属性 JSDoc 优先说明用途，补单位、参数数量、Token 类别和来源链接；兼容性文字作为附加内容。保留上游归属和可重复生成，不在构建时抓网页。
+4. 单位函数参数采用 value、block/inline 等准确名称；保留单/双/四值的合法范围。标准关键字、raw、custom、set、辅助方法的发现性与命名一并审计，但不批量增加同义 API。
+5. 主题 Token 尽量显示类别、用途、声明默认值/引用与定义位置；不能把默认值写成 ThemeScope 运行结果。生成数据不能成为第二份手写主题；对通用映射类型无法提供的逐键文档如实记录限制。
+6. Svelte Props/事件/bind/snippet/slotProps 的说明和导航应来自组件源码；保留 ComponentProps/Pick/Omit 组合与 $props 默认值，不引入统一基础 Props 或单独默认值对象。
+7. 典型场景同时比较 TS、Svelte、WebStorm 查询、原生 LSP、公开 dist 与外部包消费；WebStorm 弹窗体验需要首个小样用户确认，MCP 空问题列表不是完整语义通过。
 
-用户进一步提出这一层不同于主题 Token，需要考虑继承与挂载点。推荐概念上称“组件样式变量”，保留已选 `$` 语法；componentTokens/componentVars 的最终名称尚待确认。它描述可覆盖的视觉职责，如 width/surface/padding，而不必机械复制全部 xs/sm/md/lg/xl 主题尺度。
+### core 与 Svelte 的实现审计
 
-应分开三件事：源码声明复用（定义时合并默认值）、CSS 值继承（DOM 传递已求值的变量）、组件挂载（哪些根/公开部件属于同一变量作用域）。不以继承类、可变全局注册器或逐组件运行时父链混在一起。
+| 范围                   | 检查重点                                                              | 允许的精简与边界                                                           |
+| ---------------------- | --------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| core 声明收集/属性载体 | 成员和参数的关键词/主题值处理、错误上下文、TokenUse                   | 共用主题引用写入逻辑，避免两条路径；不取消声明顺序/重复回退/单位约束       |
+| core 主题与运行时      | 类型与运行时同源、覆盖失败原子性、绑定/资源释放、缓存边界             | 先确认重复校验/分配是否必要再合并；不删异常恢复或 SSR 请求隔离             |
+| core 公共入口          | 内部协议导出与业务补全噪声、类型签名可读性                            | 先用文档/明确命名/稳定入口处理；新增子入口属大改动，不默认执行             |
+| Svelte 编译            | class/source map/HMR、默认 Props 转换、源码与发布模式                 | 仅消除已证明等价的重复遍历/转换；不增加新元编程机制                        |
+| Svelte 配置与转发      | defaults 合并、class/style/slotProps、Symbol attachment、事件顺序     | 共用已有合并工具；不把普通业务对象深合并，不自动串联事件                   |
+| Svelte 布局与浮层      | Dialog/Drawer/Modal 与 Popover/Tooltip/Popup 复用、Portal/焦点/滚动锁 | 保持普通组件组合和局部 CSS；按所有权提取真正共享操作，不引入 BaseComponent |
+| 工程与发布             | 生成文件清理、源码条件与 dist、导出边界、合同预算                     | 消除失效脚本/重复配置必须有使用证据；不顺带升级依赖或抬预算                |
 
-声明继承先用普通只读 TS 数据按类别组合，只有反复出现的合并负担才提取一个小助手。派生声明可以覆盖默认值和新增键，已有键不能随意改类别；继承定义不等于共享 CSS 变量身份，Dialog/Drawer 可复用默认数据但应拥有独立的覆盖入口。默认值接受系统关键字、`_主题键`、普通 CSS 字符串/合法数值和明确 raw 叶，不支持 `$组件键` 递归引用。
+审计项不是已确认缺陷。每次重构先给出现有职责、具体重复/问题及修改收益；不能因文件长就拆分，不能为减少行数损害清理、可访问性或错误定位。发现超出局部修改的方向时先展示同一场景前后 API、兼容性和迁移量，再讨论。
 
-建议优先原型“公共覆盖挂载点 + 使用处 fallback”：
+### 语言工具与目录整理
 
-```css
-/* 示意名称；实际名称由描述符编码，作者不手写。 */
-inline-size: var(--z-dialog-width, var(--z-size-panelMd));
-max-inline-size: var(--z-dialog-maxWidth, 100%);
-background-color: var(--z-dialog-surface, var(--z-color-surface));
-```
+zui_lsp 的 completions 保留必要的 documentation、labelDetails、insertText/textEdit、sort/filter、isIncomplete，并按服务能力按需解析少量候选详情，不一次 resolve 全量属性。hover/定义位置、失败/超时和空结果保持可区分；不另造语言服务器，也不通过改 MCP 输出伪装 IDE 体验改善。
 
-未覆盖时在使用位置读取默认值/主题，显式覆盖才写公共组件变量。不要把所有默认值先挂在 :root；CSS-wide 的 initial/inherit 等放在自定义属性声明上也有其自身语义，不能简单当作普通文本默认值。若 Props 改变默认值，可按需要使用实例私有默认通道，公共覆盖仍优先；不为所有常量预建第二套变量。
+core 的 css/theme/runtime 结构保留。carrier.ts/Carrier 是否更名以悬停和维护收益为准，不为统一名词造成大面积噪声。生成文件继续放所属模块，保持单元测试归属。
 
-真实 Chrome 探针：父级主题 100px、子级改为 200px 时，继承父级已计算的变量别名仍为 100px；在子级重新声明别名或使用原地 fallback 则为 200px。显式祖先覆盖为 300px 时自然继承为 300px，组件边界设覆盖变量 initial 后恢复子级 200px fallback。临时页面已关闭。依据：[CSS 变量的继承与计算](https://www.w3.org/TR/css-variables-1/)。
+svelte 保留 compiler/runtime/layout/overlays。优先审计 internal.ts 协议入口与 internal/ 混合设施的命名冲突；表单/字段/路径、集合/异步/虚拟化可按真实消费者归属 forms/collections，确实跨域的少量工具才放 shared。先画依赖关系再迁移，不创建单文件目录或空文件凑数量。
 
-公共挂载点默认自然继承是当前新增推荐，但会让嵌套同类组件继承祖先覆盖，必须由用户确认。备选是默认在组件边界清空覆盖，只通过 Provider 的整类 class 显式应用。不得同时承诺“祖先自动继承”和“同名嵌套实例完全隔离”；局部边界可显式重置为 fallback。主题变化不会让已经从祖先继承的显式组件覆盖重新绑定到子主题；需要重新求值时在目标边界重新应用声明。
+component-types.ts 建议改为 component-types.generated.ts，并将 C0/P0 这类生成别名改得易读；同步构建/清理/导出路径。Panel.svelte 是否改 OverlayHost.svelte，layers.ts 是否拆滚动锁/焦点隔离，作为带证据的局部审计项，不预先承诺全部改名。
 
-默认挂载到组件主根；浮层使用实际 panel 根，触发器不默认承担面板变量。多根、Portal 或公开部件不猜 DOM：由 Svelte 层显式声明共享的变量宿主/桥接位置，业务仍只绑定 class，不暴露手工 attachment。跨 Portal 需验证逻辑作用域桥接，普通 DOM 继承无法跨越搬移后的祖先链。
+### 实施顺序与验收
 
-不默认注册 @property inherits:false：它会阻断内部后代正常继承，且非通配语法的 initial-value 有独立计算限制，不能作为通用主题引用/任意字符串默认值机制。只有动画等专项场景才单独评估注册；不引入覆盖全部组件变量的全局注册表。依据：[CSS Properties and Values API](https://www.w3.org/TR/css-properties-values-api-1/)。
+| 批次          | 工作                                                               | 完成条件                                                    |
+| ------------- | ------------------------------------------------------------------ | ----------------------------------------------------------- |
+| P0 基线       | 典型悬停/补全/诊断/定义样本，公开产物与现有性能预算                | 真实 TS/Svelte 工具结果；确认缓存和包解析路径               |
+| P1 最小增强   | 系统/主题字面量候选，`_key` 参数与成员同语义，原始值逃生舱         | 正负例、CSS 输出/依赖一致；用户确认 WebStorm 的真实补全体验 |
+| P2 提示完善   | 生成文档、单位参数、公共类型、组件 Props/slotProps 和 MCP 信息保真 | 源码/dist/外部消费有效，500 Token 类型与补全预算不退化      |
+| P3 局部完善   | 实际缺陷、重复实现、少量组件内部映射迁移                           | 修改均有收益证据；生命周期/SSR/Portal/覆盖行为保持          |
+| P4 目录与交付 | 必要命名/目录整理、清除过期规划、更新合同和说明                    | 导入/生成/打包一致，完整 CI 和候选产物通过                  |
 
-### 组件 Token 进入 CSS 后，精简覆盖体系（重点审阅）
+核心验收矩阵：系统 CSS 值的原始拼写；原有单位和数值范围；`._key` 与 `('_key')`；空主题/用户扩展主题/数字键/属性类别重映射；原始下划线标识符；null/undefined/未知引用；hash/动态提升/重复声明与层叠；模块编译/SSR/hydration/CSP/HMR；配置继承、slotProps/附件/事件；实际组件中的映射值输入；源码/Docs dist/tarball 的悬停补全与导航。
 
-用户已纠正：这里精简的依据是组件级别 Token 进入 CSS 系统，不是系统主题 Token，也不代表必须将组件 Token 搬进 ThemeScope。推荐优先复用 CSS 输出和层叠，不在 ConfigProvider/ThemeScope 再平行维护一套组件 Token 值覆盖状态。
+本地只做当批关键验证，必要时构建库声明供真实消费者与 IDE 使用；完整仓库类型/测试/构建/三浏览器/SSR/包消费交 CI。沿用现有类型/分发与回收预算，记录 500 Token 冷暖耗时，不承诺未经测量的性能提升，不因失败自动抬门槛。每批中文提交推送，推送前检查上一轮具体结果；运行中的 CI 不等待、不轮询。
 
-| 职责                                   | 推荐归属                                      | 明确不重复                                                                         |
-| -------------------------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------- |
-| 系统主题值、明暗和局部主题             | 现有 ThemeScope                               | 不新增 colorMode/themeOverrides controller                                         |
-| 组件 Token 的默认值与覆盖              | 同一 CSS runtime 的组件变量/声明及 class 层叠 | 不同时提供 ConfigProvider.tokens、ThemeScope.components、另一个 tokenOverrides API |
-| 默认 size/radius/locale/variant 等参数 | 现有 ConfigProvider                           | size='md' 是参数选择，具体 md 值来自 Token，不再抄像素表                           |
-| 任意 CSS、原生属性、事件、部件与内容   | class/style/slotProps/snippet 和普通组合      | 不新造 styleOverrides/variants/peers 配置语言，也不因有 Token 删除高级定制         |
+### 本轮审阅结论边界
 
-推荐的覆盖路径：
-
-- 全局品牌/尺度：ThemeScope 改 `_` 引用的主题值，组件 `$` 若引用该值自然跟随。
-- 整类组件的视觉 Token/任意 CSS：ConfigProvider.components.X.class/slotProps 继续应用在每个实例，CSS 使用既有 zui.defaults 层。
-- 局部实例：class/style/slotProps 使用 zui.app 或原生 inline 层叠。局部 Provider 仍可限定整类默认配置的作用域。
-- 组件默认声明：zui.components；不另设计一套 token priority。最终服从 specificity、原生 important 及其层顺序反转，不能把 Token 优先级表凌驾于 CSS。
-
-组件 Token 的类型化写入是需要审阅的小型 CSS 能力，不是已实现 API。建议使用明确的组件描述符，而不是猜 DOM/组件名或暴露手写变量名。例如形态候选：
-
-```ts
-// containerTokens 与组件声明为同一描述符，由公开入口按需导出。
-const compactContainer = defaultsCss((s) => {
-  s.tokens(containerTokens, {
-    size: { md: '68rem' },
-    spacing: { inset: '_lg' },
-  });
-  s.maxInlineSize.pct(100); // 任意 CSS 仍在同一套回调中
-});
-
-const components = { Container: { class: compactContainer } };
-```
-
-s.tokens 的名称/对象形态暂定，需先与更直接的描述符访问形式比较；关键合同是输出普通 CSS 自定义属性声明，并按描述符提供类别/键/值补全。复用 class、条件选择器、媒体查询、层和现有合并，无新的 Provider token 状态。现有 s.custom 可作为底层原始变量逃生舱，但不要求业务手写变量名。描述符必须可 tree-shake，不为一个组件导入全组件注册表。
-
-不新增第二张组件→主题映射表：componentTokens 声明既是默认值，也是类型/依赖/变量名的唯一来源；组件 schema 和导出从同一份源码/登记生成。覆盖只接受已知组件类别/键，声明和覆盖的 `_key` 均指向当前有效主题；默认字面量不能把可覆盖值锁成唯一值。
-
-需要先做 CSS 作用域原型：使用键按需输出，默认值/fallback 与公共覆盖挂载点区分。公共挂载点自然继承或默认局部隔离，以新增变量小节的选择为准，原先“全部变量默认每实例重置”不再作为定案。整类配置仍可通过既有 Provider class 显式应用到各实例；Portal 携带/重建所属作用域，ThemeScope 嵌套验证实际求值位置，不预先固化为亮色常量。
-
-Dialog/Drawer 共用 Modal 时显式转交公共拥有者描述符与作用域，不能统一退化为 Modal 的覆盖。组件名绑定以已有文件/名称登记为准，不按 basename 猜测、不建全局可变注册器。模块共享不可变声明，SSR 请求和实例变量资源隔离并释放。
-
-若 CSS 路线经原型无法满足明确的场景，再比较独立作用域覆盖或 ThemeScope 组件分支，并提供具体缺口/迁移代价；不得一边新增 CSS Token 覆盖，一边保留另一套含义相同的覆盖入口。主题数据树改造属于备选大改动，不是本阶段前提。
-
-组件行为逃生舱仍为 Props、事件、snippet、bind、slotProps 与普通包装；应用可通过自己的统一导出替换完整组件。暂不做任意 AST 改写/全局 monkey-patch/动态替换内部组件树，真正缺失的替换位置另行举例审阅。
-
-### 运行时与编译实施边界
-
-- 系统成员/字符串、主题成员/字符串、组件成员/字符串进入同一声明收集链路。主题引用无论直接使用还是来自组件叶，都保留 TokenUse、namespace 和宿主兼容性校验，不能只换字符串而丢依赖。
-- 组件 Token 的变量通道是 CSS 覆盖成立的基础：先原型验证默认输出、原生 fallback、使用键裁剪和命名隔离，再冻结编码。不要生成全组件/全主题变量。主题引用随 ThemeScope 变量更新，组件覆盖由 CSS 级联生效；动态声明继续使用现有提升/结构换 class 机制，不承诺所有变化都不换 class。
-- 描述符只读且可缓存；不每实例复制完整主题或生成全部未使用 Token，不新增常驻观察器。只对真正使用的值与依赖做工作，退出后沿用 binding/runtime 生命周期释放。
-- 编译转换限于已声明的调用/登记边界，不执行任意用户 JS 推断配置。仍支持普通函数和 switch 计算样式，不分析 $state 来源。生成配置类型可使用 TS 类型信息，不能为生成而执行用户模块副作用。
-- 输出继续是 class 字符串；不要求 attachment/手工 style 绑定，不增加另一套事件自动串联。保持映射位置/source map、HMR 和 `.svelte.ts`/模块编译合同。
-- 审计模块快照是否需要携带组件描述符/覆盖身份、默认指纹和依赖；有新增编译产物字段时升级对应协议，并让旧协议明确失败。SSR/client 同步构建，不能混用不兼容产物。
-- 两个 SSR 请求、嵌套 Provider/ThemeScope、Portal/ShadowRoot、hydration、严格 CSP 都在本阶段闭合；若别名在 CSS 继承中提前求值，必须检查实际作用域，不能用默认主题预先折成颜色常量。
-
-### 类型、文档生成与语言工具
-
-1. 用明确的原生 CSS 候选、`_主题键`、`$组件键` 加开放字符串形成参数类型，避免直接 `| string` 吞掉候选。关键词取真实 CSS 值，不误用成员的 camelCase；现有标准/vendor/SVG 覆盖和数字键归一化不回退。
-2. 自定义 extendTheme 和组件声明必须保留精确键；无主题/无组件描述符时不补不存在的前缀成员，不引入宽索引签名或 any。可选 PropertyTokenMap 继续只允许安全交集，不因简化类型而放宽为并集。
-3. 收敛公开悬停中的递归中间类型。先做具名接口/类别别名/公开函数签名，再按实测决定生成哪些显式声明；不为每个主题重复制 857 份属性，不用更复杂的条件类型掩盖展开。
-4. 修 generate-css.mjs 文档提取：保留属性用途、常见值、单位/Token 类别和来源链接，兼容性文字不占据唯一说明。保留上游归属，锁文件输入与稳定输出，不依赖构建时联网抓取。
-5. 单位函数提供 value、block/inline 等准确参数名、数量与单位解释；保留所有现有合法单位。系统关键字和新增前缀/成员需做命名碰撞审计。
-6. Token 悬停目标为来源、类别、用途、声明默认值/引用链与定义位置；默认值不冒充当前 ThemeScope computed value。内置提示由主题数据/注释生成，自定义类型无法保留任意键注释时明确实际限制，不承诺编辑器无法展示的信息。
-7. 组件 Props、snippet、bind 和嵌套 slotProps 保留源码单一类型来源；补默认行为/归属说明，验证发布后的 .d.ts/declaration map 与定义导航，不强制万能 Props 或手写重复接口。
-8. MCP 补全保留必要的 documentation、labelDetails、insertText/textEdit、sort/filter、isIncomplete；按能力协商支持有上限的详情 resolve。保留原始结果用于排障，不为一次请求解析全部候选。hover/定义失败、超时与空结果明确区分。
-9. 本机先发现并实际调用原生 zui_lsp/WebStorm/Svelte MCP。TS 与 Svelte 文件分别验收；WebStorm 的 MCP 查询与实际弹窗是不同证据，首个编写试点必须请用户确认体验。工具配置不改成全局，不因本阶段升级 TS 大版本或增加专用语言插件。
-
-### 命名、分目录与可维护性审计
-
-core 的 css/theme/runtime 现有 12/6/14 个直接子项，继续保留。carrier.ts/Carrier 可候选改为 property.ts/CssProperty，但只在公共声明更清楚时实施；生成文件与所属模块同放，不建通用 generated 垃圾目录。组件 Token 的框架无关部分按主题/声明解析职责归属，不把 Provider 导入 core。
-
-svelte 保留 compiler/runtime/layout/overlays。internal.ts 是协议入口，internal/ 混放表单、集合和交互，建议按实际引用关系迁移到 forms、collections 和少量 shared。拆分 text.ts 前核对数字草稿与字素消费者；types.ts 只放真正共享的联合类型，局部类型留组件。文件数量是指导，不能为凑 5 个文件建占位模块。
-
-component-types.ts 改为 component-types.generated.ts，生成别名由 C0/P0 改为有意义的组件名；同步构建器、清理规则、导出和测试。Panel.svelte 可改为 OverlayHost.svelte；Modal/Popup 继续复用各自局部样式，不引入 BaseComponent。
-
-layers.ts 约 598 行，按滚动锁/焦点隔离/栈生命周期检查耦合再决定拆分；同时审计命名含糊的 context/scope/session，避免为换词批量改名。core 根入口的内部协议导出是否独立为子入口属于大改动，先记录 IDE 自动导入污染与依赖证据，不在本阶段默认执行。
-
-### 分批实施与验收
-
-| 批次                      | 工作与交付                                                                                            | 通过门槛                                                                                  |
-| ------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| P0 基线                   | 保存典型源码/公开 dist/外部消费的悬停、补全、定义和错误诊断样本；冻结现有类型与分发预算               | 用真实工具记录，确认 stale cache 不冒充结果                                               |
-| P1 小试点                 | 普通字符串关键字+`_`/`$` 候选与严格成员，最小组件声明、原始值逃生舱；试用夹具隔离，不提前迁移公共组件 | TS/Svelte 类型正负例、输出一致性、WebStorm 手动试用通过；体验未通过先调整，不能先全面铺开 |
-| P2 引用语义               | 统一解析/依赖、只读描述符、覆盖与显式错误，模块快照/协议                                              | 静态动态两种写法等价；主题/组件隔离，缺失键和无类别行为明确                               |
-| P3 覆盖收敛与 Svelte 接入 | 验证 CSS Token 覆盖及作用域，接入类型生成和受限编译；先 Container，再 Dialog/Drawer/Modal             | 无独立 widths 表，覆盖实时生效；公共组件身份与内部复用不混淆；SSR/CSP/Portal/HMR 正确     |
-| P4 提示质量               | 生成文档、参数名、公共类型、定义导航和 MCP 信息保真；可与前面局部同步                                 | 悬停可读、补全准确、任意 CSS 保留、用户主题和 slotProps 有效                              |
-| P5 整理交付               | 经审计的目录/命名迁移、清除已废弃试点与冗余实现、公开文档                                             | 迁移前后行为一致，完整 CI、产物与合同通过，不长期维护重复 API                             |
-
-重点矩阵：CSS keyword/vendor/unit；无前缀原生值与十六进制颜色；主题/组件前缀；动态切换 Token；重名/数字键/未知键；原始下划线标识符；主题切换和组件局部覆盖；嵌套同名组件、不同 SSR 请求、共享 Modal 身份；重复声明/important/简写/继承；HMR/销毁/Portal；源码、Docs dist、独立 tarball 的补全和诊断；旧协议与未知字段失败。
-
-本地只跑本批相关类型探针/小范围测试，构建声明用于验证真实消费者。完整仓库类型/单测/三浏览器/SSR/CSP/包消费交 CI。使用既有 500 Token 探针和类型/分发预算，新增组件规模覆盖并记录冷暖耗时、内存和规则回收；不把未知性能收益写成承诺，不为通过而自动提高门槛。中文提交推送，下次推送前修上一轮具体失败；不阻塞等待新 CI。
-
-### 审阅要点与不做项
-
-已选定的是符号、两种访问形态、开放字符串、组件单向依赖与简洁作者形态。需要本轮批准的是：createCss.componentTokens 声明、复用 CSS/class 的组件 Token 覆盖方向及描述符写入候选、未知显式引用报错/原始值逃生舱、P0–P5 的实施范围。主题结构与公共入口的大改动仍需另行审阅，不因符号确定而默认批准。具体名字可调整，声明身份/作用域不能模糊。
-
-不默认执行：没有明确边界的递归主题树、原生字符串自动猜 Token、组件引用组件形成依赖图、条件 Token DSL、全局组件替换框架、公开入口大拆分、无关依赖升级或新业务组件。若基线证明需要上述大改动，先用同一场景给出前后 API、兼容/迁移与收益证据，另行讨论。
+已确认舍弃组件 Token 层，已明确新 CSS 能力范围。以上是重新收敛的实施规划，不是已开始执行。无需再选择组件变量继承、挂载、描述符和覆盖 API。主题结构/公共入口/全新配置机制等大重构不在默认范围内，只有发现明确问题后才另行讨论。

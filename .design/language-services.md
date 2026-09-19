@@ -114,4 +114,4 @@ node scripts/language-services/verify.mjs
 
 本次修正验收：setup.ps1 -Verify 完整执行成功；Codex 解析的配置分别启动 zui_lsp（5 个工具）和官方 svelte（4 个工具）；语义探针输出 VERIFIED，临时源码和自建服务进程已清理。PowerShell 语法、管理区幂等更新/保留其他设置、改动 JS 的 ESLint 与 WebStorm 检查通过。上一提交 b871db9 的完整 CI 已通过；本次推送后的 CI 不同步等待。
 
-随后重载已闭合原生会话验收：当前任务实际调用 zui_lsp 的 TS/Svelte 逐文件诊断、补全和悬停成功，官方 Svelte 文档/检查工具可用，WebStorm 能返回组件成员定义与说明。此前“等待重载”属于历史排障状态；新会话仍需轻量探针。本轮符号探针确认 `_`/`$` 在 TS/Svelte 成员、字符串候选和 Svelte 模板中均可用，源文件已清理。具体产品 API 仍是 .design/svelte-components.md 第 18 节的待审阅规划。
+随后重载已闭合原生会话验收：当前任务实际调用 zui_lsp 的 TS/Svelte 逐文件诊断、补全和悬停成功，官方 Svelte 文档/检查工具可用，WebStorm 能返回组件成员定义与说明。此前“等待重载”属于历史排障状态；新会话仍需轻量探针。本轮符号探针确认 `_`/`$` 在 TS/Svelte 成员、字符串候选和 Svelte 模板中均可用，源文件已清理。随后用户取消了 `$` 组件 Token 方案；符号可用不等于决定采用。最新产品范围见 .design/svelte-components.md 第 18 节，只增强系统/主题关键字，不实现组件变量层。
