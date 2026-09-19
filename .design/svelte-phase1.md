@@ -1,6 +1,6 @@
 # 第一阶段：架构与基础设施实施计划
 
-状态：代码与组合验收已落地，最终候选由 CI 验证。本文记录交付物、验收证据和边界；业务 API/类型/slotProps/Zod/Decimal 的唯一合同仍是 [组件主规划](svelte-components.md)，依赖职责见 [依赖取舍](dependencies.md)。第二阶段只提出 [组件实施计划](svelte-phase2.md)，没有提前铺视觉组件。
+状态：第一阶段代码与既定自动化验收已完成；候选 b1c1ae2 的完整 CI 已通过。本文记录交付物、验收证据和边界；业务 API/类型/slotProps/Zod/Decimal 的唯一合同仍是 [组件主规划](svelte-components.md)，依赖职责见 [依赖取舍](dependencies.md)。第二阶段只提出 [组件实施计划](svelte-phase2.md)，没有提前铺视觉组件。
 
 ## 目标与阶段边界
 
@@ -67,7 +67,7 @@ P1-02/P1-03 等可以在原型证明必要时调整文件粒度，但不能绕�
 | 跨组件交互        | internal/interaction/announce/text；局部键盘不抢 IME/修饰键/输入框/Escape、Pointer Capture 清理、分级去重播报、grapheme 与精确数值编辑边界、原生媒体偏好                           |
 | 消费与规模        | Docs dist 消费、真实 Kit、独立 tarball、1000 控件与资源基线；新增用例加入既有 CI，不引入只跑本机的验收通道                                                                         |
 
-候选 a61c0fa 的[完整 CI 35434309749](https://github.com/kenconnet666/zui-svelte/actions/runs/35434309749) 已通过，包含三浏览器、SSR/hydration、包外消费、产物和资源预算。补充候选 e9ece7a 增加 1000 控件、交互/axe、并发 SSR 配置隔离和重排字段测试；CI 的 84 个生产浏览器用例通过 83 个，仅 Firefox 指针取消夹具误写死 pointerId。49f8ba6 改为读取真实 ID，并断言实际捕获；其 CI 35434960943 在文档收尾检查时仍执行中。最后还通过 svelte/events.on 对齐子元素 preventDefault 顺序，并补了相关 Chrome 用例。最终 HEAD 的完整结果留到下次推送前核对，不等待或轮询。源码与包外消费者不使用 declare module 或路径别名来掩盖类型错误。
+最终代码候选 b1c1ae2662ef1513cfdf1fadc174da69fc3a6c34 的[完整 CI 35435194810](https://github.com/kenconnet666/zui-svelte/actions/runs/35435194810) 已通过，包含类型/构建、三浏览器/axe、SSR/hydration、独立安装包与产物/资源预算。1000 控件、交互/指针取消、并发 SSR 配置隔离和字段重排均已纳入；源码和包外消费者没有使用 declare module 或路径别名掩盖类型错误。设备验证边界见下文。
 
 本地重点证据：层/Portal/虚拟化、配置规模、键盘/指针、减少动态效果/高对比与 axe 的相关 Chrome 用例通过；相关 Svelte 文件经 WebStorm/LSP 和官方 autofixer 检查。server 9 项、集合/请求/退出/文本 9 项、表单/文本补充 11 项、配置 SSR 2 项在各自修改后通过。完整验证以候选 CI 为准，不把这些分批数量相加当成独立测试总量。
 

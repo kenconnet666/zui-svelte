@@ -9,7 +9,7 @@
 | [core-acceptance.md](core-acceptance.md)     | A01–A40 与完整候选 CI、产物证据                                     |
 | [svelte-components.md](svelte-components.md) | 编写偏好、默认值编译、slotProps 组合、基础设施/组件目录与 A0–E 验收 |
 | [svelte-phase1.md](svelte-phase1.md)         | 第一阶段基础设施实现、候选验收和明确边界                            |
-| [svelte-phase2.md](svelte-phase2.md)         | 第二阶段基础组件批次、作者形态与消费样例，供用户审阅                |
+| [svelte-phase2.md](svelte-phase2.md)         | 第二阶段布局/定位/浮层、架构优化及命名/目录/文件审计，供用户审阅    |
 | [development.md](development.md)             | 开发命令、本地关键检查和清理规则                                    |
 | [ci.md](ci.md)                               | 完整 CI、安装包和报告交付                                           |
 | [dependencies.md](dependencies.md)           | 依赖职责与新增依赖准入                                              |

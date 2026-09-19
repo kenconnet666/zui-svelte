@@ -47,3 +47,5 @@
 - Select 对象默认读取 id/label，非标准对象用 getKey/getLabel，不猜字段名；options 刷新同 key 时保留绑定对象和该对象的选中展示，缺项也不自动清空。Autocomplete 独立绑定自由文本，复用集合/搜索/浮层基础，不混入 Select 的对象值模型。
 - 日期使用已安装的 @internationalized/date，日期/时间值与解析函数从 svelte 主入口导出；@axe-core/playwright 仅供 docs 开发/CI。docs 通过公开 dist 入口消费库，不启用 zui-source 或相对导入库 src；开发前先 build:libs，源码联调由专门 HMR 夹具验证。
 - 用户已批准第一阶段架构/基础设施实施，计划见 .design/svelte-phase1.md；按可构建阶段推进直到该阶段闭合，再规划第二阶段汇报。适当参考成熟项目并记录采用/舍弃原因，不将探针冒充公共 Form/Field/DecimalInput 等视觉组件实现。
+
+- 第二阶段方向已改为先布局、定位和浮层基础组件，同时纳入现有架构必要 API、优化/精简、命名、目录归属和文件拆分/合并审计；计划见 .design/svelte-phase2.md。具体 API 与实施仍待用户审阅，不沿用旧的 Button/表单优先排期，不提前搬文件或铺组件。

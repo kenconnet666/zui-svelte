@@ -741,7 +741,7 @@ Icon/Spinner 是其他组件的底层复用点。Field 已确定为公开基础�
 | Tabs、Accordion               | 活动项/展开项、键盘、disabled、面板 ID、懒加载与保留状态合同 | 共享集合/焦点/退出状态；公开完整组件，snippet 承担自定义内容   |
 | Breadcrumb、Pagination、Steps | 路径导航、分页参数与边界、步骤状态及语义                     | Button/Link/Icon；不内置路由和数据请求，Steps 不变成工作流引擎 |
 
-不预建 Box/Flex/Grid/Stack/Text/Heading 全套包装；普通 HTML + css 能清楚表达时直接使用。复杂 NavigationMenu、CommandPalette 等有独立行为需求的能力，需补充真实场景后再纳入，不以名称相近重复建设。
+第二阶段按用户新方向优先布局/定位/浮层，具体范围见 [阶段计划](svelte-phase2.md)：建议少量 Stack/Grid/Container/ScrollArea，不铺 Box/Flex/Stack/Space 等重复体系；普通 HTML + css 足够时直接使用。此段替代旧的“布局组件暂不优先”排期。复杂 NavigationMenu、CommandPalette 等有独立行为需求的能力，需补充真实场景后再纳入。
 
 ### C：浮层、选择与表单组合
 
