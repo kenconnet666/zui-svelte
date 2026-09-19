@@ -11,7 +11,7 @@
 - 普通值初次保持静态，同一绑定内首次检测到值变化才提升；不预先参数化所有值，不分析响应式来源。
 - css() 返回原始字符串，用户只写 class。编译阶段补齐变量、SSR 和生命周期；不公开 css.parts、StyleHandle、panel.props() 或 attachment 绑定 API。
 - 子元素独立绑定，多个 class 可以直接组合。参数优先普通 TS 函数；复杂组件使用 slotProps 转发子元素/组件参数、class、style。
-- 推荐直接在模板 class={css((s) => { ... })} 中编写局部样式；复用或复杂逻辑再提取普通 TS 函数，性能工作由编译与 runtime 承担。
+- 推荐直接在模板 class={css((s) => { ... })} 中编写局部样式；组件专用类型、常量、分支与样式优先留在该 .svelte 文件，不为了分层拆出 buttonClass/applyVariant/BaseButton。确有跨组件复用或明显可读性收益时才提取，性能工作由编译与 runtime 承担。
 - SvelteKit/SSR 消费是首版验收项，必须设计首屏样式输出、hydration 与请求隔离；文档站保持普通 Svelte。
 - svelte 自行实现组件，不引入无样式组件库。底层专项工具按实际需要选择。
 - docs 是普通 Svelte + Vite 网站，使用 .svelte 页面与真实 Demo；不使用 SvelteKit 或 Markdown 内容管线。
@@ -36,3 +36,7 @@
 - Svelte 生态选择性参考 shadcn-svelte、Flowbite Svelte、Bits UI 等；只吸收有证据的 API/行为/测试，不引入无样式组件库或替换现有样式引擎。实施阶段和验收见 .design/svelte-components.md。
 - 组件主题覆盖要完整且复用现有能力：当前方案用 ThemeScope、组件默认 Props/class/slotProps、按需组件 Token 和明确 CSS 层序，覆盖全局/整类/实例；不因避免 styleOverrides DSL 而省掉整类任意 CSS 覆盖，也不制造每实例全量主题。
 - 规划与实现顺序必须基础架构/共享基础设施先行，再冻结和实现基础组件 API，最后组合上层。生产必需能力和验收不能以“简化版/以后再补”跳过；简洁体现在职责清楚、复用原生能力/已有组件/专项依赖，以及舍弃重复机制。
+- 类型优先内联组合原生元素属性、ComponentProps、Pick/Omit 等普通 TS 能力；Size/Color 等底层联合类型按需共享，不强制 ControlAppearance/万能基础 Props，不设计组件工厂或复杂类型 DSL。类型较长或确有复用时可以命名。
+- 组件默认值只在 let { size = 'md', block = false, ... } = $props() 中声明；需要配置继承时以受限编译转换接入小型运行时，作者侧不再维护 ButtonDefaults/fallback/getComponentDefaults。此为已选作者形态，转换、白名单、类型生成与发布合同尚待实现和验收。
+- 上层优先组件组合：纯包装继承 ComponentProps 并转发 rest/slotProps，绑定状态显式用 $bindable/bind。组合组件公开稳定职责位置，其类型引用底层 Props 并保留嵌套 slotProps；不暴露整棵 DOM 树，不重复声明底层属性。
+- slotProps 合并只递归已定义的 slotProps 结构，保留 class/style/attachment Symbol；普通数据对象不深合并。状态与关键语义归所属组件，业务事件顺序/defaultPrevented 明确写出，编译器不猜测或重复串联事件。原生 spread 不是自动合并能力。

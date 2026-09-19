@@ -2,6 +2,8 @@
 
 已确认：共享响应式模型可直接修改；Lucide 组件直传；一体 Input 包含 label/help/error；Dialog 为完整组件；五档使用 xs/sm/md/lg/xl；标准 CSS 与通用主题引擎留 core，UI 预设与默认主题 css 在 svelte；Button 使用 color + variant + size，Select 默认返回整条选项数据，集中默认配置与统一浮层管理。业务组件尚未实施，本文明确区分已经确认的边界与后续建议。
 
+作者侧偏好已更新：专用样式直接写在模板，类型按需内联/复用，默认值只写在 $props() 解构；配置接入可由编译器生成。上层复用底层 Props 和嵌套 slotProps，不强制 ControlAppearance 或另一套组件定义语法。第 8 节记录这些约定及待验证边界；第 16 节是待评审的具体组件目录，不能视为已实现或已全部批准发布。
+
 ## 1. 包与默认值边界
 
 | @zui/core                                        | @zui/svelte                                |
@@ -191,13 +193,83 @@ Naive UI 的基础 value 常用编号、回调另带 option；Ant Design labelIn
 
 ## 8. 组合、样式和接入
 
-class/style 控制根，slotProps 转发少量公开节点；重复项支持普通回调，内容使用 snippet。class 不以字符串顺序决定覆盖；建议库样式层 zui.components、组件默认覆盖层 zui.defaults 与应用层 zui.app，但必须统一自动 runtime/显式 runtime/SSR 的配置后再实施，不只在单个 Button 中硬写 layer。
+### 作者形态：原生语法、就近实现
 
-普通可覆盖属性按默认值后应用用户值；内部/用户 class 都保留，style 保留原生字符串能力，不用按分号拆分的自制解析器。value/checked/disabled 与关键 id/role/ARIA 关系由主 Props 和控件语义维护，slotProps 不再成为另一份状态来源。事件逐项声明顺序与 defaultPrevented：可取消交互可以阻止默认动作，不能取消必要的资源清理。节点类型来自 svelte/elements 或子组件 Props，未知 slot key 应报类型错误。
+- 组件专用样式直接写在模板 class={css((s) => { ... })}；局部 if/switch、尺寸映射和常量默认留在同一 .svelte 文件。不为文件短而增加 buttonClass/applyVariant/BaseButton/组件工厂。
+- 普通 TS 函数和专项基础设施承担真实共享责任；公共数据只有在多个消费者确实语义一致时才提取。Dialog.size 表示内容宽度，不能自动转发为关闭按钮的 size。
+- 原生属性来自 svelte/elements；包装组件使用 ComponentProps<typeof Component>。优先内联类型，较长或被复用时再命名；Size/Radius/Color 等基础联合类型按需集中，不强制 ControlAppearance 或万能 BaseProps。
+- 用 Pick/Omit/Partial 和普通交叉类型即可。& 不会覆盖同名属性，替换定义先 Omit；不一律 Partial 子组件 Props 来抹掉必选关系。slotProps 引用实际元素/组件类型，不使用 Record<string, any>。
 
-Dialog 采用完整组件，提供 title/children/footer 与 slotProps；不要求用户每次拼 Root/Overlay/Content。内部 Portal、焦点、关闭行为可由小型共享工具负责，不新增万能组件工厂。
+```svelte
+<script lang="ts">
+  import type { HTMLButtonAttributes } from 'svelte/elements';
+  import type { Size } from './types';
 
-共享 FieldFrame、Overlay 行为、Lucide 渲染是有意义的复用；core 不认识 label、error、option 或 Button variant。普通 TS 映射和组件组合优先，避免从五档需求推导出一套通用 recipe DSL。
+  let {
+    size = 'md',
+    block = false,
+    loading = false,
+    children,
+    ...rest
+  }: HTMLButtonAttributes & {
+    size?: Size;
+    block?: boolean;
+    loading?: boolean;
+  } = $props();
+</script>
+```
+
+这是声明形态示意，不是删减后的生产 Button。默认值只在解构中写一次，不额外维护 ButtonDefaults/fallback/definition 对象。外部需要命名类型可用 ComponentProps<typeof Button>，发布时须验证声明产物保留完整补全。
+
+### 默认配置接入：编译补代码，运行时读作用域
+
+作者形态已选定；以下转换方案待 A0/A1 实现。对明确登记的字段，生成等价代码：
+
+```ts
+// 自动生成；不修改 Svelte 编译器，不要求组件作者维护。
+const __config = readComponentConfig('Button');
+let { size = __config.size ?? 'md', block = __config.block ?? false, loading = false } = $props();
+```
+
+__config 是在初始化时捕获上下文的读取视图，不是配置快照。实例明确值优先；undefined 继承；false/none 是有效值。默认表达式保留原求值位置，不在构建时执行用户函数，不用 effect 复制状态。配置字段不接受 null 时应由类型和开发诊断拒绝，而非增加含糊的清空语义。
+
+- 必须明确可配置字段，不能把所有有默认值的属性都自动纳入。候选是一份构建清单，如 Button: ['color', 'variant', 'size', 'radius', 'block']；只列键，不重复默认值/类型。清单载体与第三方组件登记入口仍待讨论。
+- 使用 AST 和真实导入/源码身份，生成名称避冲突、source map、重复转换标记和清楚的错误。不按文件 basename/运行时函数名猜组件身份，不替换任意业务 $props。
+- 配置类型从真实 Props 与字段清单产生普通 Pick 等声明；TS 错误必须回指原文件。复杂泛型、别名、动态声明不可可靠处理时显式诊断，不丢类型或静默跳过。
+- $bindable 的 value/open/checked 不自动走视觉默认配置；保留原生双向绑定和请求内业务状态。
+- 开发、SSR、发布使用同一转换。当前 Vite class 插件会跳过 node_modules，因此库发布前必须完成所需预处理；独立安装包验证不能依赖工作区恰好扫描到源码。配置转换与现有 CSS 编译桥分别明确顺序、幂等和协议兼容。
+
+当前证据：锁定 Svelte 5.57.0 下，内联类型与上述转换前/后的小样本均通过 client/server 编译；原生 lazy fallback 的探针验证了配置变化、显式覆盖、恢复 undefined 和 false。不是完整 ConfigProvider、DOM 响应、声明生成或发布验收；配置转换尚未落地。
+
+### slotProps：继承类型、原样转发、有限合并
+
+class/style 控制公开根，slotProps 转发稳定职责位置；内容使用 snippet，重复项可按实际需要使用类型化回调。Dialog 保持完整组件，不要求使用者拼 Root/Overlay/Content。公开根要明确，例如 Dialog 的可见内容容器，不将 Portal 占位当作样式目标。
+
+纯包装组件直接继承 ComponentProps 并转发 rest，原有 slotProps/children/事件/attachment 自然保留；需要双向绑定时显式 $bindable + bind:value，spread 不会建立双向绑定。上层组合示例：
+
+```ts
+slotProps?: {
+  body?: HTMLAttributes<HTMLDivElement>;
+  closeButton?: Omit<ComponentProps<typeof Button>, 'children' | 'type'>;
+};
+```
+
+Dialog.slotProps.closeButton 接收 Button 参数，并保留 closeButton.slotProps.icon 等底层能力；不重新抄一份按钮颜色/尺寸/图标类型。上层只消费自己的位置，新增 badge 等位置需从转发对象分离。公开位置属于稳定 API，不暴露 header.actions.wrapper 等整棵 DOM 树；高频业务参数放顶层 Props，不用深层路径承担 title/error/value。
+
+| 内容           | 合并/所有权合同                                                                                                                              |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| 普通可覆盖属性 | 内部位置默认 → 配置覆盖 → 实例覆盖；undefined 不抹掉前值。上层没特殊要求时继续给底层 undefined，保留底层配置继承                             |
+| class/style    | class 全保留、style 遵循原生声明能力；不按 class 数组顺序保证 CSS 优先级，不用按分号拆分的自制解析器                                         |
+| 嵌套 slotProps | 只对已定义的 slotProps 结构逐位置合并；普通 options/item/Date 等数据保留完整值，不做通用深合并                                               |
+| 状态与语义     | value/checked、内部关联 ID/ARIA、按钮 type 等由对应组件负责；类型排除和最终运行时赋值都需保证，不能仅信 TS                                   |
+| 业务事件       | 明确执行顺序、取消与异常行为；例如外部 onclick 后检查 defaultPrevented 再 requestClose。不能取消必要清理；显式调用外部事件后不再自动串联一次 |
+| attachment     | 保留可枚举 Symbol 与目标节点身份、清理生命周期；仅 Object.keys/entries 的工具不完整，不能把子节点 attachment 挂到根                          |
+
+有限编译增强可为已登记 slot 的消费位置生成 class/style/slotProps 合并，作者保留普通 spread；原生 Svelte spread 本身只按覆盖规则工作。不得改写所有业务 spread、猜测事件语义、在纯包装中反复合并同一份 Button 配置。无编译增强的业务包装若主动添加定制，可显式调用同一个小型合并工具；不能维护两套规则。
+
+层序建议 zui.components → zui.defaults → zui.app，需统一自动 CSR、显式 runtime、SSR 与模块样式；详细覆盖边界见第 14 节。现有 class 编译器已识别 slotProps/CSS 传递，但没有完整的通用 slot 合并实现。
+
+验收须覆盖多层包装/嵌套 slot 的类型正负例、透传/覆盖/undefined、符号 attachment、事件只执行一次、属性移除、共享同一 slot 对象给多实例、响应式重赋值与数组变更、CSP/SSR/hydration 和底层组件独立发布。不能因为小样本可编译就宣称这些全部通过。
 
 ## 9. 集中默认配置：已确认方向，入口暂名 ConfigProvider
 
@@ -431,6 +503,7 @@ flowchart TD
 | 领域             | 必须完整规划/验证的能力                                                                     | 复用与边界                                                                                                     |
 | ---------------- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | 宿主与样式       | UI 默认层序、主题桥、SSR 收集/hydration、nonce、模块样式、Portal/ShadowRoot、多根           | 复用 core；不把 UI 预设搬回 core，不修改已运行的层序掩盖配置错误                                               |
+| 作者编译与类型   | 原生解构默认值接入、可配置字段校验、slot 定向合并、声明输出、源码映射、HMR、发布预处理      | 保留普通 Svelte/TS 作者形态；运行时只读作用域，不能扩成通用组件 DSL 或改写任意业务 spread                      |
 | 配置与组件主题   | 动态继承、组件默认值、系统/组件 Token、整类与实例 CSS 覆盖、类型和合并规则                  | createContext + ThemeScope + class/slotProps；不重复造主题 controller                                          |
 | 字段语义         | ID/label/help/error/required/disabled/readonly、消息空间、原生表单关联、值/显示值区别       | 内部 FieldProps/FieldFrame/字段协议；公开 Input 不要求外层 Field                                               |
 | 交互与元素接入   | 指针/键盘/IME、事件委托顺序、可取消动作、attachment/ref、禁用及读写边界                     | 原生 Svelte/DOM；副作用清理属于元素或组件，不用全局轮询                                                        |
@@ -471,16 +544,16 @@ flowchart TD
 
 ### 实施阶段与退出门槛
 
-| 阶段                        | 交付                                                                                                                                    | 必须通过后才能推进                                                                            |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| A0 架构合同与风险验证       | 明确包/宿主/所有权、值与空值、默认配置/主题/CSS 层序、对象身份、事件和 SSR 合同；验证原生功能绑定/泛型/attachment/snippet 与 ZUI 编译桥 | 有类型正负例和原生对照；重大取舍得到确认，不以空接口算完成                                    |
-| A1 基础接入、配置与字段语义 | Config/context、ThemeScope 桥、组件覆盖解析、统一层序、字段 ID/ARIA/事件/生命周期工具                                                   | 嵌套动态继承、三层 CSS 覆盖、无 JS SSR/CSP、多根隔离、异常和回收通过                          |
-| A2 浮层/定位/焦点基础       | 挂载、父子归属、键盘/outside、测量、锁和退出协调；专项依赖薄适配                                                                        | 原生元素构成的嵌套模态/下拉探针通过三浏览器；包含移除触发器、滚动、RTL、Portal 主题与反复开关 |
-| A3 集合、异步与表单基础     | key/selection、搜索与请求生命周期、字段注册/校验/reset/submit、locale；大集合与虚拟化契约                                               | 重载/重复键/乱序/取消、数组原地变更、动态字段、错误聚焦、大数据焦点与资源预算通过             |
-| B 基础组件与 API 定稿       | Button、Input/Textarea、Checkbox/Radio/Switch 等；复用上述能力，不复制实现                                                              | 五档、Lucide、原生属性/表单、IME、值与事件、a11y、SSR/CSP、主题覆盖和生命周期逐组件闭合       |
-| C 组合组件                  | Dialog/Popover/Tooltip/Select/Form 等按依赖顺序组合基础组件和设施                                                                       | Dialog 内 Select、多层/多根、对象单多选、搜索/表单/主题等组合行为通过，不只测单体             |
-| D 上层组件与专项域          | Table/DatePicker 等先确定复用图及领域依赖，再实现；缺少的领域基础先补                                                                   | 不重复选择/浮层/字段系统；日期/虚拟化/编辑等域合同有独立证据                                  |
-| E 生产交付闭合              | 文档、API/类型快照、包体积/性能、独立 tarball、真实 Kit、三浏览器、迁移与支持矩阵                                                       | 同一候选 SHA 完整门槛通过；没有已知阻塞，不靠跳过必需场景宣布生产可用                         |
+| 阶段                        | 交付                                                                                                                 | 必须通过后才能推进                                                                              |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| A0 架构合同与风险验证       | 作者语法/默认值转换/slot 转发/类型声明/独立包原型；明确宿主所有权、值/空值、配置/主题层序、对象身份、事件和 SSR 合同 | 原生对照、类型正负例、明确转换顺序与 node_modules 消费；重大取舍得到确认，不以空接口算完成      |
+| A1 基础接入、配置与字段语义 | 默认值与 slot 编译接入、Config/context、ThemeScope 桥、组件覆盖解析、统一层序、字段 ID/ARIA/事件/生命周期工具        | 嵌套动态继承、多层 slot/attachment/事件、声明生成、三层 CSS 覆盖、无 JS SSR/CSP、多根和回收通过 |
+| A2 浮层/定位/焦点基础       | 挂载、父子归属、键盘/outside、测量、锁和退出协调；专项依赖薄适配                                                     | 原生元素构成的嵌套模态/下拉探针通过三浏览器；包含移除触发器、滚动、RTL、Portal 主题与反复开关   |
+| A3 集合、异步与表单基础     | key/selection、搜索与请求生命周期、字段注册/校验/reset/submit、locale；大集合与虚拟化契约                            | 重载/重复键/乱序/取消、数组原地变更、动态字段、错误聚焦、大数据焦点与资源预算通过               |
+| B 基础组件与 API 定稿       | Button、Input/Textarea、Checkbox/Radio/Switch 等；复用上述能力，不复制实现                                           | 五档、Lucide、原生属性/表单、IME、值与事件、a11y、SSR/CSP、主题覆盖和生命周期逐组件闭合         |
+| C 组合组件                  | Dialog/Popover/Tooltip/Select/Form 等按依赖顺序组合基础组件和设施                                                    | Dialog 内 Select、多层/多根、对象单多选、搜索/表单/主题等组合行为通过，不只测单体               |
+| D 上层组件与专项域          | Table/DatePicker 等先确定复用图及领域依赖，再实现；缺少的领域基础先补                                                | 不重复选择/浮层/字段系统；日期/虚拟化/编辑等域合同有独立证据                                    |
+| E 生产交付闭合              | 文档、API/类型快照、包体积/性能、独立 tarball、真实 Kit、三浏览器、迁移与支持矩阵                                    | 同一候选 SHA 完整门槛通过；没有已知阻塞，不靠跳过必需场景宣布生产可用                           |
 
 A1–A3 完成前不铺正式业务组件，不把“组件写完后再补基础设施”作为计划。可以用无公共 API 承诺的验证夹具推动基础设计；若探针证明方案不成立，应回到架构讨论，而不是将缺口转给使用者。
 
@@ -517,7 +590,96 @@ A1–A3 完成前不铺正式业务组件，不把“组件写完后再补基础
 
 上线范围可以按组件阶段推进，但任何声明为生产可用的能力都必须达到对应门槛。结构探针、仅本机通过、仅截图好看，都不能替代完整验收。
 
-## 16. 研究依据与下一步讨论
+## 16. 具体组件目录与讨论范围
+
+下表是生产架构的候选目录，不是全部立即开工，也不是把较复杂组件做成削减版。按依赖逐批交付；每个纳入交付范围的组件完整通过第 15 节对应门槛。现阶段保留已确认的 Button/Input/Select/Dialog 方向，其他组件名称、数量和公共接口仍可调整。
+
+### 公共入口与内部基础设施
+
+| 对外可使用                                                                  | 内部实现优先，不预先公开                                                       |
+| --------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| 已有 StyleProvider、主题 css/lightTheme/darkTheme；继续复用 core.ThemeScope | core 适配、样式资源所有权、Portal 主题桥、请求隔离与 HMR 处理                  |
+| 拟新增 ConfigProvider、locale 数据、Size/Radius/Color 等共享类型            | 配置 getter、有限编译转换、类型生成、字段白名单、Props/slot 合并               |
+| 业务确需的表单字段接入、少量 DOM 方法与原生 attachment                      | FieldFrame、ID/描述关系、错误/校验调度、表单注册；不预设万能 FormModel         |
+| 完整交互组件，必要的受控状态和可取消通知                                    | Layer/挂载、focus/locks/outside、定位、退出协调、集合/选择、异步版本、虚拟窗口 |
+
+内部基础设施先通过原生元素组合探针验收，再承载公共组件。类型与资源清理必须真实可用；不把“先建很多空接口/空目录”视为基础完成。外部高级接入只有真实消费者出现时才单独公开，不将内部每个 manager 变成长期 API。
+
+### B：基础控件与呈现组件
+
+| 组件                           | 首批完整职责                                                                    | 主要复用/边界                                                                    |
+| ------------------------------ | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Icon、Spinner                  | Lucide 组件直传、尺寸与装饰语义；加载动画、减少动态效果、CSP                    | 图标类型复用 Lucide；不引入图标名字字符串注册表                                  |
+| Button、ButtonGroup            | color/variant/size、五档、加载/禁用/焦点、原生提交；分组布局和局部默认          | 普通 button/DOM；ButtonGroup 不自动变成有选中模型的 ToggleGroup                  |
+| Input、Textarea                | 一体 label/help/error、IME/光标/自动填充、清空与密码等适用能力、原生 form/reset | 共享字段协议/FieldFrame；不复制另一份业务值，Textarea 不强行继承所有 Input Props |
+| Checkbox、CheckboxGroup        | checked/indeterminate、单项与集合绑定、表单序列化、禁用、组语义                 | 原生 input 和共享字段/集合；组与单项模型分别明确                                 |
+| Radio、RadioGroup、Switch      | 单选组键盘/表单、布尔切换、label/说明/错误                                      | 原生语义优先；Switch 与 Checkbox 可复用实现，不混淆角色                          |
+| Badge、Tag                     | 计数/状态与可关闭标签；关闭可取消，处理布局/溢出/读屏                           | 使用共享语义色；Badge 与 Tag 用途不同，不用万能状态组件                          |
+| Avatar、AvatarGroup            | 图片失败回退、文本/图标回退、分组与溢出说明                                     | 复用 Icon；不默认引入图片裁剪/上传职责                                           |
+| Divider、Card、Empty、Skeleton | 结构、内容片段、空态、加载占位、动画与 a11y                                     | 原生元素、snippet、主题；不为了每一种排列增加组件层级                            |
+| Alert、Progress                | 状态消息及关闭、确定/不确定进度、可访问说明                                     | 共享色板/图标/动作按钮；与 Toast 的队列和计时分开                                |
+
+Icon/Spinner 是其他组件的底层复用点；只服务库内部的 FieldFrame 暂不算一个必须由业务组合的公开部件。Field 是否额外公开见本节待确认项。
+
+### B/C：导航与内容组织
+
+| 组件                          | 关键能力                                                     | 依赖与取舍                                                     |
+| ----------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------- |
+| Link                          | 原生 a/download/target、安全的禁用表现和焦点、图标           | 不依赖特定路由器；Button.variant=link 仍是按钮                 |
+| Tabs、Accordion               | 活动项/展开项、键盘、disabled、面板 ID、懒加载与保留状态合同 | 共享集合/焦点/退出状态；公开完整组件，snippet 承担自定义内容   |
+| Breadcrumb、Pagination、Steps | 路径导航、分页参数与边界、步骤状态及语义                     | Button/Link/Icon；不内置路由和数据请求，Steps 不变成工作流引擎 |
+
+不预建 Box/Flex/Grid/Stack/Text/Heading 全套包装；普通 HTML + css 能清楚表达时直接使用。复杂 NavigationMenu、CommandPalette 等有独立行为需求的能力，需补充真实场景后再纳入，不以名称相近重复建设。
+
+### C：浮层、选择与表单组合
+
+| 组件             | 完整职责                                                                          | 必须复用                                                                        |
+| ---------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Dialog、Drawer   | 模态/非模态合同、关闭原因和取消、焦点/锁、退出中断、header/body/footer、slotProps | 同一 Layer/焦点/挂载与主题桥、Button/Icon；Drawer 只改变布局/方向，不复制管理栈 |
+| Popover、Tooltip | 锚点、碰撞、触发/延迟、触摸/键盘、描述关系；交互内容用 Popover                    | 共享定位/Layer；Tooltip 不承担可操作表单，不把两者的焦点策略混用                |
+| DropdownMenu     | 动作项、分组、禁用、子菜单、键盘/typeahead、可取消动作                            | 集合、定位、层归属、Icon；导航链接的语义与操作菜单明确区分                      |
+| Toast            | 应用作用域队列、暂停/恢复计时、去重策略、操作按钮、live region、清理              | Alert/Button/退出基础；不创建跨 SSR 请求单例，不抢用户焦点                      |
+| Select           | 默认对象、稳定 key、单多选、搜索、清空、异步/缺项、虚拟选项、表单关联             | FieldFrame、集合/选择、异步、虚拟化、定位/Layer、Icon；不另造绑定模型           |
+| Form             | 字段注册、错误/dirty/touched、同步/异步校验、submit/reset/首错聚焦、动态字段      | 原生 form + 外部 $state 模型；不复制 store、不自造规则 DSL，不替业务请求接口    |
+
+Dialog 不默认强加“确认/取消”业务流程。ConfirmDialog、SearchInput、EmailInput 等先作为用法/组合示例；若重复需求足够，再讨论独立导出，避免机械增加同义组件。能否取消关闭与底层事件合并是具体合同，不能用普通 spread 意外覆盖。
+
+### D：专项领域和复杂数据组件
+
+| 组件                             | 先补齐/验证的领域基础                                                 | 组件责任                                                                                                |
+| -------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| NumberInput、Slider              | 数字/空值/非法中间输入、精度和步长、locale 解析；指针捕获与键盘、方向 | 格式化不打断编辑；Slider 的单值/范围须类型区分，不复用普通 Input 的文本状态机                           |
+| Autocomplete（候选）             | 文本模型、建议项对象、IME/搜索、提交与选择事件                        | 允许自由文本；与 Select 的已选对象模型是否独立见待确认项                                                |
+| Upload                           | 文件筛选、任务状态、进度、取消/重试、并发与队列、资源释放             | 提供业务上传适配接口，不内置后端/存储协议；客户端限制不冒充服务端安全验证                               |
+| Calendar、DatePicker、TimePicker | 日期/时间/区间模型、locale/RTL、不可选日期、时区和序列化边界          | Calendar 提供可复用日历面板，DatePicker 组合字段/浮层，TimePicker 明确时间模型；不猜测地区日期字符串    |
+| Table                            | 行 key、选择、列定义/排序/过滤、异步分页、虚拟化/测量、键盘/表头关联  | 复用 Checkbox、Button、Input、Popover、Pagination；列宽/固定列/编辑按明确合同交付，不宣称是电子表格引擎 |
+| Tree、Cascader                   | 树 key、展开/懒加载、父子选择/半选、禁用传播、窗口化                  | Tree 与 Cascader 共享树模型，Cascader 再复用字段/浮层；不把树节点状态复制进业务对象                     |
+
+专项基础也遵循先基础、后组件。列出的完整领域不能跳过，但无需在 Button 开始前先实现上传或日期引擎。大数据、日期或表单能力不应使只使用 Button 的应用加载所有专项依赖。
+
+### 包结构与依赖选择
+
+根目录仍是 core/svelte/docs。svelte/src 当前的入口、theme.ts、StyleProvider、runtime/compiler 保留。组件增多时按 controls、overlays、display、navigation、data 分组，内部共享实现放 internal，locale 按实际数据量产生目录；一组放多个 .svelte/TS 文件，不为每个组件创建单文件目录。测试放所属模块 test 中。类型先少量平坦文件，目录按实际文件形成，不一次性生成空骨架。
+
+- 已有：Svelte 原生响应式/context/snippet/attachment、core runtime/Stylis、Lucide。不要叠加第二套样式或 headless 组件运行时。
+- 定位：优先验证 @floating-ui/dom；只在目标挂载时订阅，卸载/重定位时释放。
+- 焦点：对比 focus-trap/tabbable 与 Layer 的职责，选一种策略，不同时运行多套陷阱。
+- 虚拟化：TanStack Virtual 为候选，与 Svelte adapter/核心薄接入比较后决定；先验证活动项可达、动态高度、SSR 与体积，不直接承诺选型。
+- 校验：推荐普通函数 + 可选 Standard Schema 协议；不强制某一家验证库。需要特别区分 schema 输入与转换后输出，校验不自动回写外部业务模型。
+- 日期与精确数字：模型和需求明确后再选择专项库；Intl 负责格式化，不假设它提供可靠的任意文本解析或日期算术。
+
+依赖锁版本时再核对兼容性并进入 catalog，本次没有新增依赖。依据：[Floating UI autoUpdate](https://floating-ui.com/docs/autoUpdate)、[focus-trap](https://github.com/focus-trap/focus-trap)、[TanStack Virtual](https://tanstack.com/virtual/latest)、[Standard Schema](https://standardschema.dev/)。
+
+### 本轮待确认的取舍
+
+1. 是否公开轻量 Field 给富文本/自定义控件复用 label/help/error 与表单关联；推荐公开，但 Input/Select 仍一体化。Field 包裹任意子组件不会自动获得值、聚焦与 ARIA 能力，必须有明确接入合同，不能声称仅加 name 就继承 TS 泛型。
+2. 表单校验是否采用普通函数 + 可选 Standard Schema；推荐同时支持，转换后输出与原始模型分离。
+3. Select 与 Autocomplete 是否分开；推荐 Select 绑定已有选项对象，Autocomplete 绑定自由文本并通知建议项选择，共享设施但不强塞联合值模型。
+4. 默认值编译登记使用集中清单还是组件内轻量标记；推荐集中清单，源码只保留普通类型/默认值。先做正负类型、动态配置、SSR 和独立包原型再冻结。
+
+这些是讨论项，未收到确认不得写成已接受。组件目录同时等待删改，不能因本表出现名称就擅自安装依赖或铺开实现。
+
+## 17. 研究依据与下一步讨论
 
 Svelte 官方：[state](https://svelte.dev/docs/svelte/$state)、[bindable](https://svelte.dev/docs/svelte/$bindable)、[derived](https://svelte.dev/docs/svelte/$derived)、[context](https://svelte.dev/docs/svelte/context)、[attachments](https://svelte.dev/docs/svelte/@attach)、[泛型与原生属性](https://svelte.dev/docs/svelte/typescript)、[transition](https://svelte.dev/docs/svelte/transition)。对照：[Vue defineModel](https://vuejs.org/guide/components/v-model.html)、[Vue reactive](https://vuejs.org/guide/essentials/reactivity-fundamentals.html)、[React useState](https://react.dev/reference/react/useState)、[React 19 ref](https://react.dev/reference/react/forwardRef)、[React Compiler/memo](https://react.dev/reference/react/memo)。
 
