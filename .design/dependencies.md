@@ -9,15 +9,15 @@
 | docs      | 两个本地库、Svelte、svelte-spa-router、Shiki、Lucide                                                                                         |
 | 构建/检查 | TypeScript、svelte-package、Vite、svelte-check、ESLint、Prettier                                                                             |
 | 测试      | Vitest、Playwright、axe 及对应 provider；Kit/adapter 仅为消费验收                                                                            |
-| 开发工具  | MCP/LSP 依赖在 languageServices catalog，安装于用户工具目录，不进入产品包                                                                    |
+| 开发工具  | MCP/LSP 由根开发依赖与 languageServices catalog 管理，不进入产品包                                                                           |
 
 外部依赖用 catalog:，内部用 workspace:^；严格 peer 检查，关闭自动补装 peer。Vitest/provider 与 Playwright/@playwright/test 保持配套版本。新增需运行安装脚本的依赖时单独检查 allowBuilds。
 
-WebStorm 使用的 svelte-language-server/typescript-svelte-plugin 已作为根开发依赖安装，复用 languageServices catalog；Codex 的 MCP/LSP 宿主依赖仍独立安装在用户工具目录。两者都不是产品运行时依赖。
+WebStorm 使用的 svelte-language-server/typescript-svelte-plugin 已作为根开发依赖安装，复用 languageServices catalog；Codex 的 MCP/LSP 宿主和协议适配器也使用根开发依赖，通过项目 .codex/config.toml 接入；不进入产品运行时。
 
 组件图标固定使用 @lucide/svelte，svelte 与 docs 均直接声明 catalog 依赖。库内只从公开 icons/x 等单图标路径导入需要的组件，避免源码 SSR 载入整份导出表；业务仍可直接传 Lucide 组件。
 
-表单校验已选择 Zod 4，产品依赖使用默认 catalog；languageServices 中的 Zod 3 属于现有 MCP/LSP 工具依赖，不因产品升级而顺带修改。业务优先从 @zui/svelte 导入 z，使用原生 Zod 规则与类型，不再增加 ZUI 校验 DSL 或通用 schema 适配器。FormController/FieldScope 已提供调度与关联，公共 Form/Field 下一阶段交付。
+表单校验已选择 Zod 4，产品依赖使用默认 catalog；MCP 桥使用项目 Zod 4 的 zod/v3 兼容入口保持工具 schema，不再维护另一份全局 Zod 安装。业务优先从 @zui/svelte 导入 z，使用原生 Zod 规则与类型，不再增加 ZUI 校验 DSL 或通用 schema 适配器。FormController/FieldScope 已提供调度与关联，公共 Form/Field 下一阶段交付。
 
 精确十进制已安装 decimal.js，作为 svelte 直接依赖并从主入口导出原生 Decimal，版本走默认 catalog。职责是 Svelte 数值领域及 Zod/序列化适配，不进入 core 的 CSS 引擎，不替代所有普通 number。不再引入第二套 decimal 实现或包装类。精确快照/比较、locale 编辑文本边界与 Kit transport 已验收；DecimalInput 的完整编辑/步进/舍入已后移，本阶段只交付布局和浮层。
 

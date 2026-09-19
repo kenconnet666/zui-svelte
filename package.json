@@ -31,6 +31,8 @@
   "devDependencies": {
     "@changesets/cli": "catalog:",
     "@eslint/js": "catalog:",
+    "@modelcontextprotocol/sdk": "catalog:languageServices",
+    "@sveltejs/mcp": "catalog:languageServices",
     "@types/node": "catalog:",
     "eslint": "catalog:",
     "eslint-config-prettier": "catalog:",
@@ -42,6 +44,9 @@
     "svelte-language-server": "catalog:languageServices",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:",
-    "typescript-svelte-plugin": "catalog:languageServices"
+    "typescript-language-server": "catalog:languageServices",
+    "typescript-svelte-plugin": "catalog:languageServices",
+    "vscode-jsonrpc": "catalog:languageServices",
+    "zod": "catalog:"
   }
 }

@@ -53,3 +53,5 @@
 - 用户已认可第二阶段规划，并指定 ScrollArea 默认半透明覆盖式滚动条，交互显露且不占布局空间；保留原生滚动机制，显隐不改变内容尺寸。键盘焦点、触摸、拖动与高对比的补充行为及 root/viewport 边界见 .design/svelte-phase2.md，不沿用“默认原生占位条/根就是 viewport”的旧建议。
 
 - 第二阶段布局/浮层已实现：Stack/Grid/Container/ScrollArea、Portal/Popover/Tooltip/Dialog/Drawer。完整候选与边界见 .design/svelte-phase2.md，实际 API 见 svelte/README.md；Button/表单/选择仍未进入本阶段。共享标签类型在 types.ts，浮层专属实现位于 overlays，协议源码入口为 src/internal.ts，公共包路径不变。
+
+- 本项目的 zui_lsp 与官方 svelte MCP 使用 .codex/config.toml 项目级配置，依赖均为根开发依赖，不再安装/注册到全局工具目录。WebStorm 与独立 LSP 共用项目 TypeScript/Svelte 服务版本但独立进程；WebStorm MCP 空诊断不能替代 LSP 语义复核。换机先 pnpm install，再按 .design/language-services.md 验证并重载 Codex。

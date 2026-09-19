@@ -1,14 +1,15 @@
-import { requireTool, root as configuredRoot, serviceConfig } from './environment.mjs';
+import { requireProject, root as configuredRoot, serviceConfig } from './environment.mjs';
 import { spawn, execFileSync } from 'node:child_process';
 import { readFile, realpath } from 'node:fs/promises';
 import { extname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const { McpServer } = requireTool('@modelcontextprotocol/sdk/server/mcp.js');
-const { StdioServerTransport } = requireTool('@modelcontextprotocol/sdk/server/stdio.js');
+const { McpServer } = requireProject('@modelcontextprotocol/sdk/server/mcp.js');
+const { StdioServerTransport } = requireProject('@modelcontextprotocol/sdk/server/stdio.js');
 const { createMessageConnection, StreamMessageReader, StreamMessageWriter } =
-  requireTool('vscode-jsonrpc/node.js');
-const { z } = requireTool('zod');
+  requireProject('vscode-jsonrpc/node.js');
+// 使用 Zod 4 自带的 v3 兼容入口，保持已有 MCP schema 协议；产品仍使用 Zod 4。
+const { z } = requireProject('zod/v3');
 const root = await realpath(configuredRoot);
 const services = new Map();
 const activeChildren = new Map();

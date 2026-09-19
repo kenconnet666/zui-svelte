@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
-import { directory, requireTool, root, toolDirectory } from './environment.mjs';
-import { access, readFile, unlink, writeFile } from 'node:fs/promises';
+import { directory, requireProject, root, serviceConfig } from './environment.mjs';
+import { access, mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
 
-const { Client } = requireTool('@modelcontextprotocol/sdk/client/index.js');
-const { StdioClientTransport } = requireTool('@modelcontextprotocol/sdk/client/stdio.js');
+const { Client } = requireProject('@modelcontextprotocol/sdk/client/index.js');
+const { StdioClientTransport } = requireProject('@modelcontextprotocol/sdk/client/stdio.js');
 // 临时文件必须进入真实 tsconfig，才是在验证消费方的类型解析。
 const paths = [
   'core/src/runtime/test/lsp-type-probe.ts',
@@ -23,12 +23,28 @@ for (const file of paths) {
 const client = new Client({ name: 'zui-language-verification', version: '1' });
 const transport = new StdioClientTransport({
   command: process.execPath,
-  args: [resolve(directory, 'server.mjs'), root, toolDirectory],
+  args: [resolve(directory, 'server.mjs'), root],
   cwd: root,
   stderr: 'pipe',
 });
 transport.stderr?.on('data', (data) => process.stderr.write(data));
 const report = [];
+const services = [
+  'typescript',
+  'svelte-language-server',
+  'typescript-language-server',
+  'typescript-svelte-plugin',
+].map((name) => ({
+  name,
+  version: requireProject(name + '/package.json').version,
+  path: resolve(root, 'node_modules', name),
+}));
+console.log(
+  JSON.stringify({
+    services,
+    configurations: { svelte: serviceConfig('svelte'), typescript: serviceConfig('typescript') },
+  }),
+);
 async function position(filePath, needle) {
   const text = await readFile(resolve(root, filePath), 'utf8');
   const offset = text.indexOf(needle);
@@ -153,9 +169,11 @@ css(s=>{s.color._color499;});\n`,
   });
   assert(completions.items.some((item) => item.label === '_100'));
   report.push({ completions });
+  const reportDirectory = resolve(root, 'test-results/language-services');
+  await mkdir(reportDirectory, { recursive: true });
   await writeFile(
-    resolve(toolDirectory, 'verification.json'),
-    JSON.stringify({ success: true, report }, null, 2),
+    resolve(reportDirectory, 'verification.json'),
+    JSON.stringify({ success: true, services, report }, null, 2),
     'utf8',
   );
   console.log('VERIFIED');

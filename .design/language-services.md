@@ -25,19 +25,19 @@ WebStorm 返回 timedOut=true 时，空问题列表不算完成。空列表也�
 ```powershell
 pnpm install --frozen-lockfile
 ./scripts/language-services/setup.ps1 -Verify
-# 只安装与验收，不注册 Codex：
-./scripts/language-services/setup.ps1 -Verify -SkipRegistration
+# 只运行语言服务验收：
+node scripts/language-services/verify.mjs
 ```
 
-脚本读取 languageServices catalog，把工具装入 CODEX_HOME/tools/zui-language-services，先验收，再备份并更新 config.toml 中 zui_lsp/svelte 条目；不覆盖其他服务/模型配置。移动 checkout 后重跑。一个同名 zui_lsp 配置对应一个 checkout，不要由多个 checkout 并发覆盖。
+MCP 配置位于本项目 .codex/config.toml，zui_lsp 和官方 svelte MCP 使用项目开发依赖与锁文件。setup.ps1 只安装项目依赖并按需验收，不再调用 codex mcp add 或改写全局配置。项目必须受信任才会加载本地配置；换机安装 Node 24/pnpm 后运行上述命令，再重载 Codex。
 
-不要提交用户配置、备份、凭据或 .idea/workspace.xml。初次传递依赖由当时包仓库解析，用户工具目录保留自己的锁文件；升级后重验。
+项目配置不含凭据，只配置本项目两个服务；其他全局 MCP 继续按用户配置加载。不要提交用户配置、备份、凭据或 .idea/workspace.xml。语言服务升级统一修改 catalog/锁文件后重验。
 
 ## WebStorm 本机连接
 
 ### 使用项目锁定的语言服务
 
-WebStorm 的 TypeScript/Svelte 服务与 Codex 的 zui_lsp 是不同宿主。根 package.json 已将 svelte-language-server 和 typescript-svelte-plugin 声明为开发依赖，复用 languageServices catalog；不进入 core/svelte/docs 的运行时依赖或发布产物。Codex 工具仍由既有用户工具目录管理，选择 IDE 软件包不需要改 MCP 配置。
+WebStorm 的 TypeScript/Svelte 服务与 Codex 的 zui_lsp 是不同宿主。根 package.json 已将 svelte-language-server 和 typescript-svelte-plugin 声明为开发依赖，复用 languageServices catalog；不进入 core/svelte/docs 的运行时依赖或发布产物。Codex 的项目级 zui_lsp 也读取这些包；两边共用版本和文件，各自启动独立进程，不共享正在运行的 IDE 服务会话。
 
 本次查询 npm 稳定版标签：svelte-language-server 最新为 0.18.4，typescript-svelte-plugin 最新为 0.3.52；TypeScript 最新为 7.0.2，但服务器的 peer 范围为 ^5.9.2 || ^6.0.2，因此使用最新 6.x 的 6.0.3，而不是跨大版本强行配对。实际版本以 catalog/锁文件为准，后续升级重新检查 peer 范围。
 
@@ -53,7 +53,7 @@ TypeScript 页面保持语言服务开启，Node.js runtime 使用项目 Node 24
 
 WebStorm 直接使用 typescript 包的语言服务，不需要将 typescript-language-server 配到该下拉框；后者是通用 LSP 客户端使用的适配服务器。IDE 通过 Svelte 页面加载插件，本次不额外重复写 tsconfig.plugins。
 
-点击应用/确定后由 IDE 重新启动相应语言服务；若仍显示旧版本，使用 IDE 的 Language Services 重启入口，或关闭再打开项目。只有 Codex MCP 连接本身失效时才排查 Codex 重启，不能把 IDE 软件包选择当成已经修改了 Codex 的 LSP。
+点击应用/确定后由 IDE 重新启动相应语言服务；若仍显示旧版本，使用 IDE 的 Language Services 重启入口，或关闭再打开项目。IDE 设置只重载 IDE 的服务；修改项目 MCP/桥接脚本后，需要重载 Codex 的对应 MCP 或重启 Codex，不能据安装成功宣称旧会话已切换。
 
 换机只需先 pnpm install --frozen-lockfile，再选择上述稳定路径。依据：[JetBrains TypeScript 设置](https://www.jetbrains.com/help/webstorm/settings-languages-typescript.html)、[语言服务](https://www.jetbrains.com/help/webstorm/language-services.html)、[Svelte 支持](https://www.jetbrains.com/help/webstorm/svelte.html)。
 
@@ -79,7 +79,7 @@ URL 不带 Markdown 包装，不固定 IJ_MCP_SERVER_PROJECT_PATH header；每�
 node scripts/language-services/verify.mjs
 ```
 
-成功输出 VERIFIED，报告写入用户工具目录 verification.json。脚本拒绝覆盖同名探针，并在退出时清理自己创建的文件与进程树。覆盖：
+成功输出 VERIFIED，报告写入被 Git 忽略的 test-results/language-services/verification.json，并记录实际项目包版本/路径。脚本拒绝覆盖同名探针，并在退出时清理自己创建的文件与进程树。覆盖：
 
 - TS/Svelte 三处预置错误，反复“错误 → 正确”清零；包含未知 Token、错误单位和普通赋值类型。
 - TS 引用 Svelte ComponentProps 的真实类型。
@@ -90,3 +90,17 @@ node scripts/language-services/verify.mjs
 长期 TS 服务曾报 resolutionCache 内部错误，新服务验收通过；遇到时重启该语言服务/宿主或用相关模块检查，不静默忽略。包外 fixture 在仓库内缺少其独立安装条件时可产生配置扫描日志，真正消费正确性由 CI 外部安装验证。
 
 历史自动审批曾拒绝删除部分工具排障目录和下载副本；它们未进入仓库。不要为清理旧排障数据结束全部 Node 进程或删除共享 pnpm store。
+
+## 项目级 Codex LSP 分工
+
+- .codex/config.toml：本项目专用 zui_lsp 与官方 svelte MCP，项目外不自动启用。
+- scripts/language-services/environment.mjs：只从本项目 node_modules 解析服务器，不回退到用户目录的旧版本。TypeScript 使用项目 lib，typescript-svelte-plugin 的探测根也为本项目。
+- typescript-language-server 6.0.0：Codex 的通用 LSP 协议适配器，运行在项目 Node 24 上；WebStorm 不需要把它选为 TypeScript 软件包。
+- MCP SDK、vscode-jsonrpc、官方 @sveltejs/mcp 也为根开发依赖；桥使用 Zod 4 的 zod/v3 兼容入口保持既有工具 schema，不另安装全局 Zod。
+- WebStorm 擅长项目上下文、编辑与重构；zui_lsp 适合作为独立语义诊断、hover/补全/定义/引用通道。优劣以同一探针比较，不以工具数量或空诊断列表推断。
+
+项目级作用域依据：[Codex 配置](https://learn.chatgpt.com/docs/config-file/config-basic)、[项目配置路径规则](https://learn.chatgpt.com/docs/config-file/config-advanced#project-config-files-codexconfigtoml)。
+
+本次项目化验证：新的项目桥完成 TS/Svelte 预置错误反复检出/清零、跨 Svelte 类型、hover/定义/引用/补全和 500 Token 探针，输出 VERIFIED。与 WebStorm MCP 对照时，同一份三处类型错误的临时 Svelte 文件，独立 LSP 返回 3 条（2322/2339/2339），WebStorm get_file_problems 在打开文件后多次返回空；修正后 LSP 清零。此证据只说明当前 MCP 检查接口覆盖有差异，不代表 IDE 编辑器没有红线。建议保留项目 LSP 做语义复核，WebStorm 做 IDE 操作与重构；样本文件和临时进程已清理。
+
+旧全局 zui_lsp/svelte 条目已在核对归属并备份用户 config.toml 后迁出；其他全局 MCP 未修改。项目目录内 Codex CLI 可识别两项配置，项目外无 zui_lsp。当前会话的原生连接仍须重载后再验证；独立进程 VERIFIED 不等于原生会话热加载成功。旧用户工具目录保留用于回退，不做共享目录清理。
