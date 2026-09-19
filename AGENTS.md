@@ -29,7 +29,7 @@
 - 工具使用与本机能力验证见 .design/language-services.md；每次新会话先发现能力并做必要轻量探针，不将配置存在等同于已连接。优先原生 MCP/LSP，浏览器和桌面工具用于其适合的真实交互验证。
 - 包名 @zui/core、@zui/svelte 暂用于本地工作区，包保持 private，发布名称另行确定。
 
-- 已确认组件方向：Lucide 组件直传；一体 Input 集成 label/help/error，对内组合公共 FieldFrame；Dialog 为完整组件。尺度优先 xs/sm/md/lg/xl，none/full 仅用于有意义的类别；语义角色允许例外。
+- 已确认组件方向：Lucide 组件直传；Field 独立负责 label/help/error 和字段关联，Input/Select 等专注控件行为，通过字段上下文接入，不再重复集成标题和错误展示；Dialog 为完整组件。此决定替代早期“一体 Input + 内部 FieldFrame”。尺度优先 xs/sm/md/lg/xl，none/full 仅用于有意义的类别；语义角色允许例外。
 - Button 已确定 color + variant + size；集中提供 size/radius/locale 等默认值，主题仍用 ThemeScope；浮层的 Portal、焦点、关闭顺序、滚动锁与层级统一管理。具体字段细节和默认行为按 .design/svelte-components.md 继续讨论，不预先实现未确认的业务组件。
 - Select 已确定默认返回整条选项数据，稳定 key 用于身份匹配，不要求业务绑定 ID；是否取消独立 ID 模式、用 Svelte 函数绑定适配仍属讨论项。
 - Svelte 组件优先利用 $state/$bindable/$derived、snippet、原生属性类型、createContext、bind:this 与 attachment，避免照搬 React/Vue 的状态同步或 ref 包装。采用新能力前核对锁定版本和现有 class 编译桥，CSS 接入仍只要求 class。

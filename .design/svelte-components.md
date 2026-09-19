@@ -1,6 +1,6 @@
 # Svelte 生产架构、基础设施与组件规划
 
-已确认：共享响应式模型可直接修改；Lucide 组件直传；一体 Input 包含 label/help/error；Dialog 为完整组件；五档使用 xs/sm/md/lg/xl；标准 CSS 与通用主题引擎留 core，UI 预设与默认主题 css 在 svelte；Button 使用 color + variant + size，Select 默认返回整条选项数据，集中默认配置与统一浮层管理。业务组件尚未实施，本文明确区分已经确认的边界与后续建议。
+已确认：共享响应式模型可直接修改；Lucide 组件直传；Field 独立负责 label/help/error，Input/Select 等专注控件本身；Dialog 为完整组件；五档使用 xs/sm/md/lg/xl；标准 CSS 与通用主题引擎留 core，UI 预设与默认主题 css 在 svelte；Button 使用 color + variant + size，Select 默认返回整条选项数据，集中默认配置与统一浮层管理。业务组件尚未实施，本文明确区分已经确认的边界与后续建议。
 
 作者侧偏好已更新：专用样式直接写在模板，类型按需内联/复用，默认值只写在 $props() 解构；配置接入可由编译器生成。上层复用底层 Props 和嵌套 slotProps，不强制 ControlAppearance 或另一套组件定义语法。第 8 节记录这些约定及待验证边界；第 16 节是待评审的具体组件目录，不能视为已实现或已全部批准发布。
 
@@ -32,7 +32,7 @@ const appCss = createCss(appTheme);
   }
 </script>
 
-<Input bind:value={form.name} label="名称" />
+<Field label="名称"><Input bind:value={form.name} /></Field>
 <Checkbox bind:checked={form.enabled}>启用</Checkbox>
 <Dialog bind:open={form.editing} title="编辑资料">
   <Input bind:value={form.name} />
@@ -56,40 +56,108 @@ $state 是编译语法，不能在普通 .ts 中随意调用，也不能直接 r
 
 建议允许 undefined 初值，展示为空而不在挂载时回写。内部 $bindable 不为这些字段设置非 undefined fallback。原生 defaultValue/defaultChecked 的 form.reset 合同另行保留。原生事件遵循 Svelte 顺序；可选语义通知在内部写入后发出，外部赋值不伪造用户事件。
 
-## 3. 一体 Input，对内组合公共表单结构
+## 3. Field 与控件分离，校验方案待选
 
 ```svelte
-<Input
-  label="邮箱"
-  help="用于接收通知"
-  error={errors.email}
-  required
-  icon={Mail}
-  clearable
-  bind:value={form.email}
-/>
+<Field label="邮箱" help="用于接收通知" error={errors.email}>
+  <Input type="email" icon={Mail} clearable bind:value={form.email} />
+</Field>
 ```
 
-用户无需包 Field。Input 的根始终是整个字段容器；有无 label/error 只影响可选内容，不改变根的类型。class/style 控制字段根，原生 id/name/autocomplete/输入事件传给 input；slotProps.control 管输入外壳，slotProps.input 管真实输入元素，其他公开节点可含 label/help/error/clearButton。
+用户已决定保留公开 Field，并把标题、帮助和错误移出 Input。这替代早期一体 Input 方案，不再同时维护两套同义入口。Input 可以独立用在搜索栏/工具栏；需要字段展示时外包 Field。Dialog 等完整交互组件的方向不变。
 
-公共部分建议内部组合为 FieldFrame：负责 label、required 标记、help/error、控件 ID、aria-describedby/aria-invalid、间距和尺寸上下文。Input、Select、NumberInput、DatePicker 都复用它，各自保留真实控件及行为。它不是所有组件都必须继承的通用基类。
+职责：Field 负责 label/help/error、字段身份、描述/错误 ID、invalid 与表单关联；Input 负责原生输入、图标/清空/密码、IME/光标等编辑行为；Form 负责注册、校验调度、提交与 reset。Field 不持有第二份业务值，也不要求各控件继承通用基类。不同时公开职责相同的 Field 和 FieldFrame。
 
-Svelte 模板优先组合；Props 用 TS extends/Pick/Omit 复用 FieldProps；行为用普通函数或共享模型。仅真正重复的有状态业务模型才考虑类继承，不用 class 继承链模拟 Svelte 组件树。
+Field.class/style 控制字段容器，slotProps.label/help/error 定制展示；Input.class/style 控制输入控件根，slotProps.input/clearButton 等面向真实输入元素与按钮。原生 id/name/autocomplete/输入事件仍由 Input 转发到 input，不能挂到外壳。上层 Field 不需要经多层 slotProps 才能控制输入框，直接给子 Input 传参即可。
 
-label/help 可用 string 或 snippet；error 的首个建议是文字消息，复杂消息再用 snippet。建议 error 非空时显示错误并标记 invalid，普通 help 的展示/保留空间要统一。校验执行不塞进每个 Input，验证工具产出的 errors 可以直接绑定。
+ZUI 控件通过薄字段上下文接入 ID、aria-describedby/invalid 与焦点注册；一个 Field 默认一个主控件。多输入组合要有明确组语义，不能重复使用同一个 input ID；任意原生元素/第三方编辑器需显式 ID 或接入协议，不靠查询 DOM 猜控件。label/help 可用 string 或 snippet，error 支持消息展示；required 与 schema 规则的关系必须明确，不从复杂 schema 内部结构猜测必填。
 
 ```svelte
-<Select
-  label="负责人"
-  help="选择负责本项目的用户"
-  error={errors.owner}
-  bind:value={form.owner}
-  options={users}
-/>
-<NumberInput label="预算" error={errors.budget} bind:value={form.budget} />
+<Field label="负责人" error={errors.owner}>
+  <Select bind:value={form.owner} options={users} />
+</Field>
+<Field label="预算" error={errors.budget}>
+  <NumberInput bind:value={form.budget} />
+</Field>
 ```
 
-这两种控件的 label/error 实现来自同一个 FieldFrame，而不是复制 Input。首个 Input 应明确支持的文本输入类型；number/checkbox/file 不通过一个巨型 type 分支混入文本 Input。
+这些控件不复制字段展示。Input 的文本类型范围明确，number/checkbox/file 不塞进一个巨型 type 分支。Checkbox/Radio 的选项文字属于控件内容，可以保留；整组标题、帮助和错误属于外部 Field，必要时使用 fieldset/legend 语义。
+
+### 校验选择：先用同一表单示例比较，不先安装或锁库
+
+用户允许绑定成熟实现或自行实现，但要求先看代码再选择。候选：
+
+| 方案                      | 作者写法                                                               | 成本与取舍                                                                                                          |
+| ------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Zod 4（当前推荐，未确认） | z.string().min(2, '至少两个字')；object/refine；z.input/z.output       | 链式易读，规则/类型成熟；实际打包和类型开销需测量，不能引用旧 Zod 的体积结论                                        |
+| Valibot                   | v.pipe(v.string(), v.minLength(2, '至少两个字'))；partialCheck/forward | 模块化、可细粒度裁剪；对象与跨字段规则通常更多函数嵌套                                                              |
+| 普通校验函数              | 接收模型、返回字段错误                                                 | 简单规则最直接；模型类型、格式规则、路径、组合、输入/输出转换逐渐需要自行维护，不应再自造 required/min/max 规则 DSL |
+| 原生约束                  | required/minlength/type 与 ValidityState                               | 适合基础 HTML 语义，不能单独覆盖对象选择、跨字段和远端校验；不和统一 Field 错误叠加两套提示                         |
+
+建议规则与类型交给选定库，ZUI 自行承担表单协调；不引入另一套强制 store 的完整表单框架。若主要做黑盒校验，可用 StandardSchemaV1 作为内部类型/调用协议，直接接收 schema，不要求业务写 adapter/factory，也不维护插件注册体系。先验收一种规则库，其余兼容性另测；用户尚未选择。Standard Schema 不统一 required 提取、字段依赖、取消信号或每次调用的库专属 locale 配置，不能假装这些自动具备。
+
+同一业务场景的候选写法：名称至少 2 个字符，密码至少 8 个字符，两次密码一致；不因选择 schema 库改变 Field/Input 的结构。
+
+```ts
+// 方案 A：Zod 4
+import * as z from 'zod';
+const schema = z
+  .object({
+    name: z.string().min(2, '名称至少 2 个字符'),
+    password: z.string().min(8, '密码至少 8 个字符'),
+    confirmPassword: z.string(),
+  })
+  .refine((value) => value.password === value.confirmPassword, {
+    message: '两次密码不一致',
+    path: ['confirmPassword'],
+  });
+```
+
+```ts
+// 方案 B：Valibot
+import * as v from 'valibot';
+const schema = v.pipe(
+  v.object({
+    name: v.pipe(v.string(), v.minLength(2, '名称至少 2 个字符')),
+    password: v.pipe(v.string(), v.minLength(8, '密码至少 8 个字符')),
+    confirmPassword: v.string(),
+  }),
+  v.forward(
+    v.partialCheck(
+      [['password'], ['confirmPassword']],
+      (value) => value.password === value.confirmPassword,
+      '两次密码不一致',
+    ),
+    ['confirmPassword'],
+  ),
+);
+```
+
+```ts
+// 方案 C：普通函数；model 是业务的 $state，返回形态仍为 API 候选。
+function validate(value: typeof model) {
+  return {
+    name: value.name.length >= 2 ? undefined : '名称至少 2 个字符',
+    password: value.password.length >= 8 ? undefined : '密码至少 8 个字符',
+    confirmPassword: value.password === value.confirmPassword ? undefined : '两次密码不一致',
+  };
+}
+```
+
+这三段表达同一基本业务意图，不承诺各库所有 Unicode 长度/非法类型/异步细节完全相同。统一的长度单位与跨字段执行时机须在选型验收中确定。普通函数方案用 validate 替代 schema，不默认同时叠加两套重复规则。
+
+候选使用形态为 Form bind:value={model} schema={schema} onvalid={save}，内部仍是同一份业务 $state；Field name 只关联错误路径/注册，Input 显式 bind:value，不用编译器从 name 猜取值和赋值表达式。onvalid 接收校验输出；onsubmit 保留原生事件语义。API 名称和无 schema 时的普通函数入口尚未冻结。
+
+生产合同必须包含：
+
+- 初始不展示整表错误；建议首次 blur 后校验，触达字段修改时重新校验，submit 验证完整模型。IME 组合过程不扰动输入，异步重校验可防抖；校验执行范围与错误展示范围分开。
+- 跨字段规则在整体 schema 中表达，不能只截取单字段 schema 后宣称联动完整；库的 refine/partialCheck 执行条件需用“不相关字段非法”的用例验证。原地修改/程序赋值也使结果失效，但不伪造用户 touched/DOM 事件。
+- 每次异步运行关联模型版本，reset/卸载/新值后旧结果不回写。支持 signal 的业务请求才可实际 Abort；schema Promise 无通用取消能力，至少忽略过期结果，不能声称全部请求已取消。
+- 提交使用一致版本的完整数据；异步校验期间修改则不把过期结果交给保存。input/output 分开，trim/coerce/default/transform 的输出用于提交，不自动回填控件或替换原对象选项引用。异步业务异常是提交/系统错误，不伪装成字段不合法。
+- 错误保留路径和来源；字段错误/表单错误/服务端错误分开。数组移位、卸载字段、重置、首错聚焦、SSR/i18n 是正式验收项；不使用每请求修改全局校验库 locale 的方式。
+- Field.name 不会从父 Form 泛型自动得到路径补全。简单场景明确这一限制；需要强路径类型时复用标准 TS 或少量显式路径能力，不把复杂递归泛型强加给所有字段。
+
+依据：[Zod 基础与输入输出](https://zod.dev/basics)、[Zod 库接入建议](https://zod.dev/library-authors)、[Zod Mini](https://zod.dev/packages/mini)、[Valibot 介绍](https://valibot.dev/guides/introduction/)、[Valibot partialCheck](https://valibot.dev/api/partialCheck/)、[Valibot 标准协议与限制](https://valibot.dev/guides/integrate-valibot/)。这些是选型依据，尚未执行实际 schema 依赖的安装、类型或运行时验收。
 
 ## 4. Lucide 与内容
 
@@ -275,11 +343,11 @@ Dialog.slotProps.closeButton 接收 Button 参数，并保留 closeButton.slotPr
 
 ```svelte
 <ConfigProvider size="md" radius="sm" locale={zhCN}>
-  <Input label="名称" bind:value={form.name} />
+  <Field label="名称"><Input bind:value={form.name} /></Field>
   <Button>继承默认尺寸</Button>
   <Button size="lg">局部大按钮</Button>
   <ConfigProvider size="sm">
-    <Input label="紧凑区域" bind:value={form.code} />
+    <Field label="紧凑区域"><Input bind:value={form.code} /></Field>
   </ConfigProvider>
 </ConfigProvider>
 ```
@@ -376,7 +444,7 @@ ConfigProvider 建议用类型化 context 和稳定视图，让内层未覆盖�
 1. Select 默认整项已确定；建议取消内置 ID 模式，而不是只把旧模式的默认值翻转。函数绑定承担少量转换。这是待讨论的 API 精简。
 2. 不新增通用 Model/FormModel/store 层；先直接 $state + bind，后续 Form 只承担真实校验/提交/字段注册责任。
 3. 不做通用 ref/elementRefs/actions 框架；少量 export 方法 + 原生 attachment。组件根和内部 input 的目标必须不同且明确。
-4. 不仿照 shadcn/Bits 的全部公开拼装接口；保留已确认的完整 Input/Select/Dialog，对内组合 FieldFrame 和浮层行为。
+4. 不仿照 shadcn/Bits 的全部公开拼装接口；保留完整控件/交互行为；Field 独立承担字段展示，Input/Select 通过字段协议接入，Dialog 复用浮层基础。
 5. title/label 保留 string | Snippet 的单一入口：文字 prop 或同名 snippet 二选一。不增加 renderTitle/titleContent 等别名，也不设计同一调用同时传文字和同名 snippet 的覆盖优先级；Svelte 会拒绝这种冲突。
 6. 不为每种状态建立组件 Token 全矩阵。先补 Button 五种 variant 真正缺少的颜色角色与状态；派生颜色需对比度证据，不能为了省键随意混透明度。
 
@@ -505,7 +573,7 @@ flowchart TD
 | 宿主与样式       | UI 默认层序、主题桥、SSR 收集/hydration、nonce、模块样式、Portal/ShadowRoot、多根           | 复用 core；不把 UI 预设搬回 core，不修改已运行的层序掩盖配置错误                                               |
 | 作者编译与类型   | 原生解构默认值接入、可配置字段校验、slot 定向合并、声明输出、源码映射、HMR、发布预处理      | 保留普通 Svelte/TS 作者形态；运行时只读作用域，不能扩成通用组件 DSL 或改写任意业务 spread                      |
 | 配置与组件主题   | 动态继承、组件默认值、系统/组件 Token、整类与实例 CSS 覆盖、类型和合并规则                  | createContext + ThemeScope + class/slotProps；不重复造主题 controller                                          |
-| 字段语义         | ID/label/help/error/required/disabled/readonly、消息空间、原生表单关联、值/显示值区别       | 内部 FieldProps/FieldFrame/字段协议；公开 Input 不要求外层 Field                                               |
+| 字段语义         | ID/label/help/error/required/disabled/readonly、消息空间、原生表单关联、值/显示值区别       | 公开 Field + 内部字段协议；控件独立可用，需要标题/错误时组合 Field                                             |
 | 交互与元素接入   | 指针/键盘/IME、事件委托顺序、可取消动作、attachment/ref、禁用及读写边界                     | 原生 Svelte/DOM；副作用清理属于元素或组件，不用全局轮询                                                        |
 | 浮层归属         | 父子层、outside 判定、Escape、挂载目标、焦点恢复、滚动锁/inert、退出状态、多 Document       | 每个相关宿主统一管理；组件不再分别注册互相冲突的全局策略                                                       |
 | 定位与测量       | 滚动/resize、碰撞、翻转、尺寸约束、RTL、变换/裁剪容器、异步结果过期处理                     | 优先 @floating-ui/dom；输出通过 core 样式通道，不照抄内联 style 写法                                           |
@@ -562,7 +630,7 @@ A1–A3 完成前不铺正式业务组件，不把“组件写完后再补基础
 | 上层            | 必须复用                                                                                                        |
 | --------------- | --------------------------------------------------------------------------------------------------------------- |
 | Dialog/Drawer   | Layer/Portal、焦点、滚动锁、主题/配置桥、退出生命周期、Button/Lucide；不各写一个 overlay 栈                     |
-| Select/Combobox | FieldFrame、集合/选择、定位/层管理、搜索异步、Button/图标等适合的基础能力；自绘菜单不假装有原生 select 全部行为 |
+| Select/Combobox | Field 协议、集合/选择、定位/层管理、搜索异步、Button/图标等适合的基础能力；自绘菜单不假装有原生 select 全部行为 |
 | Form            | 字段注册、校验/提交/reset、基础输入组件；模型不搬进另一套 store                                                 |
 | Table           | 集合/key/selection、分页/异步/虚拟化，Checkbox、Button、字段编辑器、Tooltip/Popover；不重新实现整套行选择和浮层 |
 | DatePicker      | 字段、输入、浮层、键盘、locale/日期领域工具；不靠手写日期字符串解析承担时区/历法正确性                          |
@@ -600,26 +668,26 @@ A1–A3 完成前不铺正式业务组件，不把“组件写完后再补基础
 | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
 | 已有 StyleProvider、主题 css/lightTheme/darkTheme；继续复用 core.ThemeScope | core 适配、样式资源所有权、Portal 主题桥、请求隔离与 HMR 处理                  |
 | 拟新增 ConfigProvider、locale 数据、Size/Radius/Color 等共享类型            | 配置 getter、有限编译转换、类型生成、字段白名单、Props/slot 合并               |
-| 业务确需的表单字段接入、少量 DOM 方法与原生 attachment                      | FieldFrame、ID/描述关系、错误/校验调度、表单注册；不预设万能 FormModel         |
+| 公开 Field、表单字段接入、少量 DOM 方法与原生 attachment                    | ID/描述关系、焦点注册、错误/校验调度、表单注册；不预设万能 FormModel           |
 | 完整交互组件，必要的受控状态和可取消通知                                    | Layer/挂载、focus/locks/outside、定位、退出协调、集合/选择、异步版本、虚拟窗口 |
 
 内部基础设施先通过原生元素组合探针验收，再承载公共组件。类型与资源清理必须真实可用；不把“先建很多空接口/空目录”视为基础完成。外部高级接入只有真实消费者出现时才单独公开，不将内部每个 manager 变成长期 API。
 
 ### B：基础控件与呈现组件
 
-| 组件                           | 首批完整职责                                                                    | 主要复用/边界                                                                    |
-| ------------------------------ | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| Icon、Spinner                  | Lucide 组件直传、尺寸与装饰语义；加载动画、减少动态效果、CSP                    | 图标类型复用 Lucide；不引入图标名字字符串注册表                                  |
-| Button、ButtonGroup            | color/variant/size、五档、加载/禁用/焦点、原生提交；分组布局和局部默认          | 普通 button/DOM；ButtonGroup 不自动变成有选中模型的 ToggleGroup                  |
-| Input、Textarea                | 一体 label/help/error、IME/光标/自动填充、清空与密码等适用能力、原生 form/reset | 共享字段协议/FieldFrame；不复制另一份业务值，Textarea 不强行继承所有 Input Props |
-| Checkbox、CheckboxGroup        | checked/indeterminate、单项与集合绑定、表单序列化、禁用、组语义                 | 原生 input 和共享字段/集合；组与单项模型分别明确                                 |
-| Radio、RadioGroup、Switch      | 单选组键盘/表单、布尔切换、label/说明/错误                                      | 原生语义优先；Switch 与 Checkbox 可复用实现，不混淆角色                          |
-| Badge、Tag                     | 计数/状态与可关闭标签；关闭可取消，处理布局/溢出/读屏                           | 使用共享语义色；Badge 与 Tag 用途不同，不用万能状态组件                          |
-| Avatar、AvatarGroup            | 图片失败回退、文本/图标回退、分组与溢出说明                                     | 复用 Icon；不默认引入图片裁剪/上传职责                                           |
-| Divider、Card、Empty、Skeleton | 结构、内容片段、空态、加载占位、动画与 a11y                                     | 原生元素、snippet、主题；不为了每一种排列增加组件层级                            |
-| Alert、Progress                | 状态消息及关闭、确定/不确定进度、可访问说明                                     | 共享色板/图标/动作按钮；与 Toast 的队列和计时分开                                |
+| 组件                           | 首批完整职责                                                                  | 主要复用/边界                                                                |
+| ------------------------------ | ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Icon、Spinner                  | Lucide 组件直传、尺寸与装饰语义；加载动画、减少动态效果、CSP                  | 图标类型复用 Lucide；不引入图标名字字符串注册表                              |
+| Button、ButtonGroup            | color/variant/size、五档、加载/禁用/焦点、原生提交；分组布局和局部默认        | 普通 button/DOM；ButtonGroup 不自动变成有选中模型的 ToggleGroup              |
+| Input、Textarea                | IME/光标/自动填充、清空与密码等适用能力、原生 form/reset；标题/错误交给 Field | 共享 Field 接入协议；不复制另一份业务值，Textarea 不强行继承所有 Input Props |
+| Checkbox、CheckboxGroup        | checked/indeterminate、单项与集合绑定、表单序列化、禁用、组语义               | 原生 input 和共享字段/集合；组与单项模型分别明确                             |
+| Radio、RadioGroup、Switch      | 单选组键盘/表单、布尔切换和选项文字；组级说明/错误交给 Field                  | 原生语义优先；Switch 与 Checkbox 可复用实现，不混淆角色                      |
+| Badge、Tag                     | 计数/状态与可关闭标签；关闭可取消，处理布局/溢出/读屏                         | 使用共享语义色；Badge 与 Tag 用途不同，不用万能状态组件                      |
+| Avatar、AvatarGroup            | 图片失败回退、文本/图标回退、分组与溢出说明                                   | 复用 Icon；不默认引入图片裁剪/上传职责                                       |
+| Divider、Card、Empty、Skeleton | 结构、内容片段、空态、加载占位、动画与 a11y                                   | 原生元素、snippet、主题；不为了每一种排列增加组件层级                        |
+| Alert、Progress                | 状态消息及关闭、确定/不确定进度、可访问说明                                   | 共享色板/图标/动作按钮；与 Toast 的队列和计时分开                            |
 
-Icon/Spinner 是其他组件的底层复用点；只服务库内部的 FieldFrame 暂不算一个必须由业务组合的公开部件。Field 是否额外公开见本节待确认项。
+Icon/Spinner 是其他组件的底层复用点。Field 已确定为公开基础组件，负责 label/help/error 和字段关联；不再把相同展示集成进 Input/Select，也不同时暴露同义 FieldFrame。
 
 ### B/C：导航与内容组织
 
@@ -639,7 +707,7 @@ Icon/Spinner 是其他组件的底层复用点；只服务库内部的 FieldFram
 | Popover、Tooltip | 锚点、碰撞、触发/延迟、触摸/键盘、描述关系；交互内容用 Popover                    | 共享定位/Layer；Tooltip 不承担可操作表单，不把两者的焦点策略混用                |
 | DropdownMenu     | 动作项、分组、禁用、子菜单、键盘/typeahead、可取消动作                            | 集合、定位、层归属、Icon；导航链接的语义与操作菜单明确区分                      |
 | Toast            | 应用作用域队列、暂停/恢复计时、去重策略、操作按钮、live region、清理              | Alert/Button/退出基础；不创建跨 SSR 请求单例，不抢用户焦点                      |
-| Select           | 默认对象、稳定 key、单多选、搜索、清空、异步/缺项、虚拟选项、表单关联             | FieldFrame、集合/选择、异步、虚拟化、定位/Layer、Icon；不另造绑定模型           |
+| Select           | 默认对象、稳定 key、单多选、搜索、清空、异步/缺项、虚拟选项、表单关联             | Field 协议、集合/选择、异步、虚拟化、定位/Layer、Icon；不另造绑定模型           |
 | Form             | 字段注册、错误/dirty/touched、同步/异步校验、submit/reset/首错聚焦、动态字段      | 原生 form + 外部 $state 模型；不复制 store、不自造规则 DSL，不替业务请求接口    |
 
 Dialog 不默认强加“确认/取消”业务流程。ConfirmDialog、SearchInput、EmailInput 等先作为用法/组合示例；若重复需求足够，再讨论独立导出，避免机械增加同义组件。能否取消关闭与底层事件合并是具体合同，不能用普通 spread 意外覆盖。
@@ -665,15 +733,15 @@ Dialog 不默认强加“确认/取消”业务流程。ConfirmDialog、SearchIn
 - 定位：优先验证 @floating-ui/dom；只在目标挂载时订阅，卸载/重定位时释放。
 - 焦点：对比 focus-trap/tabbable 与 Layer 的职责，选一种策略，不同时运行多套陷阱。
 - 虚拟化：TanStack Virtual 为候选，与 Svelte adapter/核心薄接入比较后决定；先验证活动项可达、动态高度、SSR 与体积，不直接承诺选型。
-- 校验：推荐普通函数 + 可选 Standard Schema 协议；不强制某一家验证库。需要特别区分 schema 输入与转换后输出，校验不自动回写外部业务模型。
+- 校验：先展示 Zod 4、Valibot 和普通函数的同场景代码再选择；目前推荐 Zod 链式规则 + ZUI 表单协调，标准 schema 协议可作为内部入口。未确定依赖，不自动回写转换后的数据；见第 3 节。
 - 日期与精确数字：模型和需求明确后再选择专项库；Intl 负责格式化，不假设它提供可靠的任意文本解析或日期算术。
 
 依赖锁版本时再核对兼容性并进入 catalog，本次没有新增依赖。依据：[Floating UI autoUpdate](https://floating-ui.com/docs/autoUpdate)、[focus-trap](https://github.com/focus-trap/focus-trap)、[TanStack Virtual](https://tanstack.com/virtual/latest)、[Standard Schema](https://standardschema.dev/)。
 
 ### 本轮待确认的取舍
 
-1. 是否公开轻量 Field 给富文本/自定义控件复用 label/help/error 与表单关联；推荐公开，但 Input/Select 仍一体化。Field 包裹任意子组件不会自动获得值、聚焦与 ARIA 能力，必须有明确接入合同，不能声称仅加 name 就继承 TS 泛型。
-2. 表单校验是否采用普通函数 + 可选 Standard Schema；推荐同时支持，转换后输出与原始模型分离。
+1. Field 已确认公开，且标题/帮助/错误移出 Input 等控件；现在讨论字段上下文、原生约束和第三方控件接入，不再讨论是否保留一体 Input。
+2. 校验库待用户比较具体代码后选择：Zod 4、Valibot 或普通函数。Form/Field 的触发、异步、提交与类型合同见第 3 节，尚未实现。
 3. Select 与 Autocomplete 是否分开；推荐 Select 绑定已有选项对象，Autocomplete 绑定自由文本并通知建议项选择，共享设施但不强塞联合值模型。
 4. 默认值编译登记使用集中清单还是组件内轻量标记；推荐集中清单，源码只保留普通类型/默认值。先做正负类型、动态配置、SSR 和独立包原型再冻结。
 
