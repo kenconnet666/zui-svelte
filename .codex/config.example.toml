@@ -1,0 +1,16 @@
+# 由 scripts/language-services/setup.ps1 替换占位符；不要直接复制为 config.toml。
+# BEGIN ZUI LANGUAGE SERVICES
+[mcp_servers.zui_lsp]
+command = __NODE__
+args = [__LSP__, __ROOT__]
+cwd = __ROOT__
+startup_timeout_sec = 30
+tool_timeout_sec = 90
+
+[mcp_servers.svelte]
+command = __NODE__
+args = [__SVELTE__]
+cwd = __ROOT__
+startup_timeout_sec = 30
+tool_timeout_sec = 90
+# END ZUI LANGUAGE SERVICES

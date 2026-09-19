@@ -54,4 +54,4 @@
 
 - 第二阶段布局/浮层已实现：Stack/Grid/Container/ScrollArea、Portal/Popover/Tooltip/Dialog/Drawer。完整候选与边界见 .design/svelte-phase2.md，实际 API 见 svelte/README.md；Button/表单/选择仍未进入本阶段。共享标签类型在 types.ts，浮层专属实现位于 overlays，协议源码入口为 src/internal.ts，公共包路径不变。
 
-- 本项目的 zui_lsp 与官方 svelte MCP 使用 .codex/config.toml 项目级配置，依赖均为根开发依赖，不再安装/注册到全局工具目录。WebStorm 与独立 LSP 共用项目 TypeScript/Svelte 服务版本但独立进程；WebStorm MCP 空诊断不能替代 LSP 语义复核。换机先 pnpm install，再按 .design/language-services.md 验证并重载 Codex。
+- 本项目的 zui_lsp 与官方 svelte MCP 使用项目级配置；.codex/config.example.toml 随 Git 保存，setup.ps1 生成忽略的本机 config.toml，明确 Node/仓库绝对路径，不再注册到全局。依赖均为根开发依赖。WebStorm 与独立 LSP 共用版本但独立进程，IDE MCP 空诊断不能替代 LSP 语义复核。换机运行 scripts/language-services/setup.ps1 -Verify，按 .design/language-services.md 信任项目、配置 IDE 并重载 Codex，检查实际原生工具。

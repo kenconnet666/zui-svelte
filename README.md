@@ -32,7 +32,9 @@ pnpm build
 pnpm test
 ```
 
-`pnpm dev` 自动先构建 core，再启动 Docs；网站启用工作区源码条件联调，独立消费仍使用包的 `dist/` 入口。构建产物位于各工作区的 `dist/`。
+`pnpm dev` 自动先构建 core/svelte，再启动 Docs；网站通过公开 `dist/` 入口消费库，不启用源码别名。构建产物位于各工作区的 `dist/`。
+
+换电脑或首次配置 Codex/WebStorm 时，运行 `./scripts/language-services/setup.ps1 -Verify`：安装锁定依赖、构建库声明、生成本机项目 MCP 配置并验证语言服务。随后按 [语言服务与换机指南](.design/language-services.md) 选择 WebStorm 软件包、信任项目并重载 Codex。配置模板随 Git 保存，本机路径和凭据不提交。
 
 `pnpm test` 检查文档路由与最小 core 接入，使用本机 Chrome。完整类型、构建、core Node/三浏览器和 SSR 验证默认交给 CI；本地只做改动相关的关键检查。
 

@@ -20,18 +20,23 @@ WebStorm 返回 timedOut=true 时，空问题列表不算完成。空列表也�
 
 ## 安装和换机
 
-前置：PowerShell 7、Node 24、项目指定 pnpm、可用 codex CLI。在仓库根目录：
+前置：PowerShell 7、Node 24、pnpm 11.22.0、可用 codex CLI；Git/gh 按各自账号登录。仓库可以放在任意目录，不要求复用旧机器用户名或盘符。在仓库根目录：
 
 ```powershell
-pnpm install --frozen-lockfile
 ./scripts/language-services/setup.ps1 -Verify
 # 只运行语言服务验收：
 node scripts/language-services/verify.mjs
 ```
 
-MCP 配置位于本项目 .codex/config.toml，zui_lsp 和官方 svelte MCP 使用项目开发依赖与锁文件。setup.ps1 只安装项目依赖并按需验收，不再调用 codex mcp add 或改写全局配置。项目必须受信任才会加载本地配置；换机安装 Node 24/pnpm 后运行上述命令，再重载 Codex。
+脚本顺序执行锁文件安装、build:libs、生成本机项目配置；-Verify 再读取 codex mcp get 的真实启动参数，检查两个 MCP 的初始化和工具发现，最后运行 TS/Svelte 语义探针。首次构建是必要准备：docs 消费公开 dist，缺少声明时不能判断语言服务是否正常。无需手动复制 node_modules 或旧机器工具目录。
+
+可迁移模板为 .codex/config.example.toml，生成的 .codex/config.toml 已忽略。配置使用检测到的绝对 Node、仓库与入口路径，避免桌面宿主 PATH/工作目录差异；换目录、切换 Node 安装位置后重新运行脚本。重复运行只更新带 BEGIN/END 标记的 ZUI 配置区，保留其他设置；遇到未管理的同名服务会明确中止，不覆盖用户配置。不调用 codex mcp add，也不改写全局配置。
+
+在 Codex 中打开并信任仓库后重新加载 MCP/重启 Codex，再检查原生工具列表：zui_lsp 应有 diagnostics、hover、definitions、references、completions；svelte 应有文档、autofixer 等工具。至少再做一次项目文件诊断。若 -Verify 提示未识别配置，先完成项目信任再重试。SDK 验证成功仍不等于已有任务热加载成功。
 
 项目配置不含凭据，只配置本项目两个服务；其他全局 MCP 继续按用户配置加载。不要提交用户配置、备份、凭据或 .idea/workspace.xml。语言服务升级统一修改 catalog/锁文件后重验。
+
+换机还需手动完成两件事：WebStorm 选择下表三个项目软件包；在新机启用 IDE MCP，并使用该机显示的 URL 注册 WebStorm。GitHub、Context7 等通用工具的认证属于本机账号，不随仓库复制。旧电脑最后提交并推送，新电脑 git pull 后重跑上述命令；不要拷贝包含凭据的 ~/.codex。
 
 ## WebStorm 本机连接
 
@@ -93,7 +98,7 @@ node scripts/language-services/verify.mjs
 
 ## 项目级 Codex LSP 分工
 
-- .codex/config.toml：本项目专用 zui_lsp 与官方 svelte MCP，项目外不自动启用。
+- .codex/config.example.toml：随 Git 保存的启动模板；setup.ps1 生成本机忽略的 config.toml。本项目专用 zui_lsp 与官方 svelte MCP，项目外不自动启用。
 - scripts/language-services/environment.mjs：只从本项目 node_modules 解析服务器，不回退到用户目录的旧版本。TypeScript 使用项目 lib，typescript-svelte-plugin 的探测根也为本项目。
 - typescript-language-server 6.0.0：Codex 的通用 LSP 协议适配器，运行在项目 Node 24 上；WebStorm 不需要把它选为 TypeScript 软件包。
 - MCP SDK、vscode-jsonrpc、官方 @sveltejs/mcp 也为根开发依赖；桥使用 Zod 4 的 zod/v3 兼容入口保持既有工具 schema，不另安装全局 Zod。
@@ -103,4 +108,8 @@ node scripts/language-services/verify.mjs
 
 本次项目化验证：新的项目桥完成 TS/Svelte 预置错误反复检出/清零、跨 Svelte 类型、hover/定义/引用/补全和 500 Token 探针，输出 VERIFIED。与 WebStorm MCP 对照时，同一份三处类型错误的临时 Svelte 文件，独立 LSP 返回 3 条（2322/2339/2339），WebStorm get_file_problems 在打开文件后多次返回空；修正后 LSP 清零。此证据只说明当前 MCP 检查接口覆盖有差异，不代表 IDE 编辑器没有红线。建议保留项目 LSP 做语义复核，WebStorm 做 IDE 操作与重构；样本文件和临时进程已清理。
 
-旧全局 zui_lsp/svelte 条目已在核对归属并备份用户 config.toml 后迁出；其他全局 MCP 未修改。项目目录内 Codex CLI 可识别两项配置，项目外无 zui_lsp。当前会话的原生连接仍须重载后再验证；独立进程 VERIFIED 不等于原生会话热加载成功。旧用户工具目录保留用于回退，不做共享目录清理。
+旧全局 zui_lsp/svelte 条目已在核对归属并备份用户 config.toml 后迁出；其他全局 MCP 未修改。旧用户工具目录保留用于回退，不做共享目录清理。
+
+2026-09-19 重启后桌面日志确认旧相对路径配置的两个服务在 initialize 握手时断开，当前原生列表没有它们；日志未给出更底层原因。因此改为本机生成明确路径，并增加使用 Codex 实际配置的启动探针。配置修正后的原生会话注入仍需下一次重载验证，不将独立进程 VERIFIED 写成已在原生列表生效。排障可检查本机 %LOCALAPPDATA%/Codex/Logs 下最新 MCP 启动记录，只提取相关服务错误，避免提交日志或账号配置。
+
+本次修正验收：setup.ps1 -Verify 完整执行成功；Codex 解析的配置分别启动 zui_lsp（5 个工具）和官方 svelte（4 个工具）；语义探针输出 VERIFIED，临时源码和自建服务进程已清理。PowerShell 语法、管理区幂等更新/保留其他设置、改动 JS 的 ESLint 与 WebStorm 检查通过。上一提交 b871db9 的完整 CI 已通过；本次推送后的 CI 不同步等待。

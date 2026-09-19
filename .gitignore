@@ -17,6 +17,7 @@ playwright-report
 coverage
 .svelte-kit
 *.local
+.codex/config.toml
 
 # Editor directories and files
 .vscode/*
