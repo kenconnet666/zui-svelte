@@ -43,3 +43,5 @@
 - 校验已确定直接集成 Zod 4 做深度定制；作为 svelte 包直接依赖，版本走 catalog，业务可从 @zui/svelte 导入原生 z。不再并行设计 Valibot/普通规则 DSL/通用校验插件层；Form/Field 仍需实现调度、错误关联与生命周期，安装依赖不代表功能已完成。
 - 表单默认初始不报错，首次离开字段后校验，之后修改时更新，提交完整校验。文本清空 ''、数字输入/单选 Select 清空 undefined、多选 []；空值表示不等于业务可选，不能为适配编辑空态自动把必填 Zod schema 改 optional。
 - 用户已接受入口隔离：业务从 @zui/svelte 统一导入，compiler/server/internal 保留构建期、Node SSR 和生成代码协议边界，不将 Node 专用实现静态并入浏览器入口。
+- 精确十进制已选择 decimal.js，作为 svelte 直接依赖并从 @zui/svelte 导出原生 Decimal；规划独立 DecimalInput 绑定 Decimal | undefined，NumberInput 继续 number。精确参数/传输用字符串，不走 Number/parseFloat/toNumber，不新增万能值适配器；DecimalInput 与表单特殊值支持尚待实现。
+- Select 对象默认读取 id/label，非标准对象用 getKey/getLabel，不猜字段名；options 刷新同 key 时保留绑定对象和该对象的选中展示，缺项也不自动清空。Autocomplete 独立绑定自由文本，复用集合/搜索/浮层基础，不混入 Select 的对象值模型。

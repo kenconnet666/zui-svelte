@@ -47,6 +47,7 @@
     "typescript": "catalog:",
     "magic-string": "catalog:",
     "@zui/core": "workspace:^",
+    "decimal.js": "catalog:",
     "zod": "catalog:"
   },
   "peerDependencies": {

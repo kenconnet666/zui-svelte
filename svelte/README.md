@@ -13,20 +13,23 @@ Svelte 5 组件库工作区，依赖 @zui/core，使用官方 svelte-package 生
 
 ## 导入与运行环境
 
-业务组件、公共类型、主题 css 和 Zod 统一使用主入口；不再按 Button/Form/主题等拆分业务子入口。已安装并直接导出原生 Zod 4：
+业务组件、公共类型、主题 css、Zod 和 Decimal 统一使用主入口；不再按 Button/Form/主题等拆分业务子入口。已安装并直接导出原生 Zod 4 和 decimal.js：
 
 ```ts
-import { z, css, lightTheme } from '@zui/svelte';
+import { Decimal, z, css, lightTheme } from '@zui/svelte';
 
 const schema = z.object({ name: z.string().min(2, '名称至少两个字符') });
 type Model = z.input<typeof schema>;
+
+const amount = new Decimal('0.1').plus('0.2');
+amount.toFixed(2); // '0.30'；传输保留字符串。
 ```
 
-Form/Field 尚未实现，当前只是依赖和统一导出接入。独立 Node 后端若不经过 Svelte 编译，可直接从 zod 导入共享规则，不强制加载 UI 入口。
+Form/Field/DecimalInput 尚未实现，当前只是依赖和统一导出接入。独立 Node 后端若不经过 Svelte 编译，可直接从 zod/decimal.js 导入共享规则和数值类型，不强制加载 UI 入口。Decimal 业务值从字符串构造，运算后赋回响应式属性，接口使用明确十进制字符串，不默认转回 number。
 
 | 路径                 | 使用者与边界                                                          |
 | -------------------- | --------------------------------------------------------------------- |
-| @zui/svelte          | 业务代码：组件/类型/主题/css/z，适用于 Svelte 编译消费                |
+| @zui/svelte          | 业务代码：组件/类型/主题/css/z/Decimal，适用于 Svelte 编译消费        |
 | @zui/svelte/compiler | Vite/Svelte 构建配置；使用 node:crypto、node:path、编译器等构建期能力 |
 | @zui/svelte/server   | Node SSR/SvelteKit 服务端接入；包含 AsyncLocalStorage，不进入浏览器图 |
 | @zui/svelte/internal | 生成代码的运行时协议入口；业务无需导入，升级与编译产物配套            |

@@ -147,15 +147,27 @@ ZUI 直接使用 Zod 的解析、错误与类型能力；自定义业务规则�
 
 依据：[Zod 基础与输入输出](https://zod.dev/basics)、[Zod API](https://zod.dev/api)、[错误定制](https://zod.dev/error-customization)。
 
-### Decimal 与其他领域值：有意义的后续适配，尚未安装
+### Decimal：依赖与导出已接入，控件和领域适配按约定实现
 
-用户提出评估 Decimal 等类型；当前只纳入规划，不视为已选择库或批准全部新组件。它适合金额、税率、价格、精确步长和超出 number 精度的十进制值，不应替代 CSS/像素/计数等所有普通 number。数据从一开始就用十进制字符串或 Decimal 构造，不能先经过 Number/parseFloat 再声称精度恢复。
+用户已采用推荐并要求安装 decimal.js。它作为 @zui/svelte 的直接依赖，精确版本走根 catalog，主入口导出原生 Decimal，不增加包装类或 /decimal 业务子入口。它适合金额、税率、价格、精确步长和超出 number 精度的十进制值，不替代 CSS/像素/计数等所有普通 number。数据从一开始就用十进制字符串或 Decimal 构造，不能先经过 Number/parseFloat 再声称精度恢复。
 
-建议优先评估 decimal.js；它具备小数运算、比较、明确舍入、格式化和独立构造器配置。若目标仅是小型四则计算，可比较 big.js，但不同时引入两套实现。decimal.js 的运算 precision 是有效数字，不是小数位数；默认精度也不是无限，必须依据允许位数和业务运算设定。TC39 Decimal 仍为提案，不能当作已普及的原生类型依赖。
+只使用 decimal.js，不并行引入 big.js 等数值实现。decimal.js 的运算 precision 是有效数字，不是小数位数；默认精度也不是无限，必须依据允许位数和业务运算设定。TC39 Decimal 仍为提案，不能当作已普及的原生类型依赖。
+
+```ts
+import { Decimal, z } from '@zui/svelte';
+
+const finiteDecimal = z.custom<Decimal>(
+  (value) => Decimal.isDecimal(value) && value.isFinite(),
+  '请输入有效小数',
+);
+const price = new Decimal('19.90');
+const total = price.times('3');
+total.toFixed(2); // '59.70'；接口边界保留字符串。
+```
 
 | 层次        | 必须适配的行为                                                                                                                                                                                              |
 | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 控件        | 建议 NumberInput 保持 number，新增 DecimalInput 绑定 Decimal 或 undefined，内部复用文本编辑/步进基础；不让单个 value 自动猜 number/string/Decimal。此组件形态待用户确认                                     |
+| 控件        | NumberInput 保持 number；已采用独立 DecimalInput 绑定 Decimal 或 undefined，内部复用文本编辑/步进基础，不让单个 value 自动猜 number/string/Decimal。控件实现尚未开始                                        |
 | 编辑态      | DOM 文本、领域值、显示格式分离；保留 '-', '1.', '1.00'、光标、IME、粘贴和 locale。可解析的编辑结果更新领域值；不完整/非法草稿必须报告字段状态并阻止提交旧合法值，失焦不静默抹掉用户输入                     |
 | 精度与舍入  | step/min/max 从字符串或 Decimal 读取；支持位数范围与计算精度明确。decimalPlaces/显示尾零与 precision 分开；默认超出业务小数位报错，不暗中舍入，舍入模式由业务明确                                           |
 | Zod         | 使用原生 custom/instanceof/refine 检查类型、finite、范围和小数位；仅 instanceof 不够，因为 Decimal 可表示 NaN/Infinity。不 monkey-patch z.decimal，不再创造链式规则引擎；重复的少量 schema 可用普通函数提取 |
@@ -169,7 +181,7 @@ ZUI 直接使用 Zod 的解析、错误与类型能力；自定义业务规则�
 
 其他类型按需求处理：bigint 用于大整数而非小数，传输需显式编码；Date 要区分时间点和无时区日期，留给日期域；File/Blob 由 Upload 管理引用与资源生命周期。不要为了“可扩展”现在就预装全部库或为每种类型建立公共基类。
 
-进入实现前需要位数/舍入/locale/非有限值/极长输入/科学计数法/清空/非法草稿/相等性/reset/codec/SSR/打包体积的专项用例。Decimal 依赖、导出名和控件形态尚未落地，源码示例只能标为拟议接口。
+已完成依赖安装/主入口导出，并通过小范围精确步进、Zod finite/保留实例、字符串 codec 与 clone 构造器探针；独立安装包的实例/命名空间类型用例交 CI。DecimalInput 和 Form 特殊值处理尚未实现；进入实现前仍要完成位数/舍入/locale/极长输入/科学计数法/清空/非法草稿/相等性/reset/SSR/打包体积验收，不能把依赖安装等同于全部支持。
 
 依据：[decimal.js API](https://mikemcl.github.io/decimal.js/)、[不可变运算](https://github.com/MikeMcl/decimal.js)、[big.js](https://github.com/MikeMcl/big.js)、[Zod codecs](https://zod.dev/codecs)、[Svelte 类实例](https://svelte.dev/docs/svelte/$state#Classes)、[TC39 Decimal 提案](https://tc39.es/proposal-decimal/)。
 
@@ -219,20 +231,18 @@ color 相比前稿 tone 更接近成熟库，但不要同时保留 color/tone/ty
 ## 6. Select：已确认默认返回整条选项数据
 
 ```svelte
-<Select
-  label="负责人"
-  options={users}
-  getKey={(user) => user.id}
-  getLabel={(user) => user.name}
-  bind:value={form.owner}
-/>
+<Field label="负责人">
+  <Select options={users} getLabel={(user) => user.name} bind:value={form.owner} />
+</Field>
 ```
 
 选中李四后，form.owner 就是用户传入的那条选项，可以直接读 email 或编辑字段；不会自动请求选项中原本不存在的数据。多选对应选项数组。组件不主动深克隆、不以替换数组引用作为唯一更新信号。
 
-“返回对象”和“识别对象”分开：value 保存项目，getKey 提供稳定 string/number 身份，用于匹配、键盘活动项、重载及 keyed each；getLabel 提供可搜索/朗读的文字，视觉内容可以另用 snippet。需要稳定键，但不要求业务绑定 ID。getKey/getLabel 是否对固定标准形状提供默认值仍待确定，不自动猜多个字段名。
+“返回对象”和“识别对象”分开：value 保存项目，getKey 提供稳定 string/number 身份，用于匹配、键盘活动项、重载及 keyed each；getLabel 提供可搜索/朗读的文字，视觉内容可以另用 snippet。已确认标准对象默认 {id, label}，非标准对象用 getKey/getLabel；不猜多个字段名，不将重复/缺失 key 静默改成数组下标。原始 string/number 选项如需支持，另明确其模型和身份合同，不由这条对象约定自动推导。
 
-后台重新加载同 ID 的新对象时仍匹配选中项，但不偷偷替换 form.owner，避免覆盖编辑。业务可明确赋新对象或归并数据；选中项暂时不在搜索结果/当前页也不能自动清空。对象字段要跨多个位置联动，应共享同一 $state 代理；普通原始 JSON 对象并不会因为一处被代理就自动同步所有原始引用。
+已确认：后台重新加载同 ID 的新对象时仍按 key 匹配选中状态，但不替换 form.owner；选中展示也沿用绑定对象的内容，而不是显示新标签却返回旧数据。业务需要同步时明确赋新对象或归并数据；选中项暂时不在搜索结果/当前页也不能自动清空。对象字段要跨多个位置联动，应共享同一 $state 代理；普通原始 JSON 对象不会因为一处被代理就自动同步所有原始引用。
+
+Autocomplete 已确认独立：value 为自由文本，选择建议项另有类型化通知；复用 Select 的集合/搜索/定位/层管理设施，但不增加混合对象/文本的 Select 模式。搜索、远端加载与分页的具体输入协议仍需结合场景讨论。
 
 ### 建议推翻旧 valueMode 方案：保持一个值模型
 
@@ -244,8 +254,7 @@ color 相比前稿 tone 更接近成熟库，但不要同时保留 color/tone/ty
   getKey={(user) => user.id}
   getLabel={(user) => user.name}
   bind:value={
-    () => users.find((user) => user.id === form.ownerId) ?? null,
-    (user) => (form.ownerId = user?.id ?? null)
+    () => users.find((user) => user.id === form.ownerId), (user) => (form.ownerId = user?.id)
   }
 />
 ```
@@ -641,13 +650,13 @@ A1–A3 完成前不铺正式业务组件，不把“组件写完后再补基础
 
 ### 上层复用图与不可重复建设的责任
 
-| 上层            | 必须复用                                                                                                        |
-| --------------- | --------------------------------------------------------------------------------------------------------------- |
-| Dialog/Drawer   | Layer/Portal、焦点、滚动锁、主题/配置桥、退出生命周期、Button/Lucide；不各写一个 overlay 栈                     |
-| Select/Combobox | Field 协议、集合/选择、定位/层管理、搜索异步、Button/图标等适合的基础能力；自绘菜单不假装有原生 select 全部行为 |
-| Form            | 字段注册、校验/提交/reset、基础输入组件；模型不搬进另一套 store                                                 |
-| Table           | 集合/key/selection、分页/异步/虚拟化，Checkbox、Button、字段编辑器、Tooltip/Popover；不重新实现整套行选择和浮层 |
-| DatePicker      | 字段、输入、浮层、键盘、locale/日期领域工具；不靠手写日期字符串解析承担时区/历法正确性                          |
+| 上层                | 必须复用                                                                                                        |
+| ------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Dialog/Drawer       | Layer/Portal、焦点、滚动锁、主题/配置桥、退出生命周期、Button/Lucide；不各写一个 overlay 栈                     |
+| Select/Autocomplete | Field 协议、集合/选择、定位/层管理、搜索异步、Button/图标等适合的基础能力；自绘菜单不假装有原生 select 全部行为 |
+| Form                | 字段注册、校验/提交/reset、基础输入组件；模型不搬进另一套 store                                                 |
+| Table               | 集合/key/selection、分页/异步/虚拟化，Checkbox、Button、字段编辑器、Tooltip/Popover；不重新实现整套行选择和浮层 |
+| DatePicker          | 字段、输入、浮层、键盘、locale/日期领域工具；不靠手写日期字符串解析承担时区/历法正确性                          |
 
 复用可以是函数、模型、内部结构组件或专项依赖，不强求都变成公开组件。基础文件按实际职责产生，目录保持扁平；禁止用通用组件工厂、插件生命周期、BaseComponent 继承树来隐藏行为。
 
@@ -731,8 +740,8 @@ Dialog 不默认强加“确认/取消”业务流程。ConfirmDialog、SearchIn
 | 组件                             | 先补齐/验证的领域基础                                                 | 组件责任                                                                                                |
 | -------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | NumberInput、Slider              | 数字/空值/非法中间输入、精度和步长、locale 解析；指针捕获与键盘、方向 | 格式化不打断编辑；Slider 的单值/范围须类型区分，不复用普通 Input 的文本状态机                           |
-| DecimalInput（候选）             | 精确十进制编辑、舍入/位数、Decimal 值比较/快照、Zod 和传输边界        | 与 NumberInput 共享编辑基础，领域值不退回 number；是否独立组件与选用 decimal.js 见第 3 节评估           |
-| Autocomplete（候选）             | 文本模型、建议项对象、IME/搜索、提交与选择事件                        | 允许自由文本；与 Select 的已选对象模型是否独立见待确认项                                                |
+| DecimalInput                     | 精确十进制编辑、舍入/位数、Decimal 值比较/快照、Zod 和传输边界        | 与 NumberInput 共享编辑基础，领域值不退回 number；decimal.js 已安装，控件与适配按第 3 节实施            |
+| Autocomplete                     | 文本模型、建议项对象、IME/搜索、提交与选择事件                        | 已确认独立的自由文本模型，选择建议项另行通知；不混合 Select 的对象模型                                  |
 | Upload                           | 文件筛选、任务状态、进度、取消/重试、并发与队列、资源释放             | 提供业务上传适配接口，不内置后端/存储协议；客户端限制不冒充服务端安全验证                               |
 | Calendar、DatePicker、TimePicker | 日期/时间/区间模型、locale/RTL、不可选日期、时区和序列化边界          | Calendar 提供可复用日历面板，DatePicker 组合字段/浮层，TimePicker 明确时间模型；不猜测地区日期字符串    |
 | Table                            | 行 key、选择、列定义/排序/过滤、异步分页、虚拟化/测量、键盘/表头关联  | 复用 Checkbox、Button、Input、Popover、Pagination；列宽/固定列/编辑按明确合同交付，不宣称是电子表格引擎 |
@@ -749,19 +758,32 @@ Dialog 不默认强加“确认/取消”业务流程。ConfirmDialog、SearchIn
 - 焦点：对比 focus-trap/tabbable 与 Layer 的职责，选一种策略，不同时运行多套陷阱。
 - 虚拟化：TanStack Virtual 为候选，与 Svelte adapter/核心薄接入比较后决定；先验证活动项可达、动态高度、SSR 与体积，不直接承诺选型。
 - 校验：已安装并直接绑定 Zod 4，原生 z 从 @zui/svelte 主入口导出；不再增加多库适配/规则 DSL。Form/Field 调度与深度集成规划见第 3 节，不自动回写转换后的数据。
-- 日期与精确数字：模型和需求明确后再选择专项库；Intl 负责格式化，不假设它提供可靠的任意文本解析或日期算术。
+- 精确数字已选 decimal.js 并安装；日期领域在模型明确后选择专项库。Intl 负责格式化，不假设它提供可靠的任意文本解析或日期算术。
 
-Zod 已按当前 registry 稳定版本进入产品 catalog 并安装；其余专项依赖仍在对应基础阶段验证后加入。依据：[Floating UI autoUpdate](https://floating-ui.com/docs/autoUpdate)、[focus-trap](https://github.com/focus-trap/focus-trap)、[TanStack Virtual](https://tanstack.com/virtual/latest)、[Zod API](https://zod.dev/api)。
+Zod 与 decimal.js 已进入产品 catalog 并安装；其余专项依赖仍在对应基础阶段验证后加入。依据：[Floating UI autoUpdate](https://floating-ui.com/docs/autoUpdate)、[focus-trap](https://github.com/focus-trap/focus-trap)、[TanStack Virtual](https://tanstack.com/virtual/latest)、[Zod API](https://zod.dev/api)。
 
 ### 已确认的实施方向与待确认项
 
 1. Field 已确认公开，且标题/帮助/错误移出 Input 等控件；现在讨论字段上下文、原生约束和第三方控件接入，不再讨论是否保留一体 Input。
 2. Zod、触发/清空策略已确认；按用户授权采用推荐的 reset 基线、提交版本、错误生命周期、字段接入与 CSP 初始化规划，见第 3 节。接下来是实现与验收，不另建一套表单 store。
-3. Select 与 Autocomplete 是否分开；推荐 Select 绑定已有选项对象，Autocomplete 绑定自由文本并通知建议项选择，共享设施但不强塞联合值模型。
+3. Select/Autocomplete 已确认分开；Select 标准对象默认 id/label，同 key 刷新保留原绑定对象及其展示。下一步讨论远程搜索/分页的数据输入协议，值模型不再重复选择。
 4. 默认值编译登记使用集中清单还是组件内轻量标记；推荐集中清单，源码只保留普通类型/默认值。先做正负类型、动态配置、SSR 和独立包原型再冻结。
-5. Decimal 是否采用独立 DecimalInput 与 decimal.js；目前已列出领域值、编辑文本、序列化和类型适配合同，但未安装依赖或实现，不自动推广成所有数值/所有自定义类型的通用插件框架。
+5. decimal.js 已安装并从主入口导出 Decimal，独立 DecimalInput 的使用形态已采用；剩余精度/编辑草稿/快照/传输等为实现验收，不再讨论多 Decimal 库或万能值适配器。
 
-上面分别标明已确认合同、实施验证和待确认选择；不能把尚待讨论的 Decimal/组件目录等写成已接受，也不因出现名称就擅自安装依赖或铺开实现。
+上面分别标明已确认合同、实施验证和待确认选择；不能把尚待讨论的数据源/组件目录等写成已接受，也不因出现名称就擅自安装依赖或铺开实现。
+
+### 下一轮只讨论影响业务写法的基础合同
+
+前三个 Select 选择已确认，不再次投票。下列为下一轮需要带实例比较的议题，尚未批准 API；不会为了讨论这些而重复否定已确定的作者语法与值模型：
+
+| 议题                | 建议起点                                                                                                                               | 要比较的实际场景                                                                                   |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| 远程搜索/分页       | 始终可传 options；如增加 loadOptions(query, {signal, cursor})，与直接 options 模式互斥，统一异步版本/取消/重试基础，不绑定 HTTP 客户端 | 外部查询库管理数据，和简单页面让组件调度请求，哪种常见；如何保留跨页已选项、错误/加载/重试与旧结果 |
+| 动态字段生命周期    | 字段卸载默认不删除业务值；字段可见性不等于业务可选性，条件必填由 Zod 模型表达；停止卸载字段持有的资源，明确隐藏错误的提交展示          | 切换“个人/企业”表单、分步表单、数组增删重排；保留数据/dirty/reset 基线与条件 schema 如何配合       |
+| 原生表单序列化      | 对象 Select 建议按 key 输出字符串，多选使用重复 name；空值省略；Decimal 输出十进制字符串。JS onvalid 仍提供领域对象，JSON DTO 显式转换 | 传统 FormData 提交和纯 JS API 提交、空值 vs 空字符串、嵌套 name、多个按钮与 form 属性关联          |
+| 第三方控件/复合字段 | 内置控件自动接入，第三方显式传 ID/描述/焦点；复合字段不能多个控件复用同一 ID                                                           | 富文本编辑器、起止时间/金额币种组合，哪些能力可自动完成、哪些必须显式映射                          |
+
+默认配置登记暂按集中清单做原型；class/slotProps、SSR/CSP、资源清理、发布声明、跨浏览器和性能预算属于既定工程责任，先做必要探针验证，不再要求用户对每个内部工具函数逐项选择。
 
 ## 17. 研究依据与下一步讨论
 
