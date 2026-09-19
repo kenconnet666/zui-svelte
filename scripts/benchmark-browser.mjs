@@ -11,7 +11,7 @@ const playwright = requireCore('playwright');
 const code = await readFile(join(root, 'core/test-results/core-browser.mjs'), 'utf8');
 const moduleUrl = 'data:text/javascript;base64,' + Buffer.from(code).toString('base64');
 const budget = JSON.parse(
-  await readFile(join(root, 'design/core-distribution-budget.json'), 'utf8'),
+  await readFile(join(root, '.design/core-distribution-budget.json'), 'utf8'),
 );
 const results = [];
 for (const engine of process.env.CI ? ['chromium', 'firefox', 'webkit'] : ['chromium']) {

@@ -2,7 +2,7 @@
 
 框架无关的 CSS 与主题系统工作区。已配置 TypeScript 构建、类型声明、Stylis 与 CSS 类型依赖。
 
-已实现生成式属性/关键字载体、buildStyle、序列化、主题、作用域、规则注册、自动变量提升与全局资源回收。生成器覆盖 857 个属性。class 字符串编译、SSR 与独立包验收入口已建立，当前候选的生产验收状态见 [A01–A40 台账](../design/core-acceptance.md)，设计依据见 [统一重构路线](../design/core-remaining-plan.md)。
+已实现生成式属性/关键字载体、buildStyle、序列化、主题、作用域、规则注册、自动变量提升与全局资源回收。生成器覆盖 857 个属性。class 字符串编译、SSR 与独立包验收入口已建立，当前候选的生产验收状态见 [A01–A40 台账](../.design/core-acceptance.md)，设计依据见 [当前合同](../.design/core-contracts.md)。
 
 - 构建：`pnpm --filter @zui/core build`
 - 类型检查：`pnpm --filter @zui/core check`

@@ -94,7 +94,7 @@ for (const [file, names] of [
       ];
 }
 const text = await format(JSON.stringify(snapshot), { parser: 'json', printWidth: 100 });
-const snapshotPath = join(root, 'design/core-api.json');
+const snapshotPath = join(root, '.design/core-api.json');
 if (process.argv.includes('--update')) await writeFile(snapshotPath, text);
 else
   assert.deepEqual(
@@ -104,7 +104,7 @@ else
   );
 
 const budget = JSON.parse(
-  await readFile(join(root, 'design/core-distribution-budget.json'), 'utf8'),
+  await readFile(join(root, '.design/core-distribution-budget.json'), 'utf8'),
 );
 const bundle = await build({
   root,

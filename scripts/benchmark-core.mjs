@@ -115,7 +115,7 @@ report.heap = {
   retainedGrowthBytes: Math.max(0, ...heapSamples.slice(1).map((value) => value - heapSamples[0])),
 };
 const budget = JSON.parse(
-  await readFile(new URL('../design/core-performance-budget.json', import.meta.url), 'utf8'),
+  await readFile(new URL('../.design/core-performance-budget.json', import.meta.url), 'utf8'),
 );
 assert(
   report.heap.retainedGrowthBytes <= budget.retainedHeapMaxBytes,

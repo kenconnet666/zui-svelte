@@ -27,7 +27,7 @@
   </ul>
   <h2>验收边界</h2>
   <p>
-    首版仍在收口，主题容器与自动提升已有实现；剩余工作与逐项证据见仓库 design/core-remaining-plan.md
-    和 design/core-acceptance.md。
+    Core 已完成既定首版验收，支持范围与候选证据见仓库 .design/core-acceptance.md。组件库 API
+    正在单独讨论，尚未作为完整组件库交付。
   </p>
 </section>

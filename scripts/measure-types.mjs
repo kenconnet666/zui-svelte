@@ -48,7 +48,7 @@ try {
   assert.ifError(result.error);
   assert.equal(result.status, 0, 'Core type check failed.');
   const budget = JSON.parse(
-    await readFile(join(root, 'design/core-distribution-budget.json'), 'utf8'),
+    await readFile(join(root, '.design/core-distribution-budget.json'), 'utf8'),
   );
   assert(
     Number.isFinite(report.checkTimeMs) && report.checkTimeMs <= budget.typeCheckMaxMs,

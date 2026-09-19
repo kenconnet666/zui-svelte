@@ -6,7 +6,7 @@
 
 ## 当前状态
 
-core 已完成生成式 CSS 类型、CSS-only 基础主题与亮暗扩展、动态值自动提升、有界样式分片和资源回收。Svelte class 编译、真实 HMR、SvelteKit SSR/hydration/CSP 与独立安装包消费均有完整候选 CI 证据。设计依据见 [统一重构路线](design/core-remaining-plan.md)，已验证提交、支持边界及产物校验值以 [验收台账](design/core-acceptance.md) 为准；不能用旧候选的结果代替后续改动的 CI。
+core 已完成生成式 CSS 类型、CSS-only 基础主题与亮暗扩展、动态值自动提升、有界样式分片和资源回收。Svelte class 编译、真实 HMR、SvelteKit SSR/hydration/CSP 与独立安装包消费均有完整候选 CI 证据。当前合同见 [core 合同](.design/core-contracts.md)，已验证提交、支持边界及产物校验值以 [验收台账](.design/core-acceptance.md) 为准；不能用旧候选的结果代替后续改动的 CI。
 
 ## 目录
 
@@ -14,7 +14,7 @@ core 已完成生成式 CSS 类型、CSS-only 基础主题与亮暗扩展、动�
 core/       TypeScript 样式核心
 svelte/     Svelte 组件与响应式样式适配
 docs/       Svelte + Vite 文档网站
-design/     架构、依赖、开发与 core 设计
+.design/     架构、依赖、开发与 core 设计
 ```
 
 三个工作区直接位于根目录。源码内按职责组织，每层尽量有 5–30 个直接子项；不创建空模块或一文件目录来凑数量。
@@ -36,18 +36,12 @@ pnpm test
 
 `pnpm test` 检查文档路由与最小 core 接入，使用本机 Chrome。完整类型、构建、core Node/三浏览器和 SSR 验证默认交给 CI；本地只做改动相关的关键检查。
 
-## 设计
+## 文档
 
-- [Core 首版生产可用规划：API、阶段与验收](design/core-production-plan.md)
-- [Core 当前剩余工作与首版收口顺序](design/core-remaining-plan.md)
-- [架构与边界](design/architecture.md)
-- [core 设计草案](design/core.md)
-- [选择器、组合与生产级组件](design/core-composition.md)
-- [类型生成与主题](design/core-types-theme.md)
-- [依赖说明](design/dependencies.md)
-- [开发与构建](design/development.md)
-- [Codex、WebStorm 与语言服务配置](design/language-services.md)
-- [GitHub CI 与产物交付](design/ci.md)
-- [文档站约定](design/documentation.md)
+- [设计与工程文档索引](.design/README.md)
+- [Core API 与主题](core/README.md)
+- [Svelte 编译、SSR 与主题容器接入](svelte/README.md)
+- [Svelte 组件 API 讨论稿](.design/svelte-components.md)
+- [已验证候选与 A01–A40](.design/core-acceptance.md)
 
 `@zui/core`、`@zui/svelte` 目前只是本地工作区名称，所有包保持 private。正式发布名称、版本策略和许可证在发布前确定。

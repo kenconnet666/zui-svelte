@@ -15,13 +15,15 @@
 - SvelteKit/SSR 消费是首版验收项，必须设计首屏样式输出、hydration 与请求隔离；文档站保持普通 Svelte。
 - svelte 自行实现组件，不引入无样式组件库。底层专项工具按实际需要选择。
 - docs 是普通 Svelte + Vite 网站，使用 .svelte 页面与真实 Demo；不使用 SvelteKit 或 Markdown 内容管线。
-- 当前目标是完成 core 并尽量达到生产可用。svelte 与 docs 只做验证 core 必要的最少接入。
+- core 首版生产验收已完成，证据见 .design/core-acceptance.md。当前讨论 svelte 组件 API；未确认前不铺开组件实现，docs 随真实能力增量增加。
+- 组件状态优先 Svelte 原生双向绑定，共享 $state 模型可在持有者处直接修改；不强制 setter、不可变更新或受控/非受控双模式。具体 API 候选见 .design/svelte-components.md，未确认部分仍是讨论稿。
+- .design 只保留当前合同、验收与讨论；历史草案和流水从 Git 查阅，不再增加重复规划文件。
 - 依赖版本集中在 pnpm-workspace.yaml；内部依赖用 workspace:^。
 - 本地只做改动的关键验证，优先 WebStorm 类型检查；本会话未提供 IDE 工具时明确说明，以小范围检查替代，不跑完整仓库检查。
-- 语言工具配置与验收见 design/language-services.md。WebStorm 的空问题列表不能单独证明 TS 语义通过；必要时补充 zui_lsp 的逐文件诊断或相关模块类型检查。
+- 语言工具配置与验收见 .design/language-services.md。WebStorm 的空问题列表不能单独证明 TS 语义通过；必要时补充 zui_lsp 的逐文件诊断或相关模块类型检查。
 - 完整类型检查、测试、构建与浏览器验收交给 GitHub CI。每个可构建阶段中文提交并推送，推送后不等待或轮询 CI；下次推送前检查上一轮并修复具体失败。
 - 属性、关键字与类型使用可重复的生成脚本，运行时表和声明共用数据，不靠手写覆盖全部 CSS。
 - 基础主题只含标准 CSS 能力、不含预设 Token/视觉值；亮暗主题由基础层扩展。用户可 extend 基础层、亮色或暗色，默认使用亮色，显式自定义主题不静默补系统 Token。
 - 用户已取消 token/周额度保留线与定期检查要求；不再主动轮询用量，按任务质量和完成条件推进。
-- 工具使用与本机能力验证见 design/language-services.md；每次新会话先发现能力并做必要轻量探针，不将配置存在等同于已连接。优先原生 MCP/LSP，浏览器和桌面工具用于其适合的真实交互验证。
+- 工具使用与本机能力验证见 .design/language-services.md；每次新会话先发现能力并做必要轻量探针，不将配置存在等同于已连接。优先原生 MCP/LSP，浏览器和桌面工具用于其适合的真实交互验证。
 - 包名 @zui/core、@zui/svelte 暂用于本地工作区，包保持 private，发布名称另行确定。

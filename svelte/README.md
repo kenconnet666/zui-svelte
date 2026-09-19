@@ -2,7 +2,7 @@
 
 Svelte 5 组件库工作区，依赖 @zui/core，使用官方 svelte-package 生成发布产物。
 
-当前实现验证 core 所需的 class 编译插件、运行时桥和 SSR 收集，没有业务组件库。真实 SvelteKit、独立 tarball 与 prerender 已纳入 CI；首版完整验收仍按 [生产规划](../design/core-production-plan.md) 和 [实施记录](../design/implementation.md) 推进。
+当前实现验证 core 所需的 class 编译插件、运行时桥和 SSR 收集，没有业务组件库。真实 SvelteKit、独立 tarball 与 prerender 已通过 [core 验收](../.design/core-acceptance.md)。下一阶段组件 API 见 [讨论稿](../.design/svelte-components.md)，尚未实施业务组件。
 
 - 构建：`pnpm --filter @zui/svelte build`
 - 类型检查：`pnpm --filter @zui/svelte check`

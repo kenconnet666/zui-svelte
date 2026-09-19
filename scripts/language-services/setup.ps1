@@ -58,4 +58,4 @@ foreach ($name in @('zui_lsp', 'svelte')) {
     })
 }
 Set-Content -LiteralPath $configPath -Value $config -Encoding utf8 -NoNewline
-Write-Host '已配置 zui_lsp 与 svelte。配置写入不代表当前任务已热加载，参见 design/language-services.md。'
+Write-Host '已配置 zui_lsp 与 svelte。配置写入不代表当前任务已热加载，参见 .design/language-services.md。'

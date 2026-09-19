@@ -1,26 +1,21 @@
-# Core 首版验收台账
+# Core 验收台账
 
-更新：2026-09-19。范围沿用 core-production-plan.md 的 A01–A40；当前实现路线为 core-remaining-plan.md 的 P0–P5。下表列出实际覆盖入口与支持边界，覆盖存在不等于候选版本已经全绿。
+既定 P0–P5 与 A01–A40 的 core 目标已完成，当前合同见 [core-contracts.md](core-contracts.md)，日常 API 见包 README。组件库的新 API 讨论不属于已实现能力。
 
-## 当前证据
+## 已核验候选
 
-最终组合审计结果：6c4c64334c423545746ef3e5a40a817adb9abb03 的 [完整 CI 35370858768](https://github.com/kenconnet666/zui-svelte/actions/runs/35370858768) 成功。新增 /custom 的禁 JS、hydration、动态提升、跨 schema 根切换与回收已在生产三浏览器和独立 tarball 中验证，A21/A22/A26/A28/A37 的该组合缺口闭合。
+提交 ffe054a2289cd2f0bb537949712b7ffd3e077386 的 [完整 CI 35371966458](https://github.com/kenconnet666/zui-svelte/actions/runs/35371966458) 成功，验收步骤无失败或跳过。包括自定义基础主题的生产 Kit/包外完整链路、强制哈希碰撞保护和 Windows CRLF 字符串续行回归。
 
-故障路径审计结果：fec0f049d2d970a0cfaf4946b9d3c8b8debe10af 的 [完整 CI 35371406019](https://github.com/kenconnet666/zui-svelte/actions/runs/35371406019) 成功，同模块/跨模块/绑定的强制哈希碰撞保护已纳入完整矩阵。
+已实际下载并核对两份安装包及六份原始报告，SHA-256、提交号、运行号与 candidate-evidence.json 一致：
 
-最后的 Windows 输入修正：值校验器原先误拒反斜杠加 CRLF 的合法字符串续行，现同时消费 CRLF 两个码元。13 项相关单元及 Chrome 原生 CSS 对照通过，未转义换行仍拒绝；最新候选 CI 须包含此修正后才完成目标。
+| 安装包               | SHA-256                                                          |
+| -------------------- | ---------------------------------------------------------------- |
+| zui-core-0.0.0.tgz   | aa1b9d2b7e4cf27484d830c92ada5ed6372fd81840731aa9637cfdcbd94654a6 |
+| zui-svelte-0.0.0.tgz | 26952f9a34c95309e5f9b871e6e09a6f87a530bdf314bdf80e6b7e69a92cd431 |
 
-已核实候选：ff7bf3b687999a4b9af5f40756ab7b37281885df，[完整 CI 35368949928](https://github.com/kenconnet666/zui-svelte/actions/runs/35368949928) 成功。以下 A01–A40 的产品合同在表中注明的支持范围内，均有该候选的类型、Node、编译、Docs/HMR/core DOM 三浏览器、真实 Kit 或独立包消费证据；不能推广到未声明的旧浏览器、Edge SSR 或任意异步 CSS 调用图。
+对应报告：40 个公开导出、45 个合同条目；完整浏览器 gzip 43983 字节、baseTheme 窄入口 2078 字节、声明 552950 字节；500 Token 类型检查 6.36 秒。三浏览器双通道均满足预算并在释放后归零。时间只对应该 runner，不作跨设备承诺。
 
-已下载 workspace-dist 并核对实际归档：
-
-- zui-core-0.0.0.tgz：6759d0545a012e3f8fc0fc7a7a04fc6a222a054100c91c0ad3ebb2016e2a0ca7。
-- zui-svelte-0.0.0.tgz：26952f9a34c95309e5f9b871e6e09a6f87a530bdf314bdf80e6b7e69a92cd431。
-- candidate-evidence.json 的提交与运行号一致，40 个公开导出、45 个合同条目；完整 bundle gzip 43954 字节，baseTheme 窄入口 2070 字节，声明 552950 字节；500 Token 的 CI 类型检查为 3.8 秒。时间属于对应 runner，不作跨设备性能承诺。
-
-前一候选 48a5786 的完整 CI 35368499416 也成功；下载的两份归档及六份原始报告均已逐一核对清单中的 SHA-256。早期 fixture/HMR/归档故障已修复，历史详见 implementation.md。
-
-本批最后增补 65 个预设 Token 的语义清单/一致性测试，以及 500 Token 的 LSP 诊断与补全探针，不修改产品 runtime。局部预设 5 项通过，独立 LSP 完整验收 VERIFIED，大主题诊断加补全约 1.64 秒；临时文件已由脚本清理。最新提交仍须 CI 确认后才能作为最终目标完成依据。
+后续修改必须有自己的 CI，不能沿用上述提交的通过结论。机器预算/API 快照不因文档合并改变；本次 design → .design 的脚本路径迁移单独随正常 CI 验证。
 
 路径缩写：CR = core/src/runtime/test，CC = core/src/css/test，CT = core/src/theme/test，CB = core/tests/browser.test.ts，ST = svelte/tests，DC = docs/tests/core.spec.ts。仅用于阅读，不新增目录。
 
@@ -66,9 +61,9 @@
 | A36 | 生成一致性                  | scripts/generate-css.mjs；CI generate:check                                              | 属性/关键字/单位/Token 映射分别报告；不把无语义映射误报为属性缺失                     |
 | A37 | tarball 独立消费            | scripts/verify-packages.mjs；ST/package.spec.ts                                          | 系统临时目录安装，禁止偷用源码/祖先依赖；保留同份归档及 hash                          |
 | A38 | 性能/规模/回收              | scripts/benchmark-core.mjs；scripts/benchmark-browser.mjs；scripts/measure-types.mjs；CB | 1000 元素、100 生命周期、500 Token；时间与机器环境绑定，不宣传跨设备绝对性能          |
-| A39 | 公开 API 文档示例           | core/README.md；svelte/README.md；DC；design/core-api.json                               | 示例与合同快照同步；当前 API 以包 README 为准                                         |
+| A39 | 公开 API 文档示例           | core/README.md；svelte/README.md；DC；.design/core-api.json                              | 示例与合同快照同步；当前 API 以包 README 为准                                         |
 | A40 | 浏览器依赖边界              | scripts/verify-contracts.mjs；CI 默认入口；包外构建                                      | 无 Node builtin；bundle/gzip/声明预算及基础主题裁剪                                   |
 
 ## 最终判定
 
-旧提交的成功只证明旧提交。新候选必须完整通过；报告中跳过的能力不能计入已验证。浏览器受限模拟、SSR 流式边界和未变换第三方组件的完整规则策略属于明确的支持合同，不通过隐藏失败或删除验收项来收口。历史阶段与故障修复见 implementation.md 和 Git 历史。
+旧提交的成功只证明旧提交。新候选必须完整通过；报告中跳过的能力不能计入已验证。浏览器受限模拟、SSR 流式边界和未变换第三方组件的完整规则策略属于明确的支持合同，不通过隐藏失败或删除验收项来收口。历史阶段与故障修复见 Git 历史。
