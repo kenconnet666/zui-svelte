@@ -56,7 +56,7 @@ $state 是编译语法，不能在普通 .ts 中随意调用，也不能直接 r
 
 建议允许 undefined 初值，展示为空而不在挂载时回写。内部 $bindable 不为这些字段设置非 undefined fallback。原生 defaultValue/defaultChecked 的 form.reset 合同另行保留。原生事件遵循 Svelte 顺序；可选语义通知在内部写入后发出，外部赋值不伪造用户事件。
 
-## 3. Field 与控件分离，校验方案待选
+## 3. Field 与控件分离，直接集成 Zod
 
 ```svelte
 <Field label="邮箱" help="用于接收通知" error={errors.email}>
@@ -83,24 +83,13 @@ ZUI 控件通过薄字段上下文接入 ID、aria-describedby/invalid 与焦点
 
 这些控件不复制字段展示。Input 的文本类型范围明确，number/checkbox/file 不塞进一个巨型 type 分支。Checkbox/Radio 的选项文字属于控件内容，可以保留；整组标题、帮助和错误属于外部 Field，必要时使用 fieldset/legend 语义。
 
-### 校验选择：先用同一表单示例比较，不先安装或锁库
+### 校验已确定：直接集成 Zod 4
 
-用户允许绑定成熟实现或自行实现，但要求先看代码再选择。候选：
-
-| 方案                      | 作者写法                                                               | 成本与取舍                                                                                                          |
-| ------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Zod 4（当前推荐，未确认） | z.string().min(2, '至少两个字')；object/refine；z.input/z.output       | 链式易读，规则/类型成熟；实际打包和类型开销需测量，不能引用旧 Zod 的体积结论                                        |
-| Valibot                   | v.pipe(v.string(), v.minLength(2, '至少两个字'))；partialCheck/forward | 模块化、可细粒度裁剪；对象与跨字段规则通常更多函数嵌套                                                              |
-| 普通校验函数              | 接收模型、返回字段错误                                                 | 简单规则最直接；模型类型、格式规则、路径、组合、输入/输出转换逐渐需要自行维护，不应再自造 required/min/max 规则 DSL |
-| 原生约束                  | required/minlength/type 与 ValidityState                               | 适合基础 HTML 语义，不能单独覆盖对象选择、跨字段和远端校验；不和统一 Field 错误叠加两套提示                         |
-
-建议规则与类型交给选定库，ZUI 自行承担表单协调；不引入另一套强制 store 的完整表单框架。若主要做黑盒校验，可用 StandardSchemaV1 作为内部类型/调用协议，直接接收 schema，不要求业务写 adapter/factory，也不维护插件注册体系。先验收一种规则库，其余兼容性另测；用户尚未选择。Standard Schema 不统一 required 提取、字段依赖、取消信号或每次调用的库专属 locale 配置，不能假装这些自动具备。
-
-同一业务场景的候选写法：名称至少 2 个字符，密码至少 8 个字符，两次密码一致；不因选择 schema 库改变 Field/Input 的结构。
+用户已选择绑定 Zod 做深度定制。Zod 已作为 @zui/svelte 的直接运行时依赖安装，精确版本以根 catalog 和锁文件为准；主入口直接导出原生 z 命名空间，不再提供 ZUI 规则 DSL、通用校验器插件注册或多套并行规则入口。
 
 ```ts
-// 方案 A：Zod 4
-import * as z from 'zod';
+import { z } from '@zui/svelte';
+
 const schema = z
   .object({
     name: z.string().min(2, '名称至少 2 个字符'),
@@ -111,53 +100,32 @@ const schema = z
     message: '两次密码不一致',
     path: ['confirmPassword'],
   });
+
+type Model = z.input<typeof schema>;
+type Submission = z.output<typeof schema>;
 ```
 
-```ts
-// 方案 B：Valibot
-import * as v from 'valibot';
-const schema = v.pipe(
-  v.object({
-    name: v.pipe(v.string(), v.minLength(2, '名称至少 2 个字符')),
-    password: v.pipe(v.string(), v.minLength(8, '密码至少 8 个字符')),
-    confirmPassword: v.string(),
-  }),
-  v.forward(
-    v.partialCheck(
-      [['password'], ['confirmPassword']],
-      (value) => value.password === value.confirmPassword,
-      '两次密码不一致',
-    ),
-    ['confirmPassword'],
-  ),
-);
-```
+ZUI 直接使用 Zod 的解析、错误与类型能力；自定义业务规则用 refine 等原生能力，不再同时设计 rules/validator/Standard Schema 适配层。业务可以直接 import { z } from 'zod' 使用同一库；给不经过 Svelte 编译的独立 Node 后端共享 schema 时，不应强制依赖 UI 包主入口。
 
-```ts
-// 方案 C：普通函数；model 是业务的 $state，返回形态仍为 API 候选。
-function validate(value: typeof model) {
-  return {
-    name: value.name.length >= 2 ? undefined : '名称至少 2 个字符',
-    password: value.password.length >= 8 ? undefined : '密码至少 8 个字符',
-    confirmPassword: value.password === value.confirmPassword ? undefined : '两次密码不一致',
-  };
-}
-```
+候选表单形态保持 Form bind:value={model} schema={schema} onvalid={save}：同一份业务 $state，Field.name 关联错误路径/注册，Input 显式 bind:value。onvalid 接收校验输出，onsubmit 保留原生事件。Form/Field 调度与 API 仍待实现，安装 Zod 不等于完整校验系统已经完成。
 
-这三段表达同一基本业务意图，不承诺各库所有 Unicode 长度/非法类型/异步细节完全相同。统一的长度单位与跨字段执行时机须在选型验收中确定。普通函数方案用 validate 替代 schema，不默认同时叠加两套重复规则。
+深度集成的具体范围：
 
-候选使用形态为 Form bind:value={model} schema={schema} onvalid={save}，内部仍是同一份业务 $state；Field name 只关联错误路径/注册，Input 显式 bind:value，不用编译器从 name 猜取值和赋值表达式。onvalid 接收校验输出；onsubmit 保留原生事件语义。API 名称和无 schema 时的普通函数入口尚未冻结。
+- 用 z.input/z.output 复用规则的输入/输出类型，校验通过的提交数据保持 z.output；编辑态可能包含尚未合法的 undefined，不要求把必填 schema 改 optional 或用类型断言伪装合法。Form 接受实际编辑模型，不把字段名字符串假装成从父级泛型自动推导，也不新增万能递归 Draft 类型。
+- 统一处理 ZodError.issues 的路径、消息和来源，支持字段/表单级及服务端错误、动态数组、首错聚焦和多错误保留；Field 默认显示首条，复杂展示通过 snippet。
+- 支持同步/异步 schema，含异步 refine/transform；小型调度器处理 touched/dirty、模型版本、过期结果和提交互斥。默认策略已确认：初始不报错，首次离开字段后校验，之后修改时更新，提交时完整校验。字段展示时机与 schema 的完整执行范围分开。
+- 跨字段校验保留完整 schema 语义；按字段展示不等于只截取字段 schema。先保证完整性，再测量大表单并决定是否需要明确的依赖声明；不对任意函数静态猜依赖。
+- 输入和输出分开，trim/coerce/default/transform 用于提交结果，不在每次校验后自动回填输入框或替换业务选项对象。reset/新值/卸载使旧校验结果失效；提交只能使用一致版本的数据。
+- Promise 没有通用取消能力；支持 signal 的业务请求才实际 Abort，其余至少忽略过期结果。校验函数异常/网络故障与正常字段不合法分别处理，不吞异常。
+- 本地化使用 schema 消息或按次解析的错误配置，禁止在并发 SSR 请求中切换全局 z.config。locale 的优先级和服务端错误清除规则在表单实现前固定。
+- 严格 CSP 要验证 Zod 的解释器/JIT 选择。已安装版本的对象 schema 会读取 allowsEval 探测，捕获 new Function 的异常仍可能产生 CSP violation；全局 jitless 的初始化必须在 schema 创建之前。A0 明确固定初始化位置与对共享 Zod 实例的影响，不能只在 parse 时传选项或修改按请求的全局开关就宣称解决；本次未偷偷改变 Zod 全局配置。
+- 可针对绑定版本封装小型 Zod 接入模块，但不遍历所有内部结构来自动生成 UI。required/原生 minlength/数字约束只在映射语义明确时使用；Unicode 长度、transform、union 和条件必填不能盲目映射成 HTML 约束。
 
-生产合同必须包含：
+清空值已确认：文本为 ''，数字输入和单选 Select 为 undefined，多选为 []。undefined 只表示当前为空，不表示业务允许为空；必填用 z.number()/必需对象规则，选填才用 optional()。JSON 序列化会省略 undefined，后端若要求显式 null，由提交边界明确转换。
 
-- 初始不展示整表错误；建议首次 blur 后校验，触达字段修改时重新校验，submit 验证完整模型。IME 组合过程不扰动输入，异步重校验可防抖；校验执行范围与错误展示范围分开。
-- 跨字段规则在整体 schema 中表达，不能只截取单字段 schema 后宣称联动完整；库的 refine/partialCheck 执行条件需用“不相关字段非法”的用例验证。原地修改/程序赋值也使结果失效，但不伪造用户 touched/DOM 事件。
-- 每次异步运行关联模型版本，reset/卸载/新值后旧结果不回写。支持 signal 的业务请求才可实际 Abort；schema Promise 无通用取消能力，至少忽略过期结果，不能声称全部请求已取消。
-- 提交使用一致版本的完整数据；异步校验期间修改则不把过期结果交给保存。input/output 分开，trim/coerce/default/transform 的输出用于提交，不自动回填控件或替换原对象选项引用。异步业务异常是提交/系统错误，不伪装成字段不合法。
-- 错误保留路径和来源；字段错误/表单错误/服务端错误分开。数组移位、卸载字段、重置、首错聚焦、SSR/i18n 是正式验收项；不使用每请求修改全局校验库 locale 的方式。
-- Field.name 不会从父 Form 泛型自动得到路径补全。简单场景明确这一限制；需要强路径类型时复用标准 TS 或少量显式路径能力，不把复杂递归泛型强加给所有字段。
+当前完成的是依赖安装和主入口导出。Form/Field 的模型版本、reset、原生约束/错误呈现等实现仍须讨论并验收。没有引入第二个表单 store，也没有安装 Valibot 或通用验证插件系统。
 
-依据：[Zod 基础与输入输出](https://zod.dev/basics)、[Zod 库接入建议](https://zod.dev/library-authors)、[Zod Mini](https://zod.dev/packages/mini)、[Valibot 介绍](https://valibot.dev/guides/introduction/)、[Valibot partialCheck](https://valibot.dev/api/partialCheck/)、[Valibot 标准协议与限制](https://valibot.dev/guides/integrate-valibot/)。这些是选型依据，尚未执行实际 schema 依赖的安装、类型或运行时验收。
+依据：[Zod 基础与输入输出](https://zod.dev/basics)、[Zod API](https://zod.dev/api)、[错误定制](https://zod.dev/error-customization)。
 
 ## 4. Lucide 与内容
 
@@ -240,7 +208,7 @@ color 相比前稿 tone 更接近成熟库，但不要同时保留 color/tone/ty
 
 Naive UI 的基础 value 常用编号、回调另带 option；Ant Design labelInValue 是 {value,label}，不是完整业务对象；Element Plus 明确支持对象值与 value-key。我们吸收身份/内容分离，默认值形态以用户已确认的整项为准，不再以这些库的默认值约束 ZUI。
 
-清空值建议单选 null、多选 []，允许 undefined 初值但不在挂载时改写；是否统一 null 仍待确认。默认对象模式下提交原生表单的序列化需要独立合同：建议 name 提交 getKey(value)，不能产生 [object Object]，与 JS 绑定的对象保持区别。
+清空值已确定：单选 undefined、多选 []，不在挂载时改写业务初值。默认对象模式下提交原生表单的序列化需要独立合同：建议 name 提交 getKey(value)，不能产生 [object Object]；空值是否省略或输出空字符串应与 JSON 提交边界分别明确。
 
 参考：[Svelte 函数绑定](https://svelte.dev/docs/svelte/bind#Function-bindings)、[Element Plus](https://element-plus.org/en-US/component/select)、[Naive UI](https://github.com/tusen-ai/naive-ui/blob/main/src/select/demos/enUS/index.demo-entry.md)、[Ant Design](https://ant.design/components/select)。
 
@@ -733,15 +701,15 @@ Dialog 不默认强加“确认/取消”业务流程。ConfirmDialog、SearchIn
 - 定位：优先验证 @floating-ui/dom；只在目标挂载时订阅，卸载/重定位时释放。
 - 焦点：对比 focus-trap/tabbable 与 Layer 的职责，选一种策略，不同时运行多套陷阱。
 - 虚拟化：TanStack Virtual 为候选，与 Svelte adapter/核心薄接入比较后决定；先验证活动项可达、动态高度、SSR 与体积，不直接承诺选型。
-- 校验：先展示 Zod 4、Valibot 和普通函数的同场景代码再选择；目前推荐 Zod 链式规则 + ZUI 表单协调，标准 schema 协议可作为内部入口。未确定依赖，不自动回写转换后的数据；见第 3 节。
+- 校验：已安装并直接绑定 Zod 4，原生 z 从 @zui/svelte 主入口导出；不再增加多库适配/规则 DSL。Form/Field 调度与深度集成规划见第 3 节，不自动回写转换后的数据。
 - 日期与精确数字：模型和需求明确后再选择专项库；Intl 负责格式化，不假设它提供可靠的任意文本解析或日期算术。
 
-依赖锁版本时再核对兼容性并进入 catalog，本次没有新增依赖。依据：[Floating UI autoUpdate](https://floating-ui.com/docs/autoUpdate)、[focus-trap](https://github.com/focus-trap/focus-trap)、[TanStack Virtual](https://tanstack.com/virtual/latest)、[Standard Schema](https://standardschema.dev/)。
+Zod 已按当前 registry 稳定版本进入产品 catalog 并安装；其余专项依赖仍在对应基础阶段验证后加入。依据：[Floating UI autoUpdate](https://floating-ui.com/docs/autoUpdate)、[focus-trap](https://github.com/focus-trap/focus-trap)、[TanStack Virtual](https://tanstack.com/virtual/latest)、[Zod API](https://zod.dev/api)。
 
 ### 本轮待确认的取舍
 
 1. Field 已确认公开，且标题/帮助/错误移出 Input 等控件；现在讨论字段上下文、原生约束和第三方控件接入，不再讨论是否保留一体 Input。
-2. 校验库待用户比较具体代码后选择：Zod 4、Valibot 或普通函数。Form/Field 的触发、异步、提交与类型合同见第 3 节，尚未实现。
+2. Zod、首次 blur 后校验/之后修改更新、数字/单选清空 undefined 已确认；待确定 reset 基线、schema 与原生约束的优先级、服务端错误清除及模型替换合同。Form/Field 尚未实现。
 3. Select 与 Autocomplete 是否分开；推荐 Select 绑定已有选项对象，Autocomplete 绑定自由文本并通知建议项选择，共享设施但不强塞联合值模型。
 4. 默认值编译登记使用集中清单还是组件内轻量标记；推荐集中清单，源码只保留普通类型/默认值。先做正负类型、动态配置、SSR 和独立包原型再冻结。
 

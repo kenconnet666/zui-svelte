@@ -11,6 +11,28 @@ Svelte 5 组件库工作区，依赖 @zui/core，使用官方 svelte-package 生
 - 开发态验收：`pnpm --filter @zui/svelte test:dev`，CI 使用三浏览器；本机默认复用 Chrome，仅按改动运行相关用例。
 - 完整包外验收：根目录执行 `pnpm test:packages`，由 CI 在构建与浏览器准备后运行。
 
+## 导入与运行环境
+
+业务组件、公共类型、主题 css 和 Zod 统一使用主入口；不再按 Button/Form/主题等拆分业务子入口。已安装并直接导出原生 Zod 4：
+
+```ts
+import { z, css, lightTheme } from '@zui/svelte';
+
+const schema = z.object({ name: z.string().min(2, '名称至少两个字符') });
+type Model = z.input<typeof schema>;
+```
+
+Form/Field 尚未实现，当前只是依赖和统一导出接入。独立 Node 后端若不经过 Svelte 编译，可直接从 zod 导入共享规则，不强制加载 UI 入口。
+
+| 路径                 | 使用者与边界                                                          |
+| -------------------- | --------------------------------------------------------------------- |
+| @zui/svelte          | 业务代码：组件/类型/主题/css/z，适用于 Svelte 编译消费                |
+| @zui/svelte/compiler | Vite/Svelte 构建配置；使用 node:crypto、node:path、编译器等构建期能力 |
+| @zui/svelte/server   | Node SSR/SvelteKit 服务端接入；包含 AsyncLocalStorage，不进入浏览器图 |
+| @zui/svelte/internal | 生成代码的运行时协议入口；业务无需导入，升级与编译产物配套            |
+
+后三者按执行环境/协议隔离，不是按业务功能分包。直接全部 re-export 到主入口会把 Node 模块带入解析图；条件导出虽可改写入口，但会增加环境 API/类型差异，因此保留现有边界。exports 中的 zui-source/types/svelte/default 是同一个路径的不同解析目标，zui-source 仅供工作区开发与测试。
+
 ## 最小接入
 
 普通 Svelte + Vite 项目的 vite.config.ts 中，ZUI 插件放在 Svelte 插件之前。以下写法消费构建后的包，不需要工作区专用的 zui-source 条件：

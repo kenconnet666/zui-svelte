@@ -40,3 +40,5 @@
 - 组件默认值只在 let { size = 'md', block = false, ... } = $props() 中声明；需要配置继承时以受限编译转换接入小型运行时，作者侧不再维护 ButtonDefaults/fallback/getComponentDefaults。此为已选作者形态，转换、白名单、类型生成与发布合同尚待实现和验收。
 - 上层优先组件组合：纯包装继承 ComponentProps 并转发 rest/slotProps，绑定状态显式用 $bindable/bind。组合组件公开稳定职责位置，其类型引用底层 Props 并保留嵌套 slotProps；不暴露整棵 DOM 树，不重复声明底层属性。
 - slotProps 合并只递归已定义的 slotProps 结构，保留 class/style/attachment Symbol；普通数据对象不深合并。状态与关键语义归所属组件，业务事件顺序/defaultPrevented 明确写出，编译器不猜测或重复串联事件。原生 spread 不是自动合并能力。
+- 校验已确定直接集成 Zod 4 做深度定制；作为 svelte 包直接依赖，版本走 catalog，业务可从 @zui/svelte 导入原生 z。不再并行设计 Valibot/普通规则 DSL/通用校验插件层；Form/Field 仍需实现调度、错误关联与生命周期，安装依赖不代表功能已完成。
+- 表单默认初始不报错，首次离开字段后校验，之后修改时更新，提交完整校验。文本清空 ''、数字输入/单选 Select 清空 undefined、多选 []；空值表示不等于业务可选，不能为适配编辑空态自动把必填 Zod schema 改 optional。
