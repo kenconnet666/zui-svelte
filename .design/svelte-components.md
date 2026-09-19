@@ -1,6 +1,6 @@
 # Svelte 组件 API 讨论稿
 
-状态：讨论中，尚未实施业务组件。已确认原则：用户优先双向绑定和方便，拿到同一响应式模型的地方都可直接修改，不套用严格受控/不可变更新的传统限制。下文其余名字、默认值和组件形态是建议，等待讨论后再落库。
+状态：讨论中，尚未实施业务组件。已确认：优先双向共享模型与直接修改，固定使用官方 Lucide Svelte 图标库（@lucide/svelte）。其余名字、默认值和组件形态仍是建议；第 9 节提供逐项可选择的代码对照。
 
 ## 1. 使用形态：直接组件 + 双向绑定 + 普通对象
 
@@ -61,7 +61,7 @@ export function createForm() {
 
 ```svelte
 <Button loading={saving} onclick={save}>
-  {#snippet leading()}<SaveIcon />{/snippet}
+  {#snippet leading()}<Save />{/snippet}
   保存
 </Button>
 
@@ -73,7 +73,7 @@ export function createForm() {
 </Dialog>
 ```
 
-建议标题等简单内容接收 string 或 Snippet，正文始终 children。图标入口接收 snippet，不绑具体图标包、不混合组件构造器/字符串名字/渲染函数三种类型。优先 leading/trailing 表示位置，避免 icon prop 隐含布局及 loading 状态。
+建议标题等简单内容接收 string 或 Snippet，正文始终 children。图标库已确定 Lucide；普通图标倾向 icon={Save}，上例的 leading snippet 留给自定义排版等复杂内容，Save 从 @lucide/svelte 导入。具体选择、位置和同位置优先级见第 9 节，不默认同时接受组件/字符串/渲染函数三种图标入口。
 
 重复项 snippet 接收一个有类型的上下文对象，如 { item, index, selected, disabled }。组件保留 option/row 的语义壳和键盘行为，snippet 默认替换内容；不轻易开放整个交互节点替换，避免用户承担焦点、ARIA 与测量合同。
 
@@ -88,7 +88,7 @@ Button 真实根是 button，继承 HTMLButtonAttributes；默认 type="button"�
 - 推荐简单 Input 以原生 input 为根；Field 管 label/help/error 关联，需要前后装饰时再加 InputGroup。原生 id/name/autocomplete/events 的目标没有歧义。
 - 若更看重单标签完成清空、前后缀，可选一体 Input，根始终是容器，顶层 class/style 作用于容器，输入原生属性作用于内层 input，slotProps.input 修改内层。需要额外说明两个目标，不能让有无前缀决定 DOM 根。
 
-两者都是有样式完整组件，不引入无样式依赖。初步倾向前者，但这项未确认；若常用场景导致过多模板，可选择后一种。
+两者都是有样式完整组件，不引入无样式依赖。前稿偏向原生根；结合用户进一步强调方便，本轮以第 9 节的完整场景对照为准，更推荐一体 Input，但尚未确认。
 
 原生属性与库 Props 的名称冲突要显式处理，例如 input 的 size 本来表示字符宽度。建议视觉尺寸使用 size，但在 Input 类型中 Omit 原生 size；若确有原生字符宽需求，提供单独且有说明的 nativeSize，而非悄悄改变类型。
 
@@ -152,10 +152,145 @@ Select 建议简单项采用 { value, label, disabled? }，复杂业务对象再
 
 建议首批依次验证 Button、Input/Field、Dialog、Select，四类足以检验原生透传、双向数据、snippets、slotProps、浮层与主题覆盖。键盘、焦点、表单 reset/name/disabled、IME、SSR/CSP、跨浏览器与资源回收进入各组件验收，不以 API 看起来短代替行为正确。
 
-## 待讨论的三项
+## 已确认与待定
 
-1. Input 保持原生根 + Field/InputGroup 组合，还是一体化容器 Input？
-2. Button 的 tone/variant 是否采用上述分离方式，或改成一个较小的 appearance 枚举？
-3. slotProps 重复项用对象/函数，内容用 snippet，先不开放任意交互节点替换，是否足够？
+已确认双向共享模型、class/slotProps 定制及 Lucide。待定项统一见第 9 节；示例仅用于比较，不作为实现承诺。
 
 官方依据：[双向绑定](https://svelte.dev/docs/svelte/$bindable)、[Props 与原生属性](https://svelte.dev/docs/svelte/$props)、[Snippets](https://svelte.dev/docs/svelte/snippet)、[包装组件类型](https://svelte.dev/docs/svelte/typescript)、[ClassValue](https://svelte.dev/docs/svelte/class)。这些只证明 Svelte 基础能力，本文组件名字与约定仍是 ZUI 的讨论方案。
+
+## 9. 需要拍板的示例对照
+
+下面均为候选 API，未实施；可以直接用“1A、2B……”选择，或修改某个名字。已确认的双向共享模型和 class/slotProps 不重复投票。
+
+### 1. Lucide 如何传入
+
+已确认固定使用官方 @lucide/svelte，库内的关闭、清空、展开、加载等图标也使用它。建议命名导入 + LucideIcon 类型，尺寸随组件 size，颜色默认 currentColor；不再让普通图标必须写 snippet。
+
+A：传组件（推荐）。无需维护图标注册表，名字有类型提示，支持按使用裁剪。
+
+```svelte
+<script lang="ts">
+  import { Save, ArrowRight, Trash2 } from '@lucide/svelte';
+</script>
+
+<Button icon={Save}>保存</Button>
+<Button icon={ArrowRight} iconPosition="end">下一步</Button>
+<Button icon={Trash2} aria-label="删除" />
+```
+
+B：传字符串。模板更短，适合服务端下发图标名，但需要维护注册/按需加载与未知名字处理；不能默认遍历导入整个图标库。
+
+```svelte
+<Button icon="save">保存</Button>
+<Button icon="arrow-right" iconPosition="end">下一步</Button>
+```
+
+若选 A，普通图标走 icon；金额单位、徽标等复杂内容仍用 leading/trailing snippet，同位置 snippet 优先，icon 作为回退，不同时重复渲染。图标参数用 slotProps.icon，不再加一组 iconSize/iconColor/iconStrokeWidth。纯图标按钮需要明确 aria-label；内部装饰图标不重复朗读文字。
+
+### 2. Input 的完整程度
+
+A：一体 Input，常用场景代码少。
+
+```svelte
+<Input bind:value={form.name} icon={UserRound} clearable placeholder="用户名" />
+<Input bind:value={form.password} type="password" revealable />
+<Field label="用户名" error={errors.name}>
+  <Input bind:value={form.name} clearable />
+</Field>
+```
+
+根始终是容器；class/style 作用于根，id/name/placeholder/事件等输入属性作用于 input。内部输入样式用 slotProps.input。label/help/error 留在 Field，避免每个控件再实现一份表单布局。密码显隐仅是候选便利功能，不表示已实现。
+
+B：原生 Input + 按需组合，节点与属性更直接。
+
+```svelte
+<Input bind:value={form.name} placeholder="用户名" />
+<InputGroup icon={UserRound}>
+  <Input bind:value={form.name} />
+  <Button icon={X} aria-label="清空" onclick={() => (form.name = '')} />
+</InputGroup>
+```
+
+Input 自身就是 input，class、属性与事件的目标统一；装饰场景多一层模板。两者不能以是否传 icon 动态改变 Input 的根元素。结合“方便优先”，本轮更推荐 A；与前稿偏向原生根的建议相比，这是明确的取舍调整，仍由用户决定。
+
+### 3. Button 的视觉参数
+
+A：颜色语义和表现方式分开（推荐）。
+
+```svelte
+<Button tone="primary">保存</Button>
+<Button tone="primary" variant="outline">次要保存</Button>
+<Button tone="danger" variant="soft">删除</Button>
+<Button variant="text" size="small">查看详情</Button>
+```
+
+tone 初步 neutral/primary/danger，variant 初步 solid/outline/soft/text，省略使用默认值。复用规则较清楚，能表达“危险色描边”等组合，但参数稍多。
+
+B：只有一个 appearance 枚举。
+
+```svelte
+<Button appearance="primary">保存</Button>
+<Button appearance="secondary">次要操作</Button>
+<Button appearance="danger">删除</Button>
+<Button appearance="link">查看详情</Button>
+```
+
+更少参数，但新增“危险色描边”等样式就要增加组合枚举或另走 class。无论选哪种，type 保留 button/submit/reset 原生含义，不拿 type="primary" 表示视觉。
+
+### 4. Dialog 常用写法
+
+A：完整组件 + snippets（推荐）。
+
+```svelte
+<Dialog bind:open={form.editing} title="编辑用户">
+  <Input bind:value={form.name} />
+  {#snippet footer()}
+    <Button onclick={() => (form.editing = false)}>取消</Button>
+    <Button onclick={save}>保存</Button>
+  {/snippet}
+</Dialog>
+```
+
+组件负责关闭按钮、遮罩、焦点与标题关联；需要修改公开节点用 slotProps，不要求每次手写基础结构。
+
+B：公开组合子组件。
+
+```svelte
+<Dialog.Root bind:open={form.editing}>
+  <Dialog.Overlay />
+  <Dialog.Content>
+    <Dialog.Title>编辑用户</Dialog.Title>
+    <Input bind:value={form.name} />
+    <Dialog.Close>关闭</Dialog.Close>
+  </Dialog.Content>
+</Dialog.Root>
+```
+
+DOM 排列更自由，但常规场景更长，需要维护额外 context/子组件合同；Portal 等行为仍要另外约定。不是无样式库与有样式库之分，两种都可自行实现完整样式。
+
+### 5. Select 绑定什么
+
+A：默认绑定稳定值（推荐主路径）。
+
+```svelte
+<Select options={roles} bind:value={form.roleId} />
+<!-- roles = [{ value: 1, label: '管理员' }, { value: 2, label: '访客' }] -->
+```
+
+模型里是 number/string，提交接口直接使用；options 重新加载时按稳定值匹配，外部直接 form.roleId = 2 即选中。
+
+B：显式绑定业务对象。
+
+```svelte
+<Select
+  options={users}
+  valueMode="item"
+  getKey={(user) => user.id}
+  getLabel={(user) => user.name}
+  bind:value={form.user}
+/>
+```
+
+业务直接读取或修改 form.user.name 更方便。需定义重载语义：建议按 getKey 匹配选中项，不按对象引用判定；重载 options 时不偷偷替换 form.user，重新选择时才绑定当次项目。两条路径可以共存，但建议先确定默认路径，再决定对象模式是否首批同时提供。
+
+Lucide 依据：[Svelte 使用方式](https://lucide.dev/guide/packages/lucide-svelte)、[LucideIcon 类型](https://lucide.dev/guide/svelte/advanced/typescript)。已核对当前安装包的类型导出；字符串注册方案是候选库设计，不是已提供能力。

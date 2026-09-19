@@ -17,6 +17,7 @@
 - docs 是普通 Svelte + Vite 网站，使用 .svelte 页面与真实 Demo；不使用 SvelteKit 或 Markdown 内容管线。
 - core 首版生产验收已完成，证据见 .design/core-acceptance.md。当前讨论 svelte 组件 API；未确认前不铺开组件实现，docs 随真实能力增量增加。
 - 组件状态优先 Svelte 原生双向绑定，共享 $state 模型可在持有者处直接修改；不强制 setter、不可变更新或受控/非受控双模式。具体 API 候选见 .design/svelte-components.md，未确认部分仍是讨论稿。
+- 组件图标固定使用官方 @lucide/svelte（Lucide），沿用 catalog 版本；其余组件 API 选择提供具体示例后与用户讨论，不把建议当作已批准实现。
 - .design 只保留当前合同、验收与讨论；历史草案和流水从 Git 查阅，不再增加重复规划文件。
 - 依赖版本集中在 pnpm-workspace.yaml；内部依赖用 workspace:^。
 - 本地只做改动的关键验证，优先 WebStorm 类型检查；本会话未提供 IDE 工具时明确说明，以小范围检查替代，不跑完整仓库检查。

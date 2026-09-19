@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { mkdir, mkdtemp, realpath, rename, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, realpath, rm, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { basename, dirname, join } from 'node:path';
 import { createServer, defaultClientConditions, type ViteDevServer } from 'vite';
@@ -11,9 +11,8 @@ let directory: string;
 let url: string;
 async function saveSource(name: string, source: string): Promise<void> {
   const target = join(directory, name);
-  // 模拟编辑器原子保存，避免 watcher 在 truncate 与写入之间读到半份源码。
-  await writeFile(target + '.next', source);
-  await rename(target + '.next', target);
+  // 原地保存保留被监听的文件身份；watcher 等写入稳定后再读取，避免截断的中间态。
+  await writeFile(target, source);
 }
 const component = (padding: number, styled = true) => `<script lang="ts">
 import { onDestroy } from 'svelte';
@@ -153,11 +152,15 @@ const runtime=createRuntime({target:document,namespace:'boundary'});provideStyle
     configFile: false,
     plugins: [zui({ root: directory }), svelte({ configFile: false })],
     resolve: { conditions: ['zui-source', ...defaultClientConditions] },
-    // 仍测试真实文件/HMR；内容轮询隔离 CI 容器对快速原子保存的通知丢失。
+    // 仍由真实文件变更触发 HMR，不手动发送 watcher 事件或刷新页面。
     server: {
       host: '127.0.0.1',
       port: 0,
-      watch: { usePolling: true, interval: 50, compareContentsForPolling: true },
+      watch: {
+        usePolling: true,
+        interval: 50,
+        awaitWriteFinish: { stabilityThreshold: 100, pollInterval: 20 },
+      },
     },
   });
   await server.listen();

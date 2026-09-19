@@ -13,4 +13,6 @@
 
 外部依赖用 catalog:，内部用 workspace:^；严格 peer 检查，关闭自动补装 peer。Vitest/provider 与 Playwright/@playwright/test 保持配套版本。新增需运行安装脚本的依赖时单独检查 allowBuilds。
 
-组件阶段按具体职责评估定位、焦点、日期与无障碍工具。普通 TS/CSS/浏览器能力足够时不加依赖；不预装未来组件的全部工具，不引入无样式组件库，也不将图标包强制绑进组件 API。
+组件图标已确定使用官方 @lucide/svelte；当前 Docs 已安装，开始实现组件时在 svelte 包中直接声明同一 catalog 依赖。普通图标倾向使用 LucideIcon 组件类型，具体入口见组件讨论稿。
+
+其余工具按定位、焦点、日期与无障碍等具体职责评估。普通 TS/CSS/浏览器能力足够时不加依赖；不预装未来组件的全部工具，不引入无样式组件库。

@@ -56,7 +56,7 @@
 | A31 | 流式/CSS/背压/取消          | ST/server.test.ts；ST/kit.spec.ts                                                        | HTML done 后发送完整样式 shell，延迟数据继续流式；不承诺已发送 head 后任意新 CSS 首屏 |
 | A32 | 变量双通道等价              | CR/stylesheet.test.ts；CB；DC；scripts/benchmark-browser.mjs                             | inline/stylesheet 动态值、主题与大规模更新                                            |
 | A33 | 严格 CSP                    | DC；ST/kit.spec.ts；ST/package.spec.ts                                                   | nonce 一致；无 style 属性通道；Kit 自身固定 hash 例外有明确说明                       |
-| A34 | HMR                         | ST/dev.spec.ts                                                                           | 真实文件编辑/删除/恢复、状态保留和资源回收；CI 轮询文件内容避免 OS 通知遗漏           |
+| A34 | HMR                         | ST/dev.spec.ts                                                                           | 真实文件编辑/删除/恢复、状态保留和资源回收；CI 轮询文件状态并等待写入稳定             |
 | A35 | source map/错误定位         | ST/compiler.test.ts；ST/module.test.ts                                                   | 检查原表达式行列；StyleError 保留分类与路径；用户异常不改对象                         |
 | A36 | 生成一致性                  | scripts/generate-css.mjs；CI generate:check                                              | 属性/关键字/单位/Token 映射分别报告；不把无语义映射误报为属性缺失                     |
 | A37 | tarball 独立消费            | scripts/verify-packages.mjs；ST/package.spec.ts                                          | 系统临时目录安装，禁止偷用源码/祖先依赖；保留同份归档及 hash                          |
