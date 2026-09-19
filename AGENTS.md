@@ -55,3 +55,5 @@
 - 第二阶段布局/浮层已实现：Stack/Grid/Container/ScrollArea、Portal/Popover/Tooltip/Dialog/Drawer。完整候选与边界见 .design/svelte-phase2.md，实际 API 见 svelte/README.md；Button/表单/选择仍未进入本阶段。共享标签类型在 types.ts，浮层专属实现位于 overlays，协议源码入口为 src/internal.ts，公共包路径不变。
 
 - 本项目的 zui_lsp 与官方 svelte MCP 使用项目级配置；.codex/config.example.toml 随 Git 保存，setup.ps1 生成忽略的本机 config.toml，明确 Node/仓库绝对路径，不再注册到全局。依赖均为根开发依赖。WebStorm 与独立 LSP 共用版本但独立进程，IDE MCP 空诊断不能替代 LSP 语义复核。换机运行 scripts/language-services/setup.ps1 -Verify，按 .design/language-services.md 信任项目、配置 IDE 并重载 Codex，检查实际原生工具。
+
+- 下一阶段完整规划见 .design/svelte-components.md 第 18 节：用户已选定系统关键字无前缀、主题 Token 用 `_`、组件 Token 用 `$`，成员和字符串两种入口；组件 Token 只依赖系统值/主题/原始 CSS，不引入组件引用循环图。此前 `.token()` 试点已回滚。声明、运行时与覆盖 API 尚未实现/批准，不将符号选择等同整阶段实施授权。规划须同时改善类型/悬停/补全、生成器、MCP/LSP、命名目录。用户纠正：覆盖系统精简的依据是组件 Token 进入 CSS 系统；优先审阅复用 class/CSS 层叠，不默认新增 ThemeScope.components 或 ConfigProvider.tokens 两套覆盖。大改动先举例讨论。

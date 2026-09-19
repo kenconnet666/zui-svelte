@@ -2,6 +2,8 @@
 
 本文合并早期 core、组合、类型、主题和生产规划，保留已经选择的方案。通用引擎签名见 [core README](../core/README.md)，UI Token 与尺度见 [Svelte README](../svelte/README.md)；编译与宿主配置见 [svelte README](../svelte/README.md)；验收范围保留 [A01–A40](core-acceptance.md)。
 
+下一阶段的字符串补全、`_` 主题/`$` 组件 Token、类型声明与覆盖体系优化见 [组件规划第 18 节](svelte-components.md#18-coresvelte-编写体验与架构优化阶段待审阅)。符号已选定，具体 API 与主题结构仍待审阅；下述现行合同尚未被候选方案替换。
+
 ## 样式求值与组合
 
 css(factory) 返回原始 string。@zui/core 的入口只含标准 CSS，@zui/svelte 的入口绑定内置亮色主题；自定义主题使用 core.createCss(theme, options)。factory 同步执行并返回 void，if/switch/循环/普通 TS 函数保持 JS 语义。推荐模板内 class={css(...)}，复杂或复用逻辑再提取函数。
