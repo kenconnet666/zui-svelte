@@ -22,6 +22,12 @@ export const pages = [
 ];
 
 export const routes = {
+  '/__infrastructure-test': wrap({
+    asyncComponent: () => import('../../svelte/tests/fixtures/InfrastructureProbe.svelte'),
+  }),
+  '/__layer-test': wrap({
+    asyncComponent: () => import('../../svelte/tests/fixtures/LayerProbe.svelte'),
+  }),
   '/__layers-test': wrap({
     asyncComponent: () => import('../../svelte/tests/fixtures/LayersProbe.svelte'),
   }),

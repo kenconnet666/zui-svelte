@@ -96,7 +96,19 @@ export function createRuntime<T extends TokenSchema = Record<never, never>>(
       : new MemoryStyleSheet());
   const theme = options.theme ?? (baseTheme as unknown as Theme<T>);
   const registry = new StyleRegistry(sheet, { ...options, namespace, layers, theme });
-  if (layers.length) registry.resource('@layer ' + layers.join(',') + ';', 'layer-order');
+  try {
+    if (layers.length) registry.resource('@layer ' + layers.join(',') + ';', 'layer-order');
+  } catch (error) {
+    // 工厂尚未返回，调用方拿不到 dispose；初始化失败由工厂撤销样式表所有权。
+    try {
+      registry.dispose();
+    } catch (cleanup) {
+      throw new AggregateError([error, cleanup], 'Style runtime initialization failed.', {
+        cause: cleanup,
+      });
+    }
+    throw error;
+  }
   const targetDocument =
     options.target?.nodeType === 9
       ? (options.target as Document)

@@ -3,13 +3,19 @@ import type { Handle, RequestEvent } from '@sveltejs/kit';
 import { MemoryStyleSheet, baseTheme } from '@zui/core';
 import { createStyleHandle, renderStyled } from '../src/server.js';
 import type { Component } from 'svelte';
+import { uiLayers } from '../src/runtime/styles.js';
 
 const event = () => ({ request: new Request('https://example.test/') }) as RequestEvent;
 
 describe('SvelteKit response ownership', () => {
   it('excludes configured layer and empty-theme resources when checking raw endpoints', async () => {
     const sheet = new MemoryStyleSheet();
-    const handle = createStyleHandle({ sheet, theme: baseTheme, layers: ['app'], layer: 'app' });
+    const handle = createStyleHandle({
+      sheet,
+      theme: baseTheme,
+      layers: [...uiLayers, 'app'],
+      layer: 'app',
+    });
     const response = new Response('<p>endpoint</p>', { headers: { 'content-type': 'text/html' } });
     expect(await handle({ event: event(), resolve: async () => response })).toBe(response);
     expect(sheet.entries()).toHaveLength(0);

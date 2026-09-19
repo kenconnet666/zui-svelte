@@ -11,3 +11,19 @@ export {
   provideForm,
 } from '../internal/field.js';
 export { snapshotValue, equalValue } from '../internal/values.js';
+export {
+  createLayer,
+  layerStats,
+  type LayerHandle,
+  type LayerOptions,
+} from '../internal/layers.js';
+export { FloatingController } from '../internal/floating.js';
+export { PortalMount } from '../internal/portal.js';
+export { Presence, animateElement } from '../internal/presence.js';
+export { captureThemeHost } from './theme-context.js';
+export { Collection, optionId } from '../internal/collection.js';
+export { AsyncList } from '../internal/request.js';
+export { VirtualCollection } from '../internal/virtual.js';
+export { LiveAnnouncer } from '../internal/announce.js';
+export { keyboardScope, capturePointer } from '../internal/interaction.js';
+export { graphemes, numberDraftParser } from '../internal/text.js';

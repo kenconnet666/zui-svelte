@@ -30,6 +30,7 @@
     type StyleResource,
   } from '@zui/core';
   import { captureRuntime, provideStyleRuntime } from './runtime/context.js';
+  import { provideThemeHost } from './runtime/theme-context.js';
 
   type Props = HTMLAttributes<HTMLElement> & {
     scope: ThemeScope<T>;
@@ -42,6 +43,7 @@
   const runtime = getRuntime();
   provideStyleRuntime(runtime);
   const marker = runtime.registry.namespace + '-theme-' + hashText(id);
+  provideThemeHost(() => ({ marker, dir: attributes.dir ?? undefined }));
   const selector = ':where(.' + marker + ')';
   let resource: StyleResource | undefined;
   let active: ThemeScope<T> | undefined;

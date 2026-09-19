@@ -16,6 +16,8 @@
 
 WebStorm 返回 timedOut=true 时，空问题列表不算完成。空列表也不能独立证明 TS 语义无误：必要时补已验证的 LSP 或相关文件/模块类型检查。完整仓库检查交 CI。
 
+测试夹具由 `svelte/tests/tsconfig.json` 显式纳入语言服务，继承包的 Bundler 模块解析与 `zui-source` 条件。只有 `tsconfig.check.json` 收录测试不足以让 IDE 自动选择它；文件不属于常规 tsconfig 时会出现 `Cannot find module '@zui/core'/'@zui/svelte'` 及连带的隐式 any。Kit 夹具保留自己的生成配置，包外消费夹具仍在独立安装中验收。不要用 `declare module` 或关闭类型检查掩盖问题，也不要给 docs 添加源码别名；docs 首次打开前需执行 `pnpm run build:libs` 生成真实声明。
+
 ## 安装和换机
 
 前置：PowerShell 7、Node 24、项目指定 pnpm、可用 codex CLI。在仓库根目录：
