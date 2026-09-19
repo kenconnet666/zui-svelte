@@ -57,7 +57,7 @@
         s.width.px(180);
         s.height.px(72);
         s.padding.px(8);
-        s.visibility(position.ready ? 'visible' : 'hidden');
+        s.visibility.raw(position.ready ? 'visible' : 'hidden');
         s.color._text;
         s.backgroundColor._surface;
         s.borderStyle.solid;

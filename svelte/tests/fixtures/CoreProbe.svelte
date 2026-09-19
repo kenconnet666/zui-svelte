@@ -56,7 +56,7 @@
     row: ({ itemWidth, selected }) => ({
       class: css((s) => {
         s.width.px(itemWidth + width / 10);
-        s.opacity(selected ? 1 : 0.6);
+        s.opacity.raw(selected ? 1 : 0.6);
       }),
     }),
   }}

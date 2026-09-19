@@ -83,7 +83,7 @@
       s.width.px(1);
       s.height.px(1);
       s.overflow.hidden;
-      s.clipPath('inset(50%)');
+      s.clipPath.raw('inset(50%)');
     })}
   ></div>
   <div {@attach attachKeys}>
@@ -107,10 +107,10 @@
         s.borderStyle.solid;
         s.borderWidth.px(2);
         s._focusVisible((focus) => {
-          focus.outline('2px solid Highlight');
+          focus.outline.raw('2px solid Highlight');
         });
         s._media('(forced-colors: active)', (forced) => {
-          forced.borderColor('ButtonText');
+          forced.borderColor.token('ButtonText');
         });
       })}
     >

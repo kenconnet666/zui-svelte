@@ -16,7 +16,7 @@ describe('scoped style resources', () => {
     expect(() =>
       runtime.keyframes({
         from: (s) => {
-          s.opacity(0);
+          s.opacity.raw(0);
         },
       }),
     ).toThrow('disposed');
@@ -30,10 +30,10 @@ describe('scoped style resources', () => {
     const runtime = createRuntime();
     const frames: Record<string, StyleFactory> = {
       from: (s) => {
-        s.opacity(0);
+        s.opacity.raw(0);
       },
       to: (s) => {
-        s.opacity(1);
+        s.opacity.raw(1);
       },
     };
     const first = runtime.keyframes(frames);
@@ -91,7 +91,7 @@ describe('scoped style resources', () => {
       runtime.keyframes({
         from: (s) => {
           s._hover((s) => {
-            s.opacity(1);
+            s.opacity.raw(1);
           });
         },
       }),

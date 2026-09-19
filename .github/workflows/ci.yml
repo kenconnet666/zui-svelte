@@ -59,6 +59,9 @@ jobs:
       - name: Verify generated CSS metadata
         run: pnpm run generate:check
 
+      - name: Verify project language services and hover contracts
+        run: node scripts/language-services/verify.mjs
+
       - name: Test core contracts
         run: pnpm run test:core
 
@@ -128,6 +131,7 @@ jobs:
             docs/test-results/
             core/test-results/
             svelte/test-results/
+            test-results/language-services/verification.json
           if-no-files-found: ignore
           retention-days: 14
 

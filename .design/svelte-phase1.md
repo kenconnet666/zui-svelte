@@ -60,11 +60,11 @@ P1-02/P1-03 等可以在原型证明必要时调整文件粒度，但不能绕�
 | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 配置与作者编译    | ConfigProvider、runtime/config/props、compiler/components；登记真实路径和允许键，自动生成声明；动态嵌套、false/undefined、Symbol、事件一次执行、包内预编译由独立 node_modules 消费 |
 | UI 样式层与主题桥 | createStyleRuntime、StyleProvider/theme-context；components/defaults/app 同序；Portal 复用 marker 与方向，null dir 在宿主归一为 undefined                                          |
-| 字段与校验        | internal/form/field/path/values；Zod jitless，唯一模型，草稿/IME/提交版本/reset/服务端错误/动态字段路径与完整 schema；公共视觉组件尚未交付                                         |
+| 字段与校验        | forms/form/field/path/values；Zod jitless，唯一模型，草稿/IME/提交版本/reset/服务端错误/动态字段路径与完整 schema；公共视觉组件尚未交付                                            |
 | 领域值            | Decimal 构造器和精度快照、日期/时间/时区实例、明确字符串 transport；Map/Set 表单模型明确拒绝，未知不可变实例保留引用，不假造通用克隆                                               |
-| 层与交互生命周期  | internal/layers/portal/floating/presence/dom；3 层关闭顺序、取消/退出、ShadowRoot、触发器移除、100 轮释放、CSP 与 viewport 更新                                                    |
-| 集合与请求        | internal/collection/request/virtual；对象保留、重复 key 拒绝、异步失序/中止/重试/分页、10000 项窗口化、活动节点和动态高度                                                          |
-| 跨组件交互        | internal/interaction/announce/text；局部键盘不抢 IME/修饰键/输入框/Escape、Pointer Capture 清理、分级去重播报、grapheme 与精确数值编辑边界、原生媒体偏好                           |
+| 层与交互生命周期  | overlays/layers/portal/floating/presence 与 shared/dom；3 层关闭顺序、取消/退出、ShadowRoot、触发器移除、100 轮释放、CSP 与 viewport 更新                                          |
+| 集合与请求        | collections/collection/request/virtual；对象保留、重复 key 拒绝、异步失序/中止/重试/分页、10000 项窗口化、活动节点和动态高度                                                       |
+| 跨组件交互        | shared/interaction/announce/text；局部键盘不抢 IME/修饰键/输入框/Escape、Pointer Capture 清理、分级去重播报、grapheme 与精确数值编辑边界、原生媒体偏好                             |
 | 消费与规模        | Docs dist 消费、真实 Kit、独立 tarball、1000 控件与资源基线；新增用例加入既有 CI，不引入只跑本机的验收通道                                                                         |
 
 最终代码候选 b1c1ae2662ef1513cfdf1fadc174da69fc3a6c34 的[完整 CI 35435194810](https://github.com/kenconnet666/zui-svelte/actions/runs/35435194810) 已通过，包含类型/构建、三浏览器/axe、SSR/hydration、独立安装包与产物/资源预算。1000 控件、交互/指针取消、并发 SSR 配置隔离和字段重排均已纳入；源码和包外消费者没有使用 declare module 或路径别名掩盖类型错误。设备验证边界见下文。

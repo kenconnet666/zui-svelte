@@ -47,7 +47,7 @@ describe('module style definitions', () => {
       s.color._brand;
     });
     const unused = module.call('unused', css, (s) => {
-      s.opacity(0.5);
+      s.opacity.raw(0.5);
     });
     const runtime = createRuntime({ theme });
     const consumer = new ClassController(runtime, 'consumer', 'consumer');

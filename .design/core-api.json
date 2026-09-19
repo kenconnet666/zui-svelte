@@ -108,8 +108,14 @@
   "ThemeKeywords": [
     "type ThemeKeywords<T extends TokenSchema, C> = [\n    C\n] extends [\n    keyof T\n] ? `_${keyof T[C & keyof T] & string}` : never;"
   ],
-  "Carrier": [
-    "export type Carrier<P extends keyof CSS.Properties, K extends string, U extends keyof typeof units | never, N extends 1 | 2 | 4, C extends string, T extends TokenSchema, M extends PropertyTokenMap<T> = object> = ((value: CSS.Properties[P] | ThemeKeywords<T, TokenCategory<P, C, M>> | null) => void) & {\n    readonly [Keyword in K]: void;\n} & {\n    readonly [Unit in (typeof units)[U][number]]: (...values: UnitArguments<N>) => void;\n} & {\n    readonly [Token in ThemeKeywords<T, TokenCategory<P, C, M>>]: void;\n};"
+  "ThemeMembers": [
+    "type ThemeMembers<T extends TokenSchema, C> = [\n    C\n] extends [\n    keyof T\n] ? {\n    readonly [K in keyof T[C & keyof T] as K extends string ? `_${K}` : never]: void;\n} : object;"
+  ],
+  "UnitArguments": [
+    "type UnitArguments<P, N extends 1 | 2 | 4> = N extends 4 ? P extends 'borderRadius' ? [\n    all: number\n] | [\n    topLeftBottomRight: number,\n    topRightBottomLeft: number\n] | [\n    topLeft: number,\n    topRightBottomLeft: number,\n    bottomRight: number\n] | [\n    topLeft: number,\n    topRight: number,\n    bottomRight: number,\n    bottomLeft: number\n] : [\n    all: number\n] | [\n    vertical: number,\n    horizontal: number\n] | [\n    top: number,\n    horizontal: number,\n    bottom: number\n] | [\n    top: number,\n    right: number,\n    bottom: number,\n    left: number\n] : N extends 2 ? P extends 'gap' ? [\n    all: number\n] | [\n    row: number,\n    column: number\n] : P extends `${string}Radius` ? [\n    radius: number\n] | [\n    horizontal: number,\n    vertical: number\n] : [\n    both: number\n] | [\n    start: number,\n    end: number\n] : [\n    value: number\n];"
+  ],
+  "CssProperty": [
+    "export type CssProperty<P extends keyof CSS.Properties, G extends {\n    readonly members: Readonly<Record<string, string>>;\n    readonly values: readonly string[];\n}, U extends keyof typeof units | never, N extends 1 | 2 | 4, C extends string, T extends TokenSchema, M extends PropertyTokenMap<T> = object> = {\n    token(value: G['members'][keyof G['members']] | G['values'][number] | ThemeKeywords<T, TokenCategory<P, C, M>> | null | undefined): void;\n    raw(value: CSS.Properties[P] | G['members'][keyof G['members']] | G['values'][number] | ThemeKeywords<T, TokenCategory<P, C, M>> | (string & {}) | null | undefined): void;\n} & Pick<SystemKeywordMembers, keyof G['members'] & keyof SystemKeywordMembers> & ([\n    U\n] extends [\n    never\n] ? object : UnitMethods<UnitArguments<P, N>>[U]) & ThemeMembers<T, TokenCategory<P, C, M>>;"
   ],
   "ResolvedTokens": [
     "export type ResolvedTokens<T extends ThemeDefinition> = ResolveDefinition<NormalizeKeys<T>>;"

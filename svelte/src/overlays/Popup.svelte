@@ -9,7 +9,7 @@
   import { OverlaySession, type OverlayCloseEvent } from './session.js';
   import { FloatingController } from './floating.js';
   import Portal from './Portal.svelte';
-  import Panel from './Panel.svelte';
+  import OverlayHost from './OverlayHost.svelte';
   import ScrollArea from '../layout/ScrollArea.svelte';
 
   let {
@@ -33,22 +33,39 @@
     children,
     ...rest
   }: Omit<HTMLAttributes<HTMLDivElement>, 'onclose'> & {
+    /** 是否打开，支持 bind:open；默认 false。 */
     open?: boolean;
+    /** 定位参考元素或 Floating UI 虚拟参考；与 trigger snippet 二选一。 */
     anchor?: ReferenceElement;
+    /** 期望定位方向；碰撞时可能翻转，实际位置由定位结果决定。 */
     placement?: Placement;
+    /** 面板与锚点的间距，单位 px。 */
     offset?: number;
+    /** 与碰撞边界的最小距离，默认 8px。 */
     collisionPadding?: number;
+    /** 定位碰撞边界，沿用 Floating UI Boundary。 */
     boundary?: Boundary;
+    /** 是否显示指向锚点的箭头。 */
     arrow?: boolean;
+    /** 面板是否匹配锚点宽度；默认 false。 */
     matchAnchorWidth?: boolean;
+    /** 是否/向何处转移面板；保持逻辑层和主题关系。 */
     portal?: PortalTarget;
+    /** 关闭后是否保留 DOM；默认 false，不表示仍可交互。 */
     keepMounted?: boolean;
+    /** 是否启用进入/退出动画；遵循减少动画偏好。 */
     animated?: boolean;
+    /** 面板是否可交互；Tooltip 使用非交互面板。 */
     interactive?: boolean;
+    /** 关闭请求，cancelable 时可 preventDefault；直接更新绑定值不伪造事件。 */
     onclose?: (event: OverlayCloseEvent) => void;
+    /** 内部面板节点变化通知，销毁时传 undefined。 */
     onpanel?: (element: HTMLElement | undefined) => void;
+    /** 转发公开部件的参数、class、style 与事件；保留嵌套 slotProps 类型。 */
     slotProps?: {
+      /** 是否显示指向锚点的箭头。 */
       arrow?: HTMLAttributes<HTMLDivElement>;
+      /** 内部 ScrollArea 的 Props，支持继续传递 viewport/content 的 slotProps。 */
       body?: ComponentProps<typeof ScrollArea>;
     };
   } = $props();
@@ -182,14 +199,14 @@
         s.zIndex._popup;
         s.left.px(position.x);
         s.top.px(position.y);
-        s.display(visible ? 'block' : 'none');
-        s.visibility(position.ready && !position.hidden ? 'visible' : 'hidden');
+        s.display.token(visible ? 'block' : 'none');
+        s.visibility.token(position.ready && !position.hidden ? 'visible' : 'hidden');
         if (matchAnchorWidth) s.inlineSize.px(position.referenceWidth);
         s.maxInlineSize.px(position.availableWidth);
         s.maxBlockSize.px(position.availableHeight);
       })}
     >
-      <Panel
+      <OverlayHost
         context={session}
         attach={panel}
         {...rest}
@@ -211,7 +228,7 @@
             s.boxShadow._md;
             s.transitionDuration._sm;
             s.transitionProperty.none;
-            if (matchAnchorWidth) s.inlineSize('100%');
+            if (matchAnchorWidth) s.inlineSize.raw('100%');
             s.maxBlockSize.px(position.availableHeight);
             s.maxInlineSize.px(position.availableWidth);
           }),
@@ -224,10 +241,10 @@
             overscroll="contain"
             class={[
               css((s) => {
-                s.flex('1 1 auto');
+                s.flex.raw('1 1 auto');
                 s.minBlockSize.px(0);
                 s.maxBlockSize.inherit;
-                s.maxInlineSize('100%');
+                s.maxInlineSize.raw('100%');
               }),
               slotProps.body?.class,
             ]}
@@ -253,7 +270,7 @@
                 s.width.px(8);
                 s.height.px(8);
                 s.backgroundColor.inherit;
-                s.transform('rotate(45deg)');
+                s.transform.raw('rotate(45deg)');
                 if (position.arrowX !== undefined) s.left.px(position.arrowX);
                 if (position.arrowY !== undefined) s.top.px(position.arrowY);
                 if (side === 'top') s.bottom.px(-4);
@@ -265,7 +282,7 @@
             ]}
           ></div>
         {/if}
-      </Panel>
+      </OverlayHost>
     </div>
   </Portal>
 {/if}

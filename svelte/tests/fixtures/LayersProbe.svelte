@@ -6,10 +6,10 @@
   data-testid="ui-layer-default"
   class={[
     defaultsCss((s) => {
-      s.color('blue');
+      s.color.token('blue');
     }),
     componentCss((s) => {
-      s.color('red');
+      s.color.token('red');
     }),
   ]}
 >
@@ -19,13 +19,13 @@
   data-testid="ui-layer-app"
   class={[
     css((s) => {
-      s.color('green');
+      s.color.token('green');
     }),
     defaultsCss((s) => {
-      s.color('blue');
+      s.color.token('blue');
     }),
     componentCss((s) => {
-      s.color('red');
+      s.color.token('red');
     }),
   ]}
 >
@@ -35,7 +35,7 @@
   data-testid="ui-layer-native"
   class={[
     css((s) => {
-      s.color('green');
+      s.color.token('green');
     }),
     'external',
   ]}

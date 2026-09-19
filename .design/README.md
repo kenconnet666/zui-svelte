@@ -2,20 +2,20 @@
 
 当前文档只保留有效合同、验收证据和正在讨论的设计。旧草案、逐次排障与提交流水已合并或删除，原文可从 Git 历史恢复；不维护第二份历史目录。
 
-| 入口                                         | 内容                                                                                                 |
-| -------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| [architecture.md](architecture.md)           | 工作区边界、依赖方向、已确认约束                                                                     |
-| [core-contracts.md](core-contracts.md)       | core 已实现合同及关键取舍；用法以包 README 为准                                                      |
-| [core-acceptance.md](core-acceptance.md)     | A01–A40 与完整候选 CI、产物证据                                                                      |
-| [svelte-components.md](svelte-components.md) | 编写偏好、组件合同与验收；第 18 节为属性对象/token/raw、悬停与类型生成、工具与实现精简及目录审计规划 |
-| [svelte-phase1.md](svelte-phase1.md)         | 第一阶段基础设施实现、候选验收和明确边界                                                             |
-| [svelte-phase2.md](svelte-phase2.md)         | 第二阶段布局/定位/浮层、架构优化及命名/目录/文件审计，供用户审阅                                     |
-| [development.md](development.md)             | 开发命令、本地关键检查和清理规则                                                                     |
-| [ci.md](ci.md)                               | 完整 CI、安装包和报告交付                                                                            |
-| [dependencies.md](dependencies.md)           | 依赖职责与新增依赖准入                                                                               |
-| [language-services.md](language-services.md) | MCP/LSP 安装、能力边界与必要排障                                                                     |
-| [documentation.md](documentation.md)         | 普通 Svelte 文档站约定                                                                               |
-| [core-performance.md](core-performance.md)   | 性能门槛含义和报告口径                                                                               |
+| 入口                                         | 内容                                                                                                     |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| [architecture.md](architecture.md)           | 工作区边界、依赖方向、已确认约束                                                                         |
+| [core-contracts.md](core-contracts.md)       | core 已实现合同及关键取舍；用法以包 README 为准                                                          |
+| [core-acceptance.md](core-acceptance.md)     | A01–A40 与完整候选 CI、产物证据                                                                          |
+| [svelte-components.md](svelte-components.md) | 编写偏好、组件合同与验收；第 18 节为属性对象/token/raw、悬停与生成器、工具及模块整理的当前实现与验收边界 |
+| [svelte-phase1.md](svelte-phase1.md)         | 第一阶段基础设施实现、候选验收和明确边界                                                                 |
+| [svelte-phase2.md](svelte-phase2.md)         | 第二阶段布局/定位/浮层、架构优化及命名/目录/文件审计，供用户审阅                                         |
+| [development.md](development.md)             | 开发命令、本地关键检查和清理规则                                                                         |
+| [ci.md](ci.md)                               | 完整 CI、安装包和报告交付                                                                                |
+| [dependencies.md](dependencies.md)           | 依赖职责与新增依赖准入                                                                                   |
+| [language-services.md](language-services.md) | MCP/LSP 安装、能力边界与必要排障                                                                         |
+| [documentation.md](documentation.md)         | 普通 Svelte 文档站约定                                                                                   |
+| [core-performance.md](core-performance.md)   | 性能门槛含义和报告口径                                                                                   |
 
 core-api.json、core-distribution-budget.json、core-performance-budget.json 和 svelte-distribution-budget.json 由脚本读取，分别保存 API 合同、core 分发/类型与性能基线、UI 消费入口分发预算。移动或修改时必须同步相关 scripts，不能当作普通说明文件删除。
 

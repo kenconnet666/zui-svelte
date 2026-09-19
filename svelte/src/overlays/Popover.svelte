@@ -23,6 +23,7 @@
     children,
     ...rest
   }: Omit<ComponentProps<typeof Popup>, 'interactive' | 'onpanel'> & {
+    /** 触发器 snippet；必须把收到的原生属性/attachment 转发到触发元素。 */
     trigger?: Snippet<[HTMLAttributes<HTMLElement>]>;
   } = $props();
   const key = createAttachmentKey();

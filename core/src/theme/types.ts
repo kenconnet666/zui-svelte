@@ -149,8 +149,11 @@ export type ExtendedTokens<A extends ThemeDefinition, B extends ThemeDefinition>
 export interface Theme<T extends TokenSchema = TokenSchema> {
   readonly namespace: string;
   readonly colorScheme?: 'light' | 'dark';
+  /** 只读的解析值；不是某个 DOM 元素的 computed style。 */
   readonly resolved: T;
   readonly definition: ThemeDefinition;
+  /** 返回编码后的 CSS 自定义属性名，未知类别或键报错。 */
   variable<C extends keyof T & string>(category: C, token: keyof T[C] & string): string;
+  /** 返回 var(...) 引用，用于复合 CSS；不会把主题值固化为常量。 */
   ref<C extends keyof T & string>(category: C, token: keyof T[C] & string): string;
 }

@@ -226,19 +226,19 @@ export function generateComponentTypes(
     "// 自动生成；字段类型以组件源码为唯一来源。\nimport type { ComponentProps } from 'svelte';\n" +
     definitions
       .map(
-        (item, index) =>
-          `import C${index} from ${JSON.stringify('./' + relative(root, resolve(root, item.file)).replaceAll('\\', '/'))};`,
+        (item) =>
+          `import ${item.name} from ${JSON.stringify('./' + relative(root, resolve(root, item.file)).replaceAll('\\', '/'))};`,
       )
       .join('\n') +
     '\n' +
     definitions
-      .map((item, index) => `type P${index} = ComponentProps<typeof C${index}>;`)
+      .map((item) => `type ${item.name}Props = ComponentProps<typeof ${item.name}>;`)
       .join('\n') +
     '\nexport type ComponentDefaults = {\n' +
     definitions
       .map(
-        (item, index) =>
-          `  ${JSON.stringify(item.name)}: Partial<Pick<P${index}, ${item.defaults.map((key) => JSON.stringify(key)).join(' | ') || 'never'} | Extract<'class' | 'style' | 'slotProps', keyof P${index}>>>;`,
+        (item) =>
+          `  /** ${item.name} 的白名单默认参数与样式；实例值优先。 */\n  ${JSON.stringify(item.name)}: Partial<Pick<${item.name}Props, ${item.defaults.map((key) => JSON.stringify(key)).join(' | ') || 'never'} | Extract<'class' | 'style' | 'slotProps', keyof ${item.name}Props>>>;`,
       )
       .join('\n') +
     '\n};\n'

@@ -27,6 +27,7 @@ export function hasCssEvaluation(): boolean {
   return activeEvaluation !== undefined;
 }
 
+/** 仅含系统 CSS 的 class 入口；同步回调，由框架编译桥管理绑定和生命周期。 */
 export function css(factory: StyleFactory<Record<never, never>>): string {
   if (arguments.length !== 1)
     throw new StyleError('runtime.context', 'Use createCss(theme) to bind a custom theme.');
@@ -53,6 +54,7 @@ export interface CssOptions<
   readonly tokenMap?: M & Record<Exclude<keyof M, keyof PropertyTokenMap<T>>, never>;
 }
 
+/** 绑定主题与层，保留用户扩展的精确 Token 类型；返回的函数用于 class。 */
 export function createCss<T extends TokenSchema, const M extends PropertyTokenMap<T> = object>(
   theme: Theme<T>,
   options: CssOptions<T, M> = {},

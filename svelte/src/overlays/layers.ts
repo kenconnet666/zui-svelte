@@ -2,7 +2,7 @@ import { createRuntime, type StyleResource, type StyleRuntime } from '@zui/core'
 import { createFocusTrap, type FocusTrap } from 'focus-trap';
 import { isFocusable, tabbable } from 'tabbable';
 import { createSubscriber } from 'svelte/reactivity';
-import { activeElement, cleanAll, composedContains, styleRoot } from '../internal/dom.js';
+import { activeElement, cleanAll, composedContains, styleRoot } from '../shared/dom.js';
 
 export type CloseReason =
   'escape' | 'outside' | 'focus-outside' | 'programmatic' | 'parent' | 'removed';
@@ -342,7 +342,7 @@ class LayerManager {
           this.#sheet(styleRoot(entry.options.positioner ?? entry.options.element)).global(
             '[data-zui-layer="' + entry.id + '"]',
             (s) => {
-              s.zIndex(entry.indexValue);
+              s.zIndex.raw(entry.indexValue);
               if (entry.stateValue === 'closing') s.pointerEvents.none;
             },
           ),
@@ -353,7 +353,7 @@ class LayerManager {
               this.#sheet(styleRoot(entry.options.backdrop)).global(
                 '[data-zui-backdrop="' + entry.id + '"]',
                 (s) => {
-                  s.zIndex(entry.indexValue - 1);
+                  s.zIndex.raw(entry.indexValue - 1);
                 },
               ),
             );
@@ -436,7 +436,7 @@ class LayerManager {
       (s) => {
         s.overflow.hidden;
         s.overscrollBehavior.none;
-        if (gap) s.paddingInlineEnd('calc(' + padding + ' + ' + gap + 'px)');
+        if (gap) s.paddingInlineEnd.raw('calc(' + padding + ' + ' + gap + 'px)');
       },
     );
     root.setAttribute('data-zui-scroll-lock', this.#token);

@@ -40,7 +40,7 @@ describe('real DOM style bindings', () => {
     const value = '"a\\\r\nb"';
     control.style.content = value;
     node.className = runtime('escaped-lines').css((s) => {
-      s.content(value);
+      s.content.raw(value);
     });
     expect(getComputedStyle(control).content).toBe('"ab"');
     expect(getComputedStyle(node).content).toBe(getComputedStyle(control).content);
@@ -339,7 +339,7 @@ describe('real DOM style bindings', () => {
         s.width.px(100);
       });
       binding.evaluate((s) => {
-        s.width(value);
+        s.width.raw(value);
       });
       expect(binding.snapshot.variables).toEqual({});
       expect(getComputedStyle(child).width).toBe('240px');
@@ -357,7 +357,7 @@ describe('real DOM style bindings', () => {
     const binding = owner.binding();
     binding.evaluate((s) => {
       s._selector('& > :is(.selector-label, .selector-icon), &[data-active]', (s) => {
-        s.color('red');
+        s.color.token('red');
       });
     });
     cleanup.push(bindElement(root, binding));
@@ -512,13 +512,13 @@ describe('real DOM style bindings', () => {
           app((s) => {
             s.width.px(300);
             s._important((s) => {
-              s.color('blue');
+              s.color.token('blue');
             });
           }),
           base((s) => {
             s.width.px(width);
             s._important((s) => {
-              s.color('red');
+              s.color.token('red');
             });
           }),
         ]),

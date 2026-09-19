@@ -94,7 +94,7 @@
             s.position.absolute;
             s.top.px(item.start);
             s.left.px(0);
-            s.width('100%');
+            s.width.raw('100%');
             s.height.px(large ? 54 : 36);
           })}
         >

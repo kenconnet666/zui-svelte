@@ -2,6 +2,10 @@
 
 Svelte 5 组件库工作区，依赖 @zui/core，使用官方 svelte-package 生成发布产物。
 
+CSS 属性是不可调用对象，第三层完成声明：`s.display.flex`、`s.inlineSize.token('_panelMd')`、`s.inlineSize.raw('calc(100% - 2rem)')`。token 严格检查系统/主题键；raw 保留补全并接受原始 CSS。组件内部仍用普通 TS 映射和分支，没有组件 Token/变量注册层。内置主题成员的悬停说明由 theme.ts 同源生成，标注的是默认值而非当前计算值。
+
+内部目录按职责归属 compiler/runtime/layout/overlays/forms/collections/shared；`internal.ts` 只是协议入口。生成类型为 component-types.generated.ts、theme-types.generated.ts，不手工编辑。公开包入口和组件名保持稳定。
+
 当前提供 class 编译/SSR 样式桥、UI 亮暗主题、ConfigProvider/StyleProvider，以及字段校验、层/焦点、定位、集合/异步/虚拟化和跨组件交互基础。已导出 Stack/Grid/Container/ScrollArea 与 Portal/Popover/Tooltip/Dialog/Drawer；Button/Input/Form 等尚未实现。基础设施的候选与边界见 [第一阶段台账](../.design/svelte-phase1.md)，视觉组件的实施建议见 [第二阶段计划](../.design/svelte-phase2.md)。
 
 - 构建：`pnpm --filter @zui/svelte build`

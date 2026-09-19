@@ -28,7 +28,7 @@ try {
     await writeFile(join(temporary, 'compiler', file.replace(/\.ts$/u, '.js')), result.outputText);
   }
   const compiler = await import(pathToFileURL(join(temporary, 'compiler/preprocess.js')).href);
-  const typesFile = join(source, 'component-types.ts');
+  const typesFile = join(source, 'component-types.generated.ts');
   const generated = await format(compiler.generateComponentTypes(components, source), {
     ...(await resolveConfig(typesFile)),
     filepath: typesFile,

@@ -1,4 +1,6 @@
-import { baseTheme, createCss, extendTheme, tokenRef, type StyleFactory } from '@zui/core';
+import { baseTheme, createCss, extendTheme, tokenRef } from '@zui/core';
+import type { DefaultTokens, DefaultStyleFactory } from './theme-types.generated.js';
+export type { DefaultTokens } from './theme-types.generated.js';
 
 const scales = {
   // 数量尺度统一五档；仅在零值、填满确有含义时增加 none/full。
@@ -122,8 +124,6 @@ export const lightTheme = /* @__PURE__ */ extendTheme(
   { colorScheme: 'light' },
 );
 
-export type DefaultTokens = typeof lightTheme.resolved;
-
 export const darkTheme = /* @__PURE__ */ extendTheme(
   baseTheme,
   {
@@ -170,13 +170,16 @@ export const darkTheme = /* @__PURE__ */ extendTheme(
 );
 
 /** 内置 UI 主题的类型化入口；core 的 css 仅含标准 CSS 能力。 */
-export const css: (factory: StyleFactory<DefaultTokens>) => string = /* @__PURE__ */ createCss(
-  lightTheme,
-  { layer: 'zui.app' },
-);
+export const css: (factory: DefaultStyleFactory) => string = /* @__PURE__ */ createCss(lightTheme, {
+  layer: 'zui.app',
+});
 
 /** 组件基础样式与整类默认覆盖使用固定层，避免依靠 class 字符串顺序。 */
-export const componentCss: (factory: StyleFactory<DefaultTokens>) => string =
-  /* @__PURE__ */ createCss(lightTheme, { layer: 'zui.components' });
-export const defaultsCss: (factory: StyleFactory<DefaultTokens>) => string =
-  /* @__PURE__ */ createCss(lightTheme, { layer: 'zui.defaults' });
+export const componentCss: (factory: DefaultStyleFactory) => string = /* @__PURE__ */ createCss(
+  lightTheme,
+  { layer: 'zui.components' },
+);
+export const defaultsCss: (factory: DefaultStyleFactory) => string = /* @__PURE__ */ createCss(
+  lightTheme,
+  { layer: 'zui.defaults' },
+);

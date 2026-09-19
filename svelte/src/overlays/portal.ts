@@ -1,4 +1,4 @@
-import { activeElement, composedContains, styleRoot } from '../internal/dom.js';
+import { activeElement, composedContains, styleRoot } from '../shared/dom.js';
 import type { ThemeHost } from '../runtime/theme-context.js';
 
 /** 同一渲染根内移动 DOM，逻辑 Svelte context 不变；主题复用现有 marker，不复制整份 Token。 */

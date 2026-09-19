@@ -2,7 +2,7 @@
 
 本文合并早期 core、组合、类型、主题和生产规划，保留已经选择的方案。通用引擎签名见 [core README](../core/README.md)，UI Token 与尺度见 [Svelte README](../svelte/README.md)；编译与宿主配置见 [svelte README](../svelte/README.md)；验收范围保留 [A01–A40](core-acceptance.md)。
 
-下一阶段采用不可调用的 CSS 属性对象，第三层提供关键字/单位、严格 token 与开放 raw，并完善类型/悬停/生成器及模块整理，见 [组件规划第 18 节](svelte-components.md#18-coresvelte-属性对象类型体验与模块整理待审阅)。独立组件 Token/变量层已取消；下述仍为当前 P1 合同，三段式迁移尚未实施。
+CSS 属性对象现已不可调用，第三层提供关键字/单位、严格 token 与开放 raw；类型/悬停/生成器和模块整理见 [实施记录第 18 节](svelte-components.md#18-coresvelte-属性对象类型体验与模块整理)。没有独立组件 Token/变量层。
 
 ## 样式求值与组合
 
@@ -19,7 +19,7 @@ css(factory) 返回原始 string。@zui/core 的入口只含标准 CSS，@zui/sv
 csstype + TypeScript Compiler API + CSS schema 生成属性载体和运行时表，二者共用数据。生成输入为已安装的锁定依赖，输出稳定，不依赖抓网页或机器绝对路径。generate:check 比较内容并报告属性/关键字/单位/Token 映射；不能把未映射语义的属性当作不支持，也不能让未知能力变成 any。
 
 - baseTheme 是 defineTheme({})，标准 CSS 关键字/单位不依赖主题 Token。
-- 属性函数参数补全系统值与当前类别的 `_主题键`；完整主题引用与成员访问共用声明/依赖记录。普通字符串仍透传，未知显式引用运行时报错；原始下划线标识符可用 raw/set 写入，复合 CSS 不做片段替换。
+- 属性的 token 方法严格接受系统值与当前类别的 `_主题键`；raw 方法提供相同候选并开放字符串，仅将已存在的完整主题键转为引用。两种方法与成员访问共用声明/依赖记录，操作返回 void；s.raw/s.set 可强制原样写入，复合 CSS 不做片段替换。
 - lightTheme/darkTheme、五档尺度和 DefaultTokens 属于 svelte 包，从 core.baseTheme 分别扩展，schema 一致。core runtime 默认空主题；Svelte 自动宿主/SSR 默认亮色，显式自有 schema 不混入 UI 键。
 - defineTheme 从零定义；extendTheme 新增键并兼容覆盖；overrideTheme 只覆盖已知键。tokenRef 只引用同类别，缺失/循环报错，长别名链迭代解析。
 - definition 保存原定义，resolved 保存解析值，ref/variable 返回 CSS 引用与变量名。resolved 可能含 calc/外部 var，不等于 computed style。

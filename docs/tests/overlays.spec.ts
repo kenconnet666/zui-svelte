@@ -125,6 +125,18 @@ test('drawer respects RTL and portal content retains input state', async ({ page
   expect((await drawer.boundingBox())!.x).toBeLessThan(5);
   const viewport = drawer.getByRole('button', { name: '关闭' });
   await expect(viewport).toBeVisible();
+  // 可见不等于进入动画完成；中途的透明度会让 axe 测到混合色而非稳定主题色。
+  await expect(drawer).toHaveCSS('opacity', '1');
+  await expect
+    .poll(() =>
+      drawer.evaluate(
+        (element) =>
+          element
+            .getAnimations()
+            .filter((animation) => animation.playState === 'running' || animation.pending).length,
+      ),
+    )
+    .toBe(0);
   const results = await new AxeBuilder({ page }).analyze();
   expect(results.violations).toEqual([]);
 });

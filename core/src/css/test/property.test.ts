@@ -8,12 +8,23 @@ it('offers native and theme literal completions while accepting arbitrary CSS st
     '\\',
     '/',
   );
-  const source = `import type { Carrier } from './carrier.js';
-declare const value: Carrier<'inlineSize', 'auto', 'length', 1, 'size', { size: { panel: '36rem' } }>;
-value('calc(100% - 2rem)');
-value(null);
-value(undefined);
-value('');`;
+  const source = `import type { StyleProperties } from './properties.generated.js';
+declare const value: StyleProperties<{size:{panel:string}}>['inlineSize'];
+value.raw('calc(100% - 2rem)');
+value.raw(null);
+value.raw(undefined);
+value.raw('_missing');
+value.raw('');
+value.token('auto');
+value.token('_panel');
+// @ts-expect-error 属性对象不可调用
+value('auto');
+// @ts-expect-error 严格入口拒绝未知主题键
+value.token('_missing');
+// @ts-expect-error 严格入口拒绝任意 CSS
+value.token('calc(100% - 2rem)');
+// @ts-expect-error 操作返回 void，不能继续样式链
+value.raw('auto').px(1);`;
   const options: ts.CompilerOptions = {
     strict: true,
     skipLibCheck: true,
@@ -35,9 +46,19 @@ value('');`;
   });
   try {
     expect(service.getSemanticDiagnostics(file)).toEqual([]);
-    const result = service.getCompletionsAtPosition(file, source.lastIndexOf("'"), {});
+    const position = source.indexOf("raw('');") + 5;
+    const result = service.getCompletionsAtPosition(file, position, {});
     expect(result?.entries.map((entry) => entry.name)).toEqual(
       expect.arrayContaining(['auto', 'max-content', '_panel']),
+    );
+    const strict = service.getCompletionsAtPosition(file, source.indexOf("token('auto')") + 7, {});
+    expect(strict?.entries.map((entry) => entry.name)).toEqual(
+      expect.arrayContaining(['auto', '_panel']),
+    );
+    const members = service.getCompletionsAtPosition(file, source.indexOf('value.raw') + 6, {});
+    expect(members?.entries.map((entry) => entry.name)).not.toContain('call');
+    expect(members?.entries.map((entry) => entry.name)).toEqual(
+      expect.arrayContaining(['token', 'raw', 'px', '_panel']),
     );
   } finally {
     service.dispose();

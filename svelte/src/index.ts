@@ -22,7 +22,7 @@ export { default as Tooltip } from './overlays/Tooltip.svelte';
 export { default as Dialog } from './overlays/Dialog.svelte';
 export { default as Drawer } from './overlays/Drawer.svelte';
 export type { OverlayCloseEvent } from './overlays/session.js';
-export type { ComponentDefaults } from './component-types.js';
+export type { ComponentDefaults } from './component-types.generated.js';
 export { default as StyleProvider } from './StyleProvider.svelte';
 export type { StyleContainerTag } from './types.js';
 export { z } from './validation.js';

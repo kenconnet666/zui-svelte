@@ -51,6 +51,31 @@ export interface PropertyOptions {
   tokens?: string;
 }
 
+// 常用属性的简短说明；完整语法/初始值/来源由上游生成，不手写全量 CSS 定义。
+export const propertyDescriptions: Readonly<Record<string, string>> = {
+  inlineSize: '元素在行内轴方向上的尺寸。',
+  blockSize: '元素在块轴方向上的尺寸。',
+  maxInlineSize: '行内轴方向的最大尺寸。',
+  minInlineSize: '行内轴方向的最小尺寸。',
+  maxBlockSize: '块轴方向的最大尺寸。',
+  minBlockSize: '块轴方向的最小尺寸。',
+  width: '元素的物理宽度。',
+  height: '元素的物理高度。',
+  display: '元素的外部布局角色与内部布局方式。',
+  position: '元素的定位方式。',
+  color: '文本及 currentColor 的前景颜色。',
+  backgroundColor: '元素的背景颜色。',
+  gap: '网格或弹性布局的行、列间距。',
+  padding: '四个物理方向的内边距。',
+  margin: '四个物理方向的外边距。',
+  paddingInline: '行内轴起点与终点的内边距。',
+  paddingBlock: '块轴起点与终点的内边距。',
+  borderRadius: '四个角的圆角半径。',
+  opacity: '元素整体的不透明度，通常为 0–1。',
+  zIndex: '定位元素在当前层叠上下文中的层级。',
+  overflow: '内容溢出元素盒时的处理方式。',
+};
+
 // 单位和 Token 语义不能仅从 csstype 的 string/number 联合类型推断。
 const groups: readonly [string, PropertyOptions][] = [
   [

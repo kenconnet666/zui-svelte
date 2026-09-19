@@ -76,7 +76,7 @@ const publicExports = Object.keys(snapshot).length;
 // 公开签名引用的载体与绑定也要锁定成员，不能只快照返回类型的名字。
 for (const [file, names] of [
   ['css/builder.d.ts', ['StyleHelpers']],
-  ['css/carrier.d.ts', ['Carrier', 'ThemeKeywords']],
+  ['css/property.d.ts', ['CssProperty', 'ThemeKeywords', 'ThemeMembers', 'UnitArguments']],
   ['theme/types.d.ts', ['ThemeDefinition', 'ResolvedTokens', 'WidenTokens']],
   ['runtime/binding.d.ts', ['StyleBinding']],
 ]) {

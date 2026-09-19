@@ -1,6 +1,6 @@
 import { createSubscriber } from 'svelte/reactivity';
 import { on } from 'svelte/events';
-import { capturePointer } from '../internal/interaction.js';
+import { capturePointer } from '../shared/interaction.js';
 
 export interface ScrollAxis {
   readonly overflow: boolean;

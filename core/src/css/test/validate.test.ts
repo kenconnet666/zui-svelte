@@ -38,7 +38,7 @@ describe('local selector boundaries', () => {
   it('preserves separate rooted branches and contextual ancestors through Stylis', () => {
     const program = buildStyle((s) => {
       s._selector('.theme &, & > .label', (s) => {
-        s.color('red');
+        s.color.token('red');
       });
     });
     expect(serializeProgram(program, '.root', false)).toBe('.theme .root,.root>.label{color:red;}');

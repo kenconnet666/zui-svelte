@@ -17,7 +17,7 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "node ../scripts/build-core.mjs",
     "check": "node ../scripts/measure-types.mjs",
     "test": "vitest run",
     "test:browser": "vitest run --config vitest.browser.config.ts"

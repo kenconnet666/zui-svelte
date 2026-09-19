@@ -4,7 +4,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 import { format } from 'prettier';
-import { propertyOptions } from '../core/src/css/schema.ts';
+import { propertyOptions, units, propertyDescriptions } from '../core/src/css/schema.ts';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(join(root, 'core/package.json'));
@@ -52,7 +52,7 @@ const typeLines = [];
 let inferredUnits = 0;
 
 function keywordName(value) {
-  return value.replace(/^-+/u, '').replace(/-([a-z])/gu, (_, letter) => letter.toUpperCase());
+  return value.replace(/^-+/u, '').replace(/-([a-z0-9])/gu, (_, letter) => letter.toUpperCase());
 }
 function literals(type) {
   if (type.isUnion()) return type.types.flatMap(literals);
@@ -62,18 +62,24 @@ for (const property of properties.sort((a, b) => a.name.localeCompare(b.name, 'e
   const name = property.name;
   const values = [
     ...new Set([...globals, ...literals(checker.getTypeOfSymbolAtLocation(property, declaration))]),
-  ]
-    .filter((value) => /^-?[a-z][a-z0-9-]*$/iu.test(value))
-    .sort();
-  const keywords = Object.fromEntries(values.map((value) => [keywordName(value), value]));
-  if (Object.keys(keywords).length !== values.length)
+  ].sort();
+  const memberValues = values.filter((value) => /^-?[a-z][a-z0-9-]*$/iu.test(value));
+  const keywords = Object.fromEntries(memberValues.map((value) => [keywordName(value), value]));
+  if (Object.keys(keywords).length !== memberValues.length)
     throw new Error('Keyword alias collision: ' + name);
-  const signature = JSON.stringify(keywords);
+  if (['token', 'raw'].some((key) => Object.hasOwn(keywords, key)))
+    throw new Error('Reserved property method collision: ' + name);
+  // 普通成员的值已经在 members 中，只额外保存无法用点访问的字面量。
+  const definition = {
+    members: keywords,
+    values: values.filter((value) => !memberValues.includes(value)),
+  };
+  const signature = JSON.stringify(definition);
   let group = groupIds.get(signature);
   if (group === undefined) {
     group = keywordGroups.length;
     groupIds.set(signature, group);
-    keywordGroups.push(keywords);
+    keywordGroups.push(definition);
   }
   const probeProperty = probeProperties.get(name);
   const probeValues = probeProperty
@@ -85,23 +91,34 @@ for (const property of properties.sort((a, b) => a.name.localeCompare(b.name, 'e
       ? 'time'
       : undefined;
   const options = { ...(inferred ? { units: inferred } : {}), ...propertyOptions[name] };
+  for (const unit of options.units ? units[options.units] : []) {
+    if (Object.hasOwn(keywords, unit) || unit === 'token' || unit === 'raw')
+      throw new Error('CSS unit/member collision: ' + name + '.' + unit);
+  }
   if (inferred && !propertyOptions[name]?.units) inferredUnits++;
   const cssName = name
     .replace(/[A-Z]/gu, (letter) => '-' + letter.toLowerCase())
     .replace(/^ms-/u, '-ms-');
   metadata[name] = { name: cssName, group, ...options };
-  const keywordType = 'keyof (typeof keywordGroups)[' + group + ']';
+  const keywordType = '(typeof keywordGroups)[' + group + ']';
   const unitType = options.units ? JSON.stringify(options.units) : 'never';
-  const doc = ts
-    .displayPartsToString(property.getDocumentationComment(checker))
-    .split('\n')[0]
-    ?.replaceAll('*/', '* /');
+  const upstream = ts.displayPartsToString(property.getDocumentationComment(checker));
+  const syntax = upstream.match(/\*\*Syntax\*\*: ([^\n]+)/u)?.[1];
+  const initial = upstream.match(/\*\*Initial value\*\*: ([^\n]+)/u)?.[1];
+  const description = propertyDescriptions[name] ?? cssName;
+  const docs = [
+    description,
+    options.tokens && '主题类别：' + options.tokens + '（_ 前缀）。',
+    syntax && '语法：' + syntax.slice(0, 240),
+    initial && '初始值：' + initial,
+    '@see https://developer.mozilla.org/docs/Web/CSS/' + cssName,
+  ].filter(Boolean);
   typeLines.push(
-    '  /** ' +
-      (doc || cssName) +
-      ' */\n  readonly ' +
+    '  /**\n' +
+      docs.map((line) => '   * ' + line.replaceAll('*/', '* /')).join('\n') +
+      '\n   */\n  readonly ' +
       name +
-      ': Carrier<' +
+      ': CssProperty<' +
       JSON.stringify(name) +
       ', ' +
       keywordType +
@@ -121,7 +138,44 @@ const header =
   '// 自动生成，请运行 pnpm generate；勿手工修改。来源：csstype ' +
   version +
   '（MIT）及 schema.ts。\n';
+const unitLines = Object.entries(units)
+  .map(
+    ([family, names]) =>
+      family +
+      ': {\n' +
+      names
+        .map(
+          (name) =>
+            '/** 以 ' +
+            (name === 'pct' ? '%' : name) +
+            ' 写入；参数数量与顺序由属性决定。 */\n' +
+            name +
+            '(...values: Args): void;',
+        )
+        .join('\n') +
+      '\n};',
+  )
+  .join('\n');
+const systemMembers = {};
+for (const group of keywordGroups)
+  for (const [name, value] of Object.entries(group.members)) {
+    // 不同属性可合法使用不同拼写，如 SVG crispEdges 与 image-rendering 的 crisp-edges。
+    (systemMembers[name] ??= new Set()).add(value);
+  }
 const outputs = {
+  'core/src/css/keywords.generated.ts':
+    header +
+    'export interface SystemKeywordMembers {\n' +
+    Object.entries(systemMembers)
+      .sort(([a], [b]) => a.localeCompare(b, 'en'))
+      .map(
+        ([name, values]) =>
+          `/** 系统关键字：${[...values].sort().join(' / ')}${values.size > 1 ? '（原始拼写由属性决定）' : ''}。读取即写入当前 CSS 属性。 */\nreadonly ${JSON.stringify(name)}: void;`,
+      )
+      .join('\n') +
+    '\n}\n',
+  'core/src/css/units.generated.ts':
+    header + 'export interface UnitMethods<Args extends number[]> {\n' + unitLines + '\n}\n',
   'core/src/css/metadata.generated.ts':
     header +
     'export const keywordGroups = ' +
@@ -131,7 +185,7 @@ const outputs = {
     ' as const;\n',
   'core/src/css/properties.generated.ts':
     header +
-    "import type { Carrier, PropertyTokenMap } from './carrier.js';\nimport type { keywordGroups } from './metadata.generated.js';\nimport type { TokenSchema } from '../theme/types.js';\nexport interface StyleProperties<T extends TokenSchema = Record<never, never>, M extends PropertyTokenMap<T> = object> {\n" +
+    "import type { CssProperty, PropertyTokenMap } from './property.js';\nimport type { keywordGroups } from './metadata.generated.js';\nimport type { TokenSchema } from '../theme/types.js';\nexport interface StyleProperties<T extends TokenSchema = Record<never, never>, M extends PropertyTokenMap<T> = object> {\n" +
     typeLines.join('\n') +
     '\n}\n',
 };

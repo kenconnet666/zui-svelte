@@ -27,11 +27,17 @@
     ComponentProps<typeof Popup>,
     'children' | 'anchor' | 'interactive' | 'matchAnchorWidth' | 'onpanel' | 'slotProps'
   > & {
+    /** 纯文本提示内容；不承载交互控件。 */
     content: string;
+    /** 触发器 snippet；必须把收到的原生属性/attachment 转发到触发元素。 */
     trigger: Snippet<[HTMLAttributes<HTMLElement>]>;
+    /** 提示打开延迟，单位 ms；默认 300。 */
     delay?: number;
+    /** 提示关闭延迟，单位 ms；默认 120。 */
     closeDelay?: number;
+    /** 禁用提示触发；默认 false。 */
     disabled?: boolean;
+    /** 转发公开部件的参数、class、style 与事件；保留嵌套 slotProps 类型。 */
     slotProps?: Pick<NonNullable<ComponentProps<typeof Popup>['slotProps']>, 'arrow'>;
   } = $props();
   const key = createAttachmentKey();

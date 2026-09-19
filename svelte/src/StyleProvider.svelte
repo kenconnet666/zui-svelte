@@ -14,7 +14,9 @@
   import { provideThemeHost } from './runtime/theme-context.js';
 
   type Props = HTMLAttributes<HTMLElement> & {
+    /** 由调用方持有的 ThemeScope；Provider 订阅并输出变量，不销毁该作用域。 */
     scope: ThemeScope<T>;
+    /** 承载内容的非空 HTML 标签；默认 div。 */
     as?: StyleContainerTag;
     children?: Snippet;
   };

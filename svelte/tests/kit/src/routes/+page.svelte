@@ -26,7 +26,7 @@
   <p
     data-testid="late-target"
     class={css((s) => {
-      s.color('red');
+      s.color.token('red');
     })}
   >
     {text}

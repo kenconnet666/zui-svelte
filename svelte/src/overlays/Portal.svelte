@@ -14,7 +14,9 @@
     children,
     ...rest
   }: HTMLAttributes<HTMLDivElement> & {
+    /** Portal 目标；undefined 使用默认目标，null 暂缓挂载。 */
     target?: HTMLElement | ShadowRoot | null;
+    /** 禁用搬移并原位渲染；默认 false。 */
     disabled?: boolean;
   } = $props();
   const owner = captureOverlay();
@@ -55,7 +57,7 @@
   class={[
     theme?.().marker,
     css((s) => {
-      s.display(!disabled && destination === null ? 'none' : 'contents');
+      s.display.token(!disabled && destination === null ? 'none' : 'contents');
     }),
     className,
   ]}

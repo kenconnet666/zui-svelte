@@ -1,7315 +1,11161 @@
 // 自动生成，请运行 pnpm generate；勿手工修改。来源：csstype 3.2.3（MIT）及 schema.ts。
-import type { Carrier, PropertyTokenMap } from './carrier.js';
+import type { CssProperty, PropertyTokenMap } from './property.js';
 import type { keywordGroups } from './metadata.generated.js';
 import type { TokenSchema } from '../theme/types.js';
 export interface StyleProperties<
   T extends TokenSchema = Record<never, never>,
   M extends PropertyTokenMap<T> = object,
 > {
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly accentColor: Carrier<
+  /**
+   * accent-color
+   * 主题类别：color（_ 前缀）。
+   * 语法：`auto | <color>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/accent-color
+   */
+  readonly accentColor: CssProperty<
     'accentColor',
-    keyof (typeof keywordGroups)[0],
+    (typeof keywordGroups)[0],
     never,
     1,
     'color',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly alignContent: Carrier<
-    'alignContent',
-    keyof (typeof keywordGroups)[1],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly alignItems: Carrier<'alignItems', keyof (typeof keywordGroups)[2], never, 1, '', T, M>;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly alignmentBaseline: Carrier<
+  /**
+   * align-content
+   * 语法：`normal | <baseline-position> | <content-distribution> | <overflow-position>? <content-position>`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/align-content
+   */
+  readonly alignContent: CssProperty<'alignContent', (typeof keywordGroups)[1], never, 1, '', T, M>;
+  /**
+   * align-items
+   * 语法：`normal | stretch | <baseline-position> | [ <overflow-position>? <self-position> ] | anchor-center`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/align-items
+   */
+  readonly alignItems: CssProperty<'alignItems', (typeof keywordGroups)[2], never, 1, '', T, M>;
+  /**
+   * alignment-baseline
+   * 语法：`baseline | alphabetic | ideographic | middle | central | mathematical | text-before-edge | text-after-edge`
+   * 初始值：`baseline`
+   * @see https://developer.mozilla.org/docs/Web/CSS/alignment-baseline
+   */
+  readonly alignmentBaseline: CssProperty<
     'alignmentBaseline',
-    keyof (typeof keywordGroups)[3],
+    (typeof keywordGroups)[3],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly alignSelf: Carrier<'alignSelf', keyof (typeof keywordGroups)[4], never, 1, '', T, M>;
-  /** **Syntax**: `[ normal | <baseline-position> | <content-distribution> | <overflow-position>? <content-position> ]#` */
-  readonly alignTracks: Carrier<'alignTracks', keyof (typeof keywordGroups)[1], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly all: Carrier<'all', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly anchorName: Carrier<'anchorName', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
-  /** **Syntax**: `none | all | <dashed-ident>#` */
-  readonly anchorScope: Carrier<'anchorScope', keyof (typeof keywordGroups)[7], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly animation: Carrier<'animation', keyof (typeof keywordGroups)[8], 'time', 1, '', T, M>;
-  /** Since July 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly animationComposition: Carrier<
+  /**
+   * align-self
+   * 语法：`auto | normal | stretch | <baseline-position> | <overflow-position>? <self-position> | anchor-center`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/align-self
+   */
+  readonly alignSelf: CssProperty<'alignSelf', (typeof keywordGroups)[4], never, 1, '', T, M>;
+  /**
+   * align-tracks
+   * 语法：`[ normal | <baseline-position> | <content-distribution> | <overflow-position>? <content-position> ]#`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/align-tracks
+   */
+  readonly alignTracks: CssProperty<'alignTracks', (typeof keywordGroups)[1], never, 1, '', T, M>;
+  /**
+   * all
+   * 语法：`initial | inherit | unset | revert | revert-layer`
+   * 初始值：There is no practical initial value for it.
+   * @see https://developer.mozilla.org/docs/Web/CSS/all
+   */
+  readonly all: CssProperty<'all', (typeof keywordGroups)[5], never, 1, '', T, M>;
+  /**
+   * anchor-name
+   * 语法：`none | <dashed-ident>#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/anchor-name
+   */
+  readonly anchorName: CssProperty<'anchorName', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * anchor-scope
+   * 语法：`none | all | <dashed-ident>#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/anchor-scope
+   */
+  readonly anchorScope: CssProperty<'anchorScope', (typeof keywordGroups)[7], never, 1, '', T, M>;
+  /**
+   * animation
+   * 语法：`<single-animation>#`
+   * @see https://developer.mozilla.org/docs/Web/CSS/animation
+   */
+  readonly animation: CssProperty<'animation', (typeof keywordGroups)[8], 'time', 1, '', T, M>;
+  /**
+   * animation-composition
+   * 语法：`<single-animation-composition>#`
+   * 初始值：`replace`
+   * @see https://developer.mozilla.org/docs/Web/CSS/animation-composition
+   */
+  readonly animationComposition: CssProperty<
     'animationComposition',
-    keyof (typeof keywordGroups)[9],
+    (typeof keywordGroups)[9],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly animationDelay: Carrier<
+  /**
+   * animation-delay
+   * 主题类别：duration（_ 前缀）。
+   * 语法：`<time>#`
+   * 初始值：`0s`
+   * @see https://developer.mozilla.org/docs/Web/CSS/animation-delay
+   */
+  readonly animationDelay: CssProperty<
     'animationDelay',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'time',
     1,
     'duration',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly animationDirection: Carrier<
+  /**
+   * animation-direction
+   * 语法：`<single-animation-direction>#`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/animation-direction
+   */
+  readonly animationDirection: CssProperty<
     'animationDirection',
-    keyof (typeof keywordGroups)[10],
+    (typeof keywordGroups)[10],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly animationDuration: Carrier<
+  /**
+   * animation-duration
+   * 主题类别：duration（_ 前缀）。
+   * 语法：`[ auto | <time [0s,∞]> ]#`
+   * 初始值：`0s`
+   * @see https://developer.mozilla.org/docs/Web/CSS/animation-duration
+   */
+  readonly animationDuration: CssProperty<
     'animationDuration',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'time',
     1,
     'duration',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly animationFillMode: Carrier<
+  /**
+   * animation-fill-mode
+   * 语法：`<single-animation-fill-mode>#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/animation-fill-mode
+   */
+  readonly animationFillMode: CssProperty<
     'animationFillMode',
-    keyof (typeof keywordGroups)[12],
+    (typeof keywordGroups)[12],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly animationIterationCount: Carrier<
+  /**
+   * animation-iteration-count
+   * 语法：`<single-animation-iteration-count>#`
+   * 初始值：`1`
+   * @see https://developer.mozilla.org/docs/Web/CSS/animation-iteration-count
+   */
+  readonly animationIterationCount: CssProperty<
     'animationIterationCount',
-    keyof (typeof keywordGroups)[13],
+    (typeof keywordGroups)[13],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly animationName: Carrier<
+  /**
+   * animation-name
+   * 语法：`[ none | <keyframes-name> ]#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/animation-name
+   */
+  readonly animationName: CssProperty<
     'animationName',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly animationPlayState: Carrier<
+  /**
+   * animation-play-state
+   * 语法：`<single-animation-play-state>#`
+   * 初始值：`running`
+   * @see https://developer.mozilla.org/docs/Web/CSS/animation-play-state
+   */
+  readonly animationPlayState: CssProperty<
     'animationPlayState',
-    keyof (typeof keywordGroups)[14],
+    (typeof keywordGroups)[14],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly animationRange: Carrier<
+  /**
+   * animation-range
+   * 语法：`[ <'animation-range-start'> <'animation-range-end'>? ]#`
+   * @see https://developer.mozilla.org/docs/Web/CSS/animation-range
+   */
+  readonly animationRange: CssProperty<
     'animationRange',
-    keyof (typeof keywordGroups)[15],
+    (typeof keywordGroups)[15],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly animationRangeEnd: Carrier<
+  /**
+   * animation-range-end
+   * 语法：`[ normal | <length-percentage> | <timeline-range-name> <length-percentage>? ]#`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/animation-range-end
+   */
+  readonly animationRangeEnd: CssProperty<
     'animationRangeEnd',
-    keyof (typeof keywordGroups)[15],
+    (typeof keywordGroups)[15],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly animationRangeStart: Carrier<
+  /**
+   * animation-range-start
+   * 语法：`[ normal | <length-percentage> | <timeline-range-name> <length-percentage>? ]#`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/animation-range-start
+   */
+  readonly animationRangeStart: CssProperty<
     'animationRangeStart',
-    keyof (typeof keywordGroups)[15],
+    (typeof keywordGroups)[15],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly animationTimeline: Carrier<
+  /**
+   * animation-timeline
+   * 语法：`<single-animation-timeline>#`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/animation-timeline
+   */
+  readonly animationTimeline: CssProperty<
     'animationTimeline',
-    keyof (typeof keywordGroups)[16],
+    (typeof keywordGroups)[16],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly animationTimingFunction: Carrier<
+  /**
+   * animation-timing-function
+   * 主题类别：easing（_ 前缀）。
+   * 语法：`<easing-function>#`
+   * 初始值：`ease`
+   * @see https://developer.mozilla.org/docs/Web/CSS/animation-timing-function
+   */
+  readonly animationTimingFunction: CssProperty<
     'animationTimingFunction',
-    keyof (typeof keywordGroups)[17],
+    (typeof keywordGroups)[17],
     never,
     1,
     'easing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2022. */
-  readonly appearance: Carrier<'appearance', keyof (typeof keywordGroups)[18], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2021. */
-  readonly aspectRatio: Carrier<
-    'aspectRatio',
-    keyof (typeof keywordGroups)[11],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** Since September 2024, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly backdropFilter: Carrier<
+  /**
+   * appearance
+   * 语法：`none | auto | <compat-auto> | <compat-special>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/appearance
+   */
+  readonly appearance: CssProperty<'appearance', (typeof keywordGroups)[18], never, 1, '', T, M>;
+  /**
+   * aspect-ratio
+   * 语法：`auto || <ratio>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/aspect-ratio
+   */
+  readonly aspectRatio: CssProperty<'aspectRatio', (typeof keywordGroups)[11], never, 1, '', T, M>;
+  /**
+   * backdrop-filter
+   * 语法：`none | <filter-value-list>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/backdrop-filter
+   */
+  readonly backdropFilter: CssProperty<
     'backdropFilter',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2022. */
-  readonly backfaceVisibility: Carrier<
+  /**
+   * backface-visibility
+   * 语法：`visible | hidden`
+   * 初始值：`visible`
+   * @see https://developer.mozilla.org/docs/Web/CSS/backface-visibility
+   */
+  readonly backfaceVisibility: CssProperty<
     'backfaceVisibility',
-    keyof (typeof keywordGroups)[19],
+    (typeof keywordGroups)[19],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly background: Carrier<
-    'background',
-    keyof (typeof keywordGroups)[20],
-    'length',
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly backgroundAttachment: Carrier<
+  /**
+   * background
+   * 语法：`<bg-layer>#? , <final-bg-layer>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/background
+   */
+  readonly background: CssProperty<'background', (typeof keywordGroups)[20], 'length', 1, '', T, M>;
+  /**
+   * background-attachment
+   * 语法：`<attachment>#`
+   * 初始值：`scroll`
+   * @see https://developer.mozilla.org/docs/Web/CSS/background-attachment
+   */
+  readonly backgroundAttachment: CssProperty<
     'backgroundAttachment',
-    keyof (typeof keywordGroups)[21],
+    (typeof keywordGroups)[21],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly backgroundBlendMode: Carrier<
+  /**
+   * background-blend-mode
+   * 语法：`<blend-mode>#`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/background-blend-mode
+   */
+  readonly backgroundBlendMode: CssProperty<
     'backgroundBlendMode',
-    keyof (typeof keywordGroups)[22],
+    (typeof keywordGroups)[22],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly backgroundClip: Carrier<
+  /**
+   * background-clip
+   * 语法：`<bg-clip>#`
+   * 初始值：`border-box`
+   * @see https://developer.mozilla.org/docs/Web/CSS/background-clip
+   */
+  readonly backgroundClip: CssProperty<
     'backgroundClip',
-    keyof (typeof keywordGroups)[23],
+    (typeof keywordGroups)[23],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly backgroundColor: Carrier<
+  /**
+   * 元素的背景颜色。
+   * 主题类别：color（_ 前缀）。
+   * 语法：`<color>`
+   * 初始值：`transparent`
+   * @see https://developer.mozilla.org/docs/Web/CSS/background-color
+   */
+  readonly backgroundColor: CssProperty<
     'backgroundColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     'color',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly backgroundImage: Carrier<
+  /**
+   * background-image
+   * 语法：`<bg-image>#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/background-image
+   */
+  readonly backgroundImage: CssProperty<
     'backgroundImage',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly backgroundOrigin: Carrier<
+  /**
+   * background-origin
+   * 语法：`<visual-box>#`
+   * 初始值：`padding-box`
+   * @see https://developer.mozilla.org/docs/Web/CSS/background-origin
+   */
+  readonly backgroundOrigin: CssProperty<
     'backgroundOrigin',
-    keyof (typeof keywordGroups)[25],
+    (typeof keywordGroups)[25],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly backgroundPosition: Carrier<
+  /**
+   * background-position
+   * 语法：`<bg-position>#`
+   * 初始值：`0% 0%`
+   * @see https://developer.mozilla.org/docs/Web/CSS/background-position
+   */
+  readonly backgroundPosition: CssProperty<
     'backgroundPosition',
-    keyof (typeof keywordGroups)[26],
+    (typeof keywordGroups)[26],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2016. */
-  readonly backgroundPositionX: Carrier<
+  /**
+   * background-position-x
+   * 语法：`[ center | [ [ left | right | x-start | x-end ]? <length-percentage>? ]! ]#`
+   * 初始值：`0%`
+   * @see https://developer.mozilla.org/docs/Web/CSS/background-position-x
+   */
+  readonly backgroundPositionX: CssProperty<
     'backgroundPositionX',
-    keyof (typeof keywordGroups)[27],
+    (typeof keywordGroups)[27],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2016. */
-  readonly backgroundPositionY: Carrier<
+  /**
+   * background-position-y
+   * 语法：`[ center | [ [ top | bottom | y-start | y-end ]? <length-percentage>? ]! ]#`
+   * 初始值：`0%`
+   * @see https://developer.mozilla.org/docs/Web/CSS/background-position-y
+   */
+  readonly backgroundPositionY: CssProperty<
     'backgroundPositionY',
-    keyof (typeof keywordGroups)[28],
+    (typeof keywordGroups)[28],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly backgroundRepeat: Carrier<
+  /**
+   * background-repeat
+   * 语法：`<repeat-style>#`
+   * 初始值：`repeat`
+   * @see https://developer.mozilla.org/docs/Web/CSS/background-repeat
+   */
+  readonly backgroundRepeat: CssProperty<
     'backgroundRepeat',
-    keyof (typeof keywordGroups)[29],
+    (typeof keywordGroups)[29],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly backgroundSize: Carrier<
+  /**
+   * background-size
+   * 语法：`<bg-size>#`
+   * 初始值：`auto auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/background-size
+   */
+  readonly backgroundSize: CssProperty<
     'backgroundSize',
-    keyof (typeof keywordGroups)[30],
+    (typeof keywordGroups)[30],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<length-percentage> | sub | super | baseline` */
-  readonly baselineShift: Carrier<
+  /**
+   * baseline-shift
+   * 语法：`<length-percentage> | sub | super | baseline`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/baseline-shift
+   */
+  readonly baselineShift: CssProperty<
     'baselineShift',
-    keyof (typeof keywordGroups)[31],
+    (typeof keywordGroups)[31],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly blockSize: Carrier<
+  /**
+   * 元素在块轴方向上的尺寸。
+   * 主题类别：size（_ 前缀）。
+   * 语法：`<'width'>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/block-size
+   */
+  readonly blockSize: CssProperty<
     'blockSize',
-    keyof (typeof keywordGroups)[32],
+    (typeof keywordGroups)[32],
     'length',
     1,
     'size',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly border: Carrier<'border', keyof (typeof keywordGroups)[33], 'length', 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly borderBlock: Carrier<
+  /**
+   * border
+   * 语法：`<line-width> || <line-style> || <color>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border
+   */
+  readonly border: CssProperty<'border', (typeof keywordGroups)[33], 'length', 1, '', T, M>;
+  /**
+   * border-block
+   * 语法：`<'border-block-start'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-block
+   */
+  readonly borderBlock: CssProperty<
     'borderBlock',
-    keyof (typeof keywordGroups)[33],
+    (typeof keywordGroups)[33],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly borderBlockColor: Carrier<
+  /**
+   * border-block-color
+   * 主题类别：color（_ 前缀）。
+   * 语法：`<'border-top-color'>{1,2}`
+   * 初始值：`currentcolor`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-block-color
+   */
+  readonly borderBlockColor: CssProperty<
     'borderBlockColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     'color',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly borderBlockEnd: Carrier<
+  /**
+   * border-block-end
+   * 语法：`<'border-top-width'> || <'border-top-style'> || <color>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-block-end
+   */
+  readonly borderBlockEnd: CssProperty<
     'borderBlockEnd',
-    keyof (typeof keywordGroups)[33],
+    (typeof keywordGroups)[33],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly borderBlockEndColor: Carrier<
+  /**
+   * border-block-end-color
+   * 主题类别：color（_ 前缀）。
+   * 语法：`<'border-top-color'>`
+   * 初始值：`currentcolor`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-block-end-color
+   */
+  readonly borderBlockEndColor: CssProperty<
     'borderBlockEndColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     'color',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly borderBlockEndStyle: Carrier<
+  /**
+   * border-block-end-style
+   * 语法：`<'border-top-style'>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-block-end-style
+   */
+  readonly borderBlockEndStyle: CssProperty<
     'borderBlockEndStyle',
-    keyof (typeof keywordGroups)[34],
+    (typeof keywordGroups)[34],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly borderBlockEndWidth: Carrier<
+  /**
+   * border-block-end-width
+   * 语法：`<'border-top-width'>`
+   * 初始值：`medium`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-block-end-width
+   */
+  readonly borderBlockEndWidth: CssProperty<
     'borderBlockEndWidth',
-    keyof (typeof keywordGroups)[35],
+    (typeof keywordGroups)[35],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly borderBlockStart: Carrier<
+  /**
+   * border-block-start
+   * 语法：`<'border-top-width'> || <'border-top-style'> || <color>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-block-start
+   */
+  readonly borderBlockStart: CssProperty<
     'borderBlockStart',
-    keyof (typeof keywordGroups)[33],
+    (typeof keywordGroups)[33],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly borderBlockStartColor: Carrier<
+  /**
+   * border-block-start-color
+   * 主题类别：color（_ 前缀）。
+   * 语法：`<'border-top-color'>`
+   * 初始值：`currentcolor`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-block-start-color
+   */
+  readonly borderBlockStartColor: CssProperty<
     'borderBlockStartColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     'color',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly borderBlockStartStyle: Carrier<
+  /**
+   * border-block-start-style
+   * 语法：`<'border-top-style'>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-block-start-style
+   */
+  readonly borderBlockStartStyle: CssProperty<
     'borderBlockStartStyle',
-    keyof (typeof keywordGroups)[34],
+    (typeof keywordGroups)[34],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly borderBlockStartWidth: Carrier<
+  /**
+   * border-block-start-width
+   * 语法：`<'border-top-width'>`
+   * 初始值：`medium`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-block-start-width
+   */
+  readonly borderBlockStartWidth: CssProperty<
     'borderBlockStartWidth',
-    keyof (typeof keywordGroups)[35],
+    (typeof keywordGroups)[35],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly borderBlockStyle: Carrier<
+  /**
+   * border-block-style
+   * 语法：`<'border-top-style'>{1,2}`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-block-style
+   */
+  readonly borderBlockStyle: CssProperty<
     'borderBlockStyle',
-    keyof (typeof keywordGroups)[34],
+    (typeof keywordGroups)[34],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly borderBlockWidth: Carrier<
+  /**
+   * border-block-width
+   * 语法：`<'border-top-width'>{1,2}`
+   * 初始值：`medium`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-block-width
+   */
+  readonly borderBlockWidth: CssProperty<
     'borderBlockWidth',
-    keyof (typeof keywordGroups)[35],
+    (typeof keywordGroups)[35],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderBottom: Carrier<
+  /**
+   * border-bottom
+   * 语法：`<line-width> || <line-style> || <color>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-bottom
+   */
+  readonly borderBottom: CssProperty<
     'borderBottom',
-    keyof (typeof keywordGroups)[33],
+    (typeof keywordGroups)[33],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderBottomColor: Carrier<
+  /**
+   * border-bottom-color
+   * 主题类别：color（_ 前缀）。
+   * 语法：`<'border-top-color'>`
+   * 初始值：`currentcolor`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-bottom-color
+   */
+  readonly borderBottomColor: CssProperty<
     'borderBottomColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     'color',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderBottomLeftRadius: Carrier<
+  /**
+   * border-bottom-left-radius
+   * 主题类别：radius（_ 前缀）。
+   * 语法：`<length-percentage [0,∞]>{1,2}`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-bottom-left-radius
+   */
+  readonly borderBottomLeftRadius: CssProperty<
     'borderBottomLeftRadius',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     2,
     'radius',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderBottomRightRadius: Carrier<
+  /**
+   * border-bottom-right-radius
+   * 主题类别：radius（_ 前缀）。
+   * 语法：`<length-percentage [0,∞]>{1,2}`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-bottom-right-radius
+   */
+  readonly borderBottomRightRadius: CssProperty<
     'borderBottomRightRadius',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     2,
     'radius',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderBottomStyle: Carrier<
+  /**
+   * border-bottom-style
+   * 语法：`<line-style>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-bottom-style
+   */
+  readonly borderBottomStyle: CssProperty<
     'borderBottomStyle',
-    keyof (typeof keywordGroups)[34],
+    (typeof keywordGroups)[34],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderBottomWidth: Carrier<
+  /**
+   * border-bottom-width
+   * 主题类别：borderWidth（_ 前缀）。
+   * 语法：`<line-width>`
+   * 初始值：`medium`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-bottom-width
+   */
+  readonly borderBottomWidth: CssProperty<
     'borderBottomWidth',
-    keyof (typeof keywordGroups)[35],
+    (typeof keywordGroups)[35],
     'length',
     1,
     'borderWidth',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderCollapse: Carrier<
+  /**
+   * border-collapse
+   * 语法：`separate | collapse`
+   * 初始值：`separate`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-collapse
+   */
+  readonly borderCollapse: CssProperty<
     'borderCollapse',
-    keyof (typeof keywordGroups)[36],
+    (typeof keywordGroups)[36],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderColor: Carrier<
+  /**
+   * border-color
+   * 主题类别：color（_ 前缀）。
+   * 语法：`<color>{1,4}`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-color
+   */
+  readonly borderColor: CssProperty<
     'borderColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     'color',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2021. */
-  readonly borderEndEndRadius: Carrier<
+  /**
+   * border-end-end-radius
+   * 主题类别：radius（_ 前缀）。
+   * 语法：`<'border-top-left-radius'>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-end-end-radius
+   */
+  readonly borderEndEndRadius: CssProperty<
     'borderEndEndRadius',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     2,
     'radius',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2021. */
-  readonly borderEndStartRadius: Carrier<
+  /**
+   * border-end-start-radius
+   * 主题类别：radius（_ 前缀）。
+   * 语法：`<'border-top-left-radius'>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-end-start-radius
+   */
+  readonly borderEndStartRadius: CssProperty<
     'borderEndStartRadius',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     2,
     'radius',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderImage: Carrier<
-    'borderImage',
-    keyof (typeof keywordGroups)[37],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderImageOutset: Carrier<
+  /**
+   * border-image
+   * 语法：`<'border-image-source'> || <'border-image-slice'> [ / <'border-image-width'> | / <'border-image-width'>? / <'border-image-outset'> ]? || <'border-image-repeat'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-image
+   */
+  readonly borderImage: CssProperty<'borderImage', (typeof keywordGroups)[37], never, 1, '', T, M>;
+  /**
+   * border-image-outset
+   * 语法：`[ <length [0,∞]> | <number [0,∞]> ]{1,4}  `
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-image-outset
+   */
+  readonly borderImageOutset: CssProperty<
     'borderImageOutset',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2016. */
-  readonly borderImageRepeat: Carrier<
+  /**
+   * border-image-repeat
+   * 语法：`[ stretch | repeat | round | space ]{1,2}`
+   * 初始值：`stretch`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-image-repeat
+   */
+  readonly borderImageRepeat: CssProperty<
     'borderImageRepeat',
-    keyof (typeof keywordGroups)[38],
+    (typeof keywordGroups)[38],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderImageSlice: Carrier<
+  /**
+   * border-image-slice
+   * 语法：`[ <number [0,∞]> | <percentage [0,∞]> ]{1,4}  && fill?`
+   * 初始值：`100%`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-image-slice
+   */
+  readonly borderImageSlice: CssProperty<
     'borderImageSlice',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderImageSource: Carrier<
+  /**
+   * border-image-source
+   * 语法：`none | <image>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-image-source
+   */
+  readonly borderImageSource: CssProperty<
     'borderImageSource',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderImageWidth: Carrier<
+  /**
+   * border-image-width
+   * 语法：`[ <length-percentage [0,∞]> | <number [0,∞]> | auto ]{1,4}`
+   * 初始值：`1`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-image-width
+   */
+  readonly borderImageWidth: CssProperty<
     'borderImageWidth',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly borderInline: Carrier<
+  /**
+   * border-inline
+   * 语法：`<'border-block-start'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-inline
+   */
+  readonly borderInline: CssProperty<
     'borderInline',
-    keyof (typeof keywordGroups)[33],
+    (typeof keywordGroups)[33],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly borderInlineColor: Carrier<
+  /**
+   * border-inline-color
+   * 主题类别：color（_ 前缀）。
+   * 语法：`<'border-top-color'>{1,2}`
+   * 初始值：`currentcolor`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-inline-color
+   */
+  readonly borderInlineColor: CssProperty<
     'borderInlineColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     'color',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly borderInlineEnd: Carrier<
+  /**
+   * border-inline-end
+   * 语法：`<'border-top-width'> || <'border-top-style'> || <color>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-inline-end
+   */
+  readonly borderInlineEnd: CssProperty<
     'borderInlineEnd',
-    keyof (typeof keywordGroups)[33],
+    (typeof keywordGroups)[33],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly borderInlineEndColor: Carrier<
+  /**
+   * border-inline-end-color
+   * 主题类别：color（_ 前缀）。
+   * 语法：`<'border-top-color'>`
+   * 初始值：`currentcolor`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-inline-end-color
+   */
+  readonly borderInlineEndColor: CssProperty<
     'borderInlineEndColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     'color',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly borderInlineEndStyle: Carrier<
+  /**
+   * border-inline-end-style
+   * 语法：`<'border-top-style'>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-inline-end-style
+   */
+  readonly borderInlineEndStyle: CssProperty<
     'borderInlineEndStyle',
-    keyof (typeof keywordGroups)[34],
+    (typeof keywordGroups)[34],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly borderInlineEndWidth: Carrier<
+  /**
+   * border-inline-end-width
+   * 语法：`<'border-top-width'>`
+   * 初始值：`medium`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-inline-end-width
+   */
+  readonly borderInlineEndWidth: CssProperty<
     'borderInlineEndWidth',
-    keyof (typeof keywordGroups)[35],
+    (typeof keywordGroups)[35],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly borderInlineStart: Carrier<
+  /**
+   * border-inline-start
+   * 语法：`<'border-top-width'> || <'border-top-style'> || <color>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-inline-start
+   */
+  readonly borderInlineStart: CssProperty<
     'borderInlineStart',
-    keyof (typeof keywordGroups)[33],
+    (typeof keywordGroups)[33],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly borderInlineStartColor: Carrier<
+  /**
+   * border-inline-start-color
+   * 主题类别：color（_ 前缀）。
+   * 语法：`<'border-top-color'>`
+   * 初始值：`currentcolor`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-inline-start-color
+   */
+  readonly borderInlineStartColor: CssProperty<
     'borderInlineStartColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     'color',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly borderInlineStartStyle: Carrier<
+  /**
+   * border-inline-start-style
+   * 语法：`<'border-top-style'>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-inline-start-style
+   */
+  readonly borderInlineStartStyle: CssProperty<
     'borderInlineStartStyle',
-    keyof (typeof keywordGroups)[34],
+    (typeof keywordGroups)[34],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly borderInlineStartWidth: Carrier<
+  /**
+   * border-inline-start-width
+   * 语法：`<'border-top-width'>`
+   * 初始值：`medium`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-inline-start-width
+   */
+  readonly borderInlineStartWidth: CssProperty<
     'borderInlineStartWidth',
-    keyof (typeof keywordGroups)[35],
+    (typeof keywordGroups)[35],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly borderInlineStyle: Carrier<
+  /**
+   * border-inline-style
+   * 语法：`<'border-top-style'>{1,2}`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-inline-style
+   */
+  readonly borderInlineStyle: CssProperty<
     'borderInlineStyle',
-    keyof (typeof keywordGroups)[34],
+    (typeof keywordGroups)[34],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly borderInlineWidth: Carrier<
+  /**
+   * border-inline-width
+   * 语法：`<'border-top-width'>{1,2}`
+   * 初始值：`medium`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-inline-width
+   */
+  readonly borderInlineWidth: CssProperty<
     'borderInlineWidth',
-    keyof (typeof keywordGroups)[35],
+    (typeof keywordGroups)[35],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderLeft: Carrier<
-    'borderLeft',
-    keyof (typeof keywordGroups)[33],
-    'length',
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderLeftColor: Carrier<
+  /**
+   * border-left
+   * 语法：`<line-width> || <line-style> || <color>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-left
+   */
+  readonly borderLeft: CssProperty<'borderLeft', (typeof keywordGroups)[33], 'length', 1, '', T, M>;
+  /**
+   * border-left-color
+   * 主题类别：color（_ 前缀）。
+   * 语法：`<color>`
+   * 初始值：`currentcolor`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-left-color
+   */
+  readonly borderLeftColor: CssProperty<
     'borderLeftColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     'color',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderLeftStyle: Carrier<
+  /**
+   * border-left-style
+   * 语法：`<line-style>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-left-style
+   */
+  readonly borderLeftStyle: CssProperty<
     'borderLeftStyle',
-    keyof (typeof keywordGroups)[34],
+    (typeof keywordGroups)[34],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderLeftWidth: Carrier<
+  /**
+   * border-left-width
+   * 主题类别：borderWidth（_ 前缀）。
+   * 语法：`<line-width>`
+   * 初始值：`medium`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-left-width
+   */
+  readonly borderLeftWidth: CssProperty<
     'borderLeftWidth',
-    keyof (typeof keywordGroups)[35],
+    (typeof keywordGroups)[35],
     'length',
     1,
     'borderWidth',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderRadius: Carrier<
+  /**
+   * 四个角的圆角半径。
+   * 主题类别：radius（_ 前缀）。
+   * 语法：`<length-percentage [0,∞]>{1,4} [ / <length-percentage [0,∞]>{1,4} ]?`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-radius
+   */
+  readonly borderRadius: CssProperty<
     'borderRadius',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     4,
     'radius',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderRight: Carrier<
+  /**
+   * border-right
+   * 语法：`<line-width> || <line-style> || <color>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-right
+   */
+  readonly borderRight: CssProperty<
     'borderRight',
-    keyof (typeof keywordGroups)[33],
+    (typeof keywordGroups)[33],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderRightColor: Carrier<
+  /**
+   * border-right-color
+   * 主题类别：color（_ 前缀）。
+   * 语法：`<color>`
+   * 初始值：`currentcolor`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-right-color
+   */
+  readonly borderRightColor: CssProperty<
     'borderRightColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     'color',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderRightStyle: Carrier<
+  /**
+   * border-right-style
+   * 语法：`<line-style>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-right-style
+   */
+  readonly borderRightStyle: CssProperty<
     'borderRightStyle',
-    keyof (typeof keywordGroups)[34],
+    (typeof keywordGroups)[34],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderRightWidth: Carrier<
+  /**
+   * border-right-width
+   * 主题类别：borderWidth（_ 前缀）。
+   * 语法：`<line-width>`
+   * 初始值：`medium`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-right-width
+   */
+  readonly borderRightWidth: CssProperty<
     'borderRightWidth',
-    keyof (typeof keywordGroups)[35],
+    (typeof keywordGroups)[35],
     'length',
     1,
     'borderWidth',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderSpacing: Carrier<
+  /**
+   * border-spacing
+   * 语法：`<length>{1,2}`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-spacing
+   */
+  readonly borderSpacing: CssProperty<
     'borderSpacing',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2021. */
-  readonly borderStartEndRadius: Carrier<
+  /**
+   * border-start-end-radius
+   * 主题类别：radius（_ 前缀）。
+   * 语法：`<'border-top-left-radius'>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-start-end-radius
+   */
+  readonly borderStartEndRadius: CssProperty<
     'borderStartEndRadius',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     2,
     'radius',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2021. */
-  readonly borderStartStartRadius: Carrier<
+  /**
+   * border-start-start-radius
+   * 主题类别：radius（_ 前缀）。
+   * 语法：`<'border-top-left-radius'>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-start-start-radius
+   */
+  readonly borderStartStartRadius: CssProperty<
     'borderStartStartRadius',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     2,
     'radius',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderStyle: Carrier<
-    'borderStyle',
-    keyof (typeof keywordGroups)[34],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderTop: Carrier<'borderTop', keyof (typeof keywordGroups)[33], 'length', 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderTopColor: Carrier<
+  /**
+   * border-style
+   * 语法：`<line-style>{1,4}`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-style
+   */
+  readonly borderStyle: CssProperty<'borderStyle', (typeof keywordGroups)[34], never, 1, '', T, M>;
+  /**
+   * border-top
+   * 语法：`<line-width> || <line-style> || <color>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-top
+   */
+  readonly borderTop: CssProperty<'borderTop', (typeof keywordGroups)[33], 'length', 1, '', T, M>;
+  /**
+   * border-top-color
+   * 主题类别：color（_ 前缀）。
+   * 语法：`<color>`
+   * 初始值：`currentcolor`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-top-color
+   */
+  readonly borderTopColor: CssProperty<
     'borderTopColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     'color',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderTopLeftRadius: Carrier<
+  /**
+   * border-top-left-radius
+   * 主题类别：radius（_ 前缀）。
+   * 语法：`<length-percentage [0,∞]>{1,2}`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-top-left-radius
+   */
+  readonly borderTopLeftRadius: CssProperty<
     'borderTopLeftRadius',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     2,
     'radius',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderTopRightRadius: Carrier<
+  /**
+   * border-top-right-radius
+   * 主题类别：radius（_ 前缀）。
+   * 语法：`<length-percentage [0,∞]>{1,2}`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-top-right-radius
+   */
+  readonly borderTopRightRadius: CssProperty<
     'borderTopRightRadius',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     2,
     'radius',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderTopStyle: Carrier<
+  /**
+   * border-top-style
+   * 语法：`<line-style>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-top-style
+   */
+  readonly borderTopStyle: CssProperty<
     'borderTopStyle',
-    keyof (typeof keywordGroups)[34],
+    (typeof keywordGroups)[34],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderTopWidth: Carrier<
+  /**
+   * border-top-width
+   * 主题类别：borderWidth（_ 前缀）。
+   * 语法：`<line-width>`
+   * 初始值：`medium`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-top-width
+   */
+  readonly borderTopWidth: CssProperty<
     'borderTopWidth',
-    keyof (typeof keywordGroups)[35],
+    (typeof keywordGroups)[35],
     'length',
     1,
     'borderWidth',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly borderWidth: Carrier<
+  /**
+   * border-width
+   * 主题类别：borderWidth（_ 前缀）。
+   * 语法：`<line-width>{1,4}`
+   * @see https://developer.mozilla.org/docs/Web/CSS/border-width
+   */
+  readonly borderWidth: CssProperty<
     'borderWidth',
-    keyof (typeof keywordGroups)[35],
+    (typeof keywordGroups)[35],
     'length',
     4,
     'borderWidth',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly bottom: Carrier<
-    'bottom',
-    keyof (typeof keywordGroups)[11],
-    'length',
-    1,
-    'spacing',
-    T,
-    M
-  >;
-  /** The **`box-align`** CSS property specifies how an element aligns its contents across its layout in a perpendicular direction. The effect of the property is only visible if there is extra space in the box. */
-  readonly boxAlign: Carrier<'boxAlign', keyof (typeof keywordGroups)[39], never, 1, '', T, M>;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly boxDecorationBreak: Carrier<
+  /**
+   * bottom
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`auto | <length-percentage> | <anchor()> | <anchor-size()>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/bottom
+   */
+  readonly bottom: CssProperty<'bottom', (typeof keywordGroups)[11], 'length', 1, 'spacing', T, M>;
+  /**
+   * box-align
+   * 语法：`start | center | end | baseline | stretch`
+   * 初始值：`stretch`
+   * @see https://developer.mozilla.org/docs/Web/CSS/box-align
+   */
+  readonly boxAlign: CssProperty<'boxAlign', (typeof keywordGroups)[39], never, 1, '', T, M>;
+  /**
+   * box-decoration-break
+   * 语法：`slice | clone`
+   * 初始值：`slice`
+   * @see https://developer.mozilla.org/docs/Web/CSS/box-decoration-break
+   */
+  readonly boxDecorationBreak: CssProperty<
     'boxDecorationBreak',
-    keyof (typeof keywordGroups)[40],
+    (typeof keywordGroups)[40],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`box-direction`** CSS property specifies whether a box lays out its contents normally (from the top or left edge), or in reverse (from the bottom or right edge). */
-  readonly boxDirection: Carrier<
+  /**
+   * box-direction
+   * 语法：`normal | reverse | inherit`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/box-direction
+   */
+  readonly boxDirection: CssProperty<
     'boxDirection',
-    keyof (typeof keywordGroups)[41],
+    (typeof keywordGroups)[41],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`-moz-box-flex`** and **`-webkit-box-flex`** CSS properties specify how a `-moz-box` or `-webkit-box` grows to fill the box that contains it, in the direction of the containing box's layout. */
-  readonly boxFlex: Carrier<'boxFlex', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
-  /** The **`box-flex-group`** CSS property assigns the flexbox's child elements to a flex group. */
-  readonly boxFlexGroup: Carrier<
-    'boxFlexGroup',
-    keyof (typeof keywordGroups)[5],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** The **`box-lines`** CSS property determines whether the box may have a single or multiple lines (rows for horizontally oriented boxes, columns for vertically oriented boxes). */
-  readonly boxLines: Carrier<'boxLines', keyof (typeof keywordGroups)[42], never, 1, '', T, M>;
-  /** The **`box-ordinal-group`** CSS property assigns the flexbox's child elements to an ordinal group. */
-  readonly boxOrdinalGroup: Carrier<
+  /**
+   * box-flex
+   * 语法：`<number>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/box-flex
+   */
+  readonly boxFlex: CssProperty<'boxFlex', (typeof keywordGroups)[5], never, 1, '', T, M>;
+  /**
+   * box-flex-group
+   * 语法：`<integer>`
+   * 初始值：`1`
+   * @see https://developer.mozilla.org/docs/Web/CSS/box-flex-group
+   */
+  readonly boxFlexGroup: CssProperty<'boxFlexGroup', (typeof keywordGroups)[5], never, 1, '', T, M>;
+  /**
+   * box-lines
+   * 语法：`single | multiple`
+   * 初始值：`single`
+   * @see https://developer.mozilla.org/docs/Web/CSS/box-lines
+   */
+  readonly boxLines: CssProperty<'boxLines', (typeof keywordGroups)[42], never, 1, '', T, M>;
+  /**
+   * box-ordinal-group
+   * 语法：`<integer>`
+   * 初始值：`1`
+   * @see https://developer.mozilla.org/docs/Web/CSS/box-ordinal-group
+   */
+  readonly boxOrdinalGroup: CssProperty<
     'boxOrdinalGroup',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`box-orient`** CSS property sets whether an element lays out its contents horizontally or vertically. */
-  readonly boxOrient: Carrier<'boxOrient', keyof (typeof keywordGroups)[43], never, 1, '', T, M>;
-  /** The **`-moz-box-pack`** and **`-webkit-box-pack`** CSS properties specify how a `-moz-box` or `-webkit-box` packs its contents in the direction of its layout. The effect of this is only visible if there is extra space in the box. */
-  readonly boxPack: Carrier<'boxPack', keyof (typeof keywordGroups)[44], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly boxShadow: Carrier<
-    'boxShadow',
-    keyof (typeof keywordGroups)[6],
-    never,
-    1,
-    'shadow',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly boxSizing: Carrier<'boxSizing', keyof (typeof keywordGroups)[45], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2019. */
-  readonly breakAfter: Carrier<'breakAfter', keyof (typeof keywordGroups)[46], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2019. */
-  readonly breakBefore: Carrier<
-    'breakBefore',
-    keyof (typeof keywordGroups)[46],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2019. */
-  readonly breakInside: Carrier<
-    'breakInside',
-    keyof (typeof keywordGroups)[47],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly captionSide: Carrier<
-    'captionSide',
-    keyof (typeof keywordGroups)[48],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** **Syntax**: `<'caret-color'> || <'caret-shape'>` */
-  readonly caret: Carrier<'caret', keyof (typeof keywordGroups)[49], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly caretColor: Carrier<
+  /**
+   * box-orient
+   * 语法：`horizontal | vertical | inline-axis | block-axis | inherit`
+   * 初始值：`inline-axis`
+   * @see https://developer.mozilla.org/docs/Web/CSS/box-orient
+   */
+  readonly boxOrient: CssProperty<'boxOrient', (typeof keywordGroups)[43], never, 1, '', T, M>;
+  /**
+   * box-pack
+   * 语法：`start | center | end | justify`
+   * 初始值：`start`
+   * @see https://developer.mozilla.org/docs/Web/CSS/box-pack
+   */
+  readonly boxPack: CssProperty<'boxPack', (typeof keywordGroups)[44], never, 1, '', T, M>;
+  /**
+   * box-shadow
+   * 主题类别：shadow（_ 前缀）。
+   * 语法：`none | <shadow>#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/box-shadow
+   */
+  readonly boxShadow: CssProperty<'boxShadow', (typeof keywordGroups)[6], never, 1, 'shadow', T, M>;
+  /**
+   * box-sizing
+   * 语法：`content-box | border-box`
+   * 初始值：`content-box`
+   * @see https://developer.mozilla.org/docs/Web/CSS/box-sizing
+   */
+  readonly boxSizing: CssProperty<'boxSizing', (typeof keywordGroups)[45], never, 1, '', T, M>;
+  /**
+   * break-after
+   * 语法：`auto | avoid | always | all | avoid-page | page | left | right | recto | verso | avoid-column | column | avoid-region | region`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/break-after
+   */
+  readonly breakAfter: CssProperty<'breakAfter', (typeof keywordGroups)[46], never, 1, '', T, M>;
+  /**
+   * break-before
+   * 语法：`auto | avoid | always | all | avoid-page | page | left | right | recto | verso | avoid-column | column | avoid-region | region`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/break-before
+   */
+  readonly breakBefore: CssProperty<'breakBefore', (typeof keywordGroups)[46], never, 1, '', T, M>;
+  /**
+   * break-inside
+   * 语法：`auto | avoid | avoid-page | avoid-column | avoid-region`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/break-inside
+   */
+  readonly breakInside: CssProperty<'breakInside', (typeof keywordGroups)[47], never, 1, '', T, M>;
+  /**
+   * caption-side
+   * 语法：`top | bottom`
+   * 初始值：`top`
+   * @see https://developer.mozilla.org/docs/Web/CSS/caption-side
+   */
+  readonly captionSide: CssProperty<'captionSide', (typeof keywordGroups)[48], never, 1, '', T, M>;
+  /**
+   * caret
+   * 语法：`<'caret-color'> || <'caret-shape'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/caret
+   */
+  readonly caret: CssProperty<'caret', (typeof keywordGroups)[49], never, 1, '', T, M>;
+  /**
+   * caret-color
+   * 主题类别：color（_ 前缀）。
+   * 语法：`auto | <color>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/caret-color
+   */
+  readonly caretColor: CssProperty<
     'caretColor',
-    keyof (typeof keywordGroups)[0],
+    (typeof keywordGroups)[0],
     never,
     1,
     'color',
     T,
     M
   >;
-  /** **Syntax**: `auto | bar | block | underscore` */
-  readonly caretShape: Carrier<'caretShape', keyof (typeof keywordGroups)[50], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly clear: Carrier<'clear', keyof (typeof keywordGroups)[51], never, 1, '', T, M>;
-  /** The **`clip`** CSS property defines a visible portion of an element. The `clip` property applies only to absolutely positioned elements — that is, elements with `position:absolute` or `position:fixed`. */
-  readonly clip: Carrier<'clip', keyof (typeof keywordGroups)[11], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly clipPath: Carrier<'clipPath', keyof (typeof keywordGroups)[52], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly clipRule: Carrier<'clipRule', keyof (typeof keywordGroups)[53], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly color: Carrier<'color', keyof (typeof keywordGroups)[24], never, 1, 'color', T, M>;
-  /** Since May 2025, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly colorAdjust: Carrier<
-    'colorAdjust',
-    keyof (typeof keywordGroups)[54],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** color-interpolation */
-  readonly colorInterpolation: Carrier<
+  /**
+   * caret-shape
+   * 语法：`auto | bar | block | underscore`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/caret-shape
+   */
+  readonly caretShape: CssProperty<'caretShape', (typeof keywordGroups)[50], never, 1, '', T, M>;
+  /**
+   * clear
+   * 语法：`none | left | right | both | inline-start | inline-end`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/clear
+   */
+  readonly clear: CssProperty<'clear', (typeof keywordGroups)[51], never, 1, '', T, M>;
+  /**
+   * clip
+   * 语法：`<shape> | auto`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/clip
+   */
+  readonly clip: CssProperty<'clip', (typeof keywordGroups)[11], never, 1, '', T, M>;
+  /**
+   * clip-path
+   * 语法：`<clip-source> | [ <basic-shape> || <geometry-box> ] | none`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/clip-path
+   */
+  readonly clipPath: CssProperty<'clipPath', (typeof keywordGroups)[52], never, 1, '', T, M>;
+  /**
+   * clip-rule
+   * 语法：`nonzero | evenodd`
+   * 初始值：`nonzero`
+   * @see https://developer.mozilla.org/docs/Web/CSS/clip-rule
+   */
+  readonly clipRule: CssProperty<'clipRule', (typeof keywordGroups)[53], never, 1, '', T, M>;
+  /**
+   * 文本及 currentColor 的前景颜色。
+   * 主题类别：color（_ 前缀）。
+   * 语法：`<color>`
+   * 初始值：`canvastext`
+   * @see https://developer.mozilla.org/docs/Web/CSS/color
+   */
+  readonly color: CssProperty<'color', (typeof keywordGroups)[24], never, 1, 'color', T, M>;
+  /**
+   * color-adjust
+   * 语法：`economy | exact`
+   * 初始值：`economy`
+   * @see https://developer.mozilla.org/docs/Web/CSS/color-adjust
+   */
+  readonly colorAdjust: CssProperty<'colorAdjust', (typeof keywordGroups)[54], never, 1, '', T, M>;
+  /**
+   * color-interpolation
+   * @see https://developer.mozilla.org/docs/Web/CSS/color-interpolation
+   */
+  readonly colorInterpolation: CssProperty<
     'colorInterpolation',
-    keyof (typeof keywordGroups)[55],
+    (typeof keywordGroups)[55],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly colorInterpolationFilters: Carrier<
+  /**
+   * color-interpolation-filters
+   * 语法：`auto | sRGB | linearRGB`
+   * 初始值：`linearRGB`
+   * @see https://developer.mozilla.org/docs/Web/CSS/color-interpolation-filters
+   */
+  readonly colorInterpolationFilters: CssProperty<
     'colorInterpolationFilters',
-    keyof (typeof keywordGroups)[55],
+    (typeof keywordGroups)[55],
     never,
     1,
     '',
     T,
     M
   >;
-  /** color-rendering */
-  readonly colorRendering: Carrier<
+  /**
+   * color-rendering
+   * @see https://developer.mozilla.org/docs/Web/CSS/color-rendering
+   */
+  readonly colorRendering: CssProperty<
     'colorRendering',
-    keyof (typeof keywordGroups)[56],
+    (typeof keywordGroups)[56],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2022. */
-  readonly colorScheme: Carrier<
-    'colorScheme',
-    keyof (typeof keywordGroups)[57],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly columnCount: Carrier<
-    'columnCount',
-    keyof (typeof keywordGroups)[11],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly columnFill: Carrier<'columnFill', keyof (typeof keywordGroups)[58], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly columnGap: Carrier<
+  /**
+   * color-scheme
+   * 语法：`normal | [ light | dark | <custom-ident> ]+ && only?`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/color-scheme
+   */
+  readonly colorScheme: CssProperty<'colorScheme', (typeof keywordGroups)[57], never, 1, '', T, M>;
+  /**
+   * column-count
+   * 语法：`<integer> | auto`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/column-count
+   */
+  readonly columnCount: CssProperty<'columnCount', (typeof keywordGroups)[11], never, 1, '', T, M>;
+  /**
+   * column-fill
+   * 语法：`auto | balance`
+   * 初始值：`balance`
+   * @see https://developer.mozilla.org/docs/Web/CSS/column-fill
+   */
+  readonly columnFill: CssProperty<'columnFill', (typeof keywordGroups)[58], never, 1, '', T, M>;
+  /**
+   * column-gap
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`normal | <length-percentage>`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/column-gap
+   */
+  readonly columnGap: CssProperty<
     'columnGap',
-    keyof (typeof keywordGroups)[59],
+    (typeof keywordGroups)[59],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly columnRule: Carrier<
-    'columnRule',
-    keyof (typeof keywordGroups)[33],
-    'length',
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly columnRuleColor: Carrier<
+  /**
+   * column-rule
+   * 语法：`<'column-rule-width'> || <'column-rule-style'> || <'column-rule-color'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/column-rule
+   */
+  readonly columnRule: CssProperty<'columnRule', (typeof keywordGroups)[33], 'length', 1, '', T, M>;
+  /**
+   * column-rule-color
+   * 语法：`<color>`
+   * 初始值：`currentcolor`
+   * @see https://developer.mozilla.org/docs/Web/CSS/column-rule-color
+   */
+  readonly columnRuleColor: CssProperty<
     'columnRuleColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly columnRuleStyle: Carrier<
+  /**
+   * column-rule-style
+   * 语法：`<'border-style'>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/column-rule-style
+   */
+  readonly columnRuleStyle: CssProperty<
     'columnRuleStyle',
-    keyof (typeof keywordGroups)[34],
+    (typeof keywordGroups)[34],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly columnRuleWidth: Carrier<
+  /**
+   * column-rule-width
+   * 语法：`<'border-width'>`
+   * 初始值：`medium`
+   * @see https://developer.mozilla.org/docs/Web/CSS/column-rule-width
+   */
+  readonly columnRuleWidth: CssProperty<
     'columnRuleWidth',
-    keyof (typeof keywordGroups)[35],
+    (typeof keywordGroups)[35],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly columns: Carrier<'columns', keyof (typeof keywordGroups)[11], 'length', 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2020. */
-  readonly columnSpan: Carrier<'columnSpan', keyof (typeof keywordGroups)[7], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since November 2016. */
-  readonly columnWidth: Carrier<
+  /**
+   * columns
+   * 语法：`<'column-width'> || <'column-count'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/columns
+   */
+  readonly columns: CssProperty<'columns', (typeof keywordGroups)[11], 'length', 1, '', T, M>;
+  /**
+   * column-span
+   * 语法：`none | all`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/column-span
+   */
+  readonly columnSpan: CssProperty<'columnSpan', (typeof keywordGroups)[7], never, 1, '', T, M>;
+  /**
+   * column-width
+   * 语法：`<length> | auto`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/column-width
+   */
+  readonly columnWidth: CssProperty<
     'columnWidth',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2022. */
-  readonly contain: Carrier<'contain', keyof (typeof keywordGroups)[60], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since February 2023. */
-  readonly container: Carrier<'container', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since February 2023. */
-  readonly containerName: Carrier<
+  /**
+   * contain
+   * 语法：`none | strict | content | [ [ size || inline-size ] || layout || style || paint ]`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/contain
+   */
+  readonly contain: CssProperty<'contain', (typeof keywordGroups)[60], never, 1, '', T, M>;
+  /**
+   * container
+   * 语法：`<'container-name'> [ / <'container-type'> ]?`
+   * @see https://developer.mozilla.org/docs/Web/CSS/container
+   */
+  readonly container: CssProperty<'container', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * container-name
+   * 语法：`none | <custom-ident>+`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/container-name
+   */
+  readonly containerName: CssProperty<
     'containerName',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since February 2023. */
-  readonly containerType: Carrier<
+  /**
+   * container-type
+   * 语法：`normal | [ [ size | inline-size ] || scroll-state ]`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/container-type
+   */
+  readonly containerType: CssProperty<
     'containerType',
-    keyof (typeof keywordGroups)[61],
+    (typeof keywordGroups)[61],
     never,
     1,
     '',
     T,
     M
   >;
-  /** Since September 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly containIntrinsicBlockSize: Carrier<
+  /**
+   * contain-intrinsic-block-size
+   * 语法：`auto? [ none | <length> ]`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/contain-intrinsic-block-size
+   */
+  readonly containIntrinsicBlockSize: CssProperty<
     'containIntrinsicBlockSize',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** Since September 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly containIntrinsicHeight: Carrier<
+  /**
+   * contain-intrinsic-height
+   * 语法：`auto? [ none | <length> ]`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/contain-intrinsic-height
+   */
+  readonly containIntrinsicHeight: CssProperty<
     'containIntrinsicHeight',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** Since September 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly containIntrinsicInlineSize: Carrier<
+  /**
+   * contain-intrinsic-inline-size
+   * 语法：`auto? [ none | <length> ]`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/contain-intrinsic-inline-size
+   */
+  readonly containIntrinsicInlineSize: CssProperty<
     'containIntrinsicInlineSize',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** Since September 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly containIntrinsicSize: Carrier<
+  /**
+   * contain-intrinsic-size
+   * 语法：`[ auto? [ none | <length> ] ]{1,2}`
+   * @see https://developer.mozilla.org/docs/Web/CSS/contain-intrinsic-size
+   */
+  readonly containIntrinsicSize: CssProperty<
     'containIntrinsicSize',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** Since September 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly containIntrinsicWidth: Carrier<
+  /**
+   * contain-intrinsic-width
+   * 语法：`auto? [ none | <length> ]`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/contain-intrinsic-width
+   */
+  readonly containIntrinsicWidth: CssProperty<
     'containIntrinsicWidth',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly content: Carrier<'content', keyof (typeof keywordGroups)[62], never, 1, '', T, M>;
-  /** Since September 2024, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly contentVisibility: Carrier<
+  /**
+   * content
+   * 语法：`normal | none | [ <content-replacement> | <content-list> ] [ / [ <string> | <counter> | <attr()> ]+ ]?`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/content
+   */
+  readonly content: CssProperty<'content', (typeof keywordGroups)[62], never, 1, '', T, M>;
+  /**
+   * content-visibility
+   * 语法：`visible | auto | hidden`
+   * 初始值：`visible`
+   * @see https://developer.mozilla.org/docs/Web/CSS/content-visibility
+   */
+  readonly contentVisibility: CssProperty<
     'contentVisibility',
-    keyof (typeof keywordGroups)[63],
+    (typeof keywordGroups)[63],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly counterIncrement: Carrier<
+  /**
+   * counter-increment
+   * 语法：`[ <counter-name> <integer>? ]+ | none`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/counter-increment
+   */
+  readonly counterIncrement: CssProperty<
     'counterIncrement',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly counterReset: Carrier<
-    'counterReset',
-    keyof (typeof keywordGroups)[6],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** Since December 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly counterSet: Carrier<'counterSet', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since December 2021. */
-  readonly cursor: Carrier<'cursor', keyof (typeof keywordGroups)[64], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2020. */
-  readonly cx: Carrier<'cx', keyof (typeof keywordGroups)[5], 'length', 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2020. */
-  readonly cy: Carrier<'cy', keyof (typeof keywordGroups)[5], 'length', 1, '', T, M>;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly d: Carrier<'d', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly direction: Carrier<'direction', keyof (typeof keywordGroups)[65], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly display: Carrier<'display', keyof (typeof keywordGroups)[66], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly dominantBaseline: Carrier<
+  /**
+   * counter-reset
+   * 语法：`[ <counter-name> <integer>? | <reversed-counter-name> <integer>? ]+ | none`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/counter-reset
+   */
+  readonly counterReset: CssProperty<'counterReset', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * counter-set
+   * 语法：`[ <counter-name> <integer>? ]+ | none`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/counter-set
+   */
+  readonly counterSet: CssProperty<'counterSet', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * cursor
+   * 语法：`[ [ <url> [ <x> <y> ]? , ]* <cursor-predefined> ]`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/cursor
+   */
+  readonly cursor: CssProperty<'cursor', (typeof keywordGroups)[64], never, 1, '', T, M>;
+  /**
+   * cx
+   * 语法：`<length> | <percentage>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/cx
+   */
+  readonly cx: CssProperty<'cx', (typeof keywordGroups)[5], 'length', 1, '', T, M>;
+  /**
+   * cy
+   * 语法：`<length> | <percentage>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/cy
+   */
+  readonly cy: CssProperty<'cy', (typeof keywordGroups)[5], 'length', 1, '', T, M>;
+  /**
+   * d
+   * 语法：`none | path(<string>)`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/d
+   */
+  readonly d: CssProperty<'d', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * direction
+   * 语法：`ltr | rtl`
+   * 初始值：`ltr`
+   * @see https://developer.mozilla.org/docs/Web/CSS/direction
+   */
+  readonly direction: CssProperty<'direction', (typeof keywordGroups)[65], never, 1, '', T, M>;
+  /**
+   * 元素的外部布局角色与内部布局方式。
+   * 语法：`[ <display-outside> || <display-inside> ] | <display-listitem> | <display-internal> | <display-box> | <display-legacy>`
+   * 初始值：`inline`
+   * @see https://developer.mozilla.org/docs/Web/CSS/display
+   */
+  readonly display: CssProperty<'display', (typeof keywordGroups)[66], never, 1, '', T, M>;
+  /**
+   * dominant-baseline
+   * 语法：`auto | text-bottom | alphabetic | ideographic | middle | central | mathematical | hanging | text-top`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/dominant-baseline
+   */
+  readonly dominantBaseline: CssProperty<
     'dominantBaseline',
-    keyof (typeof keywordGroups)[67],
+    (typeof keywordGroups)[67],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly emptyCells: Carrier<'emptyCells', keyof (typeof keywordGroups)[68], never, 1, '', T, M>;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly fieldSizing: Carrier<
-    'fieldSizing',
-    keyof (typeof keywordGroups)[69],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
-  readonly fill: Carrier<'fill', keyof (typeof keywordGroups)[70], never, 1, 'color', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
-  readonly fillOpacity: Carrier<'fillOpacity', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
-  readonly fillRule: Carrier<'fillRule', keyof (typeof keywordGroups)[53], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2016. */
-  readonly filter: Carrier<'filter', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly flex: Carrier<'flex', keyof (typeof keywordGroups)[71], 'length', 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly flexBasis: Carrier<
+  /**
+   * empty-cells
+   * 语法：`show | hide`
+   * 初始值：`show`
+   * @see https://developer.mozilla.org/docs/Web/CSS/empty-cells
+   */
+  readonly emptyCells: CssProperty<'emptyCells', (typeof keywordGroups)[68], never, 1, '', T, M>;
+  /**
+   * field-sizing
+   * 语法：`content | fixed`
+   * 初始值：`fixed`
+   * @see https://developer.mozilla.org/docs/Web/CSS/field-sizing
+   */
+  readonly fieldSizing: CssProperty<'fieldSizing', (typeof keywordGroups)[69], never, 1, '', T, M>;
+  /**
+   * fill
+   * 主题类别：color（_ 前缀）。
+   * 语法：`<paint>`
+   * 初始值：`black`
+   * @see https://developer.mozilla.org/docs/Web/CSS/fill
+   */
+  readonly fill: CssProperty<'fill', (typeof keywordGroups)[70], never, 1, 'color', T, M>;
+  /**
+   * fill-opacity
+   * 语法：`<'opacity'>`
+   * 初始值：`1`
+   * @see https://developer.mozilla.org/docs/Web/CSS/fill-opacity
+   */
+  readonly fillOpacity: CssProperty<'fillOpacity', (typeof keywordGroups)[5], never, 1, '', T, M>;
+  /**
+   * fill-rule
+   * 语法：`nonzero | evenodd`
+   * 初始值：`nonzero`
+   * @see https://developer.mozilla.org/docs/Web/CSS/fill-rule
+   */
+  readonly fillRule: CssProperty<'fillRule', (typeof keywordGroups)[53], never, 1, '', T, M>;
+  /**
+   * filter
+   * 语法：`none | <filter-value-list>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/filter
+   */
+  readonly filter: CssProperty<'filter', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * flex
+   * 语法：`none | [ <'flex-grow'> <'flex-shrink'>? || <'flex-basis'> ]`
+   * @see https://developer.mozilla.org/docs/Web/CSS/flex
+   */
+  readonly flex: CssProperty<'flex', (typeof keywordGroups)[71], 'length', 1, '', T, M>;
+  /**
+   * flex-basis
+   * 主题类别：size（_ 前缀）。
+   * 语法：`content | <'width'>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/flex-basis
+   */
+  readonly flexBasis: CssProperty<
     'flexBasis',
-    keyof (typeof keywordGroups)[72],
+    (typeof keywordGroups)[72],
     'length',
     1,
     'size',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly flexDirection: Carrier<
+  /**
+   * flex-direction
+   * 语法：`row | row-reverse | column | column-reverse`
+   * 初始值：`row`
+   * @see https://developer.mozilla.org/docs/Web/CSS/flex-direction
+   */
+  readonly flexDirection: CssProperty<
     'flexDirection',
-    keyof (typeof keywordGroups)[73],
+    (typeof keywordGroups)[73],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly flexFlow: Carrier<'flexFlow', keyof (typeof keywordGroups)[74], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly flexGrow: Carrier<'flexGrow', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly flexShrink: Carrier<'flexShrink', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly flexWrap: Carrier<'flexWrap', keyof (typeof keywordGroups)[75], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly float: Carrier<'float', keyof (typeof keywordGroups)[76], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly floodColor: Carrier<
+  /**
+   * flex-flow
+   * 语法：`<'flex-direction'> || <'flex-wrap'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/flex-flow
+   */
+  readonly flexFlow: CssProperty<'flexFlow', (typeof keywordGroups)[74], never, 1, '', T, M>;
+  /**
+   * flex-grow
+   * 语法：`<number>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/flex-grow
+   */
+  readonly flexGrow: CssProperty<'flexGrow', (typeof keywordGroups)[5], never, 1, '', T, M>;
+  /**
+   * flex-shrink
+   * 语法：`<number>`
+   * 初始值：`1`
+   * @see https://developer.mozilla.org/docs/Web/CSS/flex-shrink
+   */
+  readonly flexShrink: CssProperty<'flexShrink', (typeof keywordGroups)[5], never, 1, '', T, M>;
+  /**
+   * flex-wrap
+   * 语法：`nowrap | wrap | wrap-reverse`
+   * 初始值：`nowrap`
+   * @see https://developer.mozilla.org/docs/Web/CSS/flex-wrap
+   */
+  readonly flexWrap: CssProperty<'flexWrap', (typeof keywordGroups)[75], never, 1, '', T, M>;
+  /**
+   * float
+   * 语法：`left | right | none | inline-start | inline-end`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/float
+   */
+  readonly float: CssProperty<'float', (typeof keywordGroups)[76], never, 1, '', T, M>;
+  /**
+   * flood-color
+   * 主题类别：color（_ 前缀）。
+   * 语法：`<color>`
+   * 初始值：`black`
+   * @see https://developer.mozilla.org/docs/Web/CSS/flood-color
+   */
+  readonly floodColor: CssProperty<
     'floodColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     'color',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly floodOpacity: Carrier<
-    'floodOpacity',
-    keyof (typeof keywordGroups)[5],
+  /**
+   * flood-opacity
+   * 语法：`<'opacity'>`
+   * 初始值：`black`
+   * @see https://developer.mozilla.org/docs/Web/CSS/flood-opacity
+   */
+  readonly floodOpacity: CssProperty<'floodOpacity', (typeof keywordGroups)[5], never, 1, '', T, M>;
+  /**
+   * font
+   * 语法：`[ [ <'font-style'> || <font-variant-css2> || <'font-weight'> || <font-width-css3> ]? <'font-size'> [ / <'line-height'> ]? <'font-family'># ] | <system-family-name>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font
+   */
+  readonly font: CssProperty<'font', (typeof keywordGroups)[77], never, 1, '', T, M>;
+  /**
+   * font-family
+   * 主题类别：fontFamily（_ 前缀）。
+   * 语法：`[ <family-name> | <generic-family> ]#`
+   * 初始值：depends on user agent
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-family
+   */
+  readonly fontFamily: CssProperty<
+    'fontFamily',
+    (typeof keywordGroups)[78],
     never,
     1,
-    '',
+    'fontFamily',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly font: Carrier<'font', keyof (typeof keywordGroups)[77], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly fontFamily: Carrier<
-    'fontFamily',
-    keyof (typeof keywordGroups)[78],
-    never,
-    1,
-    'fontFamily',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
-  readonly fontFeatureSettings: Carrier<
+  /**
+   * font-feature-settings
+   * 语法：`normal | <feature-tag-value>#`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-feature-settings
+   */
+  readonly fontFeatureSettings: CssProperty<
     'fontFeatureSettings',
-    keyof (typeof keywordGroups)[59],
+    (typeof keywordGroups)[59],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly fontKerning: Carrier<
-    'fontKerning',
-    keyof (typeof keywordGroups)[79],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly fontLanguageOverride: Carrier<
+  /**
+   * font-kerning
+   * 语法：`auto | normal | none`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-kerning
+   */
+  readonly fontKerning: CssProperty<'fontKerning', (typeof keywordGroups)[79], never, 1, '', T, M>;
+  /**
+   * font-language-override
+   * 语法：`normal | <string>`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-language-override
+   */
+  readonly fontLanguageOverride: CssProperty<
     'fontLanguageOverride',
-    keyof (typeof keywordGroups)[59],
+    (typeof keywordGroups)[59],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2020. */
-  readonly fontOpticalSizing: Carrier<
+  /**
+   * font-optical-sizing
+   * 语法：`auto | none`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-optical-sizing
+   */
+  readonly fontOpticalSizing: CssProperty<
     'fontOpticalSizing',
-    keyof (typeof keywordGroups)[16],
+    (typeof keywordGroups)[16],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since November 2022. */
-  readonly fontPalette: Carrier<
-    'fontPalette',
-    keyof (typeof keywordGroups)[57],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly fontSize: Carrier<
+  /**
+   * font-palette
+   * 语法：`normal | light | dark | <palette-identifier> | <palette-mix()>`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-palette
+   */
+  readonly fontPalette: CssProperty<'fontPalette', (typeof keywordGroups)[57], never, 1, '', T, M>;
+  /**
+   * font-size
+   * 主题类别：fontSize（_ 前缀）。
+   * 语法：`<absolute-size> | <relative-size> | <length-percentage [0,∞]> | math`
+   * 初始值：`medium`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-size
+   */
+  readonly fontSize: CssProperty<
     'fontSize',
-    keyof (typeof keywordGroups)[80],
+    (typeof keywordGroups)[80],
     'length',
     1,
     'fontSize',
     T,
     M
   >;
-  /** Since July 2024, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly fontSizeAdjust: Carrier<
+  /**
+   * font-size-adjust
+   * 语法：`none | [ ex-height | cap-height | ch-width | ic-width | ic-height ]? [ from-font | <number> ]`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-size-adjust
+   */
+  readonly fontSizeAdjust: CssProperty<
     'fontSizeAdjust',
-    keyof (typeof keywordGroups)[81],
+    (typeof keywordGroups)[81],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`font-smooth`** CSS property controls the application of anti-aliasing when fonts are rendered. */
-  readonly fontSmooth: Carrier<
-    'fontSmooth',
-    keyof (typeof keywordGroups)[82],
-    'length',
-    1,
-    '',
-    T,
-    M
-  >;
-  /** The **`font-stretch`** CSS property selects a normal, condensed, or expanded face from a font. */
-  readonly fontStretch: Carrier<
-    'fontStretch',
-    keyof (typeof keywordGroups)[83],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly fontStyle: Carrier<'fontStyle', keyof (typeof keywordGroups)[84], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2022. */
-  readonly fontSynthesis: Carrier<
+  /**
+   * font-smooth
+   * 语法：`auto | never | always | <absolute-size> | <length>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-smooth
+   */
+  readonly fontSmooth: CssProperty<'fontSmooth', (typeof keywordGroups)[82], 'length', 1, '', T, M>;
+  /**
+   * font-stretch
+   * 语法：`<font-stretch-absolute>`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-stretch
+   */
+  readonly fontStretch: CssProperty<'fontStretch', (typeof keywordGroups)[83], never, 1, '', T, M>;
+  /**
+   * font-style
+   * 语法：`normal | italic | oblique <angle>?`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-style
+   */
+  readonly fontStyle: CssProperty<'fontStyle', (typeof keywordGroups)[84], never, 1, '', T, M>;
+  /**
+   * font-synthesis
+   * 语法：`none | [ weight || style || small-caps || position]`
+   * 初始值：`weight style small-caps position `
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-synthesis
+   */
+  readonly fontSynthesis: CssProperty<
     'fontSynthesis',
-    keyof (typeof keywordGroups)[85],
+    (typeof keywordGroups)[85],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly fontSynthesisPosition: Carrier<
+  /**
+   * font-synthesis-position
+   * 语法：`auto | none`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-synthesis-position
+   */
+  readonly fontSynthesisPosition: CssProperty<
     'fontSynthesisPosition',
-    keyof (typeof keywordGroups)[16],
+    (typeof keywordGroups)[16],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2023. */
-  readonly fontSynthesisSmallCaps: Carrier<
+  /**
+   * font-synthesis-small-caps
+   * 语法：`auto | none`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-synthesis-small-caps
+   */
+  readonly fontSynthesisSmallCaps: CssProperty<
     'fontSynthesisSmallCaps',
-    keyof (typeof keywordGroups)[16],
+    (typeof keywordGroups)[16],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2023. */
-  readonly fontSynthesisStyle: Carrier<
+  /**
+   * font-synthesis-style
+   * 语法：`auto | none`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-synthesis-style
+   */
+  readonly fontSynthesisStyle: CssProperty<
     'fontSynthesisStyle',
-    keyof (typeof keywordGroups)[16],
+    (typeof keywordGroups)[16],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2023. */
-  readonly fontSynthesisWeight: Carrier<
+  /**
+   * font-synthesis-weight
+   * 语法：`auto | none`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-synthesis-weight
+   */
+  readonly fontSynthesisWeight: CssProperty<
     'fontSynthesisWeight',
-    keyof (typeof keywordGroups)[16],
+    (typeof keywordGroups)[16],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly fontVariant: Carrier<
-    'fontVariant',
-    keyof (typeof keywordGroups)[86],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2023. */
-  readonly fontVariantAlternates: Carrier<
+  /**
+   * font-variant
+   * 语法：`normal | none | [ <common-lig-values> || <discretionary-lig-values> || <historical-lig-values> || <contextual-alt-values> || stylistic( <feature-value-name> ) || historical-forms || styleset( <feature-value-name># ) || character-variant( <
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-variant
+   */
+  readonly fontVariant: CssProperty<'fontVariant', (typeof keywordGroups)[86], never, 1, '', T, M>;
+  /**
+   * font-variant-alternates
+   * 语法：`normal | [ stylistic( <feature-value-name> ) || historical-forms || styleset( <feature-value-name># ) || character-variant( <feature-value-name># ) || swash( <feature-value-name> ) || ornaments( <feature-value-name> ) || annotation( <featu
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-variant-alternates
+   */
+  readonly fontVariantAlternates: CssProperty<
     'fontVariantAlternates',
-    keyof (typeof keywordGroups)[87],
+    (typeof keywordGroups)[87],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly fontVariantCaps: Carrier<
+  /**
+   * font-variant-caps
+   * 语法：`normal | small-caps | all-small-caps | petite-caps | all-petite-caps | unicase | titling-caps`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-variant-caps
+   */
+  readonly fontVariantCaps: CssProperty<
     'fontVariantCaps',
-    keyof (typeof keywordGroups)[88],
+    (typeof keywordGroups)[88],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly fontVariantEastAsian: Carrier<
+  /**
+   * font-variant-east-asian
+   * 语法：`normal | [ <east-asian-variant-values> || <east-asian-width-values> || ruby ]`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-variant-east-asian
+   */
+  readonly fontVariantEastAsian: CssProperty<
     'fontVariantEastAsian',
-    keyof (typeof keywordGroups)[89],
+    (typeof keywordGroups)[89],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly fontVariantEmoji: Carrier<
+  /**
+   * font-variant-emoji
+   * 语法：`normal | text | emoji | unicode`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-variant-emoji
+   */
+  readonly fontVariantEmoji: CssProperty<
     'fontVariantEmoji',
-    keyof (typeof keywordGroups)[90],
+    (typeof keywordGroups)[90],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly fontVariantLigatures: Carrier<
+  /**
+   * font-variant-ligatures
+   * 语法：`normal | none | [ <common-lig-values> || <discretionary-lig-values> || <historical-lig-values> || <contextual-alt-values> ]`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-variant-ligatures
+   */
+  readonly fontVariantLigatures: CssProperty<
     'fontVariantLigatures',
-    keyof (typeof keywordGroups)[91],
+    (typeof keywordGroups)[91],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly fontVariantNumeric: Carrier<
+  /**
+   * font-variant-numeric
+   * 语法：`normal | [ <numeric-figure-values> || <numeric-spacing-values> || <numeric-fraction-values> || ordinal || slashed-zero ]`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-variant-numeric
+   */
+  readonly fontVariantNumeric: CssProperty<
     'fontVariantNumeric',
-    keyof (typeof keywordGroups)[92],
+    (typeof keywordGroups)[92],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly fontVariantPosition: Carrier<
+  /**
+   * font-variant-position
+   * 语法：`normal | sub | super`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-variant-position
+   */
+  readonly fontVariantPosition: CssProperty<
     'fontVariantPosition',
-    keyof (typeof keywordGroups)[93],
+    (typeof keywordGroups)[93],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2018. */
-  readonly fontVariationSettings: Carrier<
+  /**
+   * font-variation-settings
+   * 语法：`normal | [ <string> <number> ]#`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-variation-settings
+   */
+  readonly fontVariationSettings: CssProperty<
     'fontVariationSettings',
-    keyof (typeof keywordGroups)[59],
+    (typeof keywordGroups)[59],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly fontWeight: Carrier<
+  /**
+   * font-weight
+   * 主题类别：fontWeight（_ 前缀）。
+   * 语法：`<font-weight-absolute> | bolder | lighter`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-weight
+   */
+  readonly fontWeight: CssProperty<
     'fontWeight',
-    keyof (typeof keywordGroups)[94],
+    (typeof keywordGroups)[94],
     never,
     1,
     'fontWeight',
     T,
     M
   >;
-  /** **Syntax**: `normal | <percentage [0,∞]> | ultra-condensed | extra-condensed | condensed | semi-condensed | semi-expanded | expanded | extra-expanded | ultra-expanded` */
-  readonly fontWidth: Carrier<'fontWidth', keyof (typeof keywordGroups)[83], never, 1, '', T, M>;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly forcedColorAdjust: Carrier<
+  /**
+   * font-width
+   * 语法：`normal | <percentage [0,∞]> | ultra-condensed | extra-condensed | condensed | semi-condensed | semi-expanded | expanded | extra-expanded | ultra-expanded`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/font-width
+   */
+  readonly fontWidth: CssProperty<'fontWidth', (typeof keywordGroups)[83], never, 1, '', T, M>;
+  /**
+   * forced-color-adjust
+   * 语法：`auto | none | preserve-parent-color`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/forced-color-adjust
+   */
+  readonly forcedColorAdjust: CssProperty<
     'forcedColorAdjust',
-    keyof (typeof keywordGroups)[95],
+    (typeof keywordGroups)[95],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2017. */
-  readonly gap: Carrier<'gap', keyof (typeof keywordGroups)[59], 'length', 2, 'spacing', T, M>;
-  /** glyph-orientation-vertical */
-  readonly glyphOrientationVertical: Carrier<
+  /**
+   * 网格或弹性布局的行、列间距。
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<'row-gap'> <'column-gap'>?`
+   * @see https://developer.mozilla.org/docs/Web/CSS/gap
+   */
+  readonly gap: CssProperty<'gap', (typeof keywordGroups)[59], 'length', 2, 'spacing', T, M>;
+  /**
+   * glyph-orientation-vertical
+   * @see https://developer.mozilla.org/docs/Web/CSS/glyph-orientation-vertical
+   */
+  readonly glyphOrientationVertical: CssProperty<
     'glyphOrientationVertical',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2017. */
-  readonly grid: Carrier<'grid', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2017. */
-  readonly gridArea: Carrier<'gridArea', keyof (typeof keywordGroups)[11], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2020. */
-  readonly gridAutoColumns: Carrier<
+  /**
+   * grid
+   * 语法：`<'grid-template'> | <'grid-template-rows'> / [ auto-flow && dense? ] <'grid-auto-columns'>? | [ auto-flow && dense? ] <'grid-auto-rows'>? / <'grid-template-columns'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/grid
+   */
+  readonly grid: CssProperty<'grid', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * grid-area
+   * 语法：`<grid-line> [ / <grid-line> ]{0,3}`
+   * @see https://developer.mozilla.org/docs/Web/CSS/grid-area
+   */
+  readonly gridArea: CssProperty<'gridArea', (typeof keywordGroups)[11], never, 1, '', T, M>;
+  /**
+   * grid-auto-columns
+   * 语法：`<track-size>+`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/grid-auto-columns
+   */
+  readonly gridAutoColumns: CssProperty<
     'gridAutoColumns',
-    keyof (typeof keywordGroups)[96],
+    (typeof keywordGroups)[96],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2017. */
-  readonly gridAutoFlow: Carrier<
+  /**
+   * grid-auto-flow
+   * 语法：`[ row | column ] || dense`
+   * 初始值：`row`
+   * @see https://developer.mozilla.org/docs/Web/CSS/grid-auto-flow
+   */
+  readonly gridAutoFlow: CssProperty<
     'gridAutoFlow',
-    keyof (typeof keywordGroups)[97],
+    (typeof keywordGroups)[97],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2020. */
-  readonly gridAutoRows: Carrier<
+  /**
+   * grid-auto-rows
+   * 语法：`<track-size>+`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/grid-auto-rows
+   */
+  readonly gridAutoRows: CssProperty<
     'gridAutoRows',
-    keyof (typeof keywordGroups)[96],
+    (typeof keywordGroups)[96],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2017. */
-  readonly gridColumn: Carrier<'gridColumn', keyof (typeof keywordGroups)[11], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2017. */
-  readonly gridColumnEnd: Carrier<
+  /**
+   * grid-column
+   * 语法：`<grid-line> [ / <grid-line> ]?`
+   * @see https://developer.mozilla.org/docs/Web/CSS/grid-column
+   */
+  readonly gridColumn: CssProperty<'gridColumn', (typeof keywordGroups)[11], never, 1, '', T, M>;
+  /**
+   * grid-column-end
+   * 语法：`<grid-line>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/grid-column-end
+   */
+  readonly gridColumnEnd: CssProperty<
     'gridColumnEnd',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly gridColumnGap: Carrier<
+  /**
+   * grid-column-gap
+   * 语法：`<length-percentage>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/grid-column-gap
+   */
+  readonly gridColumnGap: CssProperty<
     'gridColumnGap',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2017. */
-  readonly gridColumnStart: Carrier<
+  /**
+   * grid-column-start
+   * 语法：`<grid-line>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/grid-column-start
+   */
+  readonly gridColumnStart: CssProperty<
     'gridColumnStart',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2017. */
-  readonly gridGap: Carrier<'gridGap', keyof (typeof keywordGroups)[5], 'length', 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2017. */
-  readonly gridRow: Carrier<'gridRow', keyof (typeof keywordGroups)[11], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2017. */
-  readonly gridRowEnd: Carrier<'gridRowEnd', keyof (typeof keywordGroups)[11], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2017. */
-  readonly gridRowGap: Carrier<
-    'gridRowGap',
-    keyof (typeof keywordGroups)[5],
-    'length',
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2017. */
-  readonly gridRowStart: Carrier<
+  /**
+   * grid-gap
+   * 语法：`<'grid-row-gap'> <'grid-column-gap'>?`
+   * @see https://developer.mozilla.org/docs/Web/CSS/grid-gap
+   */
+  readonly gridGap: CssProperty<'gridGap', (typeof keywordGroups)[5], 'length', 1, '', T, M>;
+  /**
+   * grid-row
+   * 语法：`<grid-line> [ / <grid-line> ]?`
+   * @see https://developer.mozilla.org/docs/Web/CSS/grid-row
+   */
+  readonly gridRow: CssProperty<'gridRow', (typeof keywordGroups)[11], never, 1, '', T, M>;
+  /**
+   * grid-row-end
+   * 语法：`<grid-line>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/grid-row-end
+   */
+  readonly gridRowEnd: CssProperty<'gridRowEnd', (typeof keywordGroups)[11], never, 1, '', T, M>;
+  /**
+   * grid-row-gap
+   * 语法：`<length-percentage>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/grid-row-gap
+   */
+  readonly gridRowGap: CssProperty<'gridRowGap', (typeof keywordGroups)[5], 'length', 1, '', T, M>;
+  /**
+   * grid-row-start
+   * 语法：`<grid-line>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/grid-row-start
+   */
+  readonly gridRowStart: CssProperty<
     'gridRowStart',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2017. */
-  readonly gridTemplate: Carrier<
-    'gridTemplate',
-    keyof (typeof keywordGroups)[6],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2017. */
-  readonly gridTemplateAreas: Carrier<
+  /**
+   * grid-template
+   * 语法：`none | [ <'grid-template-rows'> / <'grid-template-columns'> ] | [ <line-names>? <string> <track-size>? <line-names>? ]+ [ / <explicit-track-list> ]?`
+   * @see https://developer.mozilla.org/docs/Web/CSS/grid-template
+   */
+  readonly gridTemplate: CssProperty<'gridTemplate', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * grid-template-areas
+   * 语法：`none | <string>+`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/grid-template-areas
+   */
+  readonly gridTemplateAreas: CssProperty<
     'gridTemplateAreas',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2017. */
-  readonly gridTemplateColumns: Carrier<
+  /**
+   * grid-template-columns
+   * 语法：`none | <track-list> | <auto-track-list> | subgrid <line-name-list>?`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/grid-template-columns
+   */
+  readonly gridTemplateColumns: CssProperty<
     'gridTemplateColumns',
-    keyof (typeof keywordGroups)[98],
+    (typeof keywordGroups)[98],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2017. */
-  readonly gridTemplateRows: Carrier<
+  /**
+   * grid-template-rows
+   * 语法：`none | <track-list> | <auto-track-list> | subgrid <line-name-list>?`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/grid-template-rows
+   */
+  readonly gridTemplateRows: CssProperty<
     'gridTemplateRows',
-    keyof (typeof keywordGroups)[98],
+    (typeof keywordGroups)[98],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly hangingPunctuation: Carrier<
+  /**
+   * hanging-punctuation
+   * 语法：`none | [ first || [ force-end | allow-end ] || last ]`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/hanging-punctuation
+   */
+  readonly hangingPunctuation: CssProperty<
     'hangingPunctuation',
-    keyof (typeof keywordGroups)[99],
+    (typeof keywordGroups)[99],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly height: Carrier<'height', keyof (typeof keywordGroups)[100], 'length', 1, 'size', T, M>;
-  /** Since September 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly hyphenateCharacter: Carrier<
+  /**
+   * 元素的物理高度。
+   * 主题类别：size（_ 前缀）。
+   * 语法：`auto | <length-percentage [0,∞]> | min-content | max-content | fit-content | fit-content(<length-percentage [0,∞]>) | <calc-size()> | <anchor-size()>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/height
+   */
+  readonly height: CssProperty<'height', (typeof keywordGroups)[100], 'length', 1, 'size', T, M>;
+  /**
+   * hyphenate-character
+   * 语法：`auto | <string>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/hyphenate-character
+   */
+  readonly hyphenateCharacter: CssProperty<
     'hyphenateCharacter',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly hyphenateLimitChars: Carrier<
+  /**
+   * hyphenate-limit-chars
+   * 语法：`[ auto | <integer> ]{1,3}`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/hyphenate-limit-chars
+   */
+  readonly hyphenateLimitChars: CssProperty<
     'hyphenateLimitChars',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     never,
     1,
     '',
     T,
     M
   >;
-  /** Since September 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly hyphens: Carrier<'hyphens', keyof (typeof keywordGroups)[101], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2020. */
-  readonly imageOrientation: Carrier<
+  /**
+   * hyphens
+   * 语法：`none | manual | auto`
+   * 初始值：`manual`
+   * @see https://developer.mozilla.org/docs/Web/CSS/hyphens
+   */
+  readonly hyphens: CssProperty<'hyphens', (typeof keywordGroups)[101], never, 1, '', T, M>;
+  /**
+   * image-orientation
+   * 语法：`from-image | <angle> | [ <angle>? flip ]`
+   * 初始值：`from-image`
+   * @see https://developer.mozilla.org/docs/Web/CSS/image-orientation
+   */
+  readonly imageOrientation: CssProperty<
     'imageOrientation',
-    keyof (typeof keywordGroups)[102],
+    (typeof keywordGroups)[102],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly imageRendering: Carrier<
+  /**
+   * image-rendering
+   * 语法：`auto | crisp-edges | pixelated | smooth`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/image-rendering
+   */
+  readonly imageRendering: CssProperty<
     'imageRendering',
-    keyof (typeof keywordGroups)[103],
+    (typeof keywordGroups)[103],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`image-resolution`** CSS property specifies the intrinsic resolution of all raster images used in or on the element. It affects content images such as replaced elements and generated content, and decorative images such as `background-image` images. */
-  readonly imageResolution: Carrier<
+  /**
+   * image-resolution
+   * 语法：`[ from-image || <resolution> ] && snap?`
+   * 初始值：`1dppx`
+   * @see https://developer.mozilla.org/docs/Web/CSS/image-resolution
+   */
+  readonly imageResolution: CssProperty<
     'imageResolution',
-    keyof (typeof keywordGroups)[104],
+    (typeof keywordGroups)[104],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `auto | normal | active | inactive | disabled` */
-  readonly imeMode: Carrier<'imeMode', keyof (typeof keywordGroups)[105], never, 1, '', T, M>;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly initialLetter: Carrier<
+  /**
+   * ime-mode
+   * 语法：`auto | normal | active | inactive | disabled`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/ime-mode
+   */
+  readonly imeMode: CssProperty<'imeMode', (typeof keywordGroups)[105], never, 1, '', T, M>;
+  /**
+   * initial-letter
+   * 语法：`normal | [ <number> <integer>? ]`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/initial-letter
+   */
+  readonly initialLetter: CssProperty<
     'initialLetter',
-    keyof (typeof keywordGroups)[59],
+    (typeof keywordGroups)[59],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `[ auto | alphabetic | hanging | ideographic ]` */
-  readonly initialLetterAlign: Carrier<
+  /**
+   * initial-letter-align
+   * 语法：`[ auto | alphabetic | hanging | ideographic ]`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/initial-letter-align
+   */
+  readonly initialLetterAlign: CssProperty<
     'initialLetterAlign',
-    keyof (typeof keywordGroups)[106],
+    (typeof keywordGroups)[106],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly inlineSize: Carrier<
+  /**
+   * 元素在行内轴方向上的尺寸。
+   * 主题类别：size（_ 前缀）。
+   * 语法：`<'width'>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/inline-size
+   */
+  readonly inlineSize: CssProperty<
     'inlineSize',
-    keyof (typeof keywordGroups)[107],
+    (typeof keywordGroups)[107],
     'length',
     1,
     'size',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly inset: Carrier<'inset', keyof (typeof keywordGroups)[11], 'length', 4, 'spacing', T, M>;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly insetArea: Carrier<'insetArea', keyof (typeof keywordGroups)[108], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly insetBlock: Carrier<
+  /**
+   * inset
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<'top'>{1,4}`
+   * @see https://developer.mozilla.org/docs/Web/CSS/inset
+   */
+  readonly inset: CssProperty<'inset', (typeof keywordGroups)[11], 'length', 4, 'spacing', T, M>;
+  /**
+   * inset-area
+   * 语法：`none | <position-area>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/inset-area
+   */
+  readonly insetArea: CssProperty<'insetArea', (typeof keywordGroups)[108], never, 1, '', T, M>;
+  /**
+   * inset-block
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<'top'>{1,2}`
+   * @see https://developer.mozilla.org/docs/Web/CSS/inset-block
+   */
+  readonly insetBlock: CssProperty<
     'insetBlock',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     2,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly insetBlockEnd: Carrier<
+  /**
+   * inset-block-end
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<'top'>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/inset-block-end
+   */
+  readonly insetBlockEnd: CssProperty<
     'insetBlockEnd',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly insetBlockStart: Carrier<
+  /**
+   * inset-block-start
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<'top'>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/inset-block-start
+   */
+  readonly insetBlockStart: CssProperty<
     'insetBlockStart',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly insetInline: Carrier<
+  /**
+   * inset-inline
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<'top'>{1,2}`
+   * @see https://developer.mozilla.org/docs/Web/CSS/inset-inline
+   */
+  readonly insetInline: CssProperty<
     'insetInline',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     2,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly insetInlineEnd: Carrier<
+  /**
+   * inset-inline-end
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<'top'>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/inset-inline-end
+   */
+  readonly insetInlineEnd: CssProperty<
     'insetInlineEnd',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly insetInlineStart: Carrier<
+  /**
+   * inset-inline-start
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<'top'>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/inset-inline-start
+   */
+  readonly insetInlineStart: CssProperty<
     'insetInlineStart',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly interpolateSize: Carrier<
+  /**
+   * interpolate-size
+   * 语法：`numeric-only | allow-keywords`
+   * 初始值：`numeric-only`
+   * @see https://developer.mozilla.org/docs/Web/CSS/interpolate-size
+   */
+  readonly interpolateSize: CssProperty<
     'interpolateSize',
-    keyof (typeof keywordGroups)[109],
+    (typeof keywordGroups)[109],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly isolation: Carrier<'isolation', keyof (typeof keywordGroups)[110], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly justifyContent: Carrier<
+  /**
+   * isolation
+   * 语法：`auto | isolate`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/isolation
+   */
+  readonly isolation: CssProperty<'isolation', (typeof keywordGroups)[110], never, 1, '', T, M>;
+  /**
+   * justify-content
+   * 语法：`normal | <content-distribution> | <overflow-position>? [ <content-position> | left | right ]`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/justify-content
+   */
+  readonly justifyContent: CssProperty<
     'justifyContent',
-    keyof (typeof keywordGroups)[111],
+    (typeof keywordGroups)[111],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2016. */
-  readonly justifyItems: Carrier<
+  /**
+   * justify-items
+   * 语法：`normal | stretch | <baseline-position> | <overflow-position>? [ <self-position> | left | right ] | legacy | legacy && [ left | right | center ] | anchor-center`
+   * 初始值：`legacy`
+   * @see https://developer.mozilla.org/docs/Web/CSS/justify-items
+   */
+  readonly justifyItems: CssProperty<
     'justifyItems',
-    keyof (typeof keywordGroups)[112],
+    (typeof keywordGroups)[112],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2017. */
-  readonly justifySelf: Carrier<
-    'justifySelf',
-    keyof (typeof keywordGroups)[113],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** **Syntax**: `[ normal | <content-distribution> | <overflow-position>? [ <content-position> | left | right ] ]#` */
-  readonly justifyTracks: Carrier<
+  /**
+   * justify-self
+   * 语法：`auto | normal | stretch | <baseline-position> | <overflow-position>? [ <self-position> | left | right ] | anchor-center`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/justify-self
+   */
+  readonly justifySelf: CssProperty<'justifySelf', (typeof keywordGroups)[113], never, 1, '', T, M>;
+  /**
+   * justify-tracks
+   * 语法：`[ normal | <content-distribution> | <overflow-position>? [ <content-position> | left | right ] ]#`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/justify-tracks
+   */
+  readonly justifyTracks: CssProperty<
     'justifyTracks',
-    keyof (typeof keywordGroups)[111],
+    (typeof keywordGroups)[111],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`box-align`** CSS property specifies how an element aligns its contents across its layout in a perpendicular direction. The effect of the property is only visible if there is extra space in the box. */
-  readonly KhtmlBoxAlign: Carrier<
+  /**
+   * -khtml-box-align
+   * 语法：`start | center | end | baseline | stretch`
+   * 初始值：`stretch`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-khtml-box-align
+   */
+  readonly KhtmlBoxAlign: CssProperty<
     'KhtmlBoxAlign',
-    keyof (typeof keywordGroups)[39],
+    (typeof keywordGroups)[39],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`box-direction`** CSS property specifies whether a box lays out its contents normally (from the top or left edge), or in reverse (from the bottom or right edge). */
-  readonly KhtmlBoxDirection: Carrier<
+  /**
+   * -khtml-box-direction
+   * 语法：`normal | reverse | inherit`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-khtml-box-direction
+   */
+  readonly KhtmlBoxDirection: CssProperty<
     'KhtmlBoxDirection',
-    keyof (typeof keywordGroups)[41],
+    (typeof keywordGroups)[41],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`-moz-box-flex`** and **`-webkit-box-flex`** CSS properties specify how a `-moz-box` or `-webkit-box` grows to fill the box that contains it, in the direction of the containing box's layout. */
-  readonly KhtmlBoxFlex: Carrier<
-    'KhtmlBoxFlex',
-    keyof (typeof keywordGroups)[5],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** The **`box-flex-group`** CSS property assigns the flexbox's child elements to a flex group. */
-  readonly KhtmlBoxFlexGroup: Carrier<
+  /**
+   * -khtml-box-flex
+   * 语法：`<number>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-khtml-box-flex
+   */
+  readonly KhtmlBoxFlex: CssProperty<'KhtmlBoxFlex', (typeof keywordGroups)[5], never, 1, '', T, M>;
+  /**
+   * -khtml-box-flex-group
+   * 语法：`<integer>`
+   * 初始值：`1`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-khtml-box-flex-group
+   */
+  readonly KhtmlBoxFlexGroup: CssProperty<
     'KhtmlBoxFlexGroup',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`box-lines`** CSS property determines whether the box may have a single or multiple lines (rows for horizontally oriented boxes, columns for vertically oriented boxes). */
-  readonly KhtmlBoxLines: Carrier<
+  /**
+   * -khtml-box-lines
+   * 语法：`single | multiple`
+   * 初始值：`single`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-khtml-box-lines
+   */
+  readonly KhtmlBoxLines: CssProperty<
     'KhtmlBoxLines',
-    keyof (typeof keywordGroups)[42],
+    (typeof keywordGroups)[42],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`box-ordinal-group`** CSS property assigns the flexbox's child elements to an ordinal group. */
-  readonly KhtmlBoxOrdinalGroup: Carrier<
+  /**
+   * -khtml-box-ordinal-group
+   * 语法：`<integer>`
+   * 初始值：`1`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-khtml-box-ordinal-group
+   */
+  readonly KhtmlBoxOrdinalGroup: CssProperty<
     'KhtmlBoxOrdinalGroup',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`box-orient`** CSS property sets whether an element lays out its contents horizontally or vertically. */
-  readonly KhtmlBoxOrient: Carrier<
+  /**
+   * -khtml-box-orient
+   * 语法：`horizontal | vertical | inline-axis | block-axis | inherit`
+   * 初始值：`inline-axis`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-khtml-box-orient
+   */
+  readonly KhtmlBoxOrient: CssProperty<
     'KhtmlBoxOrient',
-    keyof (typeof keywordGroups)[43],
+    (typeof keywordGroups)[43],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`-moz-box-pack`** and **`-webkit-box-pack`** CSS properties specify how a `-moz-box` or `-webkit-box` packs its contents in the direction of its layout. The effect of this is only visible if there is extra space in the box. */
-  readonly KhtmlBoxPack: Carrier<
+  /**
+   * -khtml-box-pack
+   * 语法：`start | center | end | justify`
+   * 初始值：`start`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-khtml-box-pack
+   */
+  readonly KhtmlBoxPack: CssProperty<
     'KhtmlBoxPack',
-    keyof (typeof keywordGroups)[44],
+    (typeof keywordGroups)[44],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2020. */
-  readonly KhtmlLineBreak: Carrier<
+  /**
+   * -khtml-line-break
+   * 语法：`auto | loose | normal | strict | anywhere`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-khtml-line-break
+   */
+  readonly KhtmlLineBreak: CssProperty<
     'KhtmlLineBreak',
-    keyof (typeof keywordGroups)[114],
+    (typeof keywordGroups)[114],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly KhtmlOpacity: Carrier<
-    'KhtmlOpacity',
-    keyof (typeof keywordGroups)[5],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly KhtmlUserSelect: Carrier<
+  /**
+   * -khtml-opacity
+   * 语法：`<opacity-value>`
+   * 初始值：`1`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-khtml-opacity
+   */
+  readonly KhtmlOpacity: CssProperty<'KhtmlOpacity', (typeof keywordGroups)[5], never, 1, '', T, M>;
+  /**
+   * -khtml-user-select
+   * 语法：`auto | text | none | all`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-khtml-user-select
+   */
+  readonly KhtmlUserSelect: CssProperty<
     'KhtmlUserSelect',
-    keyof (typeof keywordGroups)[115],
+    (typeof keywordGroups)[115],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly left: Carrier<'left', keyof (typeof keywordGroups)[11], 'length', 1, 'spacing', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly letterSpacing: Carrier<
+  /**
+   * left
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`auto | <length-percentage> | <anchor()> | <anchor-size()>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/left
+   */
+  readonly left: CssProperty<'left', (typeof keywordGroups)[11], 'length', 1, 'spacing', T, M>;
+  /**
+   * letter-spacing
+   * 主题类别：letterSpacing（_ 前缀）。
+   * 语法：`normal | <length>`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/letter-spacing
+   */
+  readonly letterSpacing: CssProperty<
     'letterSpacing',
-    keyof (typeof keywordGroups)[59],
+    (typeof keywordGroups)[59],
     'length',
     1,
     'letterSpacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly lightingColor: Carrier<
+  /**
+   * lighting-color
+   * 主题类别：color（_ 前缀）。
+   * 语法：`<color>`
+   * 初始值：`white`
+   * @see https://developer.mozilla.org/docs/Web/CSS/lighting-color
+   */
+  readonly lightingColor: CssProperty<
     'lightingColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     'color',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2020. */
-  readonly lineBreak: Carrier<'lineBreak', keyof (typeof keywordGroups)[114], never, 1, '', T, M>;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly lineClamp: Carrier<'lineClamp', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly lineHeight: Carrier<
+  /**
+   * line-break
+   * 语法：`auto | loose | normal | strict | anywhere`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/line-break
+   */
+  readonly lineBreak: CssProperty<'lineBreak', (typeof keywordGroups)[114], never, 1, '', T, M>;
+  /**
+   * line-clamp
+   * 语法：`none | <integer>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/line-clamp
+   */
+  readonly lineClamp: CssProperty<'lineClamp', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * line-height
+   * 主题类别：lineHeight（_ 前缀）。
+   * 语法：`normal | <number> | <length> | <percentage>`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/line-height
+   */
+  readonly lineHeight: CssProperty<
     'lineHeight',
-    keyof (typeof keywordGroups)[59],
+    (typeof keywordGroups)[59],
     'length',
     1,
     'lineHeight',
     T,
     M
   >;
-  /** The **`line-height-step`** CSS property sets the step unit for line box heights. When the property is set, line box heights are rounded up to the closest multiple of the unit. */
-  readonly lineHeightStep: Carrier<
+  /**
+   * line-height-step
+   * 语法：`<length>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/line-height-step
+   */
+  readonly lineHeightStep: CssProperty<
     'lineHeightStep',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly listStyle: Carrier<'listStyle', keyof (typeof keywordGroups)[116], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly listStyleImage: Carrier<
+  /**
+   * list-style
+   * 语法：`<'list-style-type'> || <'list-style-position'> || <'list-style-image'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/list-style
+   */
+  readonly listStyle: CssProperty<'listStyle', (typeof keywordGroups)[116], never, 1, '', T, M>;
+  /**
+   * list-style-image
+   * 语法：`<image> | none`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/list-style-image
+   */
+  readonly listStyleImage: CssProperty<
     'listStyleImage',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly listStylePosition: Carrier<
+  /**
+   * list-style-position
+   * 语法：`inside | outside`
+   * 初始值：`outside`
+   * @see https://developer.mozilla.org/docs/Web/CSS/list-style-position
+   */
+  readonly listStylePosition: CssProperty<
     'listStylePosition',
-    keyof (typeof keywordGroups)[117],
+    (typeof keywordGroups)[117],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly listStyleType: Carrier<
+  /**
+   * list-style-type
+   * 语法：`<counter-style> | <string> | none`
+   * 初始值：`disc`
+   * @see https://developer.mozilla.org/docs/Web/CSS/list-style-type
+   */
+  readonly listStyleType: CssProperty<
     'listStyleType',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly margin: Carrier<
-    'margin',
-    keyof (typeof keywordGroups)[11],
-    'length',
-    4,
-    'spacing',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly marginBlock: Carrier<
+  /**
+   * 四个物理方向的外边距。
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<'margin-top'>{1,4}`
+   * @see https://developer.mozilla.org/docs/Web/CSS/margin
+   */
+  readonly margin: CssProperty<'margin', (typeof keywordGroups)[11], 'length', 4, 'spacing', T, M>;
+  /**
+   * margin-block
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<'margin-top'>{1,2}`
+   * @see https://developer.mozilla.org/docs/Web/CSS/margin-block
+   */
+  readonly marginBlock: CssProperty<
     'marginBlock',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     2,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly marginBlockEnd: Carrier<
+  /**
+   * margin-block-end
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<'margin-top'>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/margin-block-end
+   */
+  readonly marginBlockEnd: CssProperty<
     'marginBlockEnd',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly marginBlockStart: Carrier<
+  /**
+   * margin-block-start
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<'margin-top'>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/margin-block-start
+   */
+  readonly marginBlockStart: CssProperty<
     'marginBlockStart',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly marginBottom: Carrier<
+  /**
+   * margin-bottom
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<length-percentage> | auto | <anchor-size()>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/margin-bottom
+   */
+  readonly marginBottom: CssProperty<
     'marginBottom',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly marginInline: Carrier<
+  /**
+   * margin-inline
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<'margin-top'>{1,2}`
+   * @see https://developer.mozilla.org/docs/Web/CSS/margin-inline
+   */
+  readonly marginInline: CssProperty<
     'marginInline',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     2,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly marginInlineEnd: Carrier<
+  /**
+   * margin-inline-end
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<'margin-top'>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/margin-inline-end
+   */
+  readonly marginInlineEnd: CssProperty<
     'marginInlineEnd',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly marginInlineStart: Carrier<
+  /**
+   * margin-inline-start
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<'margin-top'>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/margin-inline-start
+   */
+  readonly marginInlineStart: CssProperty<
     'marginInlineStart',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly marginLeft: Carrier<
+  /**
+   * margin-left
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<length-percentage> | auto | <anchor-size()>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/margin-left
+   */
+  readonly marginLeft: CssProperty<
     'marginLeft',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly marginRight: Carrier<
+  /**
+   * margin-right
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<length-percentage> | auto | <anchor-size()>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/margin-right
+   */
+  readonly marginRight: CssProperty<
     'marginRight',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly marginTop: Carrier<
+  /**
+   * margin-top
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<length-percentage> | auto | <anchor-size()>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/margin-top
+   */
+  readonly marginTop: CssProperty<
     'marginTop',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly marginTrim: Carrier<'marginTrim', keyof (typeof keywordGroups)[118], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
-  readonly marker: Carrier<'marker', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
-  readonly markerEnd: Carrier<'markerEnd', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
-  readonly markerMid: Carrier<'markerMid', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
-  readonly markerStart: Carrier<'markerStart', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
-  /** Since December 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly mask: Carrier<'mask', keyof (typeof keywordGroups)[119], 'length', 1, '', T, M>;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly maskBorder: Carrier<'maskBorder', keyof (typeof keywordGroups)[120], never, 1, '', T, M>;
-  /** The **`mask-border-mode`** CSS property specifies the blending mode used in a mask border. */
-  readonly maskBorderMode: Carrier<
+  /**
+   * margin-trim
+   * 语法：`none | in-flow | all`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/margin-trim
+   */
+  readonly marginTrim: CssProperty<'marginTrim', (typeof keywordGroups)[118], never, 1, '', T, M>;
+  /**
+   * marker
+   * 语法：`none | <url>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/marker
+   */
+  readonly marker: CssProperty<'marker', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * marker-end
+   * 语法：`none | <url>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/marker-end
+   */
+  readonly markerEnd: CssProperty<'markerEnd', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * marker-mid
+   * 语法：`none | <url>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/marker-mid
+   */
+  readonly markerMid: CssProperty<'markerMid', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * marker-start
+   * 语法：`none | <url>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/marker-start
+   */
+  readonly markerStart: CssProperty<'markerStart', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * mask
+   * 语法：`<mask-layer>#`
+   * @see https://developer.mozilla.org/docs/Web/CSS/mask
+   */
+  readonly mask: CssProperty<'mask', (typeof keywordGroups)[119], 'length', 1, '', T, M>;
+  /**
+   * mask-border
+   * 语法：`<'mask-border-source'> || <'mask-border-slice'> [ / <'mask-border-width'>? [ / <'mask-border-outset'> ]? ]? || <'mask-border-repeat'> || <'mask-border-mode'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/mask-border
+   */
+  readonly maskBorder: CssProperty<'maskBorder', (typeof keywordGroups)[120], never, 1, '', T, M>;
+  /**
+   * mask-border-mode
+   * 语法：`luminance | alpha`
+   * 初始值：`alpha`
+   * @see https://developer.mozilla.org/docs/Web/CSS/mask-border-mode
+   */
+  readonly maskBorderMode: CssProperty<
     'maskBorderMode',
-    keyof (typeof keywordGroups)[121],
+    (typeof keywordGroups)[121],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly maskBorderOutset: Carrier<
+  /**
+   * mask-border-outset
+   * 语法：`[ <length> | <number> ]{1,4}`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/mask-border-outset
+   */
+  readonly maskBorderOutset: CssProperty<
     'maskBorderOutset',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly maskBorderRepeat: Carrier<
+  /**
+   * mask-border-repeat
+   * 语法：`[ stretch | repeat | round | space ]{1,2}`
+   * 初始值：`stretch`
+   * @see https://developer.mozilla.org/docs/Web/CSS/mask-border-repeat
+   */
+  readonly maskBorderRepeat: CssProperty<
     'maskBorderRepeat',
-    keyof (typeof keywordGroups)[38],
+    (typeof keywordGroups)[38],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly maskBorderSlice: Carrier<
+  /**
+   * mask-border-slice
+   * 语法：`<number-percentage>{1,4} fill?`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/mask-border-slice
+   */
+  readonly maskBorderSlice: CssProperty<
     'maskBorderSlice',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly maskBorderSource: Carrier<
+  /**
+   * mask-border-source
+   * 语法：`none | <image>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/mask-border-source
+   */
+  readonly maskBorderSource: CssProperty<
     'maskBorderSource',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly maskBorderWidth: Carrier<
+  /**
+   * mask-border-width
+   * 语法：`[ <length-percentage> | <number> | auto ]{1,4}`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/mask-border-width
+   */
+  readonly maskBorderWidth: CssProperty<
     'maskBorderWidth',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** Since December 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly maskClip: Carrier<'maskClip', keyof (typeof keywordGroups)[122], never, 1, '', T, M>;
-  /** Since December 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly maskComposite: Carrier<
+  /**
+   * mask-clip
+   * 语法：`[ <coord-box> | no-clip ]#`
+   * 初始值：`border-box`
+   * @see https://developer.mozilla.org/docs/Web/CSS/mask-clip
+   */
+  readonly maskClip: CssProperty<'maskClip', (typeof keywordGroups)[122], never, 1, '', T, M>;
+  /**
+   * mask-composite
+   * 语法：`<compositing-operator>#`
+   * 初始值：`add`
+   * @see https://developer.mozilla.org/docs/Web/CSS/mask-composite
+   */
+  readonly maskComposite: CssProperty<
     'maskComposite',
-    keyof (typeof keywordGroups)[123],
+    (typeof keywordGroups)[123],
     never,
     1,
     '',
     T,
     M
   >;
-  /** Since December 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly maskImage: Carrier<'maskImage', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
-  /** Since December 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly maskMode: Carrier<'maskMode', keyof (typeof keywordGroups)[124], never, 1, '', T, M>;
-  /** Since December 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly maskOrigin: Carrier<'maskOrigin', keyof (typeof keywordGroups)[125], never, 1, '', T, M>;
-  /** Since December 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly maskPosition: Carrier<
+  /**
+   * mask-image
+   * 语法：`<mask-reference>#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/mask-image
+   */
+  readonly maskImage: CssProperty<'maskImage', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * mask-mode
+   * 语法：`<masking-mode>#`
+   * 初始值：`match-source`
+   * @see https://developer.mozilla.org/docs/Web/CSS/mask-mode
+   */
+  readonly maskMode: CssProperty<'maskMode', (typeof keywordGroups)[124], never, 1, '', T, M>;
+  /**
+   * mask-origin
+   * 语法：`<coord-box>#`
+   * 初始值：`border-box`
+   * @see https://developer.mozilla.org/docs/Web/CSS/mask-origin
+   */
+  readonly maskOrigin: CssProperty<'maskOrigin', (typeof keywordGroups)[125], never, 1, '', T, M>;
+  /**
+   * mask-position
+   * 语法：`<position>#`
+   * 初始值：`0% 0%`
+   * @see https://developer.mozilla.org/docs/Web/CSS/mask-position
+   */
+  readonly maskPosition: CssProperty<
     'maskPosition',
-    keyof (typeof keywordGroups)[26],
+    (typeof keywordGroups)[26],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** Since December 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly maskRepeat: Carrier<'maskRepeat', keyof (typeof keywordGroups)[29], never, 1, '', T, M>;
-  /** Since December 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly maskSize: Carrier<'maskSize', keyof (typeof keywordGroups)[30], 'length', 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly maskType: Carrier<'maskType', keyof (typeof keywordGroups)[121], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2017. */
-  readonly masonryAutoFlow: Carrier<
+  /**
+   * mask-repeat
+   * 语法：`<repeat-style>#`
+   * 初始值：`repeat`
+   * @see https://developer.mozilla.org/docs/Web/CSS/mask-repeat
+   */
+  readonly maskRepeat: CssProperty<'maskRepeat', (typeof keywordGroups)[29], never, 1, '', T, M>;
+  /**
+   * mask-size
+   * 语法：`<bg-size>#`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/mask-size
+   */
+  readonly maskSize: CssProperty<'maskSize', (typeof keywordGroups)[30], 'length', 1, '', T, M>;
+  /**
+   * mask-type
+   * 语法：`luminance | alpha`
+   * 初始值：`luminance`
+   * @see https://developer.mozilla.org/docs/Web/CSS/mask-type
+   */
+  readonly maskType: CssProperty<'maskType', (typeof keywordGroups)[121], never, 1, '', T, M>;
+  /**
+   * masonry-auto-flow
+   * 语法：`[ pack | next ] || [ definite-first | ordered ]`
+   * 初始值：`pack`
+   * @see https://developer.mozilla.org/docs/Web/CSS/masonry-auto-flow
+   */
+  readonly masonryAutoFlow: CssProperty<
     'masonryAutoFlow',
-    keyof (typeof keywordGroups)[126],
+    (typeof keywordGroups)[126],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly mathDepth: Carrier<'mathDepth', keyof (typeof keywordGroups)[127], never, 1, '', T, M>;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly mathShift: Carrier<'mathShift', keyof (typeof keywordGroups)[128], never, 1, '', T, M>;
-  /** Since August 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly mathStyle: Carrier<'mathStyle', keyof (typeof keywordGroups)[128], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly maxBlockSize: Carrier<
+  /**
+   * math-depth
+   * 语法：`auto-add | add(<integer>) | <integer>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/math-depth
+   */
+  readonly mathDepth: CssProperty<'mathDepth', (typeof keywordGroups)[127], never, 1, '', T, M>;
+  /**
+   * math-shift
+   * 语法：`normal | compact`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/math-shift
+   */
+  readonly mathShift: CssProperty<'mathShift', (typeof keywordGroups)[128], never, 1, '', T, M>;
+  /**
+   * math-style
+   * 语法：`normal | compact`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/math-style
+   */
+  readonly mathStyle: CssProperty<'mathStyle', (typeof keywordGroups)[128], never, 1, '', T, M>;
+  /**
+   * 块轴方向的最大尺寸。
+   * 主题类别：size（_ 前缀）。
+   * 语法：`<'max-width'>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/max-block-size
+   */
+  readonly maxBlockSize: CssProperty<
     'maxBlockSize',
-    keyof (typeof keywordGroups)[129],
+    (typeof keywordGroups)[129],
     'length',
     1,
     'size',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly maxHeight: Carrier<
+  /**
+   * max-height
+   * 主题类别：size（_ 前缀）。
+   * 语法：`none | <length-percentage [0,∞]> | min-content | max-content | fit-content | fit-content(<length-percentage [0,∞]>) | <calc-size()> | <anchor-size()>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/max-height
+   */
+  readonly maxHeight: CssProperty<
     'maxHeight',
-    keyof (typeof keywordGroups)[130],
+    (typeof keywordGroups)[130],
     'length',
     1,
     'size',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly maxInlineSize: Carrier<
+  /**
+   * 行内轴方向的最大尺寸。
+   * 主题类别：size（_ 前缀）。
+   * 语法：`<'max-width'>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/max-inline-size
+   */
+  readonly maxInlineSize: CssProperty<
     'maxInlineSize',
-    keyof (typeof keywordGroups)[131],
+    (typeof keywordGroups)[131],
     'length',
     1,
     'size',
     T,
     M
   >;
-  /** **Syntax**: `none | <integer>` */
-  readonly maxLines: Carrier<'maxLines', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly maxWidth: Carrier<
+  /**
+   * max-lines
+   * 语法：`none | <integer>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/max-lines
+   */
+  readonly maxLines: CssProperty<'maxLines', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * max-width
+   * 主题类别：size（_ 前缀）。
+   * 语法：`none | <length-percentage [0,∞]> | min-content | max-content | fit-content | fit-content(<length-percentage [0,∞]>) | <calc-size()> | <anchor-size()>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/max-width
+   */
+  readonly maxWidth: CssProperty<
     'maxWidth',
-    keyof (typeof keywordGroups)[130],
+    (typeof keywordGroups)[130],
     'length',
     1,
     'size',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly minBlockSize: Carrier<
+  /**
+   * 块轴方向的最小尺寸。
+   * 主题类别：size（_ 前缀）。
+   * 语法：`<'min-width'>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/min-block-size
+   */
+  readonly minBlockSize: CssProperty<
     'minBlockSize',
-    keyof (typeof keywordGroups)[132],
+    (typeof keywordGroups)[132],
     'length',
     1,
     'size',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly minHeight: Carrier<
+  /**
+   * min-height
+   * 主题类别：size（_ 前缀）。
+   * 语法：`auto | <length-percentage [0,∞]> | min-content | max-content | fit-content | fit-content(<length-percentage [0,∞]>) | <calc-size()> | <anchor-size()>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/min-height
+   */
+  readonly minHeight: CssProperty<
     'minHeight',
-    keyof (typeof keywordGroups)[133],
+    (typeof keywordGroups)[133],
     'length',
     1,
     'size',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly minInlineSize: Carrier<
+  /**
+   * 行内轴方向的最小尺寸。
+   * 主题类别：size（_ 前缀）。
+   * 语法：`<'min-width'>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/min-inline-size
+   */
+  readonly minInlineSize: CssProperty<
     'minInlineSize',
-    keyof (typeof keywordGroups)[107],
+    (typeof keywordGroups)[107],
     'length',
     1,
     'size',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly minWidth: Carrier<
+  /**
+   * min-width
+   * 主题类别：size（_ 前缀）。
+   * 语法：`auto | <length-percentage [0,∞]> | min-content | max-content | fit-content | fit-content(<length-percentage [0,∞]>) | <calc-size()> | <anchor-size()>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/min-width
+   */
+  readonly minWidth: CssProperty<
     'minWidth',
-    keyof (typeof keywordGroups)[134],
+    (typeof keywordGroups)[134],
     'length',
     1,
     'size',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly mixBlendMode: Carrier<
+  /**
+   * mix-blend-mode
+   * 语法：`<blend-mode> | plus-darker | plus-lighter`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/mix-blend-mode
+   */
+  readonly mixBlendMode: CssProperty<
     'mixBlendMode',
-    keyof (typeof keywordGroups)[135],
+    (typeof keywordGroups)[135],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2022. */
-  readonly motion: Carrier<'motion', keyof (typeof keywordGroups)[136], 'length', 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2022. */
-  readonly motionDistance: Carrier<
+  /**
+   * motion
+   * 语法：`[ <'offset-position'>? [ <'offset-path'> [ <'offset-distance'> || <'offset-rotate'> ]? ]? ]! [ / <'offset-anchor'> ]?`
+   * @see https://developer.mozilla.org/docs/Web/CSS/motion
+   */
+  readonly motion: CssProperty<'motion', (typeof keywordGroups)[136], 'length', 1, '', T, M>;
+  /**
+   * motion-distance
+   * 语法：`<length-percentage>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/motion-distance
+   */
+  readonly motionDistance: CssProperty<
     'motionDistance',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2022. */
-  readonly motionPath: Carrier<'motionPath', keyof (typeof keywordGroups)[137], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2022. */
-  readonly motionRotation: Carrier<
+  /**
+   * motion-path
+   * 语法：`none | <offset-path> || <coord-box>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/motion-path
+   */
+  readonly motionPath: CssProperty<'motionPath', (typeof keywordGroups)[137], never, 1, '', T, M>;
+  /**
+   * motion-rotation
+   * 语法：`[ auto | reverse ] || <angle>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/motion-rotation
+   */
+  readonly motionRotation: CssProperty<
     'motionRotation',
-    keyof (typeof keywordGroups)[138],
+    (typeof keywordGroups)[138],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly MozAnimation: Carrier<
+  /**
+   * -moz-animation
+   * 语法：`<single-animation>#`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-animation
+   */
+  readonly MozAnimation: CssProperty<
     'MozAnimation',
-    keyof (typeof keywordGroups)[8],
+    (typeof keywordGroups)[8],
     'time',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly MozAnimationDelay: Carrier<
+  /**
+   * -moz-animation-delay
+   * 语法：`<time>#`
+   * 初始值：`0s`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-animation-delay
+   */
+  readonly MozAnimationDelay: CssProperty<
     'MozAnimationDelay',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'time',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly MozAnimationDirection: Carrier<
+  /**
+   * -moz-animation-direction
+   * 语法：`<single-animation-direction>#`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-animation-direction
+   */
+  readonly MozAnimationDirection: CssProperty<
     'MozAnimationDirection',
-    keyof (typeof keywordGroups)[10],
+    (typeof keywordGroups)[10],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly MozAnimationDuration: Carrier<
+  /**
+   * -moz-animation-duration
+   * 语法：`[ auto | <time [0s,∞]> ]#`
+   * 初始值：`0s`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-animation-duration
+   */
+  readonly MozAnimationDuration: CssProperty<
     'MozAnimationDuration',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'time',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly MozAnimationFillMode: Carrier<
+  /**
+   * -moz-animation-fill-mode
+   * 语法：`<single-animation-fill-mode>#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-animation-fill-mode
+   */
+  readonly MozAnimationFillMode: CssProperty<
     'MozAnimationFillMode',
-    keyof (typeof keywordGroups)[12],
+    (typeof keywordGroups)[12],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly MozAnimationIterationCount: Carrier<
+  /**
+   * -moz-animation-iteration-count
+   * 语法：`<single-animation-iteration-count>#`
+   * 初始值：`1`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-animation-iteration-count
+   */
+  readonly MozAnimationIterationCount: CssProperty<
     'MozAnimationIterationCount',
-    keyof (typeof keywordGroups)[13],
+    (typeof keywordGroups)[13],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly MozAnimationName: Carrier<
+  /**
+   * -moz-animation-name
+   * 语法：`[ none | <keyframes-name> ]#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-animation-name
+   */
+  readonly MozAnimationName: CssProperty<
     'MozAnimationName',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly MozAnimationPlayState: Carrier<
+  /**
+   * -moz-animation-play-state
+   * 语法：`<single-animation-play-state>#`
+   * 初始值：`running`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-animation-play-state
+   */
+  readonly MozAnimationPlayState: CssProperty<
     'MozAnimationPlayState',
-    keyof (typeof keywordGroups)[14],
+    (typeof keywordGroups)[14],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly MozAnimationTimingFunction: Carrier<
+  /**
+   * -moz-animation-timing-function
+   * 语法：`<easing-function>#`
+   * 初始值：`ease`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-animation-timing-function
+   */
+  readonly MozAnimationTimingFunction: CssProperty<
     'MozAnimationTimingFunction',
-    keyof (typeof keywordGroups)[17],
+    (typeof keywordGroups)[17],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2022. */
-  readonly MozAppearance: Carrier<
+  /**
+   * -moz-appearance
+   * 语法：`none | button | button-arrow-down | button-arrow-next | button-arrow-previous | button-arrow-up | button-bevel | button-focus | caret | checkbox | checkbox-container | checkbox-label | checkmenuitem | dualbutton | groupbox | listbox | list
+   * 初始值：`none` (but this value is overridden in the user agent CSS)
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-appearance
+   */
+  readonly MozAppearance: CssProperty<
     'MozAppearance',
-    keyof (typeof keywordGroups)[139],
+    (typeof keywordGroups)[139],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2022. */
-  readonly MozBackfaceVisibility: Carrier<
+  /**
+   * -moz-backface-visibility
+   * 语法：`visible | hidden`
+   * 初始值：`visible`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-backface-visibility
+   */
+  readonly MozBackfaceVisibility: CssProperty<
     'MozBackfaceVisibility',
-    keyof (typeof keywordGroups)[19],
+    (typeof keywordGroups)[19],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly MozBackgroundClip: Carrier<
+  /**
+   * -moz-background-clip
+   * 语法：`<bg-clip>#`
+   * 初始值：`border-box`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-background-clip
+   */
+  readonly MozBackgroundClip: CssProperty<
     'MozBackgroundClip',
-    keyof (typeof keywordGroups)[23],
+    (typeof keywordGroups)[23],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly MozBackgroundOrigin: Carrier<
+  /**
+   * -moz-background-origin
+   * 语法：`<visual-box>#`
+   * 初始值：`padding-box`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-background-origin
+   */
+  readonly MozBackgroundOrigin: CssProperty<
     'MozBackgroundOrigin',
-    keyof (typeof keywordGroups)[25],
+    (typeof keywordGroups)[25],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly MozBackgroundSize: Carrier<
+  /**
+   * -moz-background-size
+   * 语法：`<bg-size>#`
+   * 初始值：`auto auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-background-size
+   */
+  readonly MozBackgroundSize: CssProperty<
     'MozBackgroundSize',
-    keyof (typeof keywordGroups)[30],
+    (typeof keywordGroups)[30],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<url> | none` */
-  readonly MozBinding: Carrier<'MozBinding', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
-  /** **Syntax**: `<color>+ | none` */
-  readonly MozBorderBottomColors: Carrier<
+  /**
+   * -moz-binding
+   * 语法：`<url> | none`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-binding
+   */
+  readonly MozBinding: CssProperty<'MozBinding', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * -moz-border-bottom-colors
+   * 语法：`<color>+ | none`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-border-bottom-colors
+   */
+  readonly MozBorderBottomColors: CssProperty<
     'MozBorderBottomColors',
-    keyof (typeof keywordGroups)[140],
+    (typeof keywordGroups)[140],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly MozBorderEndColor: Carrier<
+  /**
+   * -moz-border-end-color
+   * 语法：`<'border-top-color'>`
+   * 初始值：`currentcolor`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-border-end-color
+   */
+  readonly MozBorderEndColor: CssProperty<
     'MozBorderEndColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly MozBorderEndStyle: Carrier<
+  /**
+   * -moz-border-end-style
+   * 语法：`<'border-top-style'>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-border-end-style
+   */
+  readonly MozBorderEndStyle: CssProperty<
     'MozBorderEndStyle',
-    keyof (typeof keywordGroups)[34],
+    (typeof keywordGroups)[34],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly MozBorderEndWidth: Carrier<
+  /**
+   * -moz-border-end-width
+   * 语法：`<'border-top-width'>`
+   * 初始值：`medium`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-border-end-width
+   */
+  readonly MozBorderEndWidth: CssProperty<
     'MozBorderEndWidth',
-    keyof (typeof keywordGroups)[35],
+    (typeof keywordGroups)[35],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly MozBorderImage: Carrier<
+  /**
+   * -moz-border-image
+   * 语法：`<'border-image-source'> || <'border-image-slice'> [ / <'border-image-width'> | / <'border-image-width'>? / <'border-image-outset'> ]? || <'border-image-repeat'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-border-image
+   */
+  readonly MozBorderImage: CssProperty<
     'MozBorderImage',
-    keyof (typeof keywordGroups)[37],
+    (typeof keywordGroups)[37],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<color>+ | none` */
-  readonly MozBorderLeftColors: Carrier<
+  /**
+   * -moz-border-left-colors
+   * 语法：`<color>+ | none`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-border-left-colors
+   */
+  readonly MozBorderLeftColors: CssProperty<
     'MozBorderLeftColors',
-    keyof (typeof keywordGroups)[140],
+    (typeof keywordGroups)[140],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly MozBorderRadius: Carrier<
+  /**
+   * -moz-border-radius
+   * 语法：`<length-percentage [0,∞]>{1,4} [ / <length-percentage [0,∞]>{1,4} ]?`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-border-radius
+   */
+  readonly MozBorderRadius: CssProperty<
     'MozBorderRadius',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly MozBorderRadiusBottomleft: Carrier<
+  /**
+   * -moz-border-radius-bottomleft
+   * 语法：`<length-percentage [0,∞]>{1,2}`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-border-radius-bottomleft
+   */
+  readonly MozBorderRadiusBottomleft: CssProperty<
     'MozBorderRadiusBottomleft',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly MozBorderRadiusBottomright: Carrier<
+  /**
+   * -moz-border-radius-bottomright
+   * 语法：`<length-percentage [0,∞]>{1,2}`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-border-radius-bottomright
+   */
+  readonly MozBorderRadiusBottomright: CssProperty<
     'MozBorderRadiusBottomright',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly MozBorderRadiusTopleft: Carrier<
+  /**
+   * -moz-border-radius-topleft
+   * 语法：`<length-percentage [0,∞]>{1,2}`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-border-radius-topleft
+   */
+  readonly MozBorderRadiusTopleft: CssProperty<
     'MozBorderRadiusTopleft',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly MozBorderRadiusTopright: Carrier<
+  /**
+   * -moz-border-radius-topright
+   * 语法：`<length-percentage [0,∞]>{1,2}`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-border-radius-topright
+   */
+  readonly MozBorderRadiusTopright: CssProperty<
     'MozBorderRadiusTopright',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<color>+ | none` */
-  readonly MozBorderRightColors: Carrier<
+  /**
+   * -moz-border-right-colors
+   * 语法：`<color>+ | none`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-border-right-colors
+   */
+  readonly MozBorderRightColors: CssProperty<
     'MozBorderRightColors',
-    keyof (typeof keywordGroups)[140],
+    (typeof keywordGroups)[140],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly MozBorderStartColor: Carrier<
+  /**
+   * -moz-border-start-color
+   * 语法：`<'border-top-color'>`
+   * 初始值：`currentcolor`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-border-start-color
+   */
+  readonly MozBorderStartColor: CssProperty<
     'MozBorderStartColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly MozBorderStartStyle: Carrier<
+  /**
+   * -moz-border-start-style
+   * 语法：`<'border-top-style'>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-border-start-style
+   */
+  readonly MozBorderStartStyle: CssProperty<
     'MozBorderStartStyle',
-    keyof (typeof keywordGroups)[34],
+    (typeof keywordGroups)[34],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<color>+ | none` */
-  readonly MozBorderTopColors: Carrier<
+  /**
+   * -moz-border-top-colors
+   * 语法：`<color>+ | none`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-border-top-colors
+   */
+  readonly MozBorderTopColors: CssProperty<
     'MozBorderTopColors',
-    keyof (typeof keywordGroups)[140],
+    (typeof keywordGroups)[140],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`box-align`** CSS property specifies how an element aligns its contents across its layout in a perpendicular direction. The effect of the property is only visible if there is extra space in the box. */
-  readonly MozBoxAlign: Carrier<
-    'MozBoxAlign',
-    keyof (typeof keywordGroups)[39],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** The **`box-direction`** CSS property specifies whether a box lays out its contents normally (from the top or left edge), or in reverse (from the bottom or right edge). */
-  readonly MozBoxDirection: Carrier<
+  /**
+   * -moz-box-align
+   * 语法：`start | center | end | baseline | stretch`
+   * 初始值：`stretch`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-box-align
+   */
+  readonly MozBoxAlign: CssProperty<'MozBoxAlign', (typeof keywordGroups)[39], never, 1, '', T, M>;
+  /**
+   * -moz-box-direction
+   * 语法：`normal | reverse | inherit`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-box-direction
+   */
+  readonly MozBoxDirection: CssProperty<
     'MozBoxDirection',
-    keyof (typeof keywordGroups)[41],
+    (typeof keywordGroups)[41],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`-moz-box-flex`** and **`-webkit-box-flex`** CSS properties specify how a `-moz-box` or `-webkit-box` grows to fill the box that contains it, in the direction of the containing box's layout. */
-  readonly MozBoxFlex: Carrier<'MozBoxFlex', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
-  /** The **`box-ordinal-group`** CSS property assigns the flexbox's child elements to an ordinal group. */
-  readonly MozBoxOrdinalGroup: Carrier<
+  /**
+   * -moz-box-flex
+   * 语法：`<number>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-box-flex
+   */
+  readonly MozBoxFlex: CssProperty<'MozBoxFlex', (typeof keywordGroups)[5], never, 1, '', T, M>;
+  /**
+   * -moz-box-ordinal-group
+   * 语法：`<integer>`
+   * 初始值：`1`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-box-ordinal-group
+   */
+  readonly MozBoxOrdinalGroup: CssProperty<
     'MozBoxOrdinalGroup',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`box-orient`** CSS property sets whether an element lays out its contents horizontally or vertically. */
-  readonly MozBoxOrient: Carrier<
+  /**
+   * -moz-box-orient
+   * 语法：`horizontal | vertical | inline-axis | block-axis | inherit`
+   * 初始值：`inline-axis`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-box-orient
+   */
+  readonly MozBoxOrient: CssProperty<
     'MozBoxOrient',
-    keyof (typeof keywordGroups)[43],
+    (typeof keywordGroups)[43],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`-moz-box-pack`** and **`-webkit-box-pack`** CSS properties specify how a `-moz-box` or `-webkit-box` packs its contents in the direction of its layout. The effect of this is only visible if there is extra space in the box. */
-  readonly MozBoxPack: Carrier<'MozBoxPack', keyof (typeof keywordGroups)[44], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly MozBoxShadow: Carrier<
-    'MozBoxShadow',
-    keyof (typeof keywordGroups)[6],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly MozBoxSizing: Carrier<
+  /**
+   * -moz-box-pack
+   * 语法：`start | center | end | justify`
+   * 初始值：`start`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-box-pack
+   */
+  readonly MozBoxPack: CssProperty<'MozBoxPack', (typeof keywordGroups)[44], never, 1, '', T, M>;
+  /**
+   * -moz-box-shadow
+   * 语法：`none | <shadow>#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-box-shadow
+   */
+  readonly MozBoxShadow: CssProperty<'MozBoxShadow', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * -moz-box-sizing
+   * 语法：`content-box | border-box`
+   * 初始值：`content-box`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-box-sizing
+   */
+  readonly MozBoxSizing: CssProperty<
     'MozBoxSizing',
-    keyof (typeof keywordGroups)[45],
+    (typeof keywordGroups)[45],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly MozColumnCount: Carrier<
+  /**
+   * -moz-column-count
+   * 语法：`<integer> | auto`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-column-count
+   */
+  readonly MozColumnCount: CssProperty<
     'MozColumnCount',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly MozColumnFill: Carrier<
+  /**
+   * -moz-column-fill
+   * 语法：`auto | balance`
+   * 初始值：`balance`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-column-fill
+   */
+  readonly MozColumnFill: CssProperty<
     'MozColumnFill',
-    keyof (typeof keywordGroups)[58],
+    (typeof keywordGroups)[58],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly MozColumnRule: Carrier<
+  /**
+   * -moz-column-rule
+   * 语法：`<'column-rule-width'> || <'column-rule-style'> || <'column-rule-color'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-column-rule
+   */
+  readonly MozColumnRule: CssProperty<
     'MozColumnRule',
-    keyof (typeof keywordGroups)[33],
+    (typeof keywordGroups)[33],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly MozColumnRuleColor: Carrier<
+  /**
+   * -moz-column-rule-color
+   * 语法：`<color>`
+   * 初始值：`currentcolor`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-column-rule-color
+   */
+  readonly MozColumnRuleColor: CssProperty<
     'MozColumnRuleColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly MozColumnRuleStyle: Carrier<
+  /**
+   * -moz-column-rule-style
+   * 语法：`<'border-style'>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-column-rule-style
+   */
+  readonly MozColumnRuleStyle: CssProperty<
     'MozColumnRuleStyle',
-    keyof (typeof keywordGroups)[34],
+    (typeof keywordGroups)[34],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly MozColumnRuleWidth: Carrier<
+  /**
+   * -moz-column-rule-width
+   * 语法：`<'border-width'>`
+   * 初始值：`medium`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-column-rule-width
+   */
+  readonly MozColumnRuleWidth: CssProperty<
     'MozColumnRuleWidth',
-    keyof (typeof keywordGroups)[35],
+    (typeof keywordGroups)[35],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly MozColumns: Carrier<
-    'MozColumns',
-    keyof (typeof keywordGroups)[11],
-    'length',
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since November 2016. */
-  readonly MozColumnWidth: Carrier<
+  /**
+   * -moz-columns
+   * 语法：`<'column-width'> || <'column-count'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-columns
+   */
+  readonly MozColumns: CssProperty<'MozColumns', (typeof keywordGroups)[11], 'length', 1, '', T, M>;
+  /**
+   * -moz-column-width
+   * 语法：`<length> | auto`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-column-width
+   */
+  readonly MozColumnWidth: CssProperty<
     'MozColumnWidth',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `none | [ fill | fill-opacity | stroke | stroke-opacity ]#` */
-  readonly MozContextProperties: Carrier<
+  /**
+   * -moz-context-properties
+   * 语法：`none | [ fill | fill-opacity | stroke | stroke-opacity ]#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-context-properties
+   */
+  readonly MozContextProperties: CssProperty<
     'MozContextProperties',
-    keyof (typeof keywordGroups)[141],
+    (typeof keywordGroups)[141],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The non-standard **`-moz-float-edge`** CSS property specifies whether the height and width properties of the element include the margin, border, or padding thickness. */
-  readonly MozFloatEdge: Carrier<
+  /**
+   * -moz-float-edge
+   * 语法：`border-box | content-box | margin-box | padding-box`
+   * 初始值：`content-box`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-float-edge
+   */
+  readonly MozFloatEdge: CssProperty<
     'MozFloatEdge',
-    keyof (typeof keywordGroups)[142],
+    (typeof keywordGroups)[142],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
-  readonly MozFontFeatureSettings: Carrier<
+  /**
+   * -moz-font-feature-settings
+   * 语法：`normal | <feature-tag-value>#`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-font-feature-settings
+   */
+  readonly MozFontFeatureSettings: CssProperty<
     'MozFontFeatureSettings',
-    keyof (typeof keywordGroups)[59],
+    (typeof keywordGroups)[59],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly MozFontLanguageOverride: Carrier<
+  /**
+   * -moz-font-language-override
+   * 语法：`normal | <string>`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-font-language-override
+   */
+  readonly MozFontLanguageOverride: CssProperty<
     'MozFontLanguageOverride',
-    keyof (typeof keywordGroups)[59],
+    (typeof keywordGroups)[59],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`-moz-force-broken-image-icon`** extended CSS property can be used to force the broken image icon to be shown even when a broken image has an `alt` attribute. */
-  readonly MozForceBrokenImageIcon: Carrier<
+  /**
+   * -moz-force-broken-image-icon
+   * 语法：`0 | 1`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-force-broken-image-icon
+   */
+  readonly MozForceBrokenImageIcon: CssProperty<
     'MozForceBrokenImageIcon',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** Since September 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly MozHyphens: Carrier<'MozHyphens', keyof (typeof keywordGroups)[101], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly MozMarginEnd: Carrier<
+  /**
+   * -moz-hyphens
+   * 语法：`none | manual | auto`
+   * 初始值：`manual`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-hyphens
+   */
+  readonly MozHyphens: CssProperty<'MozHyphens', (typeof keywordGroups)[101], never, 1, '', T, M>;
+  /**
+   * -moz-margin-end
+   * 语法：`<'margin-top'>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-margin-end
+   */
+  readonly MozMarginEnd: CssProperty<
     'MozMarginEnd',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly MozMarginStart: Carrier<
+  /**
+   * -moz-margin-start
+   * 语法：`<'margin-top'>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-margin-start
+   */
+  readonly MozMarginStart: CssProperty<
     'MozMarginStart',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly MozOpacity: Carrier<'MozOpacity', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
-  /** The **`-moz-orient`** CSS property specifies the orientation of the element to which it's applied. */
-  readonly MozOrient: Carrier<'MozOrient', keyof (typeof keywordGroups)[143], never, 1, '', T, M>;
-  /** The **`font-smooth`** CSS property controls the application of anti-aliasing when fonts are rendered. */
-  readonly MozOsxFontSmoothing: Carrier<
+  /**
+   * -moz-opacity
+   * 语法：`<opacity-value>`
+   * 初始值：`1`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-opacity
+   */
+  readonly MozOpacity: CssProperty<'MozOpacity', (typeof keywordGroups)[5], never, 1, '', T, M>;
+  /**
+   * -moz-orient
+   * 语法：`inline | block | horizontal | vertical`
+   * 初始值：`inline`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-orient
+   */
+  readonly MozOrient: CssProperty<'MozOrient', (typeof keywordGroups)[143], never, 1, '', T, M>;
+  /**
+   * -moz-osx-font-smoothing
+   * 语法：`auto | never | always | <absolute-size> | <length>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-osx-font-smoothing
+   */
+  readonly MozOsxFontSmoothing: CssProperty<
     'MozOsxFontSmoothing',
-    keyof (typeof keywordGroups)[82],
+    (typeof keywordGroups)[82],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2023. */
-  readonly MozOutline: Carrier<
+  /**
+   * -moz-outline
+   * 语法：`<'outline-width'> || <'outline-style'> || <'outline-color'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-outline
+   */
+  readonly MozOutline: CssProperty<
     'MozOutline',
-    keyof (typeof keywordGroups)[144],
+    (typeof keywordGroups)[144],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly MozOutlineColor: Carrier<
+  /**
+   * -moz-outline-color
+   * 语法：`auto | <color>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-outline-color
+   */
+  readonly MozOutlineColor: CssProperty<
     'MozOutlineColor',
-    keyof (typeof keywordGroups)[0],
+    (typeof keywordGroups)[0],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<outline-radius>{1,4} [ / <outline-radius>{1,4} ]?` */
-  readonly MozOutlineRadius: Carrier<
+  /**
+   * -moz-outline-radius
+   * 语法：`<outline-radius>{1,4} [ / <outline-radius>{1,4} ]?`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-outline-radius
+   */
+  readonly MozOutlineRadius: CssProperty<
     'MozOutlineRadius',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<outline-radius>` */
-  readonly MozOutlineRadiusBottomleft: Carrier<
+  /**
+   * -moz-outline-radius-bottomleft
+   * 语法：`<outline-radius>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-outline-radius-bottomleft
+   */
+  readonly MozOutlineRadiusBottomleft: CssProperty<
     'MozOutlineRadiusBottomleft',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<outline-radius>` */
-  readonly MozOutlineRadiusBottomright: Carrier<
+  /**
+   * -moz-outline-radius-bottomright
+   * 语法：`<outline-radius>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-outline-radius-bottomright
+   */
+  readonly MozOutlineRadiusBottomright: CssProperty<
     'MozOutlineRadiusBottomright',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<outline-radius>` */
-  readonly MozOutlineRadiusTopleft: Carrier<
+  /**
+   * -moz-outline-radius-topleft
+   * 语法：`<outline-radius>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-outline-radius-topleft
+   */
+  readonly MozOutlineRadiusTopleft: CssProperty<
     'MozOutlineRadiusTopleft',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<outline-radius>` */
-  readonly MozOutlineRadiusTopright: Carrier<
+  /**
+   * -moz-outline-radius-topright
+   * 语法：`<outline-radius>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-outline-radius-topright
+   */
+  readonly MozOutlineRadiusTopright: CssProperty<
     'MozOutlineRadiusTopright',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly MozOutlineStyle: Carrier<
+  /**
+   * -moz-outline-style
+   * 语法：`auto | <outline-line-style>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-outline-style
+   */
+  readonly MozOutlineStyle: CssProperty<
     'MozOutlineStyle',
-    keyof (typeof keywordGroups)[145],
+    (typeof keywordGroups)[145],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly MozOutlineWidth: Carrier<
+  /**
+   * -moz-outline-width
+   * 语法：`<line-width>`
+   * 初始值：`medium`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-outline-width
+   */
+  readonly MozOutlineWidth: CssProperty<
     'MozOutlineWidth',
-    keyof (typeof keywordGroups)[35],
+    (typeof keywordGroups)[35],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly MozPaddingEnd: Carrier<
+  /**
+   * -moz-padding-end
+   * 语法：`<'padding-top'>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-padding-end
+   */
+  readonly MozPaddingEnd: CssProperty<
     'MozPaddingEnd',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly MozPaddingStart: Carrier<
+  /**
+   * -moz-padding-start
+   * 语法：`<'padding-top'>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-padding-start
+   */
+  readonly MozPaddingStart: CssProperty<
     'MozPaddingStart',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly MozPerspective: Carrier<
+  /**
+   * -moz-perspective
+   * 语法：`none | <length>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-perspective
+   */
+  readonly MozPerspective: CssProperty<
     'MozPerspective',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly MozPerspectiveOrigin: Carrier<
+  /**
+   * -moz-perspective-origin
+   * 语法：`<position>`
+   * 初始值：`50% 50%`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-perspective-origin
+   */
+  readonly MozPerspectiveOrigin: CssProperty<
     'MozPerspectiveOrigin',
-    keyof (typeof keywordGroups)[26],
+    (typeof keywordGroups)[26],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `ignore | stretch-to-fit` */
-  readonly MozStackSizing: Carrier<
+  /**
+   * -moz-stack-sizing
+   * 语法：`ignore | stretch-to-fit`
+   * 初始值：`stretch-to-fit`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-stack-sizing
+   */
+  readonly MozStackSizing: CssProperty<
     'MozStackSizing',
-    keyof (typeof keywordGroups)[146],
+    (typeof keywordGroups)[146],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since August 2021. */
-  readonly MozTabSize: Carrier<
-    'MozTabSize',
-    keyof (typeof keywordGroups)[5],
-    'length',
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2022. */
-  readonly MozTextAlignLast: Carrier<
+  /**
+   * -moz-tab-size
+   * 语法：`<integer> | <length>`
+   * 初始值：`8`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-tab-size
+   */
+  readonly MozTabSize: CssProperty<'MozTabSize', (typeof keywordGroups)[5], 'length', 1, '', T, M>;
+  /**
+   * -moz-text-align-last
+   * 语法：`auto | start | end | left | right | center | justify`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-text-align-last
+   */
+  readonly MozTextAlignLast: CssProperty<
     'MozTextAlignLast',
-    keyof (typeof keywordGroups)[147],
+    (typeof keywordGroups)[147],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `none | blink` */
-  readonly MozTextBlink: Carrier<
+  /**
+   * -moz-text-blink
+   * 语法：`none | blink`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-text-blink
+   */
+  readonly MozTextBlink: CssProperty<
     'MozTextBlink',
-    keyof (typeof keywordGroups)[148],
+    (typeof keywordGroups)[148],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly MozTextDecorationColor: Carrier<
+  /**
+   * -moz-text-decoration-color
+   * 语法：`<color>`
+   * 初始值：`currentcolor`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-text-decoration-color
+   */
+  readonly MozTextDecorationColor: CssProperty<
     'MozTextDecorationColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly MozTextDecorationLine: Carrier<
+  /**
+   * -moz-text-decoration-line
+   * 语法：`none | [ underline || overline || line-through || blink ] | spelling-error | grammar-error`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-text-decoration-line
+   */
+  readonly MozTextDecorationLine: CssProperty<
     'MozTextDecorationLine',
-    keyof (typeof keywordGroups)[149],
+    (typeof keywordGroups)[149],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly MozTextDecorationStyle: Carrier<
+  /**
+   * -moz-text-decoration-style
+   * 语法：`solid | double | dotted | dashed | wavy`
+   * 初始值：`solid`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-text-decoration-style
+   */
+  readonly MozTextDecorationStyle: CssProperty<
     'MozTextDecorationStyle',
-    keyof (typeof keywordGroups)[150],
+    (typeof keywordGroups)[150],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly MozTextSizeAdjust: Carrier<
+  /**
+   * -moz-text-size-adjust
+   * 语法：`none | auto | <percentage>`
+   * 初始值：`auto` for smartphone browsers supporting inflation, `none` in other cases (and then not modifiable).
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-text-size-adjust
+   */
+  readonly MozTextSizeAdjust: CssProperty<
     'MozTextSizeAdjust',
-    keyof (typeof keywordGroups)[16],
+    (typeof keywordGroups)[16],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly MozTransform: Carrier<
-    'MozTransform',
-    keyof (typeof keywordGroups)[6],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly MozTransformOrigin: Carrier<
+  /**
+   * -moz-transform
+   * 语法：`none | <transform-list>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-transform
+   */
+  readonly MozTransform: CssProperty<'MozTransform', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * -moz-transform-origin
+   * 语法：`[ <length-percentage> | left | center | right | top | bottom ] | [ [ <length-percentage> | left | center | right ] && [ <length-percentage> | top | center | bottom ] ] <length>?`
+   * 初始值：`50% 50% 0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-transform-origin
+   */
+  readonly MozTransformOrigin: CssProperty<
     'MozTransformOrigin',
-    keyof (typeof keywordGroups)[26],
+    (typeof keywordGroups)[26],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly MozTransformStyle: Carrier<
+  /**
+   * -moz-transform-style
+   * 语法：`flat | preserve-3d`
+   * 初始值：`flat`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-transform-style
+   */
+  readonly MozTransformStyle: CssProperty<
     'MozTransformStyle',
-    keyof (typeof keywordGroups)[151],
+    (typeof keywordGroups)[151],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly MozTransition: Carrier<
+  /**
+   * -moz-transition
+   * 语法：`<single-transition>#`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-transition
+   */
+  readonly MozTransition: CssProperty<
     'MozTransition',
-    keyof (typeof keywordGroups)[152],
+    (typeof keywordGroups)[152],
     'time',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly MozTransitionDelay: Carrier<
+  /**
+   * -moz-transition-delay
+   * 语法：`<time>#`
+   * 初始值：`0s`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-transition-delay
+   */
+  readonly MozTransitionDelay: CssProperty<
     'MozTransitionDelay',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'time',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly MozTransitionDuration: Carrier<
+  /**
+   * -moz-transition-duration
+   * 语法：`<time>#`
+   * 初始值：`0s`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-transition-duration
+   */
+  readonly MozTransitionDuration: CssProperty<
     'MozTransitionDuration',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'time',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly MozTransitionProperty: Carrier<
+  /**
+   * -moz-transition-property
+   * 语法：`none | <single-transition-property>#`
+   * 初始值：all
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-transition-property
+   */
+  readonly MozTransitionProperty: CssProperty<
     'MozTransitionProperty',
-    keyof (typeof keywordGroups)[7],
+    (typeof keywordGroups)[7],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly MozTransitionTimingFunction: Carrier<
+  /**
+   * -moz-transition-timing-function
+   * 语法：`<easing-function>#`
+   * 初始值：`ease`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-transition-timing-function
+   */
+  readonly MozTransitionTimingFunction: CssProperty<
     'MozTransitionTimingFunction',
-    keyof (typeof keywordGroups)[17],
+    (typeof keywordGroups)[17],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`-moz-user-focus`** CSS property is used to indicate whether an element can have the focus. */
-  readonly MozUserFocus: Carrier<
+  /**
+   * -moz-user-focus
+   * 语法：`ignore | normal | select-after | select-before | select-menu | select-same | select-all | none`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-user-focus
+   */
+  readonly MozUserFocus: CssProperty<
     'MozUserFocus',
-    keyof (typeof keywordGroups)[153],
+    (typeof keywordGroups)[153],
     never,
     1,
     '',
     T,
     M
   >;
-  /** In Mozilla applications, **`-moz-user-input`** determines if an element will accept user input. */
-  readonly MozUserInput: Carrier<
+  /**
+   * -moz-user-input
+   * 语法：`auto | none | enabled | disabled`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-user-input
+   */
+  readonly MozUserInput: CssProperty<
     'MozUserInput',
-    keyof (typeof keywordGroups)[154],
+    (typeof keywordGroups)[154],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`user-modify`** property has no effect in Firefox. It was originally planned to determine whether or not the content of an element can be edited by a user. */
-  readonly MozUserModify: Carrier<
+  /**
+   * -moz-user-modify
+   * 语法：`read-only | read-write | write-only`
+   * 初始值：`read-only`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-user-modify
+   */
+  readonly MozUserModify: CssProperty<
     'MozUserModify',
-    keyof (typeof keywordGroups)[155],
+    (typeof keywordGroups)[155],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly MozUserSelect: Carrier<
+  /**
+   * -moz-user-select
+   * 语法：`auto | text | none | all`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-user-select
+   */
+  readonly MozUserSelect: CssProperty<
     'MozUserSelect',
-    keyof (typeof keywordGroups)[115],
+    (typeof keywordGroups)[115],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `drag | no-drag` */
-  readonly MozWindowDragging: Carrier<
+  /**
+   * -moz-window-dragging
+   * 语法：`drag | no-drag`
+   * 初始值：`drag`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-window-dragging
+   */
+  readonly MozWindowDragging: CssProperty<
     'MozWindowDragging',
-    keyof (typeof keywordGroups)[156],
+    (typeof keywordGroups)[156],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `default | menu | tooltip | sheet | none` */
-  readonly MozWindowShadow: Carrier<
+  /**
+   * -moz-window-shadow
+   * 语法：`default | menu | tooltip | sheet | none`
+   * 初始值：`default`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-moz-window-shadow
+   */
+  readonly MozWindowShadow: CssProperty<
     'MozWindowShadow',
-    keyof (typeof keywordGroups)[157],
+    (typeof keywordGroups)[157],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `false | true` */
-  readonly msAccelerator: Carrier<
+  /**
+   * -ms-accelerator
+   * 语法：`false | true`
+   * 初始值：`false`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-accelerator
+   */
+  readonly msAccelerator: CssProperty<
     'msAccelerator',
-    keyof (typeof keywordGroups)[158],
+    (typeof keywordGroups)[158],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `tb | rl | bt | lr` */
-  readonly msBlockProgression: Carrier<
+  /**
+   * -ms-block-progression
+   * 语法：`tb | rl | bt | lr`
+   * 初始值：`tb`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-block-progression
+   */
+  readonly msBlockProgression: CssProperty<
     'msBlockProgression',
-    keyof (typeof keywordGroups)[159],
+    (typeof keywordGroups)[159],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `none | chained` */
-  readonly msContentZoomChaining: Carrier<
+  /**
+   * -ms-content-zoom-chaining
+   * 语法：`none | chained`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-content-zoom-chaining
+   */
+  readonly msContentZoomChaining: CssProperty<
     'msContentZoomChaining',
-    keyof (typeof keywordGroups)[160],
+    (typeof keywordGroups)[160],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `none | zoom` */
-  readonly msContentZooming: Carrier<
+  /**
+   * -ms-content-zooming
+   * 语法：`none | zoom`
+   * 初始值：zoom for the top level element, none for all other elements
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-content-zooming
+   */
+  readonly msContentZooming: CssProperty<
     'msContentZooming',
-    keyof (typeof keywordGroups)[161],
+    (typeof keywordGroups)[161],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<'-ms-content-zoom-limit-min'> <'-ms-content-zoom-limit-max'>` */
-  readonly msContentZoomLimit: Carrier<
+  /**
+   * -ms-content-zoom-limit
+   * 语法：`<'-ms-content-zoom-limit-min'> <'-ms-content-zoom-limit-max'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-content-zoom-limit
+   */
+  readonly msContentZoomLimit: CssProperty<
     'msContentZoomLimit',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<percentage>` */
-  readonly msContentZoomLimitMax: Carrier<
+  /**
+   * -ms-content-zoom-limit-max
+   * 语法：`<percentage>`
+   * 初始值：`400%`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-content-zoom-limit-max
+   */
+  readonly msContentZoomLimitMax: CssProperty<
     'msContentZoomLimitMax',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<percentage>` */
-  readonly msContentZoomLimitMin: Carrier<
+  /**
+   * -ms-content-zoom-limit-min
+   * 语法：`<percentage>`
+   * 初始值：`100%`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-content-zoom-limit-min
+   */
+  readonly msContentZoomLimitMin: CssProperty<
     'msContentZoomLimitMin',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<'-ms-content-zoom-snap-type'> || <'-ms-content-zoom-snap-points'>` */
-  readonly msContentZoomSnap: Carrier<
+  /**
+   * -ms-content-zoom-snap
+   * 语法：`<'-ms-content-zoom-snap-type'> || <'-ms-content-zoom-snap-points'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-content-zoom-snap
+   */
+  readonly msContentZoomSnap: CssProperty<
     'msContentZoomSnap',
-    keyof (typeof keywordGroups)[162],
+    (typeof keywordGroups)[162],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `snapInterval( <percentage>, <percentage> ) | snapList( <percentage># )` */
-  readonly msContentZoomSnapPoints: Carrier<
+  /**
+   * -ms-content-zoom-snap-points
+   * 语法：`snapInterval( <percentage>, <percentage> ) | snapList( <percentage># )`
+   * 初始值：`snapInterval(0%, 100%)`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-content-zoom-snap-points
+   */
+  readonly msContentZoomSnapPoints: CssProperty<
     'msContentZoomSnapPoints',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `none | proximity | mandatory` */
-  readonly msContentZoomSnapType: Carrier<
+  /**
+   * -ms-content-zoom-snap-type
+   * 语法：`none | proximity | mandatory`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-content-zoom-snap-type
+   */
+  readonly msContentZoomSnapType: CssProperty<
     'msContentZoomSnapType',
-    keyof (typeof keywordGroups)[162],
+    (typeof keywordGroups)[162],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<string>` */
-  readonly msFilter: Carrier<'msFilter', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly msFlex: Carrier<'msFlex', keyof (typeof keywordGroups)[71], 'length', 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly msFlexDirection: Carrier<
+  /**
+   * -ms-filter
+   * 语法：`<string>`
+   * 初始值："" (the empty string)
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-filter
+   */
+  readonly msFilter: CssProperty<'msFilter', (typeof keywordGroups)[5], never, 1, '', T, M>;
+  /**
+   * -ms-flex
+   * 语法：`none | [ <'flex-grow'> <'flex-shrink'>? || <'flex-basis'> ]`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-flex
+   */
+  readonly msFlex: CssProperty<'msFlex', (typeof keywordGroups)[71], 'length', 1, '', T, M>;
+  /**
+   * -ms-flex-direction
+   * 语法：`row | row-reverse | column | column-reverse`
+   * 初始值：`row`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-flex-direction
+   */
+  readonly msFlexDirection: CssProperty<
     'msFlexDirection',
-    keyof (typeof keywordGroups)[73],
+    (typeof keywordGroups)[73],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly msFlexPositive: Carrier<
+  /**
+   * -ms-flex-positive
+   * 语法：`<number>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-flex-positive
+   */
+  readonly msFlexPositive: CssProperty<
     'msFlexPositive',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `[ none | <custom-ident> ]#` */
-  readonly msFlowFrom: Carrier<'msFlowFrom', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
-  /** **Syntax**: `[ none | <custom-ident> ]#` */
-  readonly msFlowInto: Carrier<'msFlowInto', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
-  /** **Syntax**: `none | <track-list> | <auto-track-list>` */
-  readonly msGridColumns: Carrier<
+  /**
+   * -ms-flow-from
+   * 语法：`[ none | <custom-ident> ]#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-flow-from
+   */
+  readonly msFlowFrom: CssProperty<'msFlowFrom', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * -ms-flow-into
+   * 语法：`[ none | <custom-ident> ]#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-flow-into
+   */
+  readonly msFlowInto: CssProperty<'msFlowInto', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * -ms-grid-columns
+   * 语法：`none | <track-list> | <auto-track-list>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-grid-columns
+   */
+  readonly msGridColumns: CssProperty<
     'msGridColumns',
-    keyof (typeof keywordGroups)[163],
+    (typeof keywordGroups)[163],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `none | <track-list> | <auto-track-list>` */
-  readonly msGridRows: Carrier<
+  /**
+   * -ms-grid-rows
+   * 语法：`none | <track-list> | <auto-track-list>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-grid-rows
+   */
+  readonly msGridRows: CssProperty<
     'msGridRows',
-    keyof (typeof keywordGroups)[163],
+    (typeof keywordGroups)[163],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `auto | none` */
-  readonly msHighContrastAdjust: Carrier<
+  /**
+   * -ms-high-contrast-adjust
+   * 语法：`auto | none`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-high-contrast-adjust
+   */
+  readonly msHighContrastAdjust: CssProperty<
     'msHighContrastAdjust',
-    keyof (typeof keywordGroups)[16],
+    (typeof keywordGroups)[16],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `auto | <integer>{1,3}` */
-  readonly msHyphenateLimitChars: Carrier<
+  /**
+   * -ms-hyphenate-limit-chars
+   * 语法：`auto | <integer>{1,3}`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-hyphenate-limit-chars
+   */
+  readonly msHyphenateLimitChars: CssProperty<
     'msHyphenateLimitChars',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `no-limit | <integer>` */
-  readonly msHyphenateLimitLines: Carrier<
+  /**
+   * -ms-hyphenate-limit-lines
+   * 语法：`no-limit | <integer>`
+   * 初始值：`no-limit`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-hyphenate-limit-lines
+   */
+  readonly msHyphenateLimitLines: CssProperty<
     'msHyphenateLimitLines',
-    keyof (typeof keywordGroups)[164],
+    (typeof keywordGroups)[164],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<percentage> | <length>` */
-  readonly msHyphenateLimitZone: Carrier<
+  /**
+   * -ms-hyphenate-limit-zone
+   * 语法：`<percentage> | <length>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-hyphenate-limit-zone
+   */
+  readonly msHyphenateLimitZone: CssProperty<
     'msHyphenateLimitZone',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** Since September 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly msHyphens: Carrier<'msHyphens', keyof (typeof keywordGroups)[101], never, 1, '', T, M>;
-  /** **Syntax**: `auto | after` */
-  readonly msImeAlign: Carrier<'msImeAlign', keyof (typeof keywordGroups)[165], never, 1, '', T, M>;
-  /** **Syntax**: `auto | normal | active | inactive | disabled` */
-  readonly msImeMode: Carrier<'msImeMode', keyof (typeof keywordGroups)[105], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2020. */
-  readonly msLineBreak: Carrier<
-    'msLineBreak',
-    keyof (typeof keywordGroups)[114],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly msOrder: Carrier<'msOrder', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
-  /** **Syntax**: `auto | none | scrollbar | -ms-autohiding-scrollbar` */
-  readonly msOverflowStyle: Carrier<
+  /**
+   * -ms-hyphens
+   * 语法：`none | manual | auto`
+   * 初始值：`manual`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-hyphens
+   */
+  readonly msHyphens: CssProperty<'msHyphens', (typeof keywordGroups)[101], never, 1, '', T, M>;
+  /**
+   * -ms-ime-align
+   * 语法：`auto | after`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-ime-align
+   */
+  readonly msImeAlign: CssProperty<'msImeAlign', (typeof keywordGroups)[165], never, 1, '', T, M>;
+  /**
+   * -ms-ime-mode
+   * 语法：`auto | normal | active | inactive | disabled`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-ime-mode
+   */
+  readonly msImeMode: CssProperty<'msImeMode', (typeof keywordGroups)[105], never, 1, '', T, M>;
+  /**
+   * -ms-line-break
+   * 语法：`auto | loose | normal | strict | anywhere`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-line-break
+   */
+  readonly msLineBreak: CssProperty<'msLineBreak', (typeof keywordGroups)[114], never, 1, '', T, M>;
+  /**
+   * -ms-order
+   * 语法：`<integer>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-order
+   */
+  readonly msOrder: CssProperty<'msOrder', (typeof keywordGroups)[5], never, 1, '', T, M>;
+  /**
+   * -ms-overflow-style
+   * 语法：`auto | none | scrollbar | -ms-autohiding-scrollbar`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-overflow-style
+   */
+  readonly msOverflowStyle: CssProperty<
     'msOverflowStyle',
-    keyof (typeof keywordGroups)[166],
+    (typeof keywordGroups)[166],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly msOverflowX: Carrier<
-    'msOverflowX',
-    keyof (typeof keywordGroups)[167],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly msOverflowY: Carrier<
-    'msOverflowY',
-    keyof (typeof keywordGroups)[167],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** **Syntax**: `<color>` */
-  readonly msScrollbar3dlightColor: Carrier<
+  /**
+   * -ms-overflow-x
+   * 语法：`visible | hidden | clip | scroll | auto`
+   * 初始值：`visible`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-overflow-x
+   */
+  readonly msOverflowX: CssProperty<'msOverflowX', (typeof keywordGroups)[167], never, 1, '', T, M>;
+  /**
+   * -ms-overflow-y
+   * 语法：`visible | hidden | clip | scroll | auto`
+   * 初始值：`visible`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-overflow-y
+   */
+  readonly msOverflowY: CssProperty<'msOverflowY', (typeof keywordGroups)[167], never, 1, '', T, M>;
+  /**
+   * -ms-scrollbar3dlight-color
+   * 语法：`<color>`
+   * 初始值：depends on user agent
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-scrollbar3dlight-color
+   */
+  readonly msScrollbar3dlightColor: CssProperty<
     'msScrollbar3dlightColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<color>` */
-  readonly msScrollbarArrowColor: Carrier<
+  /**
+   * -ms-scrollbar-arrow-color
+   * 语法：`<color>`
+   * 初始值：`ButtonText`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-scrollbar-arrow-color
+   */
+  readonly msScrollbarArrowColor: CssProperty<
     'msScrollbarArrowColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<color>` */
-  readonly msScrollbarBaseColor: Carrier<
+  /**
+   * -ms-scrollbar-base-color
+   * 语法：`<color>`
+   * 初始值：depends on user agent
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-scrollbar-base-color
+   */
+  readonly msScrollbarBaseColor: CssProperty<
     'msScrollbarBaseColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<color>` */
-  readonly msScrollbarDarkshadowColor: Carrier<
+  /**
+   * -ms-scrollbar-darkshadow-color
+   * 语法：`<color>`
+   * 初始值：`ThreeDDarkShadow`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-scrollbar-darkshadow-color
+   */
+  readonly msScrollbarDarkshadowColor: CssProperty<
     'msScrollbarDarkshadowColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<color>` */
-  readonly msScrollbarFaceColor: Carrier<
+  /**
+   * -ms-scrollbar-face-color
+   * 语法：`<color>`
+   * 初始值：`ThreeDFace`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-scrollbar-face-color
+   */
+  readonly msScrollbarFaceColor: CssProperty<
     'msScrollbarFaceColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<color>` */
-  readonly msScrollbarHighlightColor: Carrier<
+  /**
+   * -ms-scrollbar-highlight-color
+   * 语法：`<color>`
+   * 初始值：`ThreeDHighlight`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-scrollbar-highlight-color
+   */
+  readonly msScrollbarHighlightColor: CssProperty<
     'msScrollbarHighlightColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<color>` */
-  readonly msScrollbarShadowColor: Carrier<
+  /**
+   * -ms-scrollbar-shadow-color
+   * 语法：`<color>`
+   * 初始值：`ThreeDDarkShadow`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-scrollbar-shadow-color
+   */
+  readonly msScrollbarShadowColor: CssProperty<
     'msScrollbarShadowColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<color>` */
-  readonly msScrollbarTrackColor: Carrier<
+  /**
+   * -ms-scrollbar-track-color
+   * 语法：`<color>`
+   * 初始值：`Scrollbar`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-scrollbar-track-color
+   */
+  readonly msScrollbarTrackColor: CssProperty<
     'msScrollbarTrackColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `chained | none` */
-  readonly msScrollChaining: Carrier<
+  /**
+   * -ms-scroll-chaining
+   * 语法：`chained | none`
+   * 初始值：`chained`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-scroll-chaining
+   */
+  readonly msScrollChaining: CssProperty<
     'msScrollChaining',
-    keyof (typeof keywordGroups)[160],
+    (typeof keywordGroups)[160],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<'-ms-scroll-limit-x-min'> <'-ms-scroll-limit-y-min'> <'-ms-scroll-limit-x-max'> <'-ms-scroll-limit-y-max'>` */
-  readonly msScrollLimit: Carrier<
+  /**
+   * -ms-scroll-limit
+   * 语法：`<'-ms-scroll-limit-x-min'> <'-ms-scroll-limit-y-min'> <'-ms-scroll-limit-x-max'> <'-ms-scroll-limit-y-max'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-scroll-limit
+   */
+  readonly msScrollLimit: CssProperty<
     'msScrollLimit',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `auto | <length>` */
-  readonly msScrollLimitXMax: Carrier<
+  /**
+   * -ms-scroll-limit-x-max
+   * 语法：`auto | <length>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-scroll-limit-x-max
+   */
+  readonly msScrollLimitXMax: CssProperty<
     'msScrollLimitXMax',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<length>` */
-  readonly msScrollLimitXMin: Carrier<
+  /**
+   * -ms-scroll-limit-x-min
+   * 语法：`<length>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-scroll-limit-x-min
+   */
+  readonly msScrollLimitXMin: CssProperty<
     'msScrollLimitXMin',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `auto | <length>` */
-  readonly msScrollLimitYMax: Carrier<
+  /**
+   * -ms-scroll-limit-y-max
+   * 语法：`auto | <length>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-scroll-limit-y-max
+   */
+  readonly msScrollLimitYMax: CssProperty<
     'msScrollLimitYMax',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<length>` */
-  readonly msScrollLimitYMin: Carrier<
+  /**
+   * -ms-scroll-limit-y-min
+   * 语法：`<length>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-scroll-limit-y-min
+   */
+  readonly msScrollLimitYMin: CssProperty<
     'msScrollLimitYMin',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `none | railed` */
-  readonly msScrollRails: Carrier<
+  /**
+   * -ms-scroll-rails
+   * 语法：`none | railed`
+   * 初始值：`railed`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-scroll-rails
+   */
+  readonly msScrollRails: CssProperty<
     'msScrollRails',
-    keyof (typeof keywordGroups)[168],
+    (typeof keywordGroups)[168],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `snapInterval( <length-percentage>, <length-percentage> ) | snapList( <length-percentage># )` */
-  readonly msScrollSnapPointsX: Carrier<
+  /**
+   * -ms-scroll-snap-points-x
+   * 语法：`snapInterval( <length-percentage>, <length-percentage> ) | snapList( <length-percentage># )`
+   * 初始值：`snapInterval(0px, 100%)`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-scroll-snap-points-x
+   */
+  readonly msScrollSnapPointsX: CssProperty<
     'msScrollSnapPointsX',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `snapInterval( <length-percentage>, <length-percentage> ) | snapList( <length-percentage># )` */
-  readonly msScrollSnapPointsY: Carrier<
+  /**
+   * -ms-scroll-snap-points-y
+   * 语法：`snapInterval( <length-percentage>, <length-percentage> ) | snapList( <length-percentage># )`
+   * 初始值：`snapInterval(0px, 100%)`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-scroll-snap-points-y
+   */
+  readonly msScrollSnapPointsY: CssProperty<
     'msScrollSnapPointsY',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `none | proximity | mandatory` */
-  readonly msScrollSnapType: Carrier<
+  /**
+   * -ms-scroll-snap-type
+   * 语法：`none | proximity | mandatory`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-scroll-snap-type
+   */
+  readonly msScrollSnapType: CssProperty<
     'msScrollSnapType',
-    keyof (typeof keywordGroups)[162],
+    (typeof keywordGroups)[162],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<'-ms-scroll-snap-type'> <'-ms-scroll-snap-points-x'>` */
-  readonly msScrollSnapX: Carrier<
+  /**
+   * -ms-scroll-snap-x
+   * 语法：`<'-ms-scroll-snap-type'> <'-ms-scroll-snap-points-x'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-scroll-snap-x
+   */
+  readonly msScrollSnapX: CssProperty<
     'msScrollSnapX',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<'-ms-scroll-snap-type'> <'-ms-scroll-snap-points-y'>` */
-  readonly msScrollSnapY: Carrier<
+  /**
+   * -ms-scroll-snap-y
+   * 语法：`<'-ms-scroll-snap-type'> <'-ms-scroll-snap-points-y'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-scroll-snap-y
+   */
+  readonly msScrollSnapY: CssProperty<
     'msScrollSnapY',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `none | vertical-to-horizontal` */
-  readonly msScrollTranslation: Carrier<
+  /**
+   * -ms-scroll-translation
+   * 语法：`none | vertical-to-horizontal`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-scroll-translation
+   */
+  readonly msScrollTranslation: CssProperty<
     'msScrollTranslation',
-    keyof (typeof keywordGroups)[169],
+    (typeof keywordGroups)[169],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `none | ideograph-alpha | ideograph-numeric | ideograph-parenthesis | ideograph-space` */
-  readonly msTextAutospace: Carrier<
+  /**
+   * -ms-text-autospace
+   * 语法：`none | ideograph-alpha | ideograph-numeric | ideograph-parenthesis | ideograph-space`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-text-autospace
+   */
+  readonly msTextAutospace: CssProperty<
     'msTextAutospace',
-    keyof (typeof keywordGroups)[170],
+    (typeof keywordGroups)[170],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2022. */
-  readonly msTextCombineHorizontal: Carrier<
+  /**
+   * -ms-text-combine-horizontal
+   * 语法：`none | all | [ digits <integer>? ]`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-text-combine-horizontal
+   */
+  readonly msTextCombineHorizontal: CssProperty<
     'msTextCombineHorizontal',
-    keyof (typeof keywordGroups)[171],
+    (typeof keywordGroups)[171],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly msTextOverflow: Carrier<
+  /**
+   * -ms-text-overflow
+   * 语法：`[ clip | ellipsis | <string> ]{1,2}`
+   * 初始值：`clip`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-text-overflow
+   */
+  readonly msTextOverflow: CssProperty<
     'msTextOverflow',
-    keyof (typeof keywordGroups)[172],
+    (typeof keywordGroups)[172],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2019. */
-  readonly msTouchAction: Carrier<
+  /**
+   * -ms-touch-action
+   * 语法：`auto | none | [ [ pan-x | pan-left | pan-right ] || [ pan-y | pan-up | pan-down ] || pinch-zoom ] | manipulation`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-touch-action
+   */
+  readonly msTouchAction: CssProperty<
     'msTouchAction',
-    keyof (typeof keywordGroups)[173],
+    (typeof keywordGroups)[173],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `grippers | none` */
-  readonly msTouchSelect: Carrier<
+  /**
+   * -ms-touch-select
+   * 语法：`grippers | none`
+   * 初始值：`grippers`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-touch-select
+   */
+  readonly msTouchSelect: CssProperty<
     'msTouchSelect',
-    keyof (typeof keywordGroups)[174],
+    (typeof keywordGroups)[174],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly msTransform: Carrier<'msTransform', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly msTransformOrigin: Carrier<
+  /**
+   * -ms-transform
+   * 语法：`none | <transform-list>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-transform
+   */
+  readonly msTransform: CssProperty<'msTransform', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * -ms-transform-origin
+   * 语法：`[ <length-percentage> | left | center | right | top | bottom ] | [ [ <length-percentage> | left | center | right ] && [ <length-percentage> | top | center | bottom ] ] <length>?`
+   * 初始值：`50% 50% 0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-transform-origin
+   */
+  readonly msTransformOrigin: CssProperty<
     'msTransformOrigin',
-    keyof (typeof keywordGroups)[26],
+    (typeof keywordGroups)[26],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly msTransition: Carrier<
+  /**
+   * -ms-transition
+   * 语法：`<single-transition>#`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-transition
+   */
+  readonly msTransition: CssProperty<
     'msTransition',
-    keyof (typeof keywordGroups)[152],
+    (typeof keywordGroups)[152],
     'time',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly msTransitionDelay: Carrier<
+  /**
+   * -ms-transition-delay
+   * 语法：`<time>#`
+   * 初始值：`0s`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-transition-delay
+   */
+  readonly msTransitionDelay: CssProperty<
     'msTransitionDelay',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'time',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly msTransitionDuration: Carrier<
+  /**
+   * -ms-transition-duration
+   * 语法：`<time>#`
+   * 初始值：`0s`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-transition-duration
+   */
+  readonly msTransitionDuration: CssProperty<
     'msTransitionDuration',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'time',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly msTransitionProperty: Carrier<
+  /**
+   * -ms-transition-property
+   * 语法：`none | <single-transition-property>#`
+   * 初始值：all
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-transition-property
+   */
+  readonly msTransitionProperty: CssProperty<
     'msTransitionProperty',
-    keyof (typeof keywordGroups)[7],
+    (typeof keywordGroups)[7],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly msTransitionTimingFunction: Carrier<
+  /**
+   * -ms-transition-timing-function
+   * 语法：`<easing-function>#`
+   * 初始值：`ease`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-transition-timing-function
+   */
+  readonly msTransitionTimingFunction: CssProperty<
     'msTransitionTimingFunction',
-    keyof (typeof keywordGroups)[17],
+    (typeof keywordGroups)[17],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `none | element | text` */
-  readonly msUserSelect: Carrier<
+  /**
+   * -ms-user-select
+   * 语法：`none | element | text`
+   * 初始值：`text`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-user-select
+   */
+  readonly msUserSelect: CssProperty<
     'msUserSelect',
-    keyof (typeof keywordGroups)[175],
+    (typeof keywordGroups)[175],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly msWordBreak: Carrier<
-    'msWordBreak',
-    keyof (typeof keywordGroups)[176],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** **Syntax**: `auto | both | start | end | maximum | clear` */
-  readonly msWrapFlow: Carrier<'msWrapFlow', keyof (typeof keywordGroups)[177], never, 1, '', T, M>;
-  /** **Syntax**: `<length>` */
-  readonly msWrapMargin: Carrier<
+  /**
+   * -ms-word-break
+   * 语法：`normal | break-all | keep-all | break-word | auto-phrase`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-word-break
+   */
+  readonly msWordBreak: CssProperty<'msWordBreak', (typeof keywordGroups)[176], never, 1, '', T, M>;
+  /**
+   * -ms-wrap-flow
+   * 语法：`auto | both | start | end | maximum | clear`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-wrap-flow
+   */
+  readonly msWrapFlow: CssProperty<'msWrapFlow', (typeof keywordGroups)[177], never, 1, '', T, M>;
+  /**
+   * -ms-wrap-margin
+   * 语法：`<length>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-wrap-margin
+   */
+  readonly msWrapMargin: CssProperty<
     'msWrapMargin',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `wrap | none` */
-  readonly msWrapThrough: Carrier<
+  /**
+   * -ms-wrap-through
+   * 语法：`wrap | none`
+   * 初始值：`wrap`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-wrap-through
+   */
+  readonly msWrapThrough: CssProperty<
     'msWrapThrough',
-    keyof (typeof keywordGroups)[178],
+    (typeof keywordGroups)[178],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly msWritingMode: Carrier<
+  /**
+   * -ms-writing-mode
+   * 语法：`horizontal-tb | vertical-rl | vertical-lr | sideways-rl | sideways-lr`
+   * 初始值：`horizontal-tb`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-ms-writing-mode
+   */
+  readonly msWritingMode: CssProperty<
     'msWritingMode',
-    keyof (typeof keywordGroups)[179],
+    (typeof keywordGroups)[179],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly OAnimation: Carrier<'OAnimation', keyof (typeof keywordGroups)[8], 'time', 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly OAnimationDelay: Carrier<
+  /**
+   * -o-animation
+   * 语法：`<single-animation>#`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-o-animation
+   */
+  readonly OAnimation: CssProperty<'OAnimation', (typeof keywordGroups)[8], 'time', 1, '', T, M>;
+  /**
+   * -o-animation-delay
+   * 语法：`<time>#`
+   * 初始值：`0s`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-o-animation-delay
+   */
+  readonly OAnimationDelay: CssProperty<
     'OAnimationDelay',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'time',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly OAnimationDirection: Carrier<
+  /**
+   * -o-animation-direction
+   * 语法：`<single-animation-direction>#`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-o-animation-direction
+   */
+  readonly OAnimationDirection: CssProperty<
     'OAnimationDirection',
-    keyof (typeof keywordGroups)[10],
+    (typeof keywordGroups)[10],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly OAnimationDuration: Carrier<
+  /**
+   * -o-animation-duration
+   * 语法：`[ auto | <time [0s,∞]> ]#`
+   * 初始值：`0s`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-o-animation-duration
+   */
+  readonly OAnimationDuration: CssProperty<
     'OAnimationDuration',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'time',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly OAnimationFillMode: Carrier<
+  /**
+   * -o-animation-fill-mode
+   * 语法：`<single-animation-fill-mode>#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-o-animation-fill-mode
+   */
+  readonly OAnimationFillMode: CssProperty<
     'OAnimationFillMode',
-    keyof (typeof keywordGroups)[12],
+    (typeof keywordGroups)[12],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly OAnimationIterationCount: Carrier<
+  /**
+   * -o-animation-iteration-count
+   * 语法：`<single-animation-iteration-count>#`
+   * 初始值：`1`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-o-animation-iteration-count
+   */
+  readonly OAnimationIterationCount: CssProperty<
     'OAnimationIterationCount',
-    keyof (typeof keywordGroups)[13],
+    (typeof keywordGroups)[13],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly OAnimationName: Carrier<
+  /**
+   * -o-animation-name
+   * 语法：`[ none | <keyframes-name> ]#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-o-animation-name
+   */
+  readonly OAnimationName: CssProperty<
     'OAnimationName',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly OAnimationPlayState: Carrier<
+  /**
+   * -o-animation-play-state
+   * 语法：`<single-animation-play-state>#`
+   * 初始值：`running`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-o-animation-play-state
+   */
+  readonly OAnimationPlayState: CssProperty<
     'OAnimationPlayState',
-    keyof (typeof keywordGroups)[14],
+    (typeof keywordGroups)[14],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly OAnimationTimingFunction: Carrier<
+  /**
+   * -o-animation-timing-function
+   * 语法：`<easing-function>#`
+   * 初始值：`ease`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-o-animation-timing-function
+   */
+  readonly OAnimationTimingFunction: CssProperty<
     'OAnimationTimingFunction',
-    keyof (typeof keywordGroups)[17],
+    (typeof keywordGroups)[17],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly OBackgroundSize: Carrier<
+  /**
+   * -o-background-size
+   * 语法：`<bg-size>#`
+   * 初始值：`auto auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-o-background-size
+   */
+  readonly OBackgroundSize: CssProperty<
     'OBackgroundSize',
-    keyof (typeof keywordGroups)[30],
+    (typeof keywordGroups)[30],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly objectFit: Carrier<'objectFit', keyof (typeof keywordGroups)[180], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly objectPosition: Carrier<
+  /**
+   * object-fit
+   * 语法：`fill | contain | cover | none | scale-down`
+   * 初始值：`fill`
+   * @see https://developer.mozilla.org/docs/Web/CSS/object-fit
+   */
+  readonly objectFit: CssProperty<'objectFit', (typeof keywordGroups)[180], never, 1, '', T, M>;
+  /**
+   * object-position
+   * 语法：`<position>`
+   * 初始值：`50% 50%`
+   * @see https://developer.mozilla.org/docs/Web/CSS/object-position
+   */
+  readonly objectPosition: CssProperty<
     'objectPosition',
-    keyof (typeof keywordGroups)[26],
+    (typeof keywordGroups)[26],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `none | <basic-shape-rect>` */
-  readonly objectViewBox: Carrier<
+  /**
+   * object-view-box
+   * 语法：`none | <basic-shape-rect>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/object-view-box
+   */
+  readonly objectViewBox: CssProperty<
     'objectViewBox',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly OBorderImage: Carrier<
+  /**
+   * -o-border-image
+   * 语法：`<'border-image-source'> || <'border-image-slice'> [ / <'border-image-width'> | / <'border-image-width'>? / <'border-image-outset'> ]? || <'border-image-repeat'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-o-border-image
+   */
+  readonly OBorderImage: CssProperty<
     'OBorderImage',
-    keyof (typeof keywordGroups)[37],
+    (typeof keywordGroups)[37],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2022. */
-  readonly offset: Carrier<'offset', keyof (typeof keywordGroups)[136], 'length', 1, '', T, M>;
-  /** Since August 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly offsetAnchor: Carrier<
+  /**
+   * offset
+   * 语法：`[ <'offset-position'>? [ <'offset-path'> [ <'offset-distance'> || <'offset-rotate'> ]? ]? ]! [ / <'offset-anchor'> ]?`
+   * @see https://developer.mozilla.org/docs/Web/CSS/offset
+   */
+  readonly offset: CssProperty<'offset', (typeof keywordGroups)[136], 'length', 1, '', T, M>;
+  /**
+   * offset-anchor
+   * 语法：`auto | <position>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/offset-anchor
+   */
+  readonly offsetAnchor: CssProperty<
     'offsetAnchor',
-    keyof (typeof keywordGroups)[181],
+    (typeof keywordGroups)[181],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly offsetBlock: Carrier<
+  /**
+   * offset-block
+   * 语法：`<'top'>{1,2}`
+   * @see https://developer.mozilla.org/docs/Web/CSS/offset-block
+   */
+  readonly offsetBlock: CssProperty<
     'offsetBlock',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly offsetBlockEnd: Carrier<
+  /**
+   * offset-block-end
+   * 语法：`<'top'>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/offset-block-end
+   */
+  readonly offsetBlockEnd: CssProperty<
     'offsetBlockEnd',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly offsetBlockStart: Carrier<
+  /**
+   * offset-block-start
+   * 语法：`<'top'>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/offset-block-start
+   */
+  readonly offsetBlockStart: CssProperty<
     'offsetBlockStart',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2022. */
-  readonly offsetDistance: Carrier<
+  /**
+   * offset-distance
+   * 语法：`<length-percentage>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/offset-distance
+   */
+  readonly offsetDistance: CssProperty<
     'offsetDistance',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly offsetInline: Carrier<
+  /**
+   * offset-inline
+   * 语法：`<'top'>{1,2}`
+   * @see https://developer.mozilla.org/docs/Web/CSS/offset-inline
+   */
+  readonly offsetInline: CssProperty<
     'offsetInline',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly offsetInlineEnd: Carrier<
+  /**
+   * offset-inline-end
+   * 语法：`<'top'>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/offset-inline-end
+   */
+  readonly offsetInlineEnd: CssProperty<
     'offsetInlineEnd',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly offsetInlineStart: Carrier<
+  /**
+   * offset-inline-start
+   * 语法：`<'top'>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/offset-inline-start
+   */
+  readonly offsetInlineStart: CssProperty<
     'offsetInlineStart',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2022. */
-  readonly offsetPath: Carrier<'offsetPath', keyof (typeof keywordGroups)[137], never, 1, '', T, M>;
-  /** Since January 2024, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly offsetPosition: Carrier<
+  /**
+   * offset-path
+   * 语法：`none | <offset-path> || <coord-box>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/offset-path
+   */
+  readonly offsetPath: CssProperty<'offsetPath', (typeof keywordGroups)[137], never, 1, '', T, M>;
+  /**
+   * offset-position
+   * 语法：`normal | auto | <position>`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/offset-position
+   */
+  readonly offsetPosition: CssProperty<
     'offsetPosition',
-    keyof (typeof keywordGroups)[182],
+    (typeof keywordGroups)[182],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2022. */
-  readonly offsetRotate: Carrier<
+  /**
+   * offset-rotate
+   * 语法：`[ auto | reverse ] || <angle>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/offset-rotate
+   */
+  readonly offsetRotate: CssProperty<
     'offsetRotate',
-    keyof (typeof keywordGroups)[138],
+    (typeof keywordGroups)[138],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2022. */
-  readonly offsetRotation: Carrier<
+  /**
+   * offset-rotation
+   * 语法：`[ auto | reverse ] || <angle>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/offset-rotation
+   */
+  readonly offsetRotation: CssProperty<
     'offsetRotation',
-    keyof (typeof keywordGroups)[138],
+    (typeof keywordGroups)[138],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly OObjectFit: Carrier<'OObjectFit', keyof (typeof keywordGroups)[180], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly OObjectPosition: Carrier<
+  /**
+   * -o-object-fit
+   * 语法：`fill | contain | cover | none | scale-down`
+   * 初始值：`fill`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-o-object-fit
+   */
+  readonly OObjectFit: CssProperty<'OObjectFit', (typeof keywordGroups)[180], never, 1, '', T, M>;
+  /**
+   * -o-object-position
+   * 语法：`<position>`
+   * 初始值：`50% 50%`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-o-object-position
+   */
+  readonly OObjectPosition: CssProperty<
     'OObjectPosition',
-    keyof (typeof keywordGroups)[26],
+    (typeof keywordGroups)[26],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly opacity: Carrier<'opacity', keyof (typeof keywordGroups)[5], never, 1, 'opacity', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly order: Carrier<'order', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly orphans: Carrier<'orphans', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since August 2021. */
-  readonly OTabSize: Carrier<'OTabSize', keyof (typeof keywordGroups)[5], 'length', 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly OTextOverflow: Carrier<
+  /**
+   * 元素整体的不透明度，通常为 0–1。
+   * 主题类别：opacity（_ 前缀）。
+   * 语法：`<opacity-value>`
+   * 初始值：`1`
+   * @see https://developer.mozilla.org/docs/Web/CSS/opacity
+   */
+  readonly opacity: CssProperty<'opacity', (typeof keywordGroups)[5], never, 1, 'opacity', T, M>;
+  /**
+   * order
+   * 语法：`<integer>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/order
+   */
+  readonly order: CssProperty<'order', (typeof keywordGroups)[5], never, 1, '', T, M>;
+  /**
+   * orphans
+   * 语法：`<integer>`
+   * 初始值：`2`
+   * @see https://developer.mozilla.org/docs/Web/CSS/orphans
+   */
+  readonly orphans: CssProperty<'orphans', (typeof keywordGroups)[5], never, 1, '', T, M>;
+  /**
+   * -o-tab-size
+   * 语法：`<integer> | <length>`
+   * 初始值：`8`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-o-tab-size
+   */
+  readonly OTabSize: CssProperty<'OTabSize', (typeof keywordGroups)[5], 'length', 1, '', T, M>;
+  /**
+   * -o-text-overflow
+   * 语法：`[ clip | ellipsis | <string> ]{1,2}`
+   * 初始值：`clip`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-o-text-overflow
+   */
+  readonly OTextOverflow: CssProperty<
     'OTextOverflow',
-    keyof (typeof keywordGroups)[172],
+    (typeof keywordGroups)[172],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly OTransform: Carrier<'OTransform', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly OTransformOrigin: Carrier<
+  /**
+   * -o-transform
+   * 语法：`none | <transform-list>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-o-transform
+   */
+  readonly OTransform: CssProperty<'OTransform', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * -o-transform-origin
+   * 语法：`[ <length-percentage> | left | center | right | top | bottom ] | [ [ <length-percentage> | left | center | right ] && [ <length-percentage> | top | center | bottom ] ] <length>?`
+   * 初始值：`50% 50% 0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-o-transform-origin
+   */
+  readonly OTransformOrigin: CssProperty<
     'OTransformOrigin',
-    keyof (typeof keywordGroups)[26],
+    (typeof keywordGroups)[26],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly OTransition: Carrier<
+  /**
+   * -o-transition
+   * 语法：`<single-transition>#`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-o-transition
+   */
+  readonly OTransition: CssProperty<
     'OTransition',
-    keyof (typeof keywordGroups)[152],
+    (typeof keywordGroups)[152],
     'time',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly OTransitionDelay: Carrier<
+  /**
+   * -o-transition-delay
+   * 语法：`<time>#`
+   * 初始值：`0s`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-o-transition-delay
+   */
+  readonly OTransitionDelay: CssProperty<
     'OTransitionDelay',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'time',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly OTransitionDuration: Carrier<
+  /**
+   * -o-transition-duration
+   * 语法：`<time>#`
+   * 初始值：`0s`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-o-transition-duration
+   */
+  readonly OTransitionDuration: CssProperty<
     'OTransitionDuration',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'time',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly OTransitionProperty: Carrier<
+  /**
+   * -o-transition-property
+   * 语法：`none | <single-transition-property>#`
+   * 初始值：all
+   * @see https://developer.mozilla.org/docs/Web/CSS/-o-transition-property
+   */
+  readonly OTransitionProperty: CssProperty<
     'OTransitionProperty',
-    keyof (typeof keywordGroups)[7],
+    (typeof keywordGroups)[7],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly OTransitionTimingFunction: Carrier<
+  /**
+   * -o-transition-timing-function
+   * 语法：`<easing-function>#`
+   * 初始值：`ease`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-o-transition-timing-function
+   */
+  readonly OTransitionTimingFunction: CssProperty<
     'OTransitionTimingFunction',
-    keyof (typeof keywordGroups)[17],
+    (typeof keywordGroups)[17],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2023. */
-  readonly outline: Carrier<'outline', keyof (typeof keywordGroups)[144], 'length', 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly outlineColor: Carrier<
+  /**
+   * outline
+   * 语法：`<'outline-width'> || <'outline-style'> || <'outline-color'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/outline
+   */
+  readonly outline: CssProperty<'outline', (typeof keywordGroups)[144], 'length', 1, '', T, M>;
+  /**
+   * outline-color
+   * 主题类别：color（_ 前缀）。
+   * 语法：`auto | <color>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/outline-color
+   */
+  readonly outlineColor: CssProperty<
     'outlineColor',
-    keyof (typeof keywordGroups)[0],
+    (typeof keywordGroups)[0],
     never,
     1,
     'color',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
-  readonly outlineOffset: Carrier<
+  /**
+   * outline-offset
+   * 主题类别：borderWidth（_ 前缀）。
+   * 语法：`<length>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/outline-offset
+   */
+  readonly outlineOffset: CssProperty<
     'outlineOffset',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     'borderWidth',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly outlineStyle: Carrier<
+  /**
+   * outline-style
+   * 语法：`auto | <outline-line-style>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/outline-style
+   */
+  readonly outlineStyle: CssProperty<
     'outlineStyle',
-    keyof (typeof keywordGroups)[145],
+    (typeof keywordGroups)[145],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly outlineWidth: Carrier<
+  /**
+   * outline-width
+   * 主题类别：borderWidth（_ 前缀）。
+   * 语法：`<line-width>`
+   * 初始值：`medium`
+   * @see https://developer.mozilla.org/docs/Web/CSS/outline-width
+   */
+  readonly outlineWidth: CssProperty<
     'outlineWidth',
-    keyof (typeof keywordGroups)[35],
+    (typeof keywordGroups)[35],
     'length',
     1,
     'borderWidth',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly overflow: Carrier<'overflow', keyof (typeof keywordGroups)[167], never, 1, '', T, M>;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly overflowAnchor: Carrier<
+  /**
+   * 内容溢出元素盒时的处理方式。
+   * 语法：`[ visible | hidden | clip | scroll | auto ]{1,2}`
+   * 初始值：`visible`
+   * @see https://developer.mozilla.org/docs/Web/CSS/overflow
+   */
+  readonly overflow: CssProperty<'overflow', (typeof keywordGroups)[167], never, 1, '', T, M>;
+  /**
+   * overflow-anchor
+   * 语法：`auto | none`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/overflow-anchor
+   */
+  readonly overflowAnchor: CssProperty<
     'overflowAnchor',
-    keyof (typeof keywordGroups)[16],
+    (typeof keywordGroups)[16],
     never,
     1,
     '',
     T,
     M
   >;
-  /** Since September 2025, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly overflowBlock: Carrier<
+  /**
+   * overflow-block
+   * 语法：`visible | hidden | clip | scroll | auto`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/overflow-block
+   */
+  readonly overflowBlock: CssProperty<
     'overflowBlock',
-    keyof (typeof keywordGroups)[183],
+    (typeof keywordGroups)[183],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `padding-box | content-box` */
-  readonly overflowClipBox: Carrier<
+  /**
+   * overflow-clip-box
+   * 语法：`padding-box | content-box`
+   * 初始值：`padding-box`
+   * @see https://developer.mozilla.org/docs/Web/CSS/overflow-clip-box
+   */
+  readonly overflowClipBox: CssProperty<
     'overflowClipBox',
-    keyof (typeof keywordGroups)[184],
+    (typeof keywordGroups)[184],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly overflowClipMargin: Carrier<
+  /**
+   * overflow-clip-margin
+   * 语法：`<visual-box> || <length [0,∞]>`
+   * 初始值：`0px`
+   * @see https://developer.mozilla.org/docs/Web/CSS/overflow-clip-margin
+   */
+  readonly overflowClipMargin: CssProperty<
     'overflowClipMargin',
-    keyof (typeof keywordGroups)[25],
+    (typeof keywordGroups)[25],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** Since September 2025, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly overflowInline: Carrier<
+  /**
+   * overflow-inline
+   * 语法：`visible | hidden | clip | scroll | auto`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/overflow-inline
+   */
+  readonly overflowInline: CssProperty<
     'overflowInline',
-    keyof (typeof keywordGroups)[183],
+    (typeof keywordGroups)[183],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2018. */
-  readonly overflowWrap: Carrier<
+  /**
+   * overflow-wrap
+   * 语法：`normal | break-word | anywhere`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/overflow-wrap
+   */
+  readonly overflowWrap: CssProperty<
     'overflowWrap',
-    keyof (typeof keywordGroups)[185],
+    (typeof keywordGroups)[185],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly overflowX: Carrier<'overflowX', keyof (typeof keywordGroups)[167], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly overflowY: Carrier<'overflowY', keyof (typeof keywordGroups)[167], never, 1, '', T, M>;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly overlay: Carrier<'overlay', keyof (typeof keywordGroups)[16], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2022. */
-  readonly overscrollBehavior: Carrier<
+  /**
+   * overflow-x
+   * 语法：`visible | hidden | clip | scroll | auto`
+   * 初始值：`visible`
+   * @see https://developer.mozilla.org/docs/Web/CSS/overflow-x
+   */
+  readonly overflowX: CssProperty<'overflowX', (typeof keywordGroups)[167], never, 1, '', T, M>;
+  /**
+   * overflow-y
+   * 语法：`visible | hidden | clip | scroll | auto`
+   * 初始值：`visible`
+   * @see https://developer.mozilla.org/docs/Web/CSS/overflow-y
+   */
+  readonly overflowY: CssProperty<'overflowY', (typeof keywordGroups)[167], never, 1, '', T, M>;
+  /**
+   * overlay
+   * 语法：`none | auto`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/overlay
+   */
+  readonly overlay: CssProperty<'overlay', (typeof keywordGroups)[16], never, 1, '', T, M>;
+  /**
+   * overscroll-behavior
+   * 语法：`[ contain | none | auto ]{1,2}`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/overscroll-behavior
+   */
+  readonly overscrollBehavior: CssProperty<
     'overscrollBehavior',
-    keyof (typeof keywordGroups)[186],
+    (typeof keywordGroups)[186],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2022. */
-  readonly overscrollBehaviorBlock: Carrier<
+  /**
+   * overscroll-behavior-block
+   * 语法：`contain | none | auto`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/overscroll-behavior-block
+   */
+  readonly overscrollBehaviorBlock: CssProperty<
     'overscrollBehaviorBlock',
-    keyof (typeof keywordGroups)[186],
+    (typeof keywordGroups)[186],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2022. */
-  readonly overscrollBehaviorInline: Carrier<
+  /**
+   * overscroll-behavior-inline
+   * 语法：`contain | none | auto`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/overscroll-behavior-inline
+   */
+  readonly overscrollBehaviorInline: CssProperty<
     'overscrollBehaviorInline',
-    keyof (typeof keywordGroups)[186],
+    (typeof keywordGroups)[186],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2022. */
-  readonly overscrollBehaviorX: Carrier<
+  /**
+   * overscroll-behavior-x
+   * 语法：`contain | none | auto`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/overscroll-behavior-x
+   */
+  readonly overscrollBehaviorX: CssProperty<
     'overscrollBehaviorX',
-    keyof (typeof keywordGroups)[186],
+    (typeof keywordGroups)[186],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2022. */
-  readonly overscrollBehaviorY: Carrier<
+  /**
+   * overscroll-behavior-y
+   * 语法：`contain | none | auto`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/overscroll-behavior-y
+   */
+  readonly overscrollBehaviorY: CssProperty<
     'overscrollBehaviorY',
-    keyof (typeof keywordGroups)[186],
+    (typeof keywordGroups)[186],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly padding: Carrier<
-    'padding',
-    keyof (typeof keywordGroups)[5],
-    'length',
-    4,
-    'spacing',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly paddingBlock: Carrier<
+  /**
+   * 四个物理方向的内边距。
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<'padding-top'>{1,4}`
+   * @see https://developer.mozilla.org/docs/Web/CSS/padding
+   */
+  readonly padding: CssProperty<'padding', (typeof keywordGroups)[5], 'length', 4, 'spacing', T, M>;
+  /**
+   * 块轴起点与终点的内边距。
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<'padding-top'>{1,2}`
+   * @see https://developer.mozilla.org/docs/Web/CSS/padding-block
+   */
+  readonly paddingBlock: CssProperty<
     'paddingBlock',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     2,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly paddingBlockEnd: Carrier<
+  /**
+   * padding-block-end
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<'padding-top'>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/padding-block-end
+   */
+  readonly paddingBlockEnd: CssProperty<
     'paddingBlockEnd',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly paddingBlockStart: Carrier<
+  /**
+   * padding-block-start
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<'padding-top'>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/padding-block-start
+   */
+  readonly paddingBlockStart: CssProperty<
     'paddingBlockStart',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly paddingBottom: Carrier<
+  /**
+   * padding-bottom
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<length-percentage [0,∞]>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/padding-bottom
+   */
+  readonly paddingBottom: CssProperty<
     'paddingBottom',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly paddingInline: Carrier<
+  /**
+   * 行内轴起点与终点的内边距。
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<'padding-top'>{1,2}`
+   * @see https://developer.mozilla.org/docs/Web/CSS/padding-inline
+   */
+  readonly paddingInline: CssProperty<
     'paddingInline',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     2,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly paddingInlineEnd: Carrier<
+  /**
+   * padding-inline-end
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<'padding-top'>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/padding-inline-end
+   */
+  readonly paddingInlineEnd: CssProperty<
     'paddingInlineEnd',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly paddingInlineStart: Carrier<
+  /**
+   * padding-inline-start
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<'padding-top'>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/padding-inline-start
+   */
+  readonly paddingInlineStart: CssProperty<
     'paddingInlineStart',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly paddingLeft: Carrier<
+  /**
+   * padding-left
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<length-percentage [0,∞]>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/padding-left
+   */
+  readonly paddingLeft: CssProperty<
     'paddingLeft',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly paddingRight: Carrier<
+  /**
+   * padding-right
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<length-percentage [0,∞]>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/padding-right
+   */
+  readonly paddingRight: CssProperty<
     'paddingRight',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly paddingTop: Carrier<
+  /**
+   * padding-top
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<length-percentage [0,∞]>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/padding-top
+   */
+  readonly paddingTop: CssProperty<
     'paddingTop',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since February 2023. */
-  readonly page: Carrier<'page', keyof (typeof keywordGroups)[11], never, 1, '', T, M>;
-  /** The **`page-break-after`** CSS property adjusts page breaks _after_ the current element. */
-  readonly pageBreakAfter: Carrier<
+  /**
+   * page
+   * 语法：`auto | <custom-ident>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/page
+   */
+  readonly page: CssProperty<'page', (typeof keywordGroups)[11], never, 1, '', T, M>;
+  /**
+   * page-break-after
+   * 语法：`auto | always | avoid | left | right | recto | verso`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/page-break-after
+   */
+  readonly pageBreakAfter: CssProperty<
     'pageBreakAfter',
-    keyof (typeof keywordGroups)[187],
+    (typeof keywordGroups)[187],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`page-break-before`** CSS property adjusts page breaks _before_ the current element. */
-  readonly pageBreakBefore: Carrier<
+  /**
+   * page-break-before
+   * 语法：`auto | always | avoid | left | right | recto | verso`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/page-break-before
+   */
+  readonly pageBreakBefore: CssProperty<
     'pageBreakBefore',
-    keyof (typeof keywordGroups)[187],
+    (typeof keywordGroups)[187],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`page-break-inside`** CSS property adjusts page breaks _inside_ the current element. */
-  readonly pageBreakInside: Carrier<
+  /**
+   * page-break-inside
+   * 语法：`auto | avoid`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/page-break-inside
+   */
+  readonly pageBreakInside: CssProperty<
     'pageBreakInside',
-    keyof (typeof keywordGroups)[188],
+    (typeof keywordGroups)[188],
     never,
     1,
     '',
     T,
     M
   >;
-  /** Since March 2024, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly paintOrder: Carrier<'paintOrder', keyof (typeof keywordGroups)[189], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly perspective: Carrier<
+  /**
+   * paint-order
+   * 语法：`normal | [ fill || stroke || markers ]`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/paint-order
+   */
+  readonly paintOrder: CssProperty<'paintOrder', (typeof keywordGroups)[189], never, 1, '', T, M>;
+  /**
+   * perspective
+   * 语法：`none | <length>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/perspective
+   */
+  readonly perspective: CssProperty<
     'perspective',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly perspectiveOrigin: Carrier<
+  /**
+   * perspective-origin
+   * 语法：`<position>`
+   * 初始值：`50% 50%`
+   * @see https://developer.mozilla.org/docs/Web/CSS/perspective-origin
+   */
+  readonly perspectiveOrigin: CssProperty<
     'perspectiveOrigin',
-    keyof (typeof keywordGroups)[26],
+    (typeof keywordGroups)[26],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly placeContent: Carrier<
-    'placeContent',
-    keyof (typeof keywordGroups)[1],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly placeItems: Carrier<'placeItems', keyof (typeof keywordGroups)[2], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly placeSelf: Carrier<'placeSelf', keyof (typeof keywordGroups)[4], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly pointerEvents: Carrier<
+  /**
+   * place-content
+   * 语法：`<'align-content'> <'justify-content'>?`
+   * @see https://developer.mozilla.org/docs/Web/CSS/place-content
+   */
+  readonly placeContent: CssProperty<'placeContent', (typeof keywordGroups)[1], never, 1, '', T, M>;
+  /**
+   * place-items
+   * 语法：`<'align-items'> <'justify-items'>?`
+   * @see https://developer.mozilla.org/docs/Web/CSS/place-items
+   */
+  readonly placeItems: CssProperty<'placeItems', (typeof keywordGroups)[2], never, 1, '', T, M>;
+  /**
+   * place-self
+   * 语法：`<'align-self'> <'justify-self'>?`
+   * @see https://developer.mozilla.org/docs/Web/CSS/place-self
+   */
+  readonly placeSelf: CssProperty<'placeSelf', (typeof keywordGroups)[4], never, 1, '', T, M>;
+  /**
+   * pointer-events
+   * 语法：`auto | none | visiblePainted | visibleFill | visibleStroke | visible | painted | fill | stroke | all | inherit`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/pointer-events
+   */
+  readonly pointerEvents: CssProperty<
     'pointerEvents',
-    keyof (typeof keywordGroups)[190],
+    (typeof keywordGroups)[190],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly position: Carrier<'position', keyof (typeof keywordGroups)[191], never, 1, '', T, M>;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly positionAnchor: Carrier<
+  /**
+   * 元素的定位方式。
+   * 语法：`static | relative | absolute | sticky | fixed`
+   * 初始值：`static`
+   * @see https://developer.mozilla.org/docs/Web/CSS/position
+   */
+  readonly position: CssProperty<'position', (typeof keywordGroups)[191], never, 1, '', T, M>;
+  /**
+   * position-anchor
+   * 语法：`auto | <anchor-name>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/position-anchor
+   */
+  readonly positionAnchor: CssProperty<
     'positionAnchor',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly positionArea: Carrier<
+  /**
+   * position-area
+   * 语法：`none | <position-area>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/position-area
+   */
+  readonly positionArea: CssProperty<
     'positionArea',
-    keyof (typeof keywordGroups)[108],
+    (typeof keywordGroups)[108],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly positionTry: Carrier<
-    'positionTry',
-    keyof (typeof keywordGroups)[192],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly positionTryFallbacks: Carrier<
+  /**
+   * position-try
+   * 语法：`<'position-try-order'>? <'position-try-fallbacks'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/position-try
+   */
+  readonly positionTry: CssProperty<'positionTry', (typeof keywordGroups)[192], never, 1, '', T, M>;
+  /**
+   * position-try-fallbacks
+   * 语法：`none | [ [<dashed-ident> || <try-tactic>] | <'position-area'> ]#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/position-try-fallbacks
+   */
+  readonly positionTryFallbacks: CssProperty<
     'positionTryFallbacks',
-    keyof (typeof keywordGroups)[192],
+    (typeof keywordGroups)[192],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly positionTryOptions: Carrier<
+  /**
+   * position-try-options
+   * 语法：`none | [ [<dashed-ident> || <try-tactic>] | <'position-area'> ]#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/position-try-options
+   */
+  readonly positionTryOptions: CssProperty<
     'positionTryOptions',
-    keyof (typeof keywordGroups)[192],
+    (typeof keywordGroups)[192],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly positionTryOrder: Carrier<
+  /**
+   * position-try-order
+   * 语法：`normal | <try-size>`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/position-try-order
+   */
+  readonly positionTryOrder: CssProperty<
     'positionTryOrder',
-    keyof (typeof keywordGroups)[193],
+    (typeof keywordGroups)[193],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly positionVisibility: Carrier<
+  /**
+   * position-visibility
+   * 语法：`always | [ anchors-valid || anchors-visible || no-overflow ]`
+   * 初始值：`anchors-visible`
+   * @see https://developer.mozilla.org/docs/Web/CSS/position-visibility
+   */
+  readonly positionVisibility: CssProperty<
     'positionVisibility',
-    keyof (typeof keywordGroups)[194],
+    (typeof keywordGroups)[194],
     never,
     1,
     '',
     T,
     M
   >;
-  /** Since May 2025, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly printColorAdjust: Carrier<
+  /**
+   * print-color-adjust
+   * 语法：`economy | exact`
+   * 初始值：`economy`
+   * @see https://developer.mozilla.org/docs/Web/CSS/print-color-adjust
+   */
+  readonly printColorAdjust: CssProperty<
     'printColorAdjust',
-    keyof (typeof keywordGroups)[54],
+    (typeof keywordGroups)[54],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly quotes: Carrier<'quotes', keyof (typeof keywordGroups)[16], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2020. */
-  readonly r: Carrier<'r', keyof (typeof keywordGroups)[5], 'length', 1, '', T, M>;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly resize: Carrier<'resize', keyof (typeof keywordGroups)[195], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly right: Carrier<'right', keyof (typeof keywordGroups)[11], 'length', 1, 'spacing', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since August 2022. */
-  readonly rotate: Carrier<'rotate', keyof (typeof keywordGroups)[6], 'angle', 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2017. */
-  readonly rowGap: Carrier<
-    'rowGap',
-    keyof (typeof keywordGroups)[59],
-    'length',
-    1,
-    'spacing',
-    T,
-    M
-  >;
-  /** Since December 2024, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly rubyAlign: Carrier<'rubyAlign', keyof (typeof keywordGroups)[196], never, 1, '', T, M>;
-  /** **Syntax**: `separate | collapse | auto` */
-  readonly rubyMerge: Carrier<'rubyMerge', keyof (typeof keywordGroups)[197], never, 1, '', T, M>;
-  /** **Syntax**: `auto | none` */
-  readonly rubyOverhang: Carrier<
+  /**
+   * quotes
+   * 语法：`none | auto | [ <string> <string> ]+`
+   * 初始值：depends on user agent
+   * @see https://developer.mozilla.org/docs/Web/CSS/quotes
+   */
+  readonly quotes: CssProperty<'quotes', (typeof keywordGroups)[16], never, 1, '', T, M>;
+  /**
+   * r
+   * 语法：`<length> | <percentage>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/r
+   */
+  readonly r: CssProperty<'r', (typeof keywordGroups)[5], 'length', 1, '', T, M>;
+  /**
+   * resize
+   * 语法：`none | both | horizontal | vertical | block | inline`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/resize
+   */
+  readonly resize: CssProperty<'resize', (typeof keywordGroups)[195], never, 1, '', T, M>;
+  /**
+   * right
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`auto | <length-percentage> | <anchor()> | <anchor-size()>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/right
+   */
+  readonly right: CssProperty<'right', (typeof keywordGroups)[11], 'length', 1, 'spacing', T, M>;
+  /**
+   * rotate
+   * 语法：`none | <angle> | [ x | y | z | <number>{3} ] && <angle>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/rotate
+   */
+  readonly rotate: CssProperty<'rotate', (typeof keywordGroups)[6], 'angle', 1, '', T, M>;
+  /**
+   * row-gap
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`normal | <length-percentage>`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/row-gap
+   */
+  readonly rowGap: CssProperty<'rowGap', (typeof keywordGroups)[59], 'length', 1, 'spacing', T, M>;
+  /**
+   * ruby-align
+   * 语法：`start | center | space-between | space-around`
+   * 初始值：`space-around`
+   * @see https://developer.mozilla.org/docs/Web/CSS/ruby-align
+   */
+  readonly rubyAlign: CssProperty<'rubyAlign', (typeof keywordGroups)[196], never, 1, '', T, M>;
+  /**
+   * ruby-merge
+   * 语法：`separate | collapse | auto`
+   * 初始值：`separate`
+   * @see https://developer.mozilla.org/docs/Web/CSS/ruby-merge
+   */
+  readonly rubyMerge: CssProperty<'rubyMerge', (typeof keywordGroups)[197], never, 1, '', T, M>;
+  /**
+   * ruby-overhang
+   * 语法：`auto | none`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/ruby-overhang
+   */
+  readonly rubyOverhang: CssProperty<
     'rubyOverhang',
-    keyof (typeof keywordGroups)[16],
+    (typeof keywordGroups)[16],
     never,
     1,
     '',
     T,
     M
   >;
-  /** Since December 2024, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly rubyPosition: Carrier<
+  /**
+   * ruby-position
+   * 语法：`[ alternate || [ over | under ] ] | inter-character`
+   * 初始值：`alternate`
+   * @see https://developer.mozilla.org/docs/Web/CSS/ruby-position
+   */
+  readonly rubyPosition: CssProperty<
     'rubyPosition',
-    keyof (typeof keywordGroups)[198],
+    (typeof keywordGroups)[198],
     never,
     1,
     '',
     T,
     M
   >;
-  /** Since March 2024, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly rx: Carrier<'rx', keyof (typeof keywordGroups)[5], 'length', 1, '', T, M>;
-  /** Since March 2024, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly ry: Carrier<'ry', keyof (typeof keywordGroups)[5], 'length', 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since August 2022. */
-  readonly scale: Carrier<'scale', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly scrollbarColor: Carrier<
+  /**
+   * rx
+   * 语法：`<length> | <percentage>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/rx
+   */
+  readonly rx: CssProperty<'rx', (typeof keywordGroups)[5], 'length', 1, '', T, M>;
+  /**
+   * ry
+   * 语法：`<length> | <percentage>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/ry
+   */
+  readonly ry: CssProperty<'ry', (typeof keywordGroups)[5], 'length', 1, '', T, M>;
+  /**
+   * scale
+   * 语法：`none | [ <number> | <percentage> ]{1,3}`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scale
+   */
+  readonly scale: CssProperty<'scale', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * scrollbar-color
+   * 语法：`auto | <color>{2}`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scrollbar-color
+   */
+  readonly scrollbarColor: CssProperty<
     'scrollbarColor',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     never,
     1,
     '',
     T,
     M
   >;
-  /** Since December 2024, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly scrollbarGutter: Carrier<
+  /**
+   * scrollbar-gutter
+   * 语法：`auto | stable && both-edges?`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scrollbar-gutter
+   */
+  readonly scrollbarGutter: CssProperty<
     'scrollbarGutter',
-    keyof (typeof keywordGroups)[199],
+    (typeof keywordGroups)[199],
     never,
     1,
     '',
     T,
     M
   >;
-  /** Since December 2024, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly scrollbarWidth: Carrier<
+  /**
+   * scrollbar-width
+   * 语法：`auto | thin | none`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scrollbar-width
+   */
+  readonly scrollbarWidth: CssProperty<
     'scrollbarWidth',
-    keyof (typeof keywordGroups)[200],
+    (typeof keywordGroups)[200],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2022. */
-  readonly scrollBehavior: Carrier<
+  /**
+   * scroll-behavior
+   * 语法：`auto | smooth`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-behavior
+   */
+  readonly scrollBehavior: CssProperty<
     'scrollBehavior',
-    keyof (typeof keywordGroups)[201],
+    (typeof keywordGroups)[201],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `none | nearest` */
-  readonly scrollInitialTarget: Carrier<
+  /**
+   * scroll-initial-target
+   * 语法：`none | nearest`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-initial-target
+   */
+  readonly scrollInitialTarget: CssProperty<
     'scrollInitialTarget',
-    keyof (typeof keywordGroups)[202],
+    (typeof keywordGroups)[202],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2021. */
-  readonly scrollMargin: Carrier<
+  /**
+   * scroll-margin
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<length>{1,4}`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-margin
+   */
+  readonly scrollMargin: CssProperty<
     'scrollMargin',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     4,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2021. */
-  readonly scrollMarginBlock: Carrier<
+  /**
+   * scroll-margin-block
+   * 语法：`<length>{1,2}`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-margin-block
+   */
+  readonly scrollMarginBlock: CssProperty<
     'scrollMarginBlock',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2021. */
-  readonly scrollMarginBlockEnd: Carrier<
+  /**
+   * scroll-margin-block-end
+   * 语法：`<length>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-margin-block-end
+   */
+  readonly scrollMarginBlockEnd: CssProperty<
     'scrollMarginBlockEnd',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2021. */
-  readonly scrollMarginBlockStart: Carrier<
+  /**
+   * scroll-margin-block-start
+   * 语法：`<length>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-margin-block-start
+   */
+  readonly scrollMarginBlockStart: CssProperty<
     'scrollMarginBlockStart',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly scrollMarginBottom: Carrier<
+  /**
+   * scroll-margin-bottom
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<length>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-margin-bottom
+   */
+  readonly scrollMarginBottom: CssProperty<
     'scrollMarginBottom',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2021. */
-  readonly scrollMarginInline: Carrier<
+  /**
+   * scroll-margin-inline
+   * 语法：`<length>{1,2}`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-margin-inline
+   */
+  readonly scrollMarginInline: CssProperty<
     'scrollMarginInline',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2021. */
-  readonly scrollMarginInlineEnd: Carrier<
+  /**
+   * scroll-margin-inline-end
+   * 语法：`<length>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-margin-inline-end
+   */
+  readonly scrollMarginInlineEnd: CssProperty<
     'scrollMarginInlineEnd',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2021. */
-  readonly scrollMarginInlineStart: Carrier<
+  /**
+   * scroll-margin-inline-start
+   * 语法：`<length>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-margin-inline-start
+   */
+  readonly scrollMarginInlineStart: CssProperty<
     'scrollMarginInlineStart',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly scrollMarginLeft: Carrier<
+  /**
+   * scroll-margin-left
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<length>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-margin-left
+   */
+  readonly scrollMarginLeft: CssProperty<
     'scrollMarginLeft',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly scrollMarginRight: Carrier<
+  /**
+   * scroll-margin-right
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<length>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-margin-right
+   */
+  readonly scrollMarginRight: CssProperty<
     'scrollMarginRight',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly scrollMarginTop: Carrier<
+  /**
+   * scroll-margin-top
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<length>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-margin-top
+   */
+  readonly scrollMarginTop: CssProperty<
     'scrollMarginTop',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly scrollPadding: Carrier<
+  /**
+   * scroll-padding
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`[ auto | <length-percentage> ]{1,4}`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-padding
+   */
+  readonly scrollPadding: CssProperty<
     'scrollPadding',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     4,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2021. */
-  readonly scrollPaddingBlock: Carrier<
+  /**
+   * scroll-padding-block
+   * 语法：`[ auto | <length-percentage> ]{1,2}`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-padding-block
+   */
+  readonly scrollPaddingBlock: CssProperty<
     'scrollPaddingBlock',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2021. */
-  readonly scrollPaddingBlockEnd: Carrier<
+  /**
+   * scroll-padding-block-end
+   * 语法：`auto | <length-percentage>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-padding-block-end
+   */
+  readonly scrollPaddingBlockEnd: CssProperty<
     'scrollPaddingBlockEnd',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2021. */
-  readonly scrollPaddingBlockStart: Carrier<
+  /**
+   * scroll-padding-block-start
+   * 语法：`auto | <length-percentage>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-padding-block-start
+   */
+  readonly scrollPaddingBlockStart: CssProperty<
     'scrollPaddingBlockStart',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly scrollPaddingBottom: Carrier<
+  /**
+   * scroll-padding-bottom
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`auto | <length-percentage>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-padding-bottom
+   */
+  readonly scrollPaddingBottom: CssProperty<
     'scrollPaddingBottom',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2021. */
-  readonly scrollPaddingInline: Carrier<
+  /**
+   * scroll-padding-inline
+   * 语法：`[ auto | <length-percentage> ]{1,2}`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-padding-inline
+   */
+  readonly scrollPaddingInline: CssProperty<
     'scrollPaddingInline',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2021. */
-  readonly scrollPaddingInlineEnd: Carrier<
+  /**
+   * scroll-padding-inline-end
+   * 语法：`auto | <length-percentage>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-padding-inline-end
+   */
+  readonly scrollPaddingInlineEnd: CssProperty<
     'scrollPaddingInlineEnd',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2021. */
-  readonly scrollPaddingInlineStart: Carrier<
+  /**
+   * scroll-padding-inline-start
+   * 语法：`auto | <length-percentage>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-padding-inline-start
+   */
+  readonly scrollPaddingInlineStart: CssProperty<
     'scrollPaddingInlineStart',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly scrollPaddingLeft: Carrier<
+  /**
+   * scroll-padding-left
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`auto | <length-percentage>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-padding-left
+   */
+  readonly scrollPaddingLeft: CssProperty<
     'scrollPaddingLeft',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly scrollPaddingRight: Carrier<
+  /**
+   * scroll-padding-right
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`auto | <length-percentage>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-padding-right
+   */
+  readonly scrollPaddingRight: CssProperty<
     'scrollPaddingRight',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly scrollPaddingTop: Carrier<
+  /**
+   * scroll-padding-top
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`auto | <length-percentage>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-padding-top
+   */
+  readonly scrollPaddingTop: CssProperty<
     'scrollPaddingTop',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly scrollSnapAlign: Carrier<
+  /**
+   * scroll-snap-align
+   * 语法：`[ none | start | end | center ]{1,2}`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-snap-align
+   */
+  readonly scrollSnapAlign: CssProperty<
     'scrollSnapAlign',
-    keyof (typeof keywordGroups)[203],
+    (typeof keywordGroups)[203],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `none | <position>#` */
-  readonly scrollSnapCoordinate: Carrier<
+  /**
+   * scroll-snap-coordinate
+   * 语法：`none | <position>#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-snap-coordinate
+   */
+  readonly scrollSnapCoordinate: CssProperty<
     'scrollSnapCoordinate',
-    keyof (typeof keywordGroups)[204],
+    (typeof keywordGroups)[204],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<position>` */
-  readonly scrollSnapDestination: Carrier<
+  /**
+   * scroll-snap-destination
+   * 语法：`<position>`
+   * 初始值：`0px 0px`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-snap-destination
+   */
+  readonly scrollSnapDestination: CssProperty<
     'scrollSnapDestination',
-    keyof (typeof keywordGroups)[26],
+    (typeof keywordGroups)[26],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2021. */
-  readonly scrollSnapMargin: Carrier<
+  /**
+   * scroll-snap-margin
+   * 语法：`<length>{1,4}`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-snap-margin
+   */
+  readonly scrollSnapMargin: CssProperty<
     'scrollSnapMargin',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly scrollSnapMarginBottom: Carrier<
+  /**
+   * scroll-snap-margin-bottom
+   * 语法：`<length>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-snap-margin-bottom
+   */
+  readonly scrollSnapMarginBottom: CssProperty<
     'scrollSnapMarginBottom',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly scrollSnapMarginLeft: Carrier<
+  /**
+   * scroll-snap-margin-left
+   * 语法：`<length>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-snap-margin-left
+   */
+  readonly scrollSnapMarginLeft: CssProperty<
     'scrollSnapMarginLeft',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly scrollSnapMarginRight: Carrier<
+  /**
+   * scroll-snap-margin-right
+   * 语法：`<length>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-snap-margin-right
+   */
+  readonly scrollSnapMarginRight: CssProperty<
     'scrollSnapMarginRight',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2021. */
-  readonly scrollSnapMarginTop: Carrier<
+  /**
+   * scroll-snap-margin-top
+   * 语法：`<length>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-snap-margin-top
+   */
+  readonly scrollSnapMarginTop: CssProperty<
     'scrollSnapMarginTop',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `none | repeat( <length-percentage> )` */
-  readonly scrollSnapPointsX: Carrier<
+  /**
+   * scroll-snap-points-x
+   * 语法：`none | repeat( <length-percentage> )`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-snap-points-x
+   */
+  readonly scrollSnapPointsX: CssProperty<
     'scrollSnapPointsX',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `none | repeat( <length-percentage> )` */
-  readonly scrollSnapPointsY: Carrier<
+  /**
+   * scroll-snap-points-y
+   * 语法：`none | repeat( <length-percentage> )`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-snap-points-y
+   */
+  readonly scrollSnapPointsY: CssProperty<
     'scrollSnapPointsY',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2022. */
-  readonly scrollSnapStop: Carrier<
+  /**
+   * scroll-snap-stop
+   * 语法：`normal | always`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-snap-stop
+   */
+  readonly scrollSnapStop: CssProperty<
     'scrollSnapStop',
-    keyof (typeof keywordGroups)[205],
+    (typeof keywordGroups)[205],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2022. */
-  readonly scrollSnapType: Carrier<
+  /**
+   * scroll-snap-type
+   * 语法：`none | [ x | y | block | inline | both ] [ mandatory | proximity ]?`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-snap-type
+   */
+  readonly scrollSnapType: CssProperty<
     'scrollSnapType',
-    keyof (typeof keywordGroups)[206],
+    (typeof keywordGroups)[206],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `none | mandatory | proximity` */
-  readonly scrollSnapTypeX: Carrier<
+  /**
+   * scroll-snap-type-x
+   * 语法：`none | mandatory | proximity`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-snap-type-x
+   */
+  readonly scrollSnapTypeX: CssProperty<
     'scrollSnapTypeX',
-    keyof (typeof keywordGroups)[162],
+    (typeof keywordGroups)[162],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `none | mandatory | proximity` */
-  readonly scrollSnapTypeY: Carrier<
+  /**
+   * scroll-snap-type-y
+   * 语法：`none | mandatory | proximity`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-snap-type-y
+   */
+  readonly scrollSnapTypeY: CssProperty<
     'scrollSnapTypeY',
-    keyof (typeof keywordGroups)[162],
+    (typeof keywordGroups)[162],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly scrollTimeline: Carrier<
+  /**
+   * scroll-timeline
+   * 语法：`[ <'scroll-timeline-name'> <'scroll-timeline-axis'>? ]#`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-timeline
+   */
+  readonly scrollTimeline: CssProperty<
     'scrollTimeline',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly scrollTimelineAxis: Carrier<
+  /**
+   * scroll-timeline-axis
+   * 语法：`[ block | inline | x | y ]#`
+   * 初始值：`block`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-timeline-axis
+   */
+  readonly scrollTimelineAxis: CssProperty<
     'scrollTimelineAxis',
-    keyof (typeof keywordGroups)[207],
+    (typeof keywordGroups)[207],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly scrollTimelineName: Carrier<
+  /**
+   * scroll-timeline-name
+   * 语法：`[ none | <dashed-ident> ]#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/scroll-timeline-name
+   */
+  readonly scrollTimelineName: CssProperty<
     'scrollTimelineName',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly shapeImageThreshold: Carrier<
+  /**
+   * shape-image-threshold
+   * 语法：`<opacity-value>`
+   * 初始值：`0.0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/shape-image-threshold
+   */
+  readonly shapeImageThreshold: CssProperty<
     'shapeImageThreshold',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly shapeMargin: Carrier<
+  /**
+   * shape-margin
+   * 语法：`<length-percentage>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/shape-margin
+   */
+  readonly shapeMargin: CssProperty<
     'shapeMargin',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly shapeOutside: Carrier<
+  /**
+   * shape-outside
+   * 语法：`none | [ <shape-box> || <basic-shape> ] | <image>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/shape-outside
+   */
+  readonly shapeOutside: CssProperty<
     'shapeOutside',
-    keyof (typeof keywordGroups)[208],
+    (typeof keywordGroups)[208],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly shapeRendering: Carrier<
+  /**
+   * shape-rendering
+   * 语法：`auto | optimizeSpeed | crispEdges | geometricPrecision`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/shape-rendering
+   */
+  readonly shapeRendering: CssProperty<
     'shapeRendering',
-    keyof (typeof keywordGroups)[209],
+    (typeof keywordGroups)[209],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `normal | spell-out || digits || [ literal-punctuation | no-punctuation ]` */
-  readonly speakAs: Carrier<'speakAs', keyof (typeof keywordGroups)[210], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
-  readonly stopColor: Carrier<
-    'stopColor',
-    keyof (typeof keywordGroups)[24],
-    never,
-    1,
-    'color',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
-  readonly stopOpacity: Carrier<'stopOpacity', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
-  readonly stroke: Carrier<'stroke', keyof (typeof keywordGroups)[70], never, 1, 'color', T, M>;
-  /** **Syntax**: `<color>` */
-  readonly strokeColor: Carrier<
-    'strokeColor',
-    keyof (typeof keywordGroups)[24],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
-  readonly strokeDasharray: Carrier<
+  /**
+   * speak-as
+   * 语法：`normal | spell-out || digits || [ literal-punctuation | no-punctuation ]`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/speak-as
+   */
+  readonly speakAs: CssProperty<'speakAs', (typeof keywordGroups)[210], never, 1, '', T, M>;
+  /**
+   * stop-color
+   * 主题类别：color（_ 前缀）。
+   * 语法：`<'color'>`
+   * 初始值：`black`
+   * @see https://developer.mozilla.org/docs/Web/CSS/stop-color
+   */
+  readonly stopColor: CssProperty<'stopColor', (typeof keywordGroups)[24], never, 1, 'color', T, M>;
+  /**
+   * stop-opacity
+   * 语法：`<'opacity'>`
+   * 初始值：`black`
+   * @see https://developer.mozilla.org/docs/Web/CSS/stop-opacity
+   */
+  readonly stopOpacity: CssProperty<'stopOpacity', (typeof keywordGroups)[5], never, 1, '', T, M>;
+  /**
+   * stroke
+   * 主题类别：color（_ 前缀）。
+   * 语法：`<paint>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/stroke
+   */
+  readonly stroke: CssProperty<'stroke', (typeof keywordGroups)[70], never, 1, 'color', T, M>;
+  /**
+   * stroke-color
+   * 语法：`<color>`
+   * 初始值：`transparent`
+   * @see https://developer.mozilla.org/docs/Web/CSS/stroke-color
+   */
+  readonly strokeColor: CssProperty<'strokeColor', (typeof keywordGroups)[24], never, 1, '', T, M>;
+  /**
+   * stroke-dasharray
+   * 语法：`none | <dasharray>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/stroke-dasharray
+   */
+  readonly strokeDasharray: CssProperty<
     'strokeDasharray',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
-  readonly strokeDashoffset: Carrier<
+  /**
+   * stroke-dashoffset
+   * 语法：`<length-percentage> | <number>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/stroke-dashoffset
+   */
+  readonly strokeDashoffset: CssProperty<
     'strokeDashoffset',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
-  readonly strokeLinecap: Carrier<
+  /**
+   * stroke-linecap
+   * 语法：`butt | round | square`
+   * 初始值：`butt`
+   * @see https://developer.mozilla.org/docs/Web/CSS/stroke-linecap
+   */
+  readonly strokeLinecap: CssProperty<
     'strokeLinecap',
-    keyof (typeof keywordGroups)[211],
+    (typeof keywordGroups)[211],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
-  readonly strokeLinejoin: Carrier<
+  /**
+   * stroke-linejoin
+   * 语法：`miter | miter-clip | round | bevel | arcs`
+   * 初始值：`miter`
+   * @see https://developer.mozilla.org/docs/Web/CSS/stroke-linejoin
+   */
+  readonly strokeLinejoin: CssProperty<
     'strokeLinejoin',
-    keyof (typeof keywordGroups)[212],
+    (typeof keywordGroups)[212],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
-  readonly strokeMiterlimit: Carrier<
+  /**
+   * stroke-miterlimit
+   * 语法：`<number>`
+   * 初始值：`4`
+   * @see https://developer.mozilla.org/docs/Web/CSS/stroke-miterlimit
+   */
+  readonly strokeMiterlimit: CssProperty<
     'strokeMiterlimit',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
-  readonly strokeOpacity: Carrier<
+  /**
+   * stroke-opacity
+   * 语法：`<'opacity'>`
+   * 初始值：`1`
+   * @see https://developer.mozilla.org/docs/Web/CSS/stroke-opacity
+   */
+  readonly strokeOpacity: CssProperty<
     'strokeOpacity',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
-  readonly strokeWidth: Carrier<
+  /**
+   * stroke-width
+   * 语法：`<length-percentage> | <number>`
+   * 初始值：`1px`
+   * @see https://developer.mozilla.org/docs/Web/CSS/stroke-width
+   */
+  readonly strokeWidth: CssProperty<
     'strokeWidth',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly tableLayout: Carrier<
-    'tableLayout',
-    keyof (typeof keywordGroups)[213],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since August 2021. */
-  readonly tabSize: Carrier<'tabSize', keyof (typeof keywordGroups)[5], 'length', 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly textAlign: Carrier<'textAlign', keyof (typeof keywordGroups)[214], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2022. */
-  readonly textAlignLast: Carrier<
+  /**
+   * table-layout
+   * 语法：`auto | fixed`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/table-layout
+   */
+  readonly tableLayout: CssProperty<'tableLayout', (typeof keywordGroups)[213], never, 1, '', T, M>;
+  /**
+   * tab-size
+   * 语法：`<integer> | <length>`
+   * 初始值：`8`
+   * @see https://developer.mozilla.org/docs/Web/CSS/tab-size
+   */
+  readonly tabSize: CssProperty<'tabSize', (typeof keywordGroups)[5], 'length', 1, '', T, M>;
+  /**
+   * text-align
+   * 语法：`start | end | left | right | center | justify | match-parent`
+   * 初始值：`start`, or a nameless value that acts as `left` if _direction_ is `ltr`, `right` if _direction_ is `rtl` if `start` is not supported by the browser.
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-align
+   */
+  readonly textAlign: CssProperty<'textAlign', (typeof keywordGroups)[214], never, 1, '', T, M>;
+  /**
+   * text-align-last
+   * 语法：`auto | start | end | left | right | center | justify`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-align-last
+   */
+  readonly textAlignLast: CssProperty<
     'textAlignLast',
-    keyof (typeof keywordGroups)[147],
+    (typeof keywordGroups)[147],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since August 2016. */
-  readonly textAnchor: Carrier<'textAnchor', keyof (typeof keywordGroups)[215], never, 1, '', T, M>;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly textAutospace: Carrier<
+  /**
+   * text-anchor
+   * 语法：`start | middle | end`
+   * 初始值：`start`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-anchor
+   */
+  readonly textAnchor: CssProperty<'textAnchor', (typeof keywordGroups)[215], never, 1, '', T, M>;
+  /**
+   * text-autospace
+   * 语法：`normal | <autospace> | auto`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-autospace
+   */
+  readonly textAutospace: CssProperty<
     'textAutospace',
-    keyof (typeof keywordGroups)[216],
+    (typeof keywordGroups)[216],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `normal | <'text-box-trim'> || <'text-box-edge'>` */
-  readonly textBox: Carrier<'textBox', keyof (typeof keywordGroups)[217], never, 1, '', T, M>;
-  /** **Syntax**: `auto | <text-edge>` */
-  readonly textBoxEdge: Carrier<
-    'textBoxEdge',
-    keyof (typeof keywordGroups)[218],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** **Syntax**: `none | trim-start | trim-end | trim-both` */
-  readonly textBoxTrim: Carrier<
-    'textBoxTrim',
-    keyof (typeof keywordGroups)[219],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2022. */
-  readonly textCombineUpright: Carrier<
+  /**
+   * text-box
+   * 语法：`normal | <'text-box-trim'> || <'text-box-edge'>`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-box
+   */
+  readonly textBox: CssProperty<'textBox', (typeof keywordGroups)[217], never, 1, '', T, M>;
+  /**
+   * text-box-edge
+   * 语法：`auto | <text-edge>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-box-edge
+   */
+  readonly textBoxEdge: CssProperty<'textBoxEdge', (typeof keywordGroups)[218], never, 1, '', T, M>;
+  /**
+   * text-box-trim
+   * 语法：`none | trim-start | trim-end | trim-both`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-box-trim
+   */
+  readonly textBoxTrim: CssProperty<'textBoxTrim', (typeof keywordGroups)[219], never, 1, '', T, M>;
+  /**
+   * text-combine-upright
+   * 语法：`none | all | [ digits <integer>? ]`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-combine-upright
+   */
+  readonly textCombineUpright: CssProperty<
     'textCombineUpright',
-    keyof (typeof keywordGroups)[171],
+    (typeof keywordGroups)[171],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly textDecoration: Carrier<
+  /**
+   * text-decoration
+   * 语法：`<'text-decoration-line'> || <'text-decoration-style'> || <'text-decoration-color'> || <'text-decoration-thickness'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-decoration
+   */
+  readonly textDecoration: CssProperty<
     'textDecoration',
-    keyof (typeof keywordGroups)[220],
+    (typeof keywordGroups)[220],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly textDecorationColor: Carrier<
+  /**
+   * text-decoration-color
+   * 主题类别：color（_ 前缀）。
+   * 语法：`<color>`
+   * 初始值：`currentcolor`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-decoration-color
+   */
+  readonly textDecorationColor: CssProperty<
     'textDecorationColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     'color',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly textDecorationLine: Carrier<
+  /**
+   * text-decoration-line
+   * 语法：`none | [ underline || overline || line-through || blink ] | spelling-error | grammar-error`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-decoration-line
+   */
+  readonly textDecorationLine: CssProperty<
     'textDecorationLine',
-    keyof (typeof keywordGroups)[149],
+    (typeof keywordGroups)[149],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly textDecorationSkip: Carrier<
+  /**
+   * text-decoration-skip
+   * 语法：`none | [ objects || [ spaces | [ leading-spaces || trailing-spaces ] ] || edges || box-decoration ]`
+   * 初始值：`objects`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-decoration-skip
+   */
+  readonly textDecorationSkip: CssProperty<
     'textDecorationSkip',
-    keyof (typeof keywordGroups)[221],
+    (typeof keywordGroups)[221],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2022. */
-  readonly textDecorationSkipInk: Carrier<
+  /**
+   * text-decoration-skip-ink
+   * 语法：`auto | all | none`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-decoration-skip-ink
+   */
+  readonly textDecorationSkipInk: CssProperty<
     'textDecorationSkipInk',
-    keyof (typeof keywordGroups)[222],
+    (typeof keywordGroups)[222],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly textDecorationStyle: Carrier<
+  /**
+   * text-decoration-style
+   * 语法：`solid | double | dotted | dashed | wavy`
+   * 初始值：`solid`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-decoration-style
+   */
+  readonly textDecorationStyle: CssProperty<
     'textDecorationStyle',
-    keyof (typeof keywordGroups)[150],
+    (typeof keywordGroups)[150],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2021. */
-  readonly textDecorationThickness: Carrier<
+  /**
+   * text-decoration-thickness
+   * 语法：`auto | from-font | <length> | <percentage> `
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-decoration-thickness
+   */
+  readonly textDecorationThickness: CssProperty<
     'textDecorationThickness',
-    keyof (typeof keywordGroups)[223],
+    (typeof keywordGroups)[223],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2022. */
-  readonly textEmphasis: Carrier<
+  /**
+   * text-emphasis
+   * 语法：`<'text-emphasis-style'> || <'text-emphasis-color'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-emphasis
+   */
+  readonly textEmphasis: CssProperty<
     'textEmphasis',
-    keyof (typeof keywordGroups)[224],
+    (typeof keywordGroups)[224],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2022. */
-  readonly textEmphasisColor: Carrier<
+  /**
+   * text-emphasis-color
+   * 主题类别：color（_ 前缀）。
+   * 语法：`<color>`
+   * 初始值：`currentcolor`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-emphasis-color
+   */
+  readonly textEmphasisColor: CssProperty<
     'textEmphasisColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     'color',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2022. */
-  readonly textEmphasisPosition: Carrier<
+  /**
+   * text-emphasis-position
+   * 语法：`auto | [ over | under ] && [ right | left ]?`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-emphasis-position
+   */
+  readonly textEmphasisPosition: CssProperty<
     'textEmphasisPosition',
-    keyof (typeof keywordGroups)[225],
+    (typeof keywordGroups)[225],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2022. */
-  readonly textEmphasisStyle: Carrier<
+  /**
+   * text-emphasis-style
+   * 语法：`none | [ [ filled | open ] || [ dot | circle | double-circle | triangle | sesame ] ] | <string>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-emphasis-style
+   */
+  readonly textEmphasisStyle: CssProperty<
     'textEmphasisStyle',
-    keyof (typeof keywordGroups)[226],
+    (typeof keywordGroups)[226],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly textIndent: Carrier<
+  /**
+   * text-indent
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`<length-percentage> && hanging? && each-line?`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-indent
+   */
+  readonly textIndent: CssProperty<
     'textIndent',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     'spacing',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly textJustify: Carrier<
-    'textJustify',
-    keyof (typeof keywordGroups)[227],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2020. */
-  readonly textOrientation: Carrier<
+  /**
+   * text-justify
+   * 语法：`auto | inter-character | inter-word | none`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-justify
+   */
+  readonly textJustify: CssProperty<'textJustify', (typeof keywordGroups)[227], never, 1, '', T, M>;
+  /**
+   * text-orientation
+   * 语法：`mixed | upright | sideways`
+   * 初始值：`mixed`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-orientation
+   */
+  readonly textOrientation: CssProperty<
     'textOrientation',
-    keyof (typeof keywordGroups)[228],
+    (typeof keywordGroups)[228],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly textOverflow: Carrier<
+  /**
+   * text-overflow
+   * 语法：`[ clip | ellipsis | <string> ]{1,2}`
+   * 初始值：`clip`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-overflow
+   */
+  readonly textOverflow: CssProperty<
     'textOverflow',
-    keyof (typeof keywordGroups)[172],
+    (typeof keywordGroups)[172],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly textRendering: Carrier<
+  /**
+   * text-rendering
+   * 语法：`auto | optimizeSpeed | optimizeLegibility | geometricPrecision`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-rendering
+   */
+  readonly textRendering: CssProperty<
     'textRendering',
-    keyof (typeof keywordGroups)[229],
+    (typeof keywordGroups)[229],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly textShadow: Carrier<
+  /**
+   * text-shadow
+   * 主题类别：shadow（_ 前缀）。
+   * 语法：`none | <shadow-t>#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-shadow
+   */
+  readonly textShadow: CssProperty<
     'textShadow',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     'shadow',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly textSizeAdjust: Carrier<
+  /**
+   * text-size-adjust
+   * 语法：`none | auto | <percentage>`
+   * 初始值：`auto` for smartphone browsers supporting inflation, `none` in other cases (and then not modifiable).
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-size-adjust
+   */
+  readonly textSizeAdjust: CssProperty<
     'textSizeAdjust',
-    keyof (typeof keywordGroups)[16],
+    (typeof keywordGroups)[16],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly textSpacingTrim: Carrier<
+  /**
+   * text-spacing-trim
+   * 语法：`space-all | normal | space-first | trim-start`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-spacing-trim
+   */
+  readonly textSpacingTrim: CssProperty<
     'textSpacingTrim',
-    keyof (typeof keywordGroups)[230],
+    (typeof keywordGroups)[230],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly textTransform: Carrier<
+  /**
+   * text-transform
+   * 语法：`none | [ capitalize | uppercase | lowercase ] || full-width || full-size-kana | math-auto`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-transform
+   */
+  readonly textTransform: CssProperty<
     'textTransform',
-    keyof (typeof keywordGroups)[231],
+    (typeof keywordGroups)[231],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since November 2020. */
-  readonly textUnderlineOffset: Carrier<
+  /**
+   * text-underline-offset
+   * 语法：`auto | <length> | <percentage> `
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-underline-offset
+   */
+  readonly textUnderlineOffset: CssProperty<
     'textUnderlineOffset',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2020. */
-  readonly textUnderlinePosition: Carrier<
+  /**
+   * text-underline-position
+   * 语法：`auto | from-font | [ under || [ left | right ] ]`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-underline-position
+   */
+  readonly textUnderlinePosition: CssProperty<
     'textUnderlinePosition',
-    keyof (typeof keywordGroups)[232],
+    (typeof keywordGroups)[232],
     never,
     1,
     '',
     T,
     M
   >;
-  /** Since March 2024, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly textWrap: Carrier<'textWrap', keyof (typeof keywordGroups)[233], never, 1, '', T, M>;
-  /** Since October 2024, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly textWrapMode: Carrier<
+  /**
+   * text-wrap
+   * 语法：`<'text-wrap-mode'> || <'text-wrap-style'>`
+   * 初始值：`wrap`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-wrap
+   */
+  readonly textWrap: CssProperty<'textWrap', (typeof keywordGroups)[233], never, 1, '', T, M>;
+  /**
+   * text-wrap-mode
+   * 语法：`wrap | nowrap`
+   * 初始值：`wrap`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-wrap-mode
+   */
+  readonly textWrapMode: CssProperty<
     'textWrapMode',
-    keyof (typeof keywordGroups)[234],
+    (typeof keywordGroups)[234],
     never,
     1,
     '',
     T,
     M
   >;
-  /** Since October 2024, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly textWrapStyle: Carrier<
+  /**
+   * text-wrap-style
+   * 语法：`auto | balance | stable | pretty`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/text-wrap-style
+   */
+  readonly textWrapStyle: CssProperty<
     'textWrapStyle',
-    keyof (typeof keywordGroups)[235],
+    (typeof keywordGroups)[235],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly timelineScope: Carrier<
+  /**
+   * timeline-scope
+   * 语法：`none | <dashed-ident>#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/timeline-scope
+   */
+  readonly timelineScope: CssProperty<
     'timelineScope',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly top: Carrier<'top', keyof (typeof keywordGroups)[11], 'length', 1, 'spacing', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2019. */
-  readonly touchAction: Carrier<
-    'touchAction',
-    keyof (typeof keywordGroups)[173],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly transform: Carrier<'transform', keyof (typeof keywordGroups)[6], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly transformBox: Carrier<
+  /**
+   * top
+   * 主题类别：spacing（_ 前缀）。
+   * 语法：`auto | <length-percentage> | <anchor()> | <anchor-size()>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/top
+   */
+  readonly top: CssProperty<'top', (typeof keywordGroups)[11], 'length', 1, 'spacing', T, M>;
+  /**
+   * touch-action
+   * 语法：`auto | none | [ [ pan-x | pan-left | pan-right ] || [ pan-y | pan-up | pan-down ] || pinch-zoom ] | manipulation`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/touch-action
+   */
+  readonly touchAction: CssProperty<'touchAction', (typeof keywordGroups)[173], never, 1, '', T, M>;
+  /**
+   * transform
+   * 语法：`none | <transform-list>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/transform
+   */
+  readonly transform: CssProperty<'transform', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * transform-box
+   * 语法：`content-box | border-box | fill-box | stroke-box | view-box`
+   * 初始值：`view-box`
+   * @see https://developer.mozilla.org/docs/Web/CSS/transform-box
+   */
+  readonly transformBox: CssProperty<
     'transformBox',
-    keyof (typeof keywordGroups)[236],
+    (typeof keywordGroups)[236],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly transformOrigin: Carrier<
+  /**
+   * transform-origin
+   * 语法：`[ <length-percentage> | left | center | right | top | bottom ] | [ [ <length-percentage> | left | center | right ] && [ <length-percentage> | top | center | bottom ] ] <length>?`
+   * 初始值：`50% 50% 0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/transform-origin
+   */
+  readonly transformOrigin: CssProperty<
     'transformOrigin',
-    keyof (typeof keywordGroups)[26],
+    (typeof keywordGroups)[26],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly transformStyle: Carrier<
+  /**
+   * transform-style
+   * 语法：`flat | preserve-3d`
+   * 初始值：`flat`
+   * @see https://developer.mozilla.org/docs/Web/CSS/transform-style
+   */
+  readonly transformStyle: CssProperty<
     'transformStyle',
-    keyof (typeof keywordGroups)[151],
+    (typeof keywordGroups)[151],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly transition: Carrier<
-    'transition',
-    keyof (typeof keywordGroups)[152],
-    'time',
-    1,
-    '',
-    T,
-    M
-  >;
-  /** Since August 2024, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly transitionBehavior: Carrier<
+  /**
+   * transition
+   * 语法：`<single-transition>#`
+   * @see https://developer.mozilla.org/docs/Web/CSS/transition
+   */
+  readonly transition: CssProperty<'transition', (typeof keywordGroups)[152], 'time', 1, '', T, M>;
+  /**
+   * transition-behavior
+   * 语法：`<transition-behavior-value>#`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/transition-behavior
+   */
+  readonly transitionBehavior: CssProperty<
     'transitionBehavior',
-    keyof (typeof keywordGroups)[237],
+    (typeof keywordGroups)[237],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly transitionDelay: Carrier<
+  /**
+   * transition-delay
+   * 主题类别：duration（_ 前缀）。
+   * 语法：`<time>#`
+   * 初始值：`0s`
+   * @see https://developer.mozilla.org/docs/Web/CSS/transition-delay
+   */
+  readonly transitionDelay: CssProperty<
     'transitionDelay',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'time',
     1,
     'duration',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly transitionDuration: Carrier<
+  /**
+   * transition-duration
+   * 主题类别：duration（_ 前缀）。
+   * 语法：`<time>#`
+   * 初始值：`0s`
+   * @see https://developer.mozilla.org/docs/Web/CSS/transition-duration
+   */
+  readonly transitionDuration: CssProperty<
     'transitionDuration',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'time',
     1,
     'duration',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly transitionProperty: Carrier<
+  /**
+   * transition-property
+   * 语法：`none | <single-transition-property>#`
+   * 初始值：all
+   * @see https://developer.mozilla.org/docs/Web/CSS/transition-property
+   */
+  readonly transitionProperty: CssProperty<
     'transitionProperty',
-    keyof (typeof keywordGroups)[7],
+    (typeof keywordGroups)[7],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly transitionTimingFunction: Carrier<
+  /**
+   * transition-timing-function
+   * 主题类别：easing（_ 前缀）。
+   * 语法：`<easing-function>#`
+   * 初始值：`ease`
+   * @see https://developer.mozilla.org/docs/Web/CSS/transition-timing-function
+   */
+  readonly transitionTimingFunction: CssProperty<
     'transitionTimingFunction',
-    keyof (typeof keywordGroups)[17],
+    (typeof keywordGroups)[17],
     never,
     1,
     'easing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since August 2022. */
-  readonly translate: Carrier<'translate', keyof (typeof keywordGroups)[6], 'length', 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly unicodeBidi: Carrier<
-    'unicodeBidi',
-    keyof (typeof keywordGroups)[238],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly userSelect: Carrier<'userSelect', keyof (typeof keywordGroups)[115], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly vectorEffect: Carrier<
+  /**
+   * translate
+   * 语法：`none | <length-percentage> [ <length-percentage> <length>? ]?`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/translate
+   */
+  readonly translate: CssProperty<'translate', (typeof keywordGroups)[6], 'length', 1, '', T, M>;
+  /**
+   * unicode-bidi
+   * 语法：`normal | embed | isolate | bidi-override | isolate-override | plaintext`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/unicode-bidi
+   */
+  readonly unicodeBidi: CssProperty<'unicodeBidi', (typeof keywordGroups)[238], never, 1, '', T, M>;
+  /**
+   * user-select
+   * 语法：`auto | text | none | all`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/user-select
+   */
+  readonly userSelect: CssProperty<'userSelect', (typeof keywordGroups)[115], never, 1, '', T, M>;
+  /**
+   * vector-effect
+   * 语法：`none | non-scaling-stroke | non-scaling-size | non-rotation | fixed-position`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/vector-effect
+   */
+  readonly vectorEffect: CssProperty<
     'vectorEffect',
-    keyof (typeof keywordGroups)[239],
+    (typeof keywordGroups)[239],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly verticalAlign: Carrier<
+  /**
+   * vertical-align
+   * 语法：`baseline | sub | super | text-top | text-bottom | middle | top | bottom | <percentage> | <length>`
+   * 初始值：`baseline`
+   * @see https://developer.mozilla.org/docs/Web/CSS/vertical-align
+   */
+  readonly verticalAlign: CssProperty<
     'verticalAlign',
-    keyof (typeof keywordGroups)[240],
+    (typeof keywordGroups)[240],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly viewTimeline: Carrier<
-    'viewTimeline',
-    keyof (typeof keywordGroups)[6],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly viewTimelineAxis: Carrier<
+  /**
+   * view-timeline
+   * 语法：`[ <'view-timeline-name'> [ <'view-timeline-axis'> || <'view-timeline-inset'> ]? ]#`
+   * @see https://developer.mozilla.org/docs/Web/CSS/view-timeline
+   */
+  readonly viewTimeline: CssProperty<'viewTimeline', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * view-timeline-axis
+   * 语法：`[ block | inline | x | y ]#`
+   * 初始值：`block`
+   * @see https://developer.mozilla.org/docs/Web/CSS/view-timeline-axis
+   */
+  readonly viewTimelineAxis: CssProperty<
     'viewTimelineAxis',
-    keyof (typeof keywordGroups)[207],
+    (typeof keywordGroups)[207],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly viewTimelineInset: Carrier<
+  /**
+   * view-timeline-inset
+   * 语法：`[ [ auto | <length-percentage> ]{1,2} ]#`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/view-timeline-inset
+   */
+  readonly viewTimelineInset: CssProperty<
     'viewTimelineInset',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly viewTimelineName: Carrier<
+  /**
+   * view-timeline-name
+   * 语法：`[ none | <dashed-ident> ]#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/view-timeline-name
+   */
+  readonly viewTimelineName: CssProperty<
     'viewTimelineName',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `none | <custom-ident>+` */
-  readonly viewTransitionClass: Carrier<
+  /**
+   * view-transition-class
+   * 语法：`none | <custom-ident>+`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/view-transition-class
+   */
+  readonly viewTransitionClass: CssProperty<
     'viewTransitionClass',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** Since October 2025, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly viewTransitionName: Carrier<
+  /**
+   * view-transition-name
+   * 语法：`none | <custom-ident> | match-element`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/view-transition-name
+   */
+  readonly viewTransitionName: CssProperty<
     'viewTransitionName',
-    keyof (typeof keywordGroups)[241],
+    (typeof keywordGroups)[241],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly visibility: Carrier<'visibility', keyof (typeof keywordGroups)[242], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitAlignContent: Carrier<
+  /**
+   * visibility
+   * 语法：`visible | hidden | collapse`
+   * 初始值：`visible`
+   * @see https://developer.mozilla.org/docs/Web/CSS/visibility
+   */
+  readonly visibility: CssProperty<'visibility', (typeof keywordGroups)[242], never, 1, '', T, M>;
+  /**
+   * -webkit-align-content
+   * 语法：`normal | <baseline-position> | <content-distribution> | <overflow-position>? <content-position>`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-align-content
+   */
+  readonly WebkitAlignContent: CssProperty<
     'WebkitAlignContent',
-    keyof (typeof keywordGroups)[1],
+    (typeof keywordGroups)[1],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitAlignItems: Carrier<
+  /**
+   * -webkit-align-items
+   * 语法：`normal | stretch | <baseline-position> | [ <overflow-position>? <self-position> ] | anchor-center`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-align-items
+   */
+  readonly WebkitAlignItems: CssProperty<
     'WebkitAlignItems',
-    keyof (typeof keywordGroups)[2],
+    (typeof keywordGroups)[2],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitAlignSelf: Carrier<
+  /**
+   * -webkit-align-self
+   * 语法：`auto | normal | stretch | <baseline-position> | <overflow-position>? <self-position> | anchor-center`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-align-self
+   */
+  readonly WebkitAlignSelf: CssProperty<
     'WebkitAlignSelf',
-    keyof (typeof keywordGroups)[4],
+    (typeof keywordGroups)[4],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitAnimation: Carrier<
+  /**
+   * -webkit-animation
+   * 语法：`<single-animation>#`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-animation
+   */
+  readonly WebkitAnimation: CssProperty<
     'WebkitAnimation',
-    keyof (typeof keywordGroups)[8],
+    (typeof keywordGroups)[8],
     'time',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitAnimationDelay: Carrier<
+  /**
+   * -webkit-animation-delay
+   * 语法：`<time>#`
+   * 初始值：`0s`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-animation-delay
+   */
+  readonly WebkitAnimationDelay: CssProperty<
     'WebkitAnimationDelay',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'time',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitAnimationDirection: Carrier<
+  /**
+   * -webkit-animation-direction
+   * 语法：`<single-animation-direction>#`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-animation-direction
+   */
+  readonly WebkitAnimationDirection: CssProperty<
     'WebkitAnimationDirection',
-    keyof (typeof keywordGroups)[10],
+    (typeof keywordGroups)[10],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitAnimationDuration: Carrier<
+  /**
+   * -webkit-animation-duration
+   * 语法：`[ auto | <time [0s,∞]> ]#`
+   * 初始值：`0s`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-animation-duration
+   */
+  readonly WebkitAnimationDuration: CssProperty<
     'WebkitAnimationDuration',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'time',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitAnimationFillMode: Carrier<
+  /**
+   * -webkit-animation-fill-mode
+   * 语法：`<single-animation-fill-mode>#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-animation-fill-mode
+   */
+  readonly WebkitAnimationFillMode: CssProperty<
     'WebkitAnimationFillMode',
-    keyof (typeof keywordGroups)[12],
+    (typeof keywordGroups)[12],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitAnimationIterationCount: Carrier<
+  /**
+   * -webkit-animation-iteration-count
+   * 语法：`<single-animation-iteration-count>#`
+   * 初始值：`1`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-animation-iteration-count
+   */
+  readonly WebkitAnimationIterationCount: CssProperty<
     'WebkitAnimationIterationCount',
-    keyof (typeof keywordGroups)[13],
+    (typeof keywordGroups)[13],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitAnimationName: Carrier<
+  /**
+   * -webkit-animation-name
+   * 语法：`[ none | <keyframes-name> ]#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-animation-name
+   */
+  readonly WebkitAnimationName: CssProperty<
     'WebkitAnimationName',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitAnimationPlayState: Carrier<
+  /**
+   * -webkit-animation-play-state
+   * 语法：`<single-animation-play-state>#`
+   * 初始值：`running`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-animation-play-state
+   */
+  readonly WebkitAnimationPlayState: CssProperty<
     'WebkitAnimationPlayState',
-    keyof (typeof keywordGroups)[14],
+    (typeof keywordGroups)[14],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitAnimationTimingFunction: Carrier<
+  /**
+   * -webkit-animation-timing-function
+   * 语法：`<easing-function>#`
+   * 初始值：`ease`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-animation-timing-function
+   */
+  readonly WebkitAnimationTimingFunction: CssProperty<
     'WebkitAnimationTimingFunction',
-    keyof (typeof keywordGroups)[17],
+    (typeof keywordGroups)[17],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2022. */
-  readonly WebkitAppearance: Carrier<
+  /**
+   * -webkit-appearance
+   * 语法：`none | button | button-bevel | caret | checkbox | default-button | inner-spin-button | listbox | listitem | media-controls-background | media-controls-fullscreen-background | media-current-time-display | media-enter-fullscreen-button | med
+   * 初始值：`none` (but this value is overridden in the user agent CSS)
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-appearance
+   */
+  readonly WebkitAppearance: CssProperty<
     'WebkitAppearance',
-    keyof (typeof keywordGroups)[243],
+    (typeof keywordGroups)[243],
     never,
     1,
     '',
     T,
     M
   >;
-  /** Since September 2024, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly WebkitBackdropFilter: Carrier<
+  /**
+   * -webkit-backdrop-filter
+   * 语法：`none | <filter-value-list>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-backdrop-filter
+   */
+  readonly WebkitBackdropFilter: CssProperty<
     'WebkitBackdropFilter',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2022. */
-  readonly WebkitBackfaceVisibility: Carrier<
+  /**
+   * -webkit-backface-visibility
+   * 语法：`visible | hidden`
+   * 初始值：`visible`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-backface-visibility
+   */
+  readonly WebkitBackfaceVisibility: CssProperty<
     'WebkitBackfaceVisibility',
-    keyof (typeof keywordGroups)[19],
+    (typeof keywordGroups)[19],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly WebkitBackgroundClip: Carrier<
+  /**
+   * -webkit-background-clip
+   * 语法：`<bg-clip>#`
+   * 初始值：`border-box`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-background-clip
+   */
+  readonly WebkitBackgroundClip: CssProperty<
     'WebkitBackgroundClip',
-    keyof (typeof keywordGroups)[23],
+    (typeof keywordGroups)[23],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly WebkitBackgroundOrigin: Carrier<
+  /**
+   * -webkit-background-origin
+   * 语法：`<visual-box>#`
+   * 初始值：`padding-box`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-background-origin
+   */
+  readonly WebkitBackgroundOrigin: CssProperty<
     'WebkitBackgroundOrigin',
-    keyof (typeof keywordGroups)[25],
+    (typeof keywordGroups)[25],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly WebkitBackgroundSize: Carrier<
+  /**
+   * -webkit-background-size
+   * 语法：`<bg-size>#`
+   * 初始值：`auto auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-background-size
+   */
+  readonly WebkitBackgroundSize: CssProperty<
     'WebkitBackgroundSize',
-    keyof (typeof keywordGroups)[30],
+    (typeof keywordGroups)[30],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** The **`-webkit-border-before`** CSS property is a shorthand property for setting the individual logical block start border property values in a single place in the style sheet. */
-  readonly WebkitBorderBefore: Carrier<
+  /**
+   * -webkit-border-before
+   * 语法：`<'border-width'> || <'border-style'> || <color>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-border-before
+   */
+  readonly WebkitBorderBefore: CssProperty<
     'WebkitBorderBefore',
-    keyof (typeof keywordGroups)[33],
+    (typeof keywordGroups)[33],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<color>` */
-  readonly WebkitBorderBeforeColor: Carrier<
+  /**
+   * -webkit-border-before-color
+   * 语法：`<color>`
+   * 初始值：`currentcolor`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-border-before-color
+   */
+  readonly WebkitBorderBeforeColor: CssProperty<
     'WebkitBorderBeforeColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<'border-style'>` */
-  readonly WebkitBorderBeforeStyle: Carrier<
+  /**
+   * -webkit-border-before-style
+   * 语法：`<'border-style'>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-border-before-style
+   */
+  readonly WebkitBorderBeforeStyle: CssProperty<
     'WebkitBorderBeforeStyle',
-    keyof (typeof keywordGroups)[34],
+    (typeof keywordGroups)[34],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<'border-width'>` */
-  readonly WebkitBorderBeforeWidth: Carrier<
+  /**
+   * -webkit-border-before-width
+   * 语法：`<'border-width'>`
+   * 初始值：`medium`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-border-before-width
+   */
+  readonly WebkitBorderBeforeWidth: CssProperty<
     'WebkitBorderBeforeWidth',
-    keyof (typeof keywordGroups)[35],
+    (typeof keywordGroups)[35],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly WebkitBorderBottomLeftRadius: Carrier<
+  /**
+   * -webkit-border-bottom-left-radius
+   * 语法：`<length-percentage [0,∞]>{1,2}`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-border-bottom-left-radius
+   */
+  readonly WebkitBorderBottomLeftRadius: CssProperty<
     'WebkitBorderBottomLeftRadius',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly WebkitBorderBottomRightRadius: Carrier<
+  /**
+   * -webkit-border-bottom-right-radius
+   * 语法：`<length-percentage [0,∞]>{1,2}`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-border-bottom-right-radius
+   */
+  readonly WebkitBorderBottomRightRadius: CssProperty<
     'WebkitBorderBottomRightRadius',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly WebkitBorderImage: Carrier<
+  /**
+   * -webkit-border-image
+   * 语法：`<'border-image-source'> || <'border-image-slice'> [ / <'border-image-width'> | / <'border-image-width'>? / <'border-image-outset'> ]? || <'border-image-repeat'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-border-image
+   */
+  readonly WebkitBorderImage: CssProperty<
     'WebkitBorderImage',
-    keyof (typeof keywordGroups)[37],
+    (typeof keywordGroups)[37],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly WebkitBorderImageSlice: Carrier<
+  /**
+   * -webkit-border-image-slice
+   * 语法：`[ <number [0,∞]> | <percentage [0,∞]> ]{1,4}  && fill?`
+   * 初始值：`100%`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-border-image-slice
+   */
+  readonly WebkitBorderImageSlice: CssProperty<
     'WebkitBorderImageSlice',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly WebkitBorderRadius: Carrier<
+  /**
+   * -webkit-border-radius
+   * 语法：`<length-percentage [0,∞]>{1,4} [ / <length-percentage [0,∞]>{1,4} ]?`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-border-radius
+   */
+  readonly WebkitBorderRadius: CssProperty<
     'WebkitBorderRadius',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly WebkitBorderTopLeftRadius: Carrier<
+  /**
+   * -webkit-border-top-left-radius
+   * 语法：`<length-percentage [0,∞]>{1,2}`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-border-top-left-radius
+   */
+  readonly WebkitBorderTopLeftRadius: CssProperty<
     'WebkitBorderTopLeftRadius',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly WebkitBorderTopRightRadius: Carrier<
+  /**
+   * -webkit-border-top-right-radius
+   * 语法：`<length-percentage [0,∞]>{1,2}`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-border-top-right-radius
+   */
+  readonly WebkitBorderTopRightRadius: CssProperty<
     'WebkitBorderTopRightRadius',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** The **`box-align`** CSS property specifies how an element aligns its contents across its layout in a perpendicular direction. The effect of the property is only visible if there is extra space in the box. */
-  readonly WebkitBoxAlign: Carrier<
+  /**
+   * -webkit-box-align
+   * 语法：`start | center | end | baseline | stretch`
+   * 初始值：`stretch`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-box-align
+   */
+  readonly WebkitBoxAlign: CssProperty<
     'WebkitBoxAlign',
-    keyof (typeof keywordGroups)[39],
+    (typeof keywordGroups)[39],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly WebkitBoxDecorationBreak: Carrier<
+  /**
+   * -webkit-box-decoration-break
+   * 语法：`slice | clone`
+   * 初始值：`slice`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-box-decoration-break
+   */
+  readonly WebkitBoxDecorationBreak: CssProperty<
     'WebkitBoxDecorationBreak',
-    keyof (typeof keywordGroups)[40],
+    (typeof keywordGroups)[40],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`box-direction`** CSS property specifies whether a box lays out its contents normally (from the top or left edge), or in reverse (from the bottom or right edge). */
-  readonly WebkitBoxDirection: Carrier<
+  /**
+   * -webkit-box-direction
+   * 语法：`normal | reverse | inherit`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-box-direction
+   */
+  readonly WebkitBoxDirection: CssProperty<
     'WebkitBoxDirection',
-    keyof (typeof keywordGroups)[41],
+    (typeof keywordGroups)[41],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`-moz-box-flex`** and **`-webkit-box-flex`** CSS properties specify how a `-moz-box` or `-webkit-box` grows to fill the box that contains it, in the direction of the containing box's layout. */
-  readonly WebkitBoxFlex: Carrier<
+  /**
+   * -webkit-box-flex
+   * 语法：`<number>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-box-flex
+   */
+  readonly WebkitBoxFlex: CssProperty<
     'WebkitBoxFlex',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`box-flex-group`** CSS property assigns the flexbox's child elements to a flex group. */
-  readonly WebkitBoxFlexGroup: Carrier<
+  /**
+   * -webkit-box-flex-group
+   * 语法：`<integer>`
+   * 初始值：`1`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-box-flex-group
+   */
+  readonly WebkitBoxFlexGroup: CssProperty<
     'WebkitBoxFlexGroup',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`box-lines`** CSS property determines whether the box may have a single or multiple lines (rows for horizontally oriented boxes, columns for vertically oriented boxes). */
-  readonly WebkitBoxLines: Carrier<
+  /**
+   * -webkit-box-lines
+   * 语法：`single | multiple`
+   * 初始值：`single`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-box-lines
+   */
+  readonly WebkitBoxLines: CssProperty<
     'WebkitBoxLines',
-    keyof (typeof keywordGroups)[42],
+    (typeof keywordGroups)[42],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`box-ordinal-group`** CSS property assigns the flexbox's child elements to an ordinal group. */
-  readonly WebkitBoxOrdinalGroup: Carrier<
+  /**
+   * -webkit-box-ordinal-group
+   * 语法：`<integer>`
+   * 初始值：`1`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-box-ordinal-group
+   */
+  readonly WebkitBoxOrdinalGroup: CssProperty<
     'WebkitBoxOrdinalGroup',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`box-orient`** CSS property sets whether an element lays out its contents horizontally or vertically. */
-  readonly WebkitBoxOrient: Carrier<
+  /**
+   * -webkit-box-orient
+   * 语法：`horizontal | vertical | inline-axis | block-axis | inherit`
+   * 初始值：`inline-axis`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-box-orient
+   */
+  readonly WebkitBoxOrient: CssProperty<
     'WebkitBoxOrient',
-    keyof (typeof keywordGroups)[43],
+    (typeof keywordGroups)[43],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`-moz-box-pack`** and **`-webkit-box-pack`** CSS properties specify how a `-moz-box` or `-webkit-box` packs its contents in the direction of its layout. The effect of this is only visible if there is extra space in the box. */
-  readonly WebkitBoxPack: Carrier<
+  /**
+   * -webkit-box-pack
+   * 语法：`start | center | end | justify`
+   * 初始值：`start`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-box-pack
+   */
+  readonly WebkitBoxPack: CssProperty<
     'WebkitBoxPack',
-    keyof (typeof keywordGroups)[44],
+    (typeof keywordGroups)[44],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`-webkit-box-reflect`** CSS property lets you reflect the content of an element in one specific direction. */
-  readonly WebkitBoxReflect: Carrier<
+  /**
+   * -webkit-box-reflect
+   * 语法：`[ above | below | right | left ]? <length>? <image>?`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-box-reflect
+   */
+  readonly WebkitBoxReflect: CssProperty<
     'WebkitBoxReflect',
-    keyof (typeof keywordGroups)[244],
+    (typeof keywordGroups)[244],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly WebkitBoxShadow: Carrier<
+  /**
+   * -webkit-box-shadow
+   * 语法：`none | <shadow>#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-box-shadow
+   */
+  readonly WebkitBoxShadow: CssProperty<
     'WebkitBoxShadow',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly WebkitBoxSizing: Carrier<
+  /**
+   * -webkit-box-sizing
+   * 语法：`content-box | border-box`
+   * 初始值：`content-box`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-box-sizing
+   */
+  readonly WebkitBoxSizing: CssProperty<
     'WebkitBoxSizing',
-    keyof (typeof keywordGroups)[45],
+    (typeof keywordGroups)[45],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly WebkitClipPath: Carrier<
+  /**
+   * -webkit-clip-path
+   * 语法：`<clip-source> | [ <basic-shape> || <geometry-box> ] | none`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-clip-path
+   */
+  readonly WebkitClipPath: CssProperty<
     'WebkitClipPath',
-    keyof (typeof keywordGroups)[52],
+    (typeof keywordGroups)[52],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly WebkitColumnCount: Carrier<
+  /**
+   * -webkit-column-count
+   * 语法：`<integer> | auto`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-column-count
+   */
+  readonly WebkitColumnCount: CssProperty<
     'WebkitColumnCount',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly WebkitColumnFill: Carrier<
+  /**
+   * -webkit-column-fill
+   * 语法：`auto | balance`
+   * 初始值：`balance`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-column-fill
+   */
+  readonly WebkitColumnFill: CssProperty<
     'WebkitColumnFill',
-    keyof (typeof keywordGroups)[58],
+    (typeof keywordGroups)[58],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly WebkitColumnRule: Carrier<
+  /**
+   * -webkit-column-rule
+   * 语法：`<'column-rule-width'> || <'column-rule-style'> || <'column-rule-color'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-column-rule
+   */
+  readonly WebkitColumnRule: CssProperty<
     'WebkitColumnRule',
-    keyof (typeof keywordGroups)[33],
+    (typeof keywordGroups)[33],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly WebkitColumnRuleColor: Carrier<
+  /**
+   * -webkit-column-rule-color
+   * 语法：`<color>`
+   * 初始值：`currentcolor`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-column-rule-color
+   */
+  readonly WebkitColumnRuleColor: CssProperty<
     'WebkitColumnRuleColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly WebkitColumnRuleStyle: Carrier<
+  /**
+   * -webkit-column-rule-style
+   * 语法：`<'border-style'>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-column-rule-style
+   */
+  readonly WebkitColumnRuleStyle: CssProperty<
     'WebkitColumnRuleStyle',
-    keyof (typeof keywordGroups)[34],
+    (typeof keywordGroups)[34],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly WebkitColumnRuleWidth: Carrier<
+  /**
+   * -webkit-column-rule-width
+   * 语法：`<'border-width'>`
+   * 初始值：`medium`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-column-rule-width
+   */
+  readonly WebkitColumnRuleWidth: CssProperty<
     'WebkitColumnRuleWidth',
-    keyof (typeof keywordGroups)[35],
+    (typeof keywordGroups)[35],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly WebkitColumns: Carrier<
+  /**
+   * -webkit-columns
+   * 语法：`<'column-width'> || <'column-count'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-columns
+   */
+  readonly WebkitColumns: CssProperty<
     'WebkitColumns',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2020. */
-  readonly WebkitColumnSpan: Carrier<
+  /**
+   * -webkit-column-span
+   * 语法：`none | all`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-column-span
+   */
+  readonly WebkitColumnSpan: CssProperty<
     'WebkitColumnSpan',
-    keyof (typeof keywordGroups)[7],
+    (typeof keywordGroups)[7],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since November 2016. */
-  readonly WebkitColumnWidth: Carrier<
+  /**
+   * -webkit-column-width
+   * 语法：`<length> | auto`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-column-width
+   */
+  readonly WebkitColumnWidth: CssProperty<
     'WebkitColumnWidth',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2016. */
-  readonly WebkitFilter: Carrier<
-    'WebkitFilter',
-    keyof (typeof keywordGroups)[6],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitFlex: Carrier<
-    'WebkitFlex',
-    keyof (typeof keywordGroups)[71],
-    'length',
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitFlexBasis: Carrier<
+  /**
+   * -webkit-filter
+   * 语法：`none | <filter-value-list>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-filter
+   */
+  readonly WebkitFilter: CssProperty<'WebkitFilter', (typeof keywordGroups)[6], never, 1, '', T, M>;
+  /**
+   * -webkit-flex
+   * 语法：`none | [ <'flex-grow'> <'flex-shrink'>? || <'flex-basis'> ]`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-flex
+   */
+  readonly WebkitFlex: CssProperty<'WebkitFlex', (typeof keywordGroups)[71], 'length', 1, '', T, M>;
+  /**
+   * -webkit-flex-basis
+   * 语法：`content | <'width'>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-flex-basis
+   */
+  readonly WebkitFlexBasis: CssProperty<
     'WebkitFlexBasis',
-    keyof (typeof keywordGroups)[72],
+    (typeof keywordGroups)[72],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitFlexDirection: Carrier<
+  /**
+   * -webkit-flex-direction
+   * 语法：`row | row-reverse | column | column-reverse`
+   * 初始值：`row`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-flex-direction
+   */
+  readonly WebkitFlexDirection: CssProperty<
     'WebkitFlexDirection',
-    keyof (typeof keywordGroups)[73],
+    (typeof keywordGroups)[73],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitFlexFlow: Carrier<
+  /**
+   * -webkit-flex-flow
+   * 语法：`<'flex-direction'> || <'flex-wrap'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-flex-flow
+   */
+  readonly WebkitFlexFlow: CssProperty<
     'WebkitFlexFlow',
-    keyof (typeof keywordGroups)[74],
+    (typeof keywordGroups)[74],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitFlexGrow: Carrier<
+  /**
+   * -webkit-flex-grow
+   * 语法：`<number>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-flex-grow
+   */
+  readonly WebkitFlexGrow: CssProperty<
     'WebkitFlexGrow',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitFlexShrink: Carrier<
+  /**
+   * -webkit-flex-shrink
+   * 语法：`<number>`
+   * 初始值：`1`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-flex-shrink
+   */
+  readonly WebkitFlexShrink: CssProperty<
     'WebkitFlexShrink',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitFlexWrap: Carrier<
+  /**
+   * -webkit-flex-wrap
+   * 语法：`nowrap | wrap | wrap-reverse`
+   * 初始值：`nowrap`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-flex-wrap
+   */
+  readonly WebkitFlexWrap: CssProperty<
     'WebkitFlexWrap',
-    keyof (typeof keywordGroups)[75],
+    (typeof keywordGroups)[75],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
-  readonly WebkitFontFeatureSettings: Carrier<
+  /**
+   * -webkit-font-feature-settings
+   * 语法：`normal | <feature-tag-value>#`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-font-feature-settings
+   */
+  readonly WebkitFontFeatureSettings: CssProperty<
     'WebkitFontFeatureSettings',
-    keyof (typeof keywordGroups)[59],
+    (typeof keywordGroups)[59],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly WebkitFontKerning: Carrier<
+  /**
+   * -webkit-font-kerning
+   * 语法：`auto | normal | none`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-font-kerning
+   */
+  readonly WebkitFontKerning: CssProperty<
     'WebkitFontKerning',
-    keyof (typeof keywordGroups)[79],
+    (typeof keywordGroups)[79],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`font-smooth`** CSS property controls the application of anti-aliasing when fonts are rendered. */
-  readonly WebkitFontSmoothing: Carrier<
+  /**
+   * -webkit-font-smoothing
+   * 语法：`auto | never | always | <absolute-size> | <length>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-font-smoothing
+   */
+  readonly WebkitFontSmoothing: CssProperty<
     'WebkitFontSmoothing',
-    keyof (typeof keywordGroups)[82],
+    (typeof keywordGroups)[82],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly WebkitFontVariantLigatures: Carrier<
+  /**
+   * -webkit-font-variant-ligatures
+   * 语法：`normal | none | [ <common-lig-values> || <discretionary-lig-values> || <historical-lig-values> || <contextual-alt-values> ]`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-font-variant-ligatures
+   */
+  readonly WebkitFontVariantLigatures: CssProperty<
     'WebkitFontVariantLigatures',
-    keyof (typeof keywordGroups)[91],
+    (typeof keywordGroups)[91],
     never,
     1,
     '',
     T,
     M
   >;
-  /** Since September 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly WebkitHyphenateCharacter: Carrier<
+  /**
+   * -webkit-hyphenate-character
+   * 语法：`auto | <string>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-hyphenate-character
+   */
+  readonly WebkitHyphenateCharacter: CssProperty<
     'WebkitHyphenateCharacter',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     never,
     1,
     '',
     T,
     M
   >;
-  /** Since September 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly WebkitHyphens: Carrier<
+  /**
+   * -webkit-hyphens
+   * 语法：`none | manual | auto`
+   * 初始值：`manual`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-hyphens
+   */
+  readonly WebkitHyphens: CssProperty<
     'WebkitHyphens',
-    keyof (typeof keywordGroups)[101],
+    (typeof keywordGroups)[101],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly WebkitInitialLetter: Carrier<
+  /**
+   * -webkit-initial-letter
+   * 语法：`normal | [ <number> <integer>? ]`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-initial-letter
+   */
+  readonly WebkitInitialLetter: CssProperty<
     'WebkitInitialLetter',
-    keyof (typeof keywordGroups)[59],
+    (typeof keywordGroups)[59],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitJustifyContent: Carrier<
+  /**
+   * -webkit-justify-content
+   * 语法：`normal | <content-distribution> | <overflow-position>? [ <content-position> | left | right ]`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-justify-content
+   */
+  readonly WebkitJustifyContent: CssProperty<
     'WebkitJustifyContent',
-    keyof (typeof keywordGroups)[111],
+    (typeof keywordGroups)[111],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2020. */
-  readonly WebkitLineBreak: Carrier<
+  /**
+   * -webkit-line-break
+   * 语法：`auto | loose | normal | strict | anywhere`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-line-break
+   */
+  readonly WebkitLineBreak: CssProperty<
     'WebkitLineBreak',
-    keyof (typeof keywordGroups)[114],
+    (typeof keywordGroups)[114],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly WebkitLineClamp: Carrier<
+  /**
+   * -webkit-line-clamp
+   * 语法：`none | <integer>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-line-clamp
+   */
+  readonly WebkitLineClamp: CssProperty<
     'WebkitLineClamp',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly WebkitLogicalHeight: Carrier<
+  /**
+   * -webkit-logical-height
+   * 语法：`<'width'>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-logical-height
+   */
+  readonly WebkitLogicalHeight: CssProperty<
     'WebkitLogicalHeight',
-    keyof (typeof keywordGroups)[32],
+    (typeof keywordGroups)[32],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly WebkitLogicalWidth: Carrier<
+  /**
+   * -webkit-logical-width
+   * 语法：`<'width'>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-logical-width
+   */
+  readonly WebkitLogicalWidth: CssProperty<
     'WebkitLogicalWidth',
-    keyof (typeof keywordGroups)[107],
+    (typeof keywordGroups)[107],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly WebkitMarginEnd: Carrier<
+  /**
+   * -webkit-margin-end
+   * 语法：`<'margin-top'>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-margin-end
+   */
+  readonly WebkitMarginEnd: CssProperty<
     'WebkitMarginEnd',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly WebkitMarginStart: Carrier<
+  /**
+   * -webkit-margin-start
+   * 语法：`<'margin-top'>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-margin-start
+   */
+  readonly WebkitMarginStart: CssProperty<
     'WebkitMarginStart',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** Since December 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly WebkitMask: Carrier<
+  /**
+   * -webkit-mask
+   * 语法：`[ <mask-reference> || <position> [ / <bg-size> ]? || <repeat-style> || [ <visual-box> | border | padding | content | text ] || [ <visual-box> | border | padding | content ] ]#`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-mask
+   */
+  readonly WebkitMask: CssProperty<
     'WebkitMask',
-    keyof (typeof keywordGroups)[245],
+    (typeof keywordGroups)[245],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `<attachment>#` */
-  readonly WebkitMaskAttachment: Carrier<
+  /**
+   * -webkit-mask-attachment
+   * 语法：`<attachment>#`
+   * 初始值：`scroll`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-mask-attachment
+   */
+  readonly WebkitMaskAttachment: CssProperty<
     'WebkitMaskAttachment',
-    keyof (typeof keywordGroups)[21],
+    (typeof keywordGroups)[21],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly WebkitMaskBoxImage: Carrier<
+  /**
+   * -webkit-mask-box-image
+   * 语法：`<'mask-border-source'> || <'mask-border-slice'> [ / <'mask-border-width'>? [ / <'mask-border-outset'> ]? ]? || <'mask-border-repeat'> || <'mask-border-mode'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-mask-box-image
+   */
+  readonly WebkitMaskBoxImage: CssProperty<
     'WebkitMaskBoxImage',
-    keyof (typeof keywordGroups)[120],
+    (typeof keywordGroups)[120],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly WebkitMaskBoxImageOutset: Carrier<
+  /**
+   * -webkit-mask-box-image-outset
+   * 语法：`[ <length> | <number> ]{1,4}`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-mask-box-image-outset
+   */
+  readonly WebkitMaskBoxImageOutset: CssProperty<
     'WebkitMaskBoxImageOutset',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly WebkitMaskBoxImageRepeat: Carrier<
+  /**
+   * -webkit-mask-box-image-repeat
+   * 语法：`[ stretch | repeat | round | space ]{1,2}`
+   * 初始值：`stretch`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-mask-box-image-repeat
+   */
+  readonly WebkitMaskBoxImageRepeat: CssProperty<
     'WebkitMaskBoxImageRepeat',
-    keyof (typeof keywordGroups)[38],
+    (typeof keywordGroups)[38],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly WebkitMaskBoxImageSlice: Carrier<
+  /**
+   * -webkit-mask-box-image-slice
+   * 语法：`<number-percentage>{1,4} fill?`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-mask-box-image-slice
+   */
+  readonly WebkitMaskBoxImageSlice: CssProperty<
     'WebkitMaskBoxImageSlice',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly WebkitMaskBoxImageSource: Carrier<
+  /**
+   * -webkit-mask-box-image-source
+   * 语法：`none | <image>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-mask-box-image-source
+   */
+  readonly WebkitMaskBoxImageSource: CssProperty<
     'WebkitMaskBoxImageSource',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly WebkitMaskBoxImageWidth: Carrier<
+  /**
+   * -webkit-mask-box-image-width
+   * 语法：`[ <length-percentage> | <number> | auto ]{1,4}`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-mask-box-image-width
+   */
+  readonly WebkitMaskBoxImageWidth: CssProperty<
     'WebkitMaskBoxImageWidth',
-    keyof (typeof keywordGroups)[11],
+    (typeof keywordGroups)[11],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** Since December 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly WebkitMaskClip: Carrier<
+  /**
+   * -webkit-mask-clip
+   * 语法：`[ <coord-box> | no-clip | border | padding | content | text ]#`
+   * 初始值：`border`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-mask-clip
+   */
+  readonly WebkitMaskClip: CssProperty<
     'WebkitMaskClip',
-    keyof (typeof keywordGroups)[246],
+    (typeof keywordGroups)[246],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The **`-webkit-mask-composite`** property specifies the manner in which multiple mask images applied to the same element are composited with one another. Mask images are composited in the opposite order that they are declared with the `-webkit-mask-image` property. */
-  readonly WebkitMaskComposite: Carrier<
+  /**
+   * -webkit-mask-composite
+   * 语法：`<composite-style>#`
+   * 初始值：`source-over`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-mask-composite
+   */
+  readonly WebkitMaskComposite: CssProperty<
     'WebkitMaskComposite',
-    keyof (typeof keywordGroups)[247],
+    (typeof keywordGroups)[247],
     never,
     1,
     '',
     T,
     M
   >;
-  /** Since December 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly WebkitMaskImage: Carrier<
+  /**
+   * -webkit-mask-image
+   * 语法：`<mask-reference>#`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-mask-image
+   */
+  readonly WebkitMaskImage: CssProperty<
     'WebkitMaskImage',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** Since December 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly WebkitMaskOrigin: Carrier<
+  /**
+   * -webkit-mask-origin
+   * 语法：`[ <coord-box> | border | padding | content ]#`
+   * 初始值：`padding`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-mask-origin
+   */
+  readonly WebkitMaskOrigin: CssProperty<
     'WebkitMaskOrigin',
-    keyof (typeof keywordGroups)[248],
+    (typeof keywordGroups)[248],
     never,
     1,
     '',
     T,
     M
   >;
-  /** Since December 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly WebkitMaskPosition: Carrier<
+  /**
+   * -webkit-mask-position
+   * 语法：`<position>#`
+   * 初始值：`0% 0%`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-mask-position
+   */
+  readonly WebkitMaskPosition: CssProperty<
     'WebkitMaskPosition',
-    keyof (typeof keywordGroups)[26],
+    (typeof keywordGroups)[26],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** The `-webkit-mask-position-x` CSS property sets the initial horizontal position of a mask image. */
-  readonly WebkitMaskPositionX: Carrier<
+  /**
+   * -webkit-mask-position-x
+   * 语法：`[ <length-percentage> | left | center | right ]#`
+   * 初始值：`0%`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-mask-position-x
+   */
+  readonly WebkitMaskPositionX: CssProperty<
     'WebkitMaskPositionX',
-    keyof (typeof keywordGroups)[249],
+    (typeof keywordGroups)[249],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** The `-webkit-mask-position-y` CSS property sets the initial vertical position of a mask image. */
-  readonly WebkitMaskPositionY: Carrier<
+  /**
+   * -webkit-mask-position-y
+   * 语法：`[ <length-percentage> | top | center | bottom ]#`
+   * 初始值：`0%`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-mask-position-y
+   */
+  readonly WebkitMaskPositionY: CssProperty<
     'WebkitMaskPositionY',
-    keyof (typeof keywordGroups)[250],
+    (typeof keywordGroups)[250],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** Since December 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly WebkitMaskRepeat: Carrier<
+  /**
+   * -webkit-mask-repeat
+   * 语法：`<repeat-style>#`
+   * 初始值：`repeat`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-mask-repeat
+   */
+  readonly WebkitMaskRepeat: CssProperty<
     'WebkitMaskRepeat',
-    keyof (typeof keywordGroups)[29],
+    (typeof keywordGroups)[29],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The `-webkit-mask-repeat-x` property specifies whether and how a mask image is repeated (tiled) horizontally. */
-  readonly WebkitMaskRepeatX: Carrier<
+  /**
+   * -webkit-mask-repeat-x
+   * 语法：`repeat | no-repeat | space | round`
+   * 初始值：`repeat`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-mask-repeat-x
+   */
+  readonly WebkitMaskRepeatX: CssProperty<
     'WebkitMaskRepeatX',
-    keyof (typeof keywordGroups)[251],
+    (typeof keywordGroups)[251],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The `-webkit-mask-repeat-y` property sets whether and how a mask image is repeated (tiled) vertically. */
-  readonly WebkitMaskRepeatY: Carrier<
+  /**
+   * -webkit-mask-repeat-y
+   * 语法：`repeat | no-repeat | space | round`
+   * 初始值：`repeat`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-mask-repeat-y
+   */
+  readonly WebkitMaskRepeatY: CssProperty<
     'WebkitMaskRepeatY',
-    keyof (typeof keywordGroups)[251],
+    (typeof keywordGroups)[251],
     never,
     1,
     '',
     T,
     M
   >;
-  /** Since December 2023, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly WebkitMaskSize: Carrier<
+  /**
+   * -webkit-mask-size
+   * 语法：`<bg-size>#`
+   * 初始值：`auto auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-mask-size
+   */
+  readonly WebkitMaskSize: CssProperty<
     'WebkitMaskSize',
-    keyof (typeof keywordGroups)[30],
+    (typeof keywordGroups)[30],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly WebkitMaxInlineSize: Carrier<
+  /**
+   * -webkit-max-inline-size
+   * 语法：`<'max-width'>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-max-inline-size
+   */
+  readonly WebkitMaxInlineSize: CssProperty<
     'WebkitMaxInlineSize',
-    keyof (typeof keywordGroups)[131],
+    (typeof keywordGroups)[131],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitOrder: Carrier<'WebkitOrder', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
-  /** **Syntax**: `auto | touch` */
-  readonly WebkitOverflowScrolling: Carrier<
+  /**
+   * -webkit-order
+   * 语法：`<integer>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-order
+   */
+  readonly WebkitOrder: CssProperty<'WebkitOrder', (typeof keywordGroups)[5], never, 1, '', T, M>;
+  /**
+   * -webkit-overflow-scrolling
+   * 语法：`auto | touch`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-overflow-scrolling
+   */
+  readonly WebkitOverflowScrolling: CssProperty<
     'WebkitOverflowScrolling',
-    keyof (typeof keywordGroups)[252],
+    (typeof keywordGroups)[252],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly WebkitPaddingEnd: Carrier<
+  /**
+   * -webkit-padding-end
+   * 语法：`<'padding-top'>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-padding-end
+   */
+  readonly WebkitPaddingEnd: CssProperty<
     'WebkitPaddingEnd',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly WebkitPaddingStart: Carrier<
+  /**
+   * -webkit-padding-start
+   * 语法：`<'padding-top'>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-padding-start
+   */
+  readonly WebkitPaddingStart: CssProperty<
     'WebkitPaddingStart',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitPerspective: Carrier<
+  /**
+   * -webkit-perspective
+   * 语法：`none | <length>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-perspective
+   */
+  readonly WebkitPerspective: CssProperty<
     'WebkitPerspective',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitPerspectiveOrigin: Carrier<
+  /**
+   * -webkit-perspective-origin
+   * 语法：`<position>`
+   * 初始值：`50% 50%`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-perspective-origin
+   */
+  readonly WebkitPerspectiveOrigin: CssProperty<
     'WebkitPerspectiveOrigin',
-    keyof (typeof keywordGroups)[26],
+    (typeof keywordGroups)[26],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** Since May 2025, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly WebkitPrintColorAdjust: Carrier<
+  /**
+   * -webkit-print-color-adjust
+   * 语法：`economy | exact`
+   * 初始值：`economy`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-print-color-adjust
+   */
+  readonly WebkitPrintColorAdjust: CssProperty<
     'WebkitPrintColorAdjust',
-    keyof (typeof keywordGroups)[54],
+    (typeof keywordGroups)[54],
     never,
     1,
     '',
     T,
     M
   >;
-  /** Since December 2024, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly WebkitRubyPosition: Carrier<
+  /**
+   * -webkit-ruby-position
+   * 语法：`[ alternate || [ over | under ] ] | inter-character`
+   * 初始值：`alternate`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-ruby-position
+   */
+  readonly WebkitRubyPosition: CssProperty<
     'WebkitRubyPosition',
-    keyof (typeof keywordGroups)[198],
+    (typeof keywordGroups)[198],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2022. */
-  readonly WebkitScrollSnapType: Carrier<
+  /**
+   * -webkit-scroll-snap-type
+   * 语法：`none | [ x | y | block | inline | both ] [ mandatory | proximity ]?`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-scroll-snap-type
+   */
+  readonly WebkitScrollSnapType: CssProperty<
     'WebkitScrollSnapType',
-    keyof (typeof keywordGroups)[206],
+    (typeof keywordGroups)[206],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly WebkitShapeMargin: Carrier<
+  /**
+   * -webkit-shape-margin
+   * 语法：`<length-percentage>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-shape-margin
+   */
+  readonly WebkitShapeMargin: CssProperty<
     'WebkitShapeMargin',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** **`-webkit-tap-highlight-color`** is a non-standard CSS property that sets the color of the highlight that appears over a link while it's being tapped. The highlighting indicates to the user that their tap is being successfully recognized, and indicates which element they're tapping on. */
-  readonly WebkitTapHighlightColor: Carrier<
+  /**
+   * -webkit-tap-highlight-color
+   * 语法：`<color>`
+   * 初始值：`black`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-tap-highlight-color
+   */
+  readonly WebkitTapHighlightColor: CssProperty<
     'WebkitTapHighlightColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2022. */
-  readonly WebkitTextCombine: Carrier<
+  /**
+   * -webkit-text-combine
+   * 语法：`none | all | [ digits <integer>? ]`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-text-combine
+   */
+  readonly WebkitTextCombine: CssProperty<
     'WebkitTextCombine',
-    keyof (typeof keywordGroups)[171],
+    (typeof keywordGroups)[171],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly WebkitTextDecorationColor: Carrier<
+  /**
+   * -webkit-text-decoration-color
+   * 语法：`<color>`
+   * 初始值：`currentcolor`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-text-decoration-color
+   */
+  readonly WebkitTextDecorationColor: CssProperty<
     'WebkitTextDecorationColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly WebkitTextDecorationLine: Carrier<
+  /**
+   * -webkit-text-decoration-line
+   * 语法：`none | [ underline || overline || line-through || blink ] | spelling-error | grammar-error`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-text-decoration-line
+   */
+  readonly WebkitTextDecorationLine: CssProperty<
     'WebkitTextDecorationLine',
-    keyof (typeof keywordGroups)[149],
+    (typeof keywordGroups)[149],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly WebkitTextDecorationSkip: Carrier<
+  /**
+   * -webkit-text-decoration-skip
+   * 语法：`none | [ objects || [ spaces | [ leading-spaces || trailing-spaces ] ] || edges || box-decoration ]`
+   * 初始值：`objects`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-text-decoration-skip
+   */
+  readonly WebkitTextDecorationSkip: CssProperty<
     'WebkitTextDecorationSkip',
-    keyof (typeof keywordGroups)[221],
+    (typeof keywordGroups)[221],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly WebkitTextDecorationStyle: Carrier<
+  /**
+   * -webkit-text-decoration-style
+   * 语法：`solid | double | dotted | dashed | wavy`
+   * 初始值：`solid`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-text-decoration-style
+   */
+  readonly WebkitTextDecorationStyle: CssProperty<
     'WebkitTextDecorationStyle',
-    keyof (typeof keywordGroups)[150],
+    (typeof keywordGroups)[150],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2022. */
-  readonly WebkitTextEmphasis: Carrier<
+  /**
+   * -webkit-text-emphasis
+   * 语法：`<'text-emphasis-style'> || <'text-emphasis-color'>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-text-emphasis
+   */
+  readonly WebkitTextEmphasis: CssProperty<
     'WebkitTextEmphasis',
-    keyof (typeof keywordGroups)[224],
+    (typeof keywordGroups)[224],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2022. */
-  readonly WebkitTextEmphasisColor: Carrier<
+  /**
+   * -webkit-text-emphasis-color
+   * 语法：`<color>`
+   * 初始值：`currentcolor`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-text-emphasis-color
+   */
+  readonly WebkitTextEmphasisColor: CssProperty<
     'WebkitTextEmphasisColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2022. */
-  readonly WebkitTextEmphasisPosition: Carrier<
+  /**
+   * -webkit-text-emphasis-position
+   * 语法：`auto | [ over | under ] && [ right | left ]?`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-text-emphasis-position
+   */
+  readonly WebkitTextEmphasisPosition: CssProperty<
     'WebkitTextEmphasisPosition',
-    keyof (typeof keywordGroups)[225],
+    (typeof keywordGroups)[225],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2022. */
-  readonly WebkitTextEmphasisStyle: Carrier<
+  /**
+   * -webkit-text-emphasis-style
+   * 语法：`none | [ [ filled | open ] || [ dot | circle | double-circle | triangle | sesame ] ] | <string>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-text-emphasis-style
+   */
+  readonly WebkitTextEmphasisStyle: CssProperty<
     'WebkitTextEmphasisStyle',
-    keyof (typeof keywordGroups)[226],
+    (typeof keywordGroups)[226],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2016. */
-  readonly WebkitTextFillColor: Carrier<
+  /**
+   * -webkit-text-fill-color
+   * 语法：`<color>`
+   * 初始值：`currentcolor`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-text-fill-color
+   */
+  readonly WebkitTextFillColor: CssProperty<
     'WebkitTextFillColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2020. */
-  readonly WebkitTextOrientation: Carrier<
+  /**
+   * -webkit-text-orientation
+   * 语法：`mixed | upright | sideways`
+   * 初始值：`mixed`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-text-orientation
+   */
+  readonly WebkitTextOrientation: CssProperty<
     'WebkitTextOrientation',
-    keyof (typeof keywordGroups)[228],
+    (typeof keywordGroups)[228],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly WebkitTextSizeAdjust: Carrier<
+  /**
+   * -webkit-text-size-adjust
+   * 语法：`none | auto | <percentage>`
+   * 初始值：`auto` for smartphone browsers supporting inflation, `none` in other cases (and then not modifiable).
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-text-size-adjust
+   */
+  readonly WebkitTextSizeAdjust: CssProperty<
     'WebkitTextSizeAdjust',
-    keyof (typeof keywordGroups)[16],
+    (typeof keywordGroups)[16],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
-  readonly WebkitTextStroke: Carrier<
+  /**
+   * -webkit-text-stroke
+   * 语法：`<length> || <color>`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-text-stroke
+   */
+  readonly WebkitTextStroke: CssProperty<
     'WebkitTextStroke',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
-  readonly WebkitTextStrokeColor: Carrier<
+  /**
+   * -webkit-text-stroke-color
+   * 语法：`<color>`
+   * 初始值：`currentcolor`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-text-stroke-color
+   */
+  readonly WebkitTextStrokeColor: CssProperty<
     'WebkitTextStrokeColor',
-    keyof (typeof keywordGroups)[24],
+    (typeof keywordGroups)[24],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since April 2017. */
-  readonly WebkitTextStrokeWidth: Carrier<
+  /**
+   * -webkit-text-stroke-width
+   * 语法：`<length>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-text-stroke-width
+   */
+  readonly WebkitTextStrokeWidth: CssProperty<
     'WebkitTextStrokeWidth',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2020. */
-  readonly WebkitTextUnderlinePosition: Carrier<
+  /**
+   * -webkit-text-underline-position
+   * 语法：`auto | from-font | [ under || [ left | right ] ]`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-text-underline-position
+   */
+  readonly WebkitTextUnderlinePosition: CssProperty<
     'WebkitTextUnderlinePosition',
-    keyof (typeof keywordGroups)[232],
+    (typeof keywordGroups)[232],
     never,
     1,
     '',
     T,
     M
   >;
-  /** The `-webkit-touch-callout` CSS property controls the display of the default callout shown when you touch and hold a touch target. */
-  readonly WebkitTouchCallout: Carrier<
+  /**
+   * -webkit-touch-callout
+   * 语法：`default | none`
+   * 初始值：`default`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-touch-callout
+   */
+  readonly WebkitTouchCallout: CssProperty<
     'WebkitTouchCallout',
-    keyof (typeof keywordGroups)[253],
+    (typeof keywordGroups)[253],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitTransform: Carrier<
+  /**
+   * -webkit-transform
+   * 语法：`none | <transform-list>`
+   * 初始值：`none`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-transform
+   */
+  readonly WebkitTransform: CssProperty<
     'WebkitTransform',
-    keyof (typeof keywordGroups)[6],
+    (typeof keywordGroups)[6],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitTransformOrigin: Carrier<
+  /**
+   * -webkit-transform-origin
+   * 语法：`[ <length-percentage> | left | center | right | top | bottom ] | [ [ <length-percentage> | left | center | right ] && [ <length-percentage> | top | center | bottom ] ] <length>?`
+   * 初始值：`50% 50% 0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-transform-origin
+   */
+  readonly WebkitTransformOrigin: CssProperty<
     'WebkitTransformOrigin',
-    keyof (typeof keywordGroups)[26],
+    (typeof keywordGroups)[26],
     'length',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitTransformStyle: Carrier<
+  /**
+   * -webkit-transform-style
+   * 语法：`flat | preserve-3d`
+   * 初始值：`flat`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-transform-style
+   */
+  readonly WebkitTransformStyle: CssProperty<
     'WebkitTransformStyle',
-    keyof (typeof keywordGroups)[151],
+    (typeof keywordGroups)[151],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitTransition: Carrier<
+  /**
+   * -webkit-transition
+   * 语法：`<single-transition>#`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-transition
+   */
+  readonly WebkitTransition: CssProperty<
     'WebkitTransition',
-    keyof (typeof keywordGroups)[152],
+    (typeof keywordGroups)[152],
     'time',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitTransitionDelay: Carrier<
+  /**
+   * -webkit-transition-delay
+   * 语法：`<time>#`
+   * 初始值：`0s`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-transition-delay
+   */
+  readonly WebkitTransitionDelay: CssProperty<
     'WebkitTransitionDelay',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'time',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitTransitionDuration: Carrier<
+  /**
+   * -webkit-transition-duration
+   * 语法：`<time>#`
+   * 初始值：`0s`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-transition-duration
+   */
+  readonly WebkitTransitionDuration: CssProperty<
     'WebkitTransitionDuration',
-    keyof (typeof keywordGroups)[5],
+    (typeof keywordGroups)[5],
     'time',
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitTransitionProperty: Carrier<
+  /**
+   * -webkit-transition-property
+   * 语法：`none | <single-transition-property>#`
+   * 初始值：all
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-transition-property
+   */
+  readonly WebkitTransitionProperty: CssProperty<
     'WebkitTransitionProperty',
-    keyof (typeof keywordGroups)[7],
+    (typeof keywordGroups)[7],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since September 2015. */
-  readonly WebkitTransitionTimingFunction: Carrier<
+  /**
+   * -webkit-transition-timing-function
+   * 语法：`<easing-function>#`
+   * 初始值：`ease`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-transition-timing-function
+   */
+  readonly WebkitTransitionTimingFunction: CssProperty<
     'WebkitTransitionTimingFunction',
-    keyof (typeof keywordGroups)[17],
+    (typeof keywordGroups)[17],
     never,
     1,
     '',
     T,
     M
   >;
-  /** **Syntax**: `read-only | read-write | read-write-plaintext-only` */
-  readonly WebkitUserModify: Carrier<
+  /**
+   * -webkit-user-modify
+   * 语法：`read-only | read-write | read-write-plaintext-only`
+   * 初始值：`read-only`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-user-modify
+   */
+  readonly WebkitUserModify: CssProperty<
     'WebkitUserModify',
-    keyof (typeof keywordGroups)[254],
+    (typeof keywordGroups)[254],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly WebkitUserSelect: Carrier<
+  /**
+   * -webkit-user-select
+   * 语法：`auto | text | none | all`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-user-select
+   */
+  readonly WebkitUserSelect: CssProperty<
     'WebkitUserSelect',
-    keyof (typeof keywordGroups)[255],
+    (typeof keywordGroups)[255],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly WebkitWritingMode: Carrier<
+  /**
+   * -webkit-writing-mode
+   * 语法：`horizontal-tb | vertical-rl | vertical-lr | sideways-rl | sideways-lr`
+   * 初始值：`horizontal-tb`
+   * @see https://developer.mozilla.org/docs/Web/CSS/-webkit-writing-mode
+   */
+  readonly WebkitWritingMode: CssProperty<
     'WebkitWritingMode',
-    keyof (typeof keywordGroups)[179],
+    (typeof keywordGroups)[179],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly whiteSpace: Carrier<'whiteSpace', keyof (typeof keywordGroups)[256], never, 1, '', T, M>;
-  /** Since March 2024, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly whiteSpaceCollapse: Carrier<
+  /**
+   * white-space
+   * 语法：`normal | pre | pre-wrap | pre-line | <'white-space-collapse'> || <'text-wrap-mode'>`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/white-space
+   */
+  readonly whiteSpace: CssProperty<'whiteSpace', (typeof keywordGroups)[256], never, 1, '', T, M>;
+  /**
+   * white-space-collapse
+   * 语法：`collapse | preserve | preserve-breaks | preserve-spaces | break-spaces`
+   * 初始值：`collapse`
+   * @see https://developer.mozilla.org/docs/Web/CSS/white-space-collapse
+   */
+  readonly whiteSpaceCollapse: CssProperty<
     'whiteSpaceCollapse',
-    keyof (typeof keywordGroups)[257],
+    (typeof keywordGroups)[257],
     never,
     1,
     '',
     T,
     M
   >;
-  /** This feature is not Baseline because it does not work in some of the most widely-used browsers. */
-  readonly widows: Carrier<'widows', keyof (typeof keywordGroups)[5], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly width: Carrier<'width', keyof (typeof keywordGroups)[258], 'length', 1, 'size', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since January 2020. */
-  readonly willChange: Carrier<'willChange', keyof (typeof keywordGroups)[259], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly wordBreak: Carrier<'wordBreak', keyof (typeof keywordGroups)[176], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly wordSpacing: Carrier<
+  /**
+   * widows
+   * 语法：`<integer>`
+   * 初始值：`2`
+   * @see https://developer.mozilla.org/docs/Web/CSS/widows
+   */
+  readonly widows: CssProperty<'widows', (typeof keywordGroups)[5], never, 1, '', T, M>;
+  /**
+   * 元素的物理宽度。
+   * 主题类别：size（_ 前缀）。
+   * 语法：`auto | <length-percentage [0,∞]> | min-content | max-content | fit-content | fit-content(<length-percentage [0,∞]>) | <calc-size()> | <anchor-size()>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/width
+   */
+  readonly width: CssProperty<'width', (typeof keywordGroups)[258], 'length', 1, 'size', T, M>;
+  /**
+   * will-change
+   * 语法：`auto | <animateable-feature>#`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/will-change
+   */
+  readonly willChange: CssProperty<'willChange', (typeof keywordGroups)[259], never, 1, '', T, M>;
+  /**
+   * word-break
+   * 语法：`normal | break-all | keep-all | break-word | auto-phrase`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/word-break
+   */
+  readonly wordBreak: CssProperty<'wordBreak', (typeof keywordGroups)[176], never, 1, '', T, M>;
+  /**
+   * word-spacing
+   * 主题类别：letterSpacing（_ 前缀）。
+   * 语法：`normal | <length>`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/word-spacing
+   */
+  readonly wordSpacing: CssProperty<
     'wordSpacing',
-    keyof (typeof keywordGroups)[59],
+    (typeof keywordGroups)[59],
     'length',
     1,
     'letterSpacing',
     T,
     M
   >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since October 2018. */
-  readonly wordWrap: Carrier<'wordWrap', keyof (typeof keywordGroups)[260], never, 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since March 2017. */
-  readonly writingMode: Carrier<
-    'writingMode',
-    keyof (typeof keywordGroups)[179],
-    never,
-    1,
-    '',
-    T,
-    M
-  >;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2020. */
-  readonly x: Carrier<'x', keyof (typeof keywordGroups)[5], 'length', 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2020. */
-  readonly y: Carrier<'y', keyof (typeof keywordGroups)[5], 'length', 1, '', T, M>;
-  /** This feature is well established and works across many devices and browser versions. It’s been available across browsers since July 2015. */
-  readonly zIndex: Carrier<'zIndex', keyof (typeof keywordGroups)[11], never, 1, 'zIndex', T, M>;
-  /** Since May 2024, this feature works across the latest devices and browser versions. This feature might not work in older devices or browsers. */
-  readonly zoom: Carrier<'zoom', keyof (typeof keywordGroups)[261], never, 1, '', T, M>;
+  /**
+   * word-wrap
+   * 语法：`normal | break-word`
+   * 初始值：`normal`
+   * @see https://developer.mozilla.org/docs/Web/CSS/word-wrap
+   */
+  readonly wordWrap: CssProperty<'wordWrap', (typeof keywordGroups)[260], never, 1, '', T, M>;
+  /**
+   * writing-mode
+   * 语法：`horizontal-tb | vertical-rl | vertical-lr | sideways-rl | sideways-lr`
+   * 初始值：`horizontal-tb`
+   * @see https://developer.mozilla.org/docs/Web/CSS/writing-mode
+   */
+  readonly writingMode: CssProperty<'writingMode', (typeof keywordGroups)[179], never, 1, '', T, M>;
+  /**
+   * x
+   * 语法：`<length> | <percentage>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/x
+   */
+  readonly x: CssProperty<'x', (typeof keywordGroups)[5], 'length', 1, '', T, M>;
+  /**
+   * y
+   * 语法：`<length> | <percentage>`
+   * 初始值：`0`
+   * @see https://developer.mozilla.org/docs/Web/CSS/y
+   */
+  readonly y: CssProperty<'y', (typeof keywordGroups)[5], 'length', 1, '', T, M>;
+  /**
+   * 定位元素在当前层叠上下文中的层级。
+   * 主题类别：zIndex（_ 前缀）。
+   * 语法：`auto | <integer>`
+   * 初始值：`auto`
+   * @see https://developer.mozilla.org/docs/Web/CSS/z-index
+   */
+  readonly zIndex: CssProperty<'zIndex', (typeof keywordGroups)[11], never, 1, 'zIndex', T, M>;
+  /**
+   * zoom
+   * 语法：`normal | reset | <number [0,∞]> || <percentage [0,∞]>`
+   * 初始值：`1`
+   * @see https://developer.mozilla.org/docs/Web/CSS/zoom
+   */
+  readonly zoom: CssProperty<'zoom', (typeof keywordGroups)[261], never, 1, '', T, M>;
 }

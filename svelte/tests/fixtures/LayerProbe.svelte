@@ -43,7 +43,7 @@
     backdropClass = runtime.css((s) => {
       s.position.fixed;
       s.inset.px(0);
-      s.backgroundColor('rgb(0 0 0 / 0.25)');
+      s.backgroundColor.raw('rgb(0 0 0 / 0.25)');
     });
   });
 
@@ -78,7 +78,7 @@
         ? local.css((s) => {
             s.position.fixed;
             s.inset.px(0);
-            s.backgroundColor('rgb(0 0 0 / 0.25)');
+            s.backgroundColor.raw('rgb(0 0 0 / 0.25)');
           })
         : backdropClass;
     const labelNode = document.createElement('label');

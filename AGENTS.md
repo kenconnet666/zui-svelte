@@ -52,8 +52,8 @@
 
 - 用户已认可第二阶段规划，并指定 ScrollArea 默认半透明覆盖式滚动条，交互显露且不占布局空间；保留原生滚动机制，显隐不改变内容尺寸。键盘焦点、触摸、拖动与高对比的补充行为及 root/viewport 边界见 .design/svelte-phase2.md，不沿用“默认原生占位条/根就是 viewport”的旧建议。
 
-- 第二阶段布局/浮层已实现：Stack/Grid/Container/ScrollArea、Portal/Popover/Tooltip/Dialog/Drawer。完整候选与边界见 .design/svelte-phase2.md，实际 API 见 svelte/README.md；Button/表单/选择仍未进入本阶段。共享标签类型在 types.ts，浮层专属实现位于 overlays，协议源码入口为 src/internal.ts，公共包路径不变。
+- 第二阶段布局/浮层已实现：Stack/Grid/Container/ScrollArea、Portal/Popover/Tooltip/Dialog/Drawer。完整候选与边界见 .design/svelte-phase2.md，实际 API 见 svelte/README.md；Button/表单/选择仍未进入本阶段。共享标签类型在 types.ts，浮层专属实现位于 overlays，内部宿主名为 OverlayHost.svelte；协议源码入口为 src/internal.ts，公共包路径不变。
 
 - 本项目的 zui_lsp 与官方 svelte MCP 使用项目级配置；.codex/config.example.toml 随 Git 保存，setup.ps1 生成忽略的本机 config.toml，明确 Node/仓库绝对路径，不再注册到全局。依赖均为根开发依赖。WebStorm 与独立 LSP 共用版本但独立进程，IDE MCP 空诊断不能替代 LSP 语义复核。换机运行 scripts/language-services/setup.ps1 -Verify，按 .design/language-services.md 信任项目、配置 IDE 并重载 Codex，检查实际原生工具。
 
-- 下一阶段以 .design/svelte-components.md 第 18 节为准：用户选定 CSS 属性第二层不可调用，第三层关键字读取/单位函数/token/raw 终结；token 严格接受系统字面量与 `_` 主题键，raw 保留相同候选并开放 CSS 字符串。当前 5bbf22a 仍是可调用属性的 P1，三段式迁移尚未实施。独立组件 Token/变量/继承/挂载点及 `$` 方案已取消，映射由组件内部 TS 维护；不新增覆盖框架。规划同时完善类型/悬停、同源生成器、MCP/LSP、core/svelte 实现精简与命名目录审计；大改动先举例讨论，保护用户工作区编辑，不将规划汇报当作已完成实施。
+- CSS 属性对象阶段已实现，见 .design/svelte-components.md 第 18 节：第二层不可调用，第三层关键字/单位/token/raw 完成声明；token 严格接受系统字面量与 `_` 主题键，raw 保留候选并开放 CSS 字符串，仅解析已知完整主题键。没有组件 Token/变量/继承/挂载点及 `$` 语义，组件映射保留普通 TS。源码、Docs、夹具已迁移，property.ts/CssProperty、生成文档/单位/内置主题成员、component-types.generated.ts 和模块目录已整理。svelte 内部设施归 forms/collections/shared，internal.ts 仍是协议入口。主题结构与样式覆盖不重建；完整 CI 状态以实际流水线为准，本地关键验证不冒充全量验收。用户已授权本阶段自主完整实施，不需再次审阅。

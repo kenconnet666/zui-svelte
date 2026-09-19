@@ -10,21 +10,33 @@ import { baseTheme } from '../theme/base.js';
 import { validateLayer, layerProgram } from './layers.js';
 import { setTokenUses, type TokenUse } from '../theme/requirements.js';
 import { tokenValueKinds } from '../theme/types.js';
-import type { PropertyTokenMap } from './carrier.js';
-export type { PropertyTokenMap } from './carrier.js';
+import type { PropertyTokenMap } from './property.js';
+export type { PropertyTokenMap } from './property.js';
 
 export interface StyleHelpers<T extends TokenSchema, M extends PropertyTokenMap<T> = object> {
+  /** 相对当前元素的嵌套选择器，必须包含 &；不隐式提升选择器优先级。 */
   _selector(selector: string, factory: StyleFactory<T, M>): void;
+  /** 原生媒体查询；回调内使用同一主题和属性规则。 */
   _media(query: string, factory: StyleFactory<T, M>): void;
+  /** CSS 功能查询，例如 (display: grid)。 */
   _supports(query: string, factory: StyleFactory<T, M>): void;
+  /** 原生容器查询；容器本身由调用方声明。 */
   _container(query: string, factory: StyleFactory<T, M>): void;
+  /** 当前元素的 :hover 状态。 */
   _hover(factory: StyleFactory<T, M>): void;
+  /** 当前元素的 :focus-visible 状态，保留键盘焦点可见性。 */
   _focusVisible(factory: StyleFactory<T, M>): void;
+  /** 当前元素的 ::before 伪元素。 */
   _before(factory: StyleFactory<T, M>): void;
+  /** 当前元素的 ::after 伪元素。 */
   _after(factory: StyleFactory<T, M>): void;
+  /** 将内部声明标为 !important；层顺序仍服从原生 CSS。 */
   _important(factory: StyleFactory<T, M>): void;
+  /** 显式写入自定义属性，不等同自动动态提升的内部变量。 */
   custom(name: `--${string}`, value: string | number | null | undefined): void;
+  /** 原样写入属性和值；不解析主题前缀，但仍检查声明边界。 */
   raw(property: string, value: string | number | null | undefined): void;
+  /** 按原生 CSS 属性类型直接赋值，不解析主题前缀。 */
   set<P extends keyof CSS.Properties>(property: P, value: CSS.Properties[P] | null): void;
 }
 
@@ -45,6 +57,8 @@ interface Metadata {
   tokens?: string;
 }
 const metadata: Readonly<Record<string, Metadata>> = propertyMetadata;
+// 元数据集合按实际使用的组惰性建立，避免每个属性或每个 runtime 重复分配。
+const keywordSets = new Map<number, ReadonlySet<string>>();
 
 export function validateTokenMap(
   theme: Theme<TokenSchema>,
@@ -112,7 +126,7 @@ export function buildStyle(
   const tokens = new Map<string, TokenUse>();
 
   function builder(target: Instruction[], important = false): StyleHelpers<TokenSchema> {
-    const carriers = new Map<string, unknown>();
+    const properties = new Map<string, unknown>();
     const append = (property: string, value: unknown) => {
       if (value === null || value === undefined) return;
       if (typeof value !== 'string' && (typeof value !== 'number' || !Number.isFinite(value))) {
@@ -164,7 +178,7 @@ export function buildStyle(
       get(object, key) {
         if (key === 'then' || typeof key !== 'string') return undefined;
         if (Object.hasOwn(object, key)) return Reflect.get(object, key);
-        if (carriers.has(key)) return carriers.get(key);
+        if (properties.has(key)) return properties.get(key);
         const entry = Object.hasOwn(metadata, key) ? metadata[key] : undefined;
         if (!entry) throw new StyleError('css.value', 'Unknown CSS property: ' + key);
         const category = tokenMap?.[key] ?? entry.tokens;
@@ -183,55 +197,82 @@ export function buildStyle(
           );
         };
         const writeValue = (value: unknown) => {
-          // 已声明键精确匹配；其他完整标记也走引用校验，不替换复合 CSS 内部片段。
+          // raw 只解析已存在的完整主题键；其余值仍是开放 CSS，不替换内部片段。
           if (
             typeof value === 'string' &&
             value.startsWith('_') &&
-            ((category && Object.hasOwn(theme.resolved[category] ?? {}, value.slice(1))) ||
-              /^_[\p{ID_Continue}.$-]+$/u.test(value))
+            category &&
+            Object.hasOwn(theme.resolved[category] ?? {}, value.slice(1))
           ) {
             writeToken(value.slice(1));
             return;
           }
           append(entry.name, value);
         };
-        const carrier = new Proxy(writeValue, {
-          get(_object, member) {
-            if (typeof member !== 'string' || member === 'then') return undefined;
-            const keywords: Readonly<Record<string, string>> = keywordGroups[entry.group]!;
-            if (Object.hasOwn(keywords, member)) {
-              append(entry.name, keywords[member]);
-              return undefined;
-            }
-            if (member.startsWith('_')) {
-              writeToken(member.slice(1));
-              return undefined;
-            }
-            const supported: readonly string[] = entry.units ? units[entry.units] : [];
-            if (supported.includes(member))
-              return (...values: number[]) => {
-                if (
-                  !values.length ||
-                  values.length > (entry.arity ?? 1) ||
-                  values.some((value) => !Number.isFinite(value))
-                ) {
-                  throw new StyleError(
-                    'css.value',
-                    'Invalid unit arguments: ' + key + '.' + member,
-                  );
-                }
-                append(
-                  entry.name,
-                  values
-                    .map((value) => String(value) + (member === 'pct' ? '%' : member))
-                    .join(' '),
-                );
-              };
-            throw new StyleError('css.value', 'Unknown CSS keyword or unit: ' + key + '.' + member);
+        const group = keywordGroups[entry.group]!;
+        const property = new Proxy(
+          {
+            token(value: unknown) {
+              if (value === null || value === undefined) return;
+              if (typeof value !== 'string')
+                throw new StyleError('css.value', 'Expected CSS keyword or theme token: ' + key);
+              if (value.startsWith('_')) {
+                writeToken(value.slice(1));
+                return;
+              }
+              let knownValues = keywordSets.get(entry.group);
+              if (!knownValues) {
+                knownValues = new Set([...Object.values(group.members), ...group.values]);
+                keywordSets.set(entry.group, knownValues);
+              }
+              if (!knownValues.has(value))
+                throw new StyleError('css.value', 'Unknown CSS keyword for ' + key + ': ' + value);
+              append(entry.name, value);
+            },
+            raw: writeValue,
           },
-        });
-        carriers.set(key, carrier);
-        return carrier;
+          {
+            get(_object, member) {
+              if (typeof member !== 'string' || member === 'then') return undefined;
+              if (Object.hasOwn(_object, member)) return Reflect.get(_object, member);
+              const keywords: Readonly<Record<string, string>> = group.members;
+              if (Object.hasOwn(keywords, member)) {
+                append(entry.name, keywords[member]);
+                return undefined;
+              }
+              if (member.startsWith('_')) {
+                writeToken(member.slice(1));
+                return undefined;
+              }
+              const supported: readonly string[] = entry.units ? units[entry.units] : [];
+              if (supported.includes(member))
+                return (...values: number[]) => {
+                  if (
+                    !values.length ||
+                    values.length > (entry.arity ?? 1) ||
+                    values.some((value) => !Number.isFinite(value))
+                  ) {
+                    throw new StyleError(
+                      'css.value',
+                      'Invalid unit arguments: ' + key + '.' + member,
+                    );
+                  }
+                  append(
+                    entry.name,
+                    values
+                      .map((value) => String(value) + (member === 'pct' ? '%' : member))
+                      .join(' '),
+                  );
+                };
+              throw new StyleError(
+                'css.value',
+                'Unknown CSS keyword or unit: ' + key + '.' + member,
+              );
+            },
+          },
+        );
+        properties.set(key, property);
+        return property;
       },
     });
   }

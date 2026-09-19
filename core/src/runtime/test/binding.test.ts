@@ -44,7 +44,7 @@ describe('runtime promotion', () => {
       }),
     ).toThrow('initial failure');
     binding.evaluate((s) => {
-      s.opacity(0.5);
+      s.opacity.raw(0.5);
     });
     expect(calls).toBe(1);
     runtime.dispose();
@@ -130,18 +130,18 @@ describe('runtime promotion', () => {
     });
     expect(binding.snapshot.variables).toEqual({});
     binding.evaluate((s) => {
-      s.opacity(0.5);
+      s.opacity.raw(0.5);
     });
     expect(binding.cachedStructures).toBe(2);
     const snapshot = binding.snapshot;
     expect(() =>
       binding.evaluate((s) => {
-        s.width('10px;color:red');
+        s.width.raw('10px;color:red');
       }),
     ).toThrow();
     expect(binding.snapshot).toBe(snapshot);
     binding.evaluate((s) => {
-      s.width(null);
+      s.width.raw(null);
     });
     expect(binding.snapshot.className).toBe('');
     runtime.dispose();
@@ -172,14 +172,14 @@ describe('runtime promotion', () => {
     const revisions: number[] = [];
     const stop = binding.subscribe((value) => revisions.push(value.revision));
     binding.evaluate((s) => {
-      s.opacity(0.5);
+      s.opacity.raw(0.5);
     });
     binding.evaluate((s) => {
-      s.opacity(0.6);
+      s.opacity.raw(0.6);
     });
     const className = binding.snapshot.className;
     binding.evaluate((s) => {
-      s.opacity(0.7);
+      s.opacity.raw(0.7);
     });
     expect(binding.snapshot.className).toBe(className);
     expect(revisions).toEqual([0, 1, 2, 3]);
@@ -190,7 +190,7 @@ describe('runtime promotion', () => {
     const a = createRuntime({ nonce: 'x"y' });
     const b = createRuntime();
     const name = a.css((s) => {
-      s.content('"</style><script>"');
+      s.content.raw('"</style><script>"');
     });
     expect(name).toMatch(/^z-r-/u);
     expect(a.styleTags()).not.toContain('"</style>');

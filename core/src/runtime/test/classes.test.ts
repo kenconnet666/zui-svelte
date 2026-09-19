@@ -137,7 +137,7 @@ describe('class-only evaluation', () => {
             s.width.px(width);
           }),
           css((s) => {
-            s.opacity(0.5);
+            s.opacity.raw(0.5);
           }),
         ]),
       );

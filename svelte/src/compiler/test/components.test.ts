@@ -101,7 +101,7 @@ describe('component authoring compiler', () => {
 
   it('generates normal ComponentProps and Pick declarations without copying fields', () => {
     const code = generateComponentTypes(options.components);
-    expect(code).toContain('ComponentProps<typeof C0>');
+    expect(code).toContain('ComponentProps<typeof Control>');
     expect(code).toContain('"size" | "block"');
     expect(code).not.toContain('size?:');
   });

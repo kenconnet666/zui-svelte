@@ -56,7 +56,7 @@
       s.borderColor._border;
       s.paddingInlineStart._lg;
       s.paddingInlineEnd._sm;
-      s.transitionProperty('background-color');
+      s.transitionProperty.raw('background-color');
       s.transitionDuration._md;
       s._focusVisible((s) => {
         s.outlineStyle.solid;
@@ -68,10 +68,10 @@
         s.transitionDuration.ms(0);
       });
       s._media('(forced-colors: active)', (s) => {
-        s.color('CanvasText');
-        s.backgroundColor('Canvas');
-        s.borderColor('ButtonText');
-        s.outlineColor('Highlight');
+        s.color.token('CanvasText');
+        s.backgroundColor.token('Canvas');
+        s.borderColor.token('ButtonText');
+        s.outlineColor.token('Highlight');
       });
     })}>主题预览</button
   >

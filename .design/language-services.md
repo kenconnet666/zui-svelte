@@ -80,6 +80,10 @@ URL 不带 Markdown 包装，不固定 IJ_MCP_SERVER_PROJECT_PATH header；每�
 
 ## 诊断验收
 
+2026-09-20：项目桥现在监听有限的源码/声明/配置目录，查询后关闭只读文档缓冲；不递归监听 node_modules，不常驻持有过时编辑内容。core/tsconfig.json 包含源码测试，生产构建单独使用 tsconfig.build.json 的浏览器类型环境。
+
+completions 返回文档、编辑、排序与 isIncomplete；resolveLimit 可按需解析前 0–20 项。编辑区间保持标准 LSP 的零基 UTF-16 坐标，不能当作 hover/definitions 的一基范围。新版服务须由新进程加载；验收脚本会独立启动并验证。CI 已加入该验收并上传 verification.json。
+
 ```powershell
 node scripts/language-services/verify.mjs
 ```

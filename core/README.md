@@ -10,9 +10,9 @@
 
 ## 统一入口与主题
 
-属性参数会补全原生 CSS 关键字与当前类别的 `_主题键`，例如 `s.inlineSize('max-content')`、`s.inlineSize('_panelXs')`（主题需包含 panelXs）。后者与 `s.inlineSize._panelXs` 相同，生成主题变量并记录依赖；普通 CSS 字符串仍可直接传入。无前缀的名字不自动转换成主题键。
+属性对象不可调用：第三层关键字读取或方法调用完成一条声明。`s.inlineSize.token('max-content')`、`s.inlineSize.token('_panelXs')` 严格接受已知系统值和主题键；`s.inlineSize.raw('calc(100% - 2rem)')` 保留同样补全并开放原始字符串。主题需包含引用的键，成员 `s.inlineSize._panelXs` 与严格参数等价。操作返回 void，不能继续链式调用。
 
-完整 `_key` 按主题引用处理，未知引用运行时报错；开放字符串类型不会静态排除所有拼写错误。复合 CSS 不做内部替换，`s.raw('animation-name', '_loader')` 或 `s.set('animationName', '_loader')` 可明确写入以 `_` 开头的原生标识符。没有组件 Token 或 `$` 特殊语义。
+token 的未知值在类型及运行时被拒绝；raw 只解析已存在的完整 `_key`，其他字符串保持原样，因此拼错主题键请使用严格入口检查。复合 CSS 不做内部替换，`s.raw('animation-name', '_loader')` 或 `s.set('animationName', '_loader')` 可强制原样输出。null/undefined 省略声明，raw 不扩大属性原来的数值范围。没有组件 Token 或 `$` 特殊语义。
 
 标准 CSS、通用主题引擎和 runtime 从 `@zui/core` 导入，默认主题为空 baseTheme。内置视觉预设与默认主题 css 已移到 `@zui/svelte`；core 不反向依赖组件包。下面演示使用 UI 预设扩展自定义主题；`css()` 的组件/模块调用仍需接入 ZUI 编译插件。
 
@@ -147,7 +147,8 @@ CSS 声明/选择器/层、主题输入/引用和编译协议等接入错误使�
 | s.display.flex                              | 读取关键字即追加声明；属性及关键字由生成表约束    |
 | s.width.px(240)                             | 单位方法，支持的单位和参数数量由属性决定          |
 | s.color._primary                            | 当前主题类别的 Token 引用；扩展后自动补全         |
-| s.gridTemplateColumns('repeat(3, 1fr)')     | 原生 CSS 值出口；复杂计算仍使用 TS 函数           |
+| s.gridTemplateColumns.raw('repeat(3, 1fr)') | 开放 CSS 值出口；复杂计算仍使用 TS 函数           |
+| s.width.token('_panelMd')                   | 严格的系统/主题关键字，补全与运行时校验同源       |
 | s.set('display', 'grid')                    | 标准属性的类型化直接写入                          |
 | s.raw('future-property', 'value')           | 尚未纳入类型表的属性；仍检查声明边界              |
 | s.custom('--app-offset', '12px')            | 自定义变量声明；不同于自动提升后的内部变量        |

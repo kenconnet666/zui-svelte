@@ -11,6 +11,7 @@ const paths = [
   'core/src/runtime/test/lsp-type-probe.ts',
   'docs/src/ui/LspTypeProbe.svelte',
   'docs/tests/lsp-import-probe.ts',
+  'core/src/runtime/test/lsp-dependency-probe.ts',
 ];
 for (const file of paths) {
   try {
@@ -74,6 +75,16 @@ try {
   await client.connect(transport, { timeout: 60000 });
   const tools = await client.listTools();
   assert.equal(tools.tools.length, 5);
+  for (const filePath of [
+    'svelte/src/theme.ts',
+    'svelte/src/ConfigProvider.svelte',
+    'svelte/src/overlays/Modal.svelte',
+    'svelte/src/layout/Stack.svelte',
+  ]) {
+    const result = await call('diagnostics', { filePath });
+    report.push({ sourceDiagnostics: result });
+    assert.equal(result.errors, 0, filePath + ': ' + JSON.stringify(result.diagnostics));
+  }
   for (const filePath of paths.slice(0, 2)) {
     const svelte = filePath.endsWith('.svelte');
     for (const valid of [false, true, false, true]) {
@@ -115,6 +126,22 @@ export const props: ComponentProps<typeof Probe> = { initialWidth: ${valid ? '10
     assert.equal(result.errors, valid ? 0 : 1);
     if (!valid) assert.equal(Number(result.diagnostics[0].code), 2322);
   }
+  // 改的是未打开的依赖文件，而非查询目标，验证文件通知与关闭缓冲能刷新项目。
+  await writeFile(resolve(root, paths[3]), 'export const width = 1;\n');
+  await writeFile(
+    resolve(root, paths[0]),
+    "import { width } from './lsp-dependency-probe.js';\nexport const value: number = width;\n",
+  );
+  assert.equal((await call('diagnostics', { filePath: paths[0] })).errors, 0);
+  await writeFile(resolve(root, paths[3]), "export const width = 'changed';\n");
+  let dependencyResult;
+  for (let attempt = 0; attempt < 6; attempt++) {
+    dependencyResult = await call('diagnostics', { filePath: paths[0] });
+    if (dependencyResult.errors === 1) break;
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  assert.equal(dependencyResult.errors, 1, 'Changed dependency stayed stale');
+  report.push({ dependencyRefresh: dependencyResult });
   // 大主题同时验证完成诊断与补全成本，不能只以 tsc 吞吐量推断编辑器体验。
   const scalePath = paths[0];
   const fields = Array.from({ length: 500 }, (_, index) => `color${index}: '#123456'`).join(',');
@@ -136,6 +163,50 @@ css(s=>{s.color._color499;});\n`,
   const scale = { tokens: 500, diagnosticsAndCompletionMs: performance.now() - scaleStart };
   report.push({ scale });
   console.log(JSON.stringify({ scale }));
+  // 通过真实包声明验证三段式方法、开放补全和生成的主题悬停说明。
+  const apiPath = paths[1];
+  await writeFile(
+    resolve(root, apiPath),
+    `<script lang="ts">
+import { css } from '@zui/svelte';
+const style = css(s => {
+  s.inlineSize.token('_panelMd');
+  s.inlineSize.raw('auto');
+  s.inlineSize._panelMd;
+  s.inlineSize.px(100);
+  s.inlineSize.auto;
+});
+</script><div class={style}></div>\n`,
+  );
+  assert.equal((await call('diagnostics', { filePath: apiPath })).errors, 0);
+  for (const needle of ["'_panelMd'", "'auto'"]) {
+    const point = await position(apiPath, needle);
+    const completion = await call('completions', {
+      ...point,
+      column: point.column + 1,
+      limit: 100,
+      resolveLimit: 2,
+    });
+    assert(completion.items.some((item) => item.label === '_panelMd'));
+    assert(completion.items.some((item) => item.label === 'auto'));
+    assert.equal(typeof completion.isIncomplete, 'boolean');
+    report.push({ propertyCompletions: completion });
+  }
+  const themeHover = await call('hover', await position(apiPath, '_panelMd;'));
+  assert(JSON.stringify(themeHover.contents).includes('36rem'));
+  report.push({ themeHover });
+  const methodHover = await call('hover', await position(apiPath, 'token('));
+  assert(JSON.stringify(methodHover.contents).includes('严格'));
+  report.push({ methodHover });
+  const unitHover = await call('hover', await position(apiPath, 'px('));
+  assert(JSON.stringify(unitHover.contents).includes('value'));
+  report.push({ unitHover });
+  const keywordHover = await call('hover', await position(apiPath, 'auto;'));
+  assert(JSON.stringify(keywordHover.contents).includes('系统关键字'));
+  report.push({ keywordHover });
+  const propertyHover = await call('hover', await position(apiPath, 'inlineSize.token'));
+  assert(JSON.stringify(propertyHover.contents).includes('行内轴'));
+  report.push({ propertyHover });
   const tokenPosition = await position('core/tests/types.ts', '_100;');
   const hover = await call('hover', tokenPosition);
   assert(JSON.stringify(hover.contents).includes('_100: void'));
@@ -173,7 +244,11 @@ css(s=>{s.color._color499;});\n`,
   await mkdir(reportDirectory, { recursive: true });
   await writeFile(
     resolve(reportDirectory, 'verification.json'),
-    JSON.stringify({ success: true, services, report }, null, 2),
+    JSON.stringify(
+      { success: true, commit: process.env.GITHUB_SHA ?? null, services, report },
+      null,
+      2,
+    ),
     'utf8',
   );
   console.log('VERIFIED');

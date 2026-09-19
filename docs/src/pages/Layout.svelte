@@ -42,7 +42,7 @@
         columns={3}
         data-testid="layout-override"
         class={css((s) => {
-          s.gridTemplateColumns('minmax(0, 1fr)');
+          s.gridTemplateColumns.raw('minmax(0, 1fr)');
         })}
       >
         <span>实例 CSS 覆盖组件的列数</span>
@@ -63,14 +63,14 @@
   class={css((s) => {
     s.height.px(160);
     s.width.px(320);
-    s.maxWidth('100%');
+    s.maxWidth.raw('100%');
     s.borderStyle.solid;
     s.borderWidth.px(1);
   })}
 >
   <div
     class={css((s) => {
-      s.width(wide ? '640px' : '100%');
+      s.width.raw(wide ? '640px' : '100%');
     })}
   >
     {#each Array(long ? 25 : 1).keys() as index (index)}

@@ -11,7 +11,7 @@
   import type { LayerOptions } from './layers.js';
   import ScrollArea from '../layout/ScrollArea.svelte';
   import Portal from './Portal.svelte';
-  import Panel from './Panel.svelte';
+  import OverlayHost from './OverlayHost.svelte';
 
   const generatedId = $props.id();
   let {
@@ -36,29 +36,53 @@
     style,
     ...rest
   }: Omit<HTMLAttributes<HTMLDivElement>, 'title' | 'onclose'> & {
+    /** 是否打开，支持 bind:open；默认 false。 */
     open?: boolean;
+    /** 面板标题及可访问名称来源。 */
     title?: string;
+    /** 面板描述，通过 aria-describedby 关联。 */
     description?: string;
+    /** Drawer 停靠边；start/end 随 RTL 改变物理方向。 */
     side?: 'start' | 'end' | 'top' | 'bottom';
+    /** 组件五档尺寸，md 为默认；full 的含义由组件定义。 */
     size?: Size | 'full';
+    /** 是否/向何处转移面板；保持逻辑层和主题关系。 */
     portal?: PortalTarget;
+    /** 关闭后是否保留 DOM；默认 false，不表示仍可交互。 */
     keepMounted?: boolean;
+    /** 是否启用进入/退出动画；遵循减少动画偏好。 */
     animated?: boolean;
+    /** 是否显示关闭按钮；默认 true。 */
     closable?: boolean;
+    /** 是否响应 Escape 关闭请求；默认 true。 */
     closeOnEscape?: boolean;
+    /** 是否响应外部点击关闭请求；默认 true。 */
     closeOnOutside?: boolean;
+    /** 打开后初始焦点；false 禁用自动选择，可提供元素或查询函数。 */
     initialFocus?: LayerOptions['initialFocus'];
+    /** 关闭后恢复焦点的目标函数；false 禁用恢复。 */
     returnFocus?: LayerOptions['returnFocus'];
+    /** 关闭请求，cancelable 时可 preventDefault；直接更新绑定值不伪造事件。 */
     onclose?: (event: OverlayCloseEvent) => void;
+    /** 页脚内容 snippet。 */
     footer?: Snippet;
+    /** 转发公开部件的参数、class、style 与事件；保留嵌套 slotProps 类型。 */
     slotProps?: {
+      /** 遮罩元素的属性及样式。 */
       backdrop?: HTMLAttributes<HTMLDivElement>;
+      /** 标题区域的原生属性及样式。 */
       header?: HTMLAttributes<HTMLElement>;
+      /** 面板标题及可访问名称来源。 */
       title?: HTMLAttributes<HTMLHeadingElement>;
+      /** 面板描述，通过 aria-describedby 关联。 */
       description?: HTMLAttributes<HTMLParagraphElement>;
+      /** 内部 ScrollArea 的 Props，支持继续传递 viewport/content 的 slotProps。 */
       body?: ComponentProps<typeof ScrollArea>;
+      /** 页脚内容 snippet。 */
       footer?: HTMLAttributes<HTMLElement>;
+      /** 关闭按钮的原生属性及事件。 */
       closeButton?: HTMLButtonAttributes;
+      /** Lucide 关闭图标组件的 Props。 */
       closeIcon?: ComponentProps<typeof X>;
     };
   } = $props();
@@ -130,7 +154,7 @@
           s.zIndex._overlay;
           s.inset.px(0);
           s.boxSizing.borderBox;
-          s.display(visible ? 'flex' : 'none');
+          s.display.token(visible ? 'flex' : 'none');
           s.backgroundColor._backdrop;
           if (!side) {
             s.alignItems.center;
@@ -138,16 +162,16 @@
             s.padding._lg;
           } else if (side === 'start' || side === 'end') {
             s.alignItems.stretch;
-            s.justifyContent(side === 'start' ? 'flex-start' : 'flex-end');
+            s.justifyContent.token(side === 'start' ? 'flex-start' : 'flex-end');
           } else {
             s.flexDirection.column;
-            s.justifyContent(side === 'top' ? 'flex-start' : 'flex-end');
+            s.justifyContent.token(side === 'top' ? 'flex-start' : 'flex-end');
           }
         }),
         slotProps.backdrop?.class,
       ]}
     >
-      <Panel
+      <OverlayHost
         context={session}
         {attach}
         {...rest}
@@ -172,18 +196,18 @@
             s.transitionDuration._md;
             s.transitionProperty.none;
             if (!side) {
-              s.inlineSize(widths[size]);
-              s.maxInlineSize('100%');
-              s.maxBlockSize('calc(100dvh - 32px)');
+              s.inlineSize.token(widths[size]);
+              s.maxInlineSize.raw('100%');
+              s.maxBlockSize.raw('calc(100dvh - 32px)');
               s.borderRadius._lg;
             } else if (side === 'start' || side === 'end') {
-              s.inlineSize(widths[size]);
-              s.maxInlineSize('100%');
-              s.blockSize('100dvh');
+              s.inlineSize.token(widths[size]);
+              s.maxInlineSize.raw('100%');
+              s.blockSize.raw('100dvh');
             } else {
-              s.inlineSize('100%');
-              s.blockSize(widths[size]);
-              s.maxBlockSize('100dvh');
+              s.inlineSize.raw('100%');
+              s.blockSize.token(widths[size]);
+              s.maxBlockSize.raw('100dvh');
             }
           }),
           className,
@@ -198,7 +222,7 @@
                 s.alignItems.center;
                 s.gap._md;
                 s.padding._lg;
-                s.flexShrink(0);
+                s.flexShrink.raw(0);
               }),
               slotProps.header?.class,
             ]}
@@ -240,7 +264,7 @@
                     s.borderRadius._sm;
                     s.cursor.pointer;
                     s._focusVisible((s) => {
-                      s.outline('2px solid ' + theme.ref('color', 'focus'));
+                      s.outline.raw('2px solid ' + theme.ref('color', 'focus'));
                       s.outlineOffset.px(2);
                     });
                   }),
@@ -277,7 +301,7 @@
           overscroll="contain"
           class={[
             css((s) => {
-              s.flex('1 1 auto');
+              s.flex.raw('1 1 auto');
               s.minBlockSize.px(0);
               s.paddingInline._lg;
               s.paddingBlockEnd._lg;
@@ -295,14 +319,14 @@
                 s.justifyContent.end;
                 s.gap._sm;
                 s.padding._lg;
-                s.flexShrink(0);
+                s.flexShrink.raw(0);
               }),
               slotProps.footer?.class,
             ]}
           >
             {@render footer()}
           </footer>{/if}
-      </Panel>
+      </OverlayHost>
     </div>
   </Portal>
 {/if}

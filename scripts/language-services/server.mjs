@@ -1,6 +1,7 @@
 import { requireProject, root as configuredRoot, serviceConfig } from './environment.mjs';
 import { spawn, execFileSync } from 'node:child_process';
-import { readFile, realpath } from 'node:fs/promises';
+import { watch, existsSync } from 'node:fs';
+import { readFile, realpath, readdir } from 'node:fs/promises';
 import { extname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -84,6 +85,18 @@ async function start(kind) {
     new StreamMessageReader(child.stdout),
     new StreamMessageWriter(child.stdin),
   );
+  const watchers = new Map();
+  const rescan = new Set();
+  let disposed = false;
+  const changed = new Map();
+  let refreshTimer;
+  child.on('exit', () => {
+    disposed = true;
+    clearTimeout(refreshTimer);
+    for (const watcher of watchers.values()) watcher.close();
+    watchers.clear();
+    connection.dispose();
+  });
   child.on('error', () => connection.dispose());
   connection.onRequest('workspace/configuration', ({ items }) => items.map(() => ({})));
   connection.onRequest('client/registerCapability', () => null);
@@ -124,12 +137,84 @@ async function start(kind) {
           definition: { linkSupport: true },
           diagnostic: {},
           publishDiagnostics: { versionSupport: true },
-          completion: { completionItem: { snippetSupport: false } },
+          completion: {
+            completionItem: {
+              snippetSupport: false,
+              documentationFormat: ['markdown', 'plaintext'],
+              resolveSupport: { properties: ['documentation', 'detail', 'additionalTextEdits'] },
+            },
+          },
         },
       },
       initializationOptions: config.initializationOptions,
     });
     await connection.sendNotification('initialized', {});
+    // 父目录只监听自身；源码/声明目录递归监听，不进入 node_modules。
+    const relevant = /\.(?:[cm]?[jt]sx?|svelte|json|yaml)$/u;
+    const notifyFile = (path) => {
+      const uri = pathToFileURL(path).href;
+      changed.set(uri, { uri, type: existsSync(path) ? 2 : 3 });
+    };
+    const schedule = () => {
+      clearTimeout(refreshTimer);
+      refreshTimer = setTimeout(async () => {
+        try {
+          const folders = [...rescan];
+          rescan.clear();
+          for (const folder of folders) {
+            const files = await readdir(folder, { recursive: true }).catch((error) => {
+              if (error.code === 'ENOENT') return [];
+              throw error;
+            });
+            for (const file of files) if (relevant.test(file)) notifyFile(resolve(folder, file));
+          }
+          if (disposed) return;
+          const changes = [...changed.values()];
+          changed.clear();
+          if (changes.length)
+            await connection.sendNotification('workspace/didChangeWatchedFiles', { changes });
+        } catch (error) {
+          if (!disposed) process.stderr.write('Language refresh: ' + error.message + '\n');
+        }
+      }, 60);
+    };
+    const installWatcher = (directory) => {
+      const folder = resolve(root, directory);
+      watchers.get(directory)?.close();
+      watchers.delete(directory);
+      if (disposed || !existsSync(folder)) return;
+      const watcher = watch(folder, { recursive: directory.includes('/') }, (_event, filename) => {
+        if (disposed || !filename) return;
+        const name = filename.toString();
+        if (directory && !directory.includes('/') && ['src', 'dist'].includes(name)) {
+          // build 清空并重建 dist 后重新挂接，并补发重建期间可能遗漏的文件变化。
+          installWatcher(directory + '/' + name);
+          rescan.add(resolve(folder, name));
+          schedule();
+          return;
+        }
+        if (!relevant.test(name)) return;
+        notifyFile(resolve(folder, name));
+        schedule();
+      });
+      watcher.on('error', (error) => {
+        if (!disposed && !['ENOENT', 'EPERM'].includes(error.code))
+          process.stderr.write('Language watcher: ' + error.message + '\n');
+      });
+      watchers.set(directory, watcher);
+    };
+    for (const directory of [
+      '',
+      'core',
+      'svelte',
+      'docs',
+      'core/src',
+      'core/dist',
+      'svelte/src',
+      'svelte/dist',
+      'docs/src',
+    ])
+      installWatcher(directory);
     const versions = new Map();
     let queue = Promise.resolve();
     return {
@@ -155,7 +240,15 @@ async function start(kind) {
                 : { textDocument: { uri: doc.uri, version }, contentChanges: [{ text: doc.text }] },
             );
             versions.set(doc.uri, version);
-            return action(version);
+            try {
+              return await action(version);
+            } finally {
+              // 只读探针不持有编辑器缓冲区；关闭后让依赖回到磁盘版本，避免覆盖真实编辑。
+              await connection.sendNotification('textDocument/didClose', {
+                textDocument: { uri: doc.uri },
+              });
+              versions.delete(doc.uri);
+            }
           });
         queue = result;
         return result;
@@ -275,6 +368,13 @@ tool(
     ...location,
     prefix: z.string().default(''),
     limit: z.number().int().min(1).max(200).default(40),
+    resolveLimit: z
+      .number()
+      .int()
+      .min(0)
+      .max(20)
+      .default(0)
+      .describe('Resolve documentation/details for at most this many returned items.'),
   },
   async (args, doc, language) => {
     const result = await language.request('textDocument/completion', {
@@ -284,9 +384,51 @@ tool(
     const items = (Array.isArray(result) ? result : (result?.items ?? [])).filter((item) =>
       item.label.startsWith(args.prefix),
     );
+    const selected = items.slice(0, args.limit);
+    if (language.capabilities.completionProvider?.resolveProvider) {
+      for (let i = 0; i < Math.min(args.resolveLimit, selected.length); i++) {
+        selected[i] = {
+          ...selected[i],
+          ...(await language.request('completionItem/resolve', selected[i])),
+        };
+      }
+    }
     return {
       total: items.length,
-      items: items.slice(0, args.limit).map(({ label, kind, detail }) => ({ label, kind, detail })),
+      editPositions: 'LSP zero-based UTF-16',
+      isIncomplete: !Array.isArray(result) && Boolean(result?.isIncomplete),
+      itemDefaults: !Array.isArray(result) ? result?.itemDefaults : undefined,
+      items: selected.map(
+        ({
+          label,
+          labelDetails,
+          kind,
+          detail,
+          documentation,
+          sortText,
+          filterText,
+          insertText,
+          insertTextFormat,
+          textEdit,
+          additionalTextEdits,
+          tags,
+          deprecated,
+        }) => ({
+          label,
+          labelDetails,
+          kind,
+          detail,
+          documentation,
+          sortText,
+          filterText,
+          insertText,
+          insertTextFormat,
+          textEdit,
+          additionalTextEdits,
+          tags,
+          deprecated,
+        }),
+      ),
     };
   },
 );

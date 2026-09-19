@@ -6,6 +6,32 @@ import { defineTheme } from '../../theme/theme.js';
 import { tokenUses } from '../../theme/requirements.js';
 
 describe('CSS statements', () => {
+  it('uses non-callable properties with strict tokens and an open raw channel', () => {
+    expect(
+      buildStyle((s) => {
+        void s.width;
+      }),
+    ).toEqual([]);
+    expect(() =>
+      buildStyle((s) => {
+        (s.width as unknown as (value: string) => void)('auto');
+      }),
+    ).toThrow(TypeError);
+    expect(() =>
+      buildStyle((s) => {
+        s.width.token('future-value' as never);
+      }),
+    ).toThrow('Unknown CSS keyword');
+    const output = serializeProgram(
+      buildStyle((s) => {
+        s.width.raw('_unknown');
+        s.transformStyle.preserve3d;
+      }),
+      '.x',
+      false,
+    );
+    expect(output).toBe('.x{width:_unknown;transform-style:preserve-3d;}');
+  });
   it('shares declarations and theme requirements between member and string references', () => {
     const theme = defineTheme({
       size: { panel: '36rem', 'with space': '20rem' },
@@ -19,34 +45,34 @@ describe('CSS statements', () => {
       s.maxInlineSize['_with space'];
     }, theme);
     const argument = buildStyle((s) => {
-      s.inlineSize('_panel');
+      s.inlineSize.token('_panel');
       s._hover((s) => {
-        s.opacity('_50');
+        s.opacity.token('_50');
       });
-      s.maxInlineSize('_with space');
+      s.maxInlineSize.raw('_with space');
     }, theme);
     expect(argument).toEqual(member);
     expect(tokenUses(argument)).toEqual(tokenUses(member));
     expect(tokenUses(argument)).toHaveLength(3);
     expect(() =>
       buildStyle((s) => {
-        s.inlineSize('_missing');
+        s.inlineSize.token('_missing' as never);
       }, theme),
     ).toThrow('Unknown theme token');
   });
 
   it('keeps raw CSS, compound strings and explicit raw/set escape paths unchanged', () => {
     const program = buildStyle((s) => {
-      s.inlineSize('max-content');
-      s.inlineSize('calc(100% - 2rem)');
-      s.animation('_loader 1s ease');
-      s.content('"_text"');
-      s.backgroundImage('url(#_asset)');
-      s.color('#fff');
+      s.inlineSize.token('max-content');
+      s.inlineSize.raw('calc(100% - 2rem)');
+      s.animation.raw('_loader 1s ease');
+      s.content.raw('"_text"');
+      s.backgroundImage.raw('url(#_asset)');
+      s.color.raw('#fff');
       s.raw('animation-name', '_loader');
       s.set('animationName', '_loader');
-      s.inlineSize(null);
-      s.inlineSize(undefined);
+      s.inlineSize.raw(null);
+      s.inlineSize.raw(undefined);
     });
     expect(program.map((node) => (node.kind === 'declaration' ? node.value : ''))).toEqual([
       'max-content',
@@ -61,7 +87,7 @@ describe('CSS statements', () => {
     expect(tokenUses(program)).toEqual([]);
     expect(() =>
       buildStyle((s) => {
-        s.animationName('_loader');
+        s.animationName.token('_loader' as never);
       }),
     ).toThrow('no token category');
   });
@@ -78,13 +104,13 @@ describe('CSS statements', () => {
         s.display.flex;
         s.padding.px(4, 8);
         s._hover((s) => {
-          s.opacity(0.5);
+          s.opacity.raw(0.5);
         });
         s._media('(width >= 40rem)', (s) => {
           s.width.pct(50);
         });
         s._important((s) => {
-          s.color('red');
+          s.color.token('red');
         });
       }),
       '.x',
@@ -98,7 +124,7 @@ describe('CSS statements', () => {
   it('omits null values and rejects invalid values and declaration injection', () => {
     expect(
       buildStyle((s) => {
-        s.width(null);
+        s.width.raw(null);
       }),
     ).toEqual([]);
     expect(() =>
@@ -108,7 +134,7 @@ describe('CSS statements', () => {
     ).toThrow();
     expect(() =>
       buildStyle((s) => {
-        s.width('1px;color:red');
+        s.width.raw('1px;color:red');
       }),
     ).toThrow();
     expect(() =>
@@ -118,14 +144,14 @@ describe('CSS statements', () => {
     ).toThrow();
     expect(() =>
       buildStyle((s) => {
-        s.opacity(Infinity);
+        s.opacity.raw(Infinity);
       }),
     ).toThrow();
   });
   it('keeps semicolons inside quoted or functional values intact', () => {
     const css = serializeProgram(
       buildStyle((s) => {
-        s.content('";"');
+        s.content.raw('";"');
       }),
       '.x',
       false,

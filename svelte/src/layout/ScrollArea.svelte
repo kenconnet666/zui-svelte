@@ -19,12 +19,19 @@
     children,
     ...rest
   }: Omit<HTMLAttributes<HTMLDivElement>, 'onscroll'> & {
+    /** 可滚动轴；默认 y。 */
     axis?: 'x' | 'y' | 'both';
+    /** 滚动边界的链式传播策略；默认 auto。 */
     overscroll?: 'auto' | 'contain' | 'none';
+    /** auto 在交互时显露，always 持续显示；滚动条均不占布局空间。 */
     scrollbar?: 'auto' | 'always';
+    /** 转发原生 viewport 的滚动事件，currentTarget 是实际滚动元素。 */
     onscroll?: HTMLAttributes<HTMLDivElement>['onscroll'];
+    /** 转发公开部件的参数、class、style 与事件；保留嵌套 slotProps 类型。 */
     slotProps?: {
+      /** 实际滚动视口的原生属性、class/style 与事件。 */
       viewport?: HTMLAttributes<HTMLDivElement>;
+      /** 滚动内容包装元素的原生属性及样式。 */
       content?: HTMLAttributes<HTMLDivElement>;
     };
   } = $props();
@@ -78,17 +85,17 @@
       if (slotProps.viewport?.onscroll !== onscroll) slotProps.viewport?.onscroll?.(event);
     }}
     class={css((s) => {
-      s.inlineSize('100%');
-      s.blockSize('100%');
-      s.flex('1 1 auto');
+      s.inlineSize.raw('100%');
+      s.blockSize.raw('100%');
+      s.flex.raw('1 1 auto');
       s.maxBlockSize.inherit;
       s.maxInlineSize.inherit;
       s.minInlineSize.px(0);
       s.minBlockSize.px(0);
       s.boxSizing.borderBox;
-      s.overflowX(axis === 'y' ? 'hidden' : 'auto');
-      s.overflowY(axis === 'x' ? 'hidden' : 'auto');
-      s.overscrollBehavior(overscroll);
+      s.overflowX.token(axis === 'y' ? 'hidden' : 'auto');
+      s.overflowY.token(axis === 'x' ? 'hidden' : 'auto');
+      s.overscrollBehavior.token(overscroll);
       s.scrollbarWidth.none;
       // 无脚本时恢复原生可拖动条；正常 SSR 与接管始终保持零占位。
       s._media('(scripting: none)', (s) => {
@@ -101,7 +108,7 @@
       {@attach connect}
       class={css((s) => {
         s.display.flowRoot;
-        s.minInlineSize('100%');
+        s.minInlineSize.raw('100%');
       })}
     >
       {@render children?.()}
@@ -125,12 +132,12 @@
         class={css((s) => {
           const visible = scrollbar === 'always' || state.active;
           s.position.absolute;
-          s.zIndex(1);
+          s.zIndex.raw(1);
           s.touchAction.none;
           s.userSelect.none;
-          s.opacity(visible ? 1 : 0);
-          s.pointerEvents(visible ? 'auto' : 'none');
-          s.transition('opacity 120ms ease');
+          s.opacity.raw(visible ? 1 : 0);
+          s.pointerEvents.token(visible ? 'auto' : 'none');
+          s.transition.raw('opacity 120ms ease');
           if (direction === 'y') {
             s.insetBlockStart.px(2);
             s.insetInlineEnd.px(0);
@@ -143,7 +150,7 @@
             s.inlineSize.px(metric.track);
           }
           s._media('(forced-colors: active)', (s) => {
-            s.opacity(1);
+            s.opacity.raw(1);
             s.pointerEvents.auto;
           });
           s._media('(prefers-reduced-motion: reduce)', (s) => {
@@ -176,8 +183,8 @@
               s.opacity._lg;
             });
             s._media('(forced-colors: active)', (s) => {
-              s.backgroundColor('ButtonText');
-              s.opacity(1);
+              s.backgroundColor.token('ButtonText');
+              s.opacity.raw(1);
               s.forcedColorAdjust.none;
             });
           })}
