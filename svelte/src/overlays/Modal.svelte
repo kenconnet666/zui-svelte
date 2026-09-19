@@ -2,7 +2,7 @@
   import { onDestroy, untrack, type Snippet, type ComponentProps } from 'svelte';
   import type { HTMLAttributes, HTMLButtonAttributes } from 'svelte/elements';
   import X from '@lucide/svelte/icons/x';
-  import { componentCss as css, lightTheme as theme } from '../theme.js';
+  import { componentCss as css, lightTheme as theme, type DefaultTokens } from '../theme.js';
   import type { Size } from '../types.js';
   import { captureRuntime } from '../runtime/context.js';
   import { captureLocale } from '../runtime/config.js';
@@ -74,13 +74,13 @@
   let backdrop = $state<HTMLElement>();
   const visible = $derived(open || session.presence.mounted);
   const widths = {
-    xs: 'panelXs',
-    sm: 'panelSm',
-    md: 'panelMd',
-    lg: 'panelLg',
-    xl: 'panelXl',
-    full: 'full',
-  } as const;
+    xs: '_panelXs',
+    sm: '_panelSm',
+    md: '_panelMd',
+    lg: '_panelLg',
+    xl: '_panelXl',
+    full: '_full',
+  } as const satisfies Record<Size | 'full', `_${keyof DefaultTokens['size'] & string}`>;
   function attach(element: HTMLElement) {
     return session.attach(element);
   }
@@ -172,17 +172,17 @@
             s.transitionDuration._md;
             s.transitionProperty.none;
             if (!side) {
-              s.inlineSize(theme.ref('size', widths[size]));
+              s.inlineSize(widths[size]);
               s.maxInlineSize('100%');
               s.maxBlockSize('calc(100dvh - 32px)');
               s.borderRadius._lg;
             } else if (side === 'start' || side === 'end') {
-              s.inlineSize(theme.ref('size', widths[size]));
+              s.inlineSize(widths[size]);
               s.maxInlineSize('100%');
               s.blockSize('100dvh');
             } else {
               s.inlineSize('100%');
-              s.blockSize(theme.ref('size', widths[size]));
+              s.blockSize(widths[size]);
               s.maxBlockSize('100dvh');
             }
           }),

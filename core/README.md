@@ -10,6 +10,10 @@
 
 ## 统一入口与主题
 
+属性参数会补全原生 CSS 关键字与当前类别的 `_主题键`，例如 `s.inlineSize('max-content')`、`s.inlineSize('_panelXs')`（主题需包含 panelXs）。后者与 `s.inlineSize._panelXs` 相同，生成主题变量并记录依赖；普通 CSS 字符串仍可直接传入。无前缀的名字不自动转换成主题键。
+
+完整 `_key` 按主题引用处理，未知引用运行时报错；开放字符串类型不会静态排除所有拼写错误。复合 CSS 不做内部替换，`s.raw('animation-name', '_loader')` 或 `s.set('animationName', '_loader')` 可明确写入以 `_` 开头的原生标识符。没有组件 Token 或 `$` 特殊语义。
+
 标准 CSS、通用主题引擎和 runtime 从 `@zui/core` 导入，默认主题为空 baseTheme。内置视觉预设与默认主题 css 已移到 `@zui/svelte`；core 不反向依赖组件包。下面演示使用 UI 预设扩展自定义主题；`css()` 的组件/模块调用仍需接入 ZUI 编译插件。
 
 ```ts

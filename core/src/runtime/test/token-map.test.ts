@@ -18,14 +18,14 @@ describe('custom token category mapping', () => {
       styles((s) => {
         s.gap._card;
         s._hover((s) => {
-          s.gap._card;
+          s.gap('_card');
         });
       }),
     );
     expect(runtime.cssText().match(/var\(--z-layoutSpace-card\)/gu)).toHaveLength(2);
     const module = createStyleModule('mapped.ts');
     const name = module.call('card', styles, (s) => {
-      s.gap._card;
+      s.gap('_card');
     });
     frame.resolve(name);
     expect(runtime.cssText()).toContain('gap:var(--z-layoutSpace-card)');

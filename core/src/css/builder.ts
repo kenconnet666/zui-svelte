@@ -167,7 +167,35 @@ export function buildStyle(
         if (carriers.has(key)) return carriers.get(key);
         const entry = Object.hasOwn(metadata, key) ? metadata[key] : undefined;
         if (!entry) throw new StyleError('css.value', 'Unknown CSS property: ' + key);
-        const carrier = new Proxy((value: unknown) => append(entry.name, value), {
+        const category = tokenMap?.[key] ?? entry.tokens;
+        const writeToken = (token: string) => {
+          if (!category)
+            throw new StyleError('css.value', 'CSS property has no token category: ' + key);
+          append(entry.name, 'var(' + theme.variable(category, token) + ')');
+          tokens.set(
+            JSON.stringify([category, token]),
+            Object.freeze({
+              namespace: theme.namespace,
+              category,
+              token,
+              kind: typeof theme.resolved[category]![token] === 'number' ? 'number' : 'string',
+            }),
+          );
+        };
+        const writeValue = (value: unknown) => {
+          // 已声明键精确匹配；其他完整标记也走引用校验，不替换复合 CSS 内部片段。
+          if (
+            typeof value === 'string' &&
+            value.startsWith('_') &&
+            ((category && Object.hasOwn(theme.resolved[category] ?? {}, value.slice(1))) ||
+              /^_[\p{ID_Continue}.$-]+$/u.test(value))
+          ) {
+            writeToken(value.slice(1));
+            return;
+          }
+          append(entry.name, value);
+        };
+        const carrier = new Proxy(writeValue, {
           get(_object, member) {
             if (typeof member !== 'string' || member === 'then') return undefined;
             const keywords: Readonly<Record<string, string>> = keywordGroups[entry.group]!;
@@ -176,22 +204,7 @@ export function buildStyle(
               return undefined;
             }
             if (member.startsWith('_')) {
-              const category = tokenMap?.[key] ?? entry.tokens;
-              if (!category)
-                throw new StyleError('css.value', 'CSS property has no token category: ' + key);
-              append(entry.name, 'var(' + theme.variable(category, member.slice(1)) + ')');
-              tokens.set(
-                JSON.stringify([category, member]),
-                Object.freeze({
-                  namespace: theme.namespace,
-                  category,
-                  token: member.slice(1),
-                  kind:
-                    typeof theme.resolved[category]![member.slice(1)] === 'number'
-                      ? 'number'
-                      : 'string',
-                }),
-              );
+              writeToken(member.slice(1));
               return undefined;
             }
             const supported: readonly string[] = entry.units ? units[entry.units] : [];

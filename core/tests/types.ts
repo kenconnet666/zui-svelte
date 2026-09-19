@@ -153,6 +153,8 @@ const mappedTheme = extendTheme(theme, { layoutSpace: { card: '18px' } });
 const mappedCss = createCss(mappedTheme, { tokenMap: { gap: 'layoutSpace' } });
 mappedCss((s) => {
   s.gap._card;
+  s.gap('_card');
+  s.gap('calc(1rem + 2px)');
   s.gap.px(8, 12);
   s.gap('normal');
   s._hover((s) => {
@@ -182,4 +184,19 @@ optionalCss((s) => {
   s.gap.px(8);
   // @ts-expect-error 可选映射不能保证自定义类别一定启用
   s.gap._card;
+});
+
+createCss(defineTheme({ size: { panel: '36rem', 100: '100px' } }))((s) => {
+  s.inlineSize('_panel');
+  s.inlineSize('_100');
+  s.inlineSize('max-content');
+  s.inlineSize('calc(100% - 2rem)');
+  // 开放字符串负责逃生，未知引用只能在运行时校验。
+  s.inlineSize('_unknown');
+  // @ts-expect-error 成员访问仍严格检查主题键
+  s.inlineSize._unknown;
+  // @ts-expect-error 不因扩充字符串而放宽对象类型
+  s.inlineSize({ value: '10px' });
+  // @ts-expect-error 单位参数数量不变
+  s.inlineSize.px(1, 2);
 });

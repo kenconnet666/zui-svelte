@@ -19,6 +19,7 @@ css(factory) 返回原始 string。@zui/core 的入口只含标准 CSS，@zui/sv
 csstype + TypeScript Compiler API + CSS schema 生成属性载体和运行时表，二者共用数据。生成输入为已安装的锁定依赖，输出稳定，不依赖抓网页或机器绝对路径。generate:check 比较内容并报告属性/关键字/单位/Token 映射；不能把未映射语义的属性当作不支持，也不能让未知能力变成 any。
 
 - baseTheme 是 defineTheme({})，标准 CSS 关键字/单位不依赖主题 Token。
+- 属性函数参数补全系统值与当前类别的 `_主题键`；完整主题引用与成员访问共用声明/依赖记录。普通字符串仍透传，未知显式引用运行时报错；原始下划线标识符可用 raw/set 写入，复合 CSS 不做片段替换。
 - lightTheme/darkTheme、五档尺度和 DefaultTokens 属于 svelte 包，从 core.baseTheme 分别扩展，schema 一致。core runtime 默认空主题；Svelte 自动宿主/SSR 默认亮色，显式自有 schema 不混入 UI 键。
 - defineTheme 从零定义；extendTheme 新增键并兼容覆盖；overrideTheme 只覆盖已知键。tokenRef 只引用同类别，缺失/循环报错，长别名链迭代解析。
 - definition 保存原定义，resolved 保存解析值，ref/variable 返回 CSS 引用与变量名。resolved 可能含 calc/外部 var，不等于 computed style。
