@@ -256,6 +256,9 @@ importers:
       '@internationalized/date':
         specifier: 'catalog:'
         version: 3.12.4
+      '@lucide/svelte':
+        specifier: 'catalog:'
+        version: 1.47.0(svelte@5.57.0(@typescript-eslint/types@8.70.0))
       '@tanstack/virtual-core':
         specifier: 'catalog:'
         version: 3.17.11

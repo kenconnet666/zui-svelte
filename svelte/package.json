@@ -38,6 +38,7 @@
   },
   "scripts": {
     "build": "node build.mjs",
+    "build:code": "node build.mjs --no-types",
     "check": "svelte-check --tsconfig ./tsconfig.check.json",
     "test": "vitest run",
     "test:dev": "playwright test --config playwright.dev.config.ts",
@@ -46,15 +47,16 @@
     "test:kit": "playwright test"
   },
   "dependencies": {
-    "@internationalized/date": "catalog:",
     "@floating-ui/dom": "catalog:",
+    "@internationalized/date": "catalog:",
+    "@lucide/svelte": "catalog:",
     "@tanstack/virtual-core": "catalog:",
-    "typescript": "catalog:",
-    "magic-string": "catalog:",
     "@zui/core": "workspace:^",
     "decimal.js": "catalog:",
     "focus-trap": "catalog:",
+    "magic-string": "catalog:",
     "tabbable": "catalog:",
+    "typescript": "catalog:",
     "zod": "catalog:"
   },
   "peerDependencies": {
@@ -68,9 +70,9 @@
   },
   "devDependencies": {
     "@playwright/test": "catalog:",
-    "@sveltejs/kit": "catalog:",
     "@sveltejs/adapter-node": "catalog:",
     "@sveltejs/adapter-static": "catalog:",
+    "@sveltejs/kit": "catalog:",
     "@sveltejs/package": "catalog:",
     "@sveltejs/vite-plugin-svelte": "catalog:",
     "@vitest/browser-playwright": "catalog:",

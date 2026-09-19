@@ -37,7 +37,10 @@ try {
     await writeFile(typesFile, generated);
   const pnpm = process.env.npm_execpath;
   assert(pnpm, 'Run this build through pnpm.');
-  const result = spawnSync(process.execPath, [pnpm, 'exec', 'svelte-package', '--input', 'src'], {
+  const args = [pnpm, 'exec', 'svelte-package', '--input', 'src'];
+  // 浏览器迭代只更新代码，保留已生成声明；正式构建与 CI 仍完整重建。
+  if (process.argv.includes('--no-types')) args.push('--no-types', '--preserve-output');
+  const result = spawnSync(process.execPath, args, {
     cwd: root,
     stdio: 'inherit',
     env: {

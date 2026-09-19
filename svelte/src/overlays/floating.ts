@@ -1,5 +1,6 @@
 import {
   autoUpdate,
+  arrow,
   computePosition,
   flip,
   hide,
@@ -9,6 +10,7 @@ import {
   type Placement,
   type ReferenceElement,
   type Strategy,
+  type Boundary,
 } from '@floating-ui/dom';
 import { createSubscriber } from 'svelte/reactivity';
 
@@ -17,6 +19,9 @@ export interface FloatingOptions {
   strategy?: Strategy;
   gap?: number;
   padding?: number;
+  boundary?: Boundary;
+  arrow?: HTMLElement;
+  animationFrame?: boolean;
   onError?: (error: unknown) => void;
 }
 export interface FloatingState {
@@ -29,6 +34,8 @@ export interface FloatingState {
   readonly referenceWidth: number;
   readonly hidden: boolean;
   readonly ready: boolean;
+  readonly arrowX?: number;
+  readonly arrowY?: number;
 }
 
 /** 专项库只负责几何；返回状态交给 css 绑定，不直接写 style 破坏 CSP。 */
@@ -82,7 +89,9 @@ export class FloatingController {
     };
     let stop: () => void;
     try {
-      stop = autoUpdate(reference, element, update);
+      stop = autoUpdate(reference, element, update, {
+        animationFrame: this.#options.animationFrame,
+      });
     } catch (error) {
       this.disconnect();
       throw error;
@@ -121,17 +130,19 @@ export class FloatingController {
         strategy: options.strategy ?? 'fixed',
         middleware: [
           offset(options.gap ?? 4),
-          flip({ padding: options.padding ?? 8 }),
-          shift({ padding: options.padding ?? 8 }),
+          flip({ padding: options.padding ?? 8, boundary: options.boundary }),
+          shift({ padding: options.padding ?? 8, boundary: options.boundary }),
           size({
             padding: options.padding ?? 8,
+            boundary: options.boundary,
             apply(data) {
               availableWidth = Math.max(0, data.availableWidth);
               availableHeight = Math.max(0, data.availableHeight);
               referenceWidth = data.rects.reference.width;
             },
           }),
-          hide(),
+          ...(options.arrow ? [arrow({ element: options.arrow, padding: 6 })] : []),
+          hide({ boundary: options.boundary }),
         ],
       });
       if (this.#disposed || version !== this.#version || !element.isConnected) return;
@@ -145,6 +156,8 @@ export class FloatingController {
         referenceWidth,
         hidden: Boolean(result.middlewareData.hide?.referenceHidden),
         ready: true,
+        arrowX: result.middlewareData.arrow?.x,
+        arrowY: result.middlewareData.arrow?.y,
       });
     } catch (error) {
       if (this.#disposed || version !== this.#version) return;

@@ -132,6 +132,10 @@ try {
     "'@zui/svelte'",
   );
   await writeFile(join(directory, 'src/config-types.ts'), configTypes);
+  const componentTypes = (
+    await readFile(join(root, 'svelte/tests/component-types.ts'), 'utf8')
+  ).replace("'../src/index.js'", "'@zui/svelte'");
+  await writeFile(join(directory, 'src/component-types.ts'), componentTypes);
   run(['install', '--no-frozen-lockfile', '--ignore-scripts'], directory);
   assert(
     (await realpath(join(directory, 'node_modules/zui-fixture-plain'))).includes(

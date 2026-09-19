@@ -4,6 +4,11 @@ import { wrap } from 'svelte-spa-router/wrap';
 
 export const pages = [
   {
+    path: '/overlays',
+    title: '定位与浮层',
+    component: wrap({ asyncComponent: () => import('./pages/Overlays.svelte') }),
+  },
+  {
     path: '/layout',
     title: '布局与滚动',
     component: wrap({ asyncComponent: () => import('./pages/Layout.svelte') }),

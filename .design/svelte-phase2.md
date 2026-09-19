@@ -320,3 +320,7 @@ P2-00/P2-01 首批：浮层专属的 layers/floating/portal/presence 与对应�
 - 继续使用逻辑尺寸/边缘、原生 CSS Grid/Flex gap、媒体与容器查询；不为响应式布局再建 JS 状态系统。
 
 依据：[滚动条属性](https://web.dev/blog/baseline-scrollbar-props?hl=en)、[Baseline 2025](https://web.dev/baseline/2025)、[starting-style](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@starting-style)、[锚点定位](https://web.dev/learn/css/anchor-positioning)。
+
+P2-02–P2-04：已提供 Portal/Popover/Tooltip/Dialog/Drawer。Panel 只发布后代上下文，Portal 在外层读取父宿主；Popup 和 Modal 复用 OverlaySession 的打开/退出/层资源次序。模态陷阱让出非模态面板的 Tab 边界，隐藏与物理退出分开验收。初始打开 Dialog 的源 SSR 用例通过，严格 CSP 与包外组合用例交 CI。新增 core runtime.nonce 用于复用宿主 CSP，而不窥探具体样式表实现；根主题 zIndex.popup 作为同 Document 的层基线。
+
+三个 Chrome 组合用例和公开组件声明正负例已通过。保留原生 transitionDuration 作为主题动画时长来源，但显式关闭 transitionProperty，避免意外过渡 visibility；实际动画仍由可取消的 WAAPI/Presence 协调。Lucide 通过单图标公开子路径导入，避免源码 SSR 加载全图标导出表。最终资源/体积与完整候选验收仍待交付闭合。

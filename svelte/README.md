@@ -2,7 +2,7 @@
 
 Svelte 5 组件库工作区，依赖 @zui/core，使用官方 svelte-package 生成发布产物。
 
-当前提供 class 编译/SSR 样式桥、UI 亮暗主题、ConfigProvider/StyleProvider，以及字段校验、层/焦点、定位、集合/异步/虚拟化和跨组件交互基础。尚未导出 Button/Input/Dialog 等视觉组件。基础设施的候选与边界见 [第一阶段台账](../.design/svelte-phase1.md)，视觉组件的实施建议见 [第二阶段计划](../.design/svelte-phase2.md)。
+当前提供 class 编译/SSR 样式桥、UI 亮暗主题、ConfigProvider/StyleProvider，以及字段校验、层/焦点、定位、集合/异步/虚拟化和跨组件交互基础。已导出 Stack/Grid/Container/ScrollArea 与 Portal/Popover/Tooltip/Dialog/Drawer；Button/Input/Form 等尚未实现。基础设施的候选与边界见 [第一阶段台账](../.design/svelte-phase1.md)，视觉组件的实施建议见 [第二阶段计划](../.design/svelte-phase2.md)。
 
 - 构建：`pnpm --filter @zui/svelte build`
 - 类型检查：`pnpm --filter @zui/svelte check`
@@ -191,6 +191,11 @@ SSR 必须通过 renderStyled 或 Kit style handle 收集，初始主题直接�
 | `size.containerMd`      | `64rem`                         | `64rem`                         | 页面最大宽度五档，与控件尺寸和媒体断点分开                 |
 | `size.containerLg`      | `80rem`                         | `80rem`                         | 页面最大宽度五档，与控件尺寸和媒体断点分开                 |
 | `size.containerXl`      | `96rem`                         | `96rem`                         | 页面最大宽度五档，与控件尺寸和媒体断点分开                 |
+| `size.panelXs`          | `20rem`                         | `20rem`                         | 浮层面板五档尺寸，受可用视口约束                           |
+| `size.panelSm`          | `28rem`                         | `28rem`                         | 浮层面板五档尺寸，受可用视口约束                           |
+| `size.panelMd`          | `36rem`                         | `36rem`                         | 浮层面板五档尺寸，受可用视口约束                           |
+| `size.panelLg`          | `48rem`                         | `48rem`                         | 浮层面板五档尺寸，受可用视口约束                           |
+| `size.panelXl`          | `64rem`                         | `64rem`                         | 浮层面板五档尺寸，受可用视口约束                           |
 | `size.iconXl`           | `24px`                          | `24px`                          | 控件/图标尺寸档；control/icon 为默认角色引用，full 为 100% |
 | `size.full`             | `100%`                          | `100%`                          | 控件/图标尺寸档；control/icon 为默认角色引用，full 为 100% |
 | `size.control`          | `36px`                          | `36px`                          | 控件/图标尺寸档；control/icon 为默认角色引用，full 为 100% |
@@ -277,6 +282,7 @@ SSR 必须通过 renderStyled 或 Kit style handle 收集，初始主题直接�
 | `color.surfaceRaised`   | `#ffffff`                       | `#334155`                       | 抬高的弹层/浮动表面；搭配 text                             |
 | `color.surfaceSunken`   | `#f1f5f9`                       | `#0f172a`                       | 凹陷区域/次级底色；搭配 text                               |
 | `color.surfaceHover`    | `#f1f5f9`                       | `#334155`                       | 普通表面的悬停反馈；搭配 text                              |
+| `color.backdrop`        | `rgb(0 0 0 / 0.4)`              | `rgb(0 0 0 / 0.6)`              | 模态背景，Dialog 与 Drawer 共用                            |
 | `color.background`      | `#f8fafc`                       | `#0f172a`                       | 页面基础背景；搭配 text 或 muted                           |
 | `color.text`            | `#0f172a`                       | `#f8fafc`                       | 普通可读正文；搭配 background 或 surface 系列              |
 | `color.muted`           | `#475569`                       | `#cbd5e1`                       | 次要说明；默认对比度验收使用 background                    |

@@ -1,4 +1,4 @@
-import { composedContains, styleRoot } from '../internal/dom.js';
+import { activeElement, composedContains, styleRoot } from '../internal/dom.js';
 import type { ThemeHost } from '../runtime/theme-context.js';
 
 /** 同一渲染根内移动 DOM，逻辑 Svelte context 不变；主题复用现有 marker，不复制整份 Token。 */
@@ -41,7 +41,15 @@ export class PortalMount {
     if (composedContains(this.element, destination))
       throw new Error('A portal cannot contain its destination.');
     if (destination !== this.#target) {
-      destination.append(this.element);
+      const focused = activeElement(this.element.ownerDocument);
+      // 支持时保留 DOM 状态；旧浏览器只恢复本次移动前已有的内部焦点。
+      if ('moveBefore' in destination && this.element.isConnected && destination.isConnected)
+        destination.moveBefore(this.element, null);
+      else {
+        destination.append(this.element);
+        if (focused && composedContains(this.element, focused) && 'focus' in focused)
+          (focused as HTMLElement).focus({ preventScroll: true });
+      }
       this.#target = destination;
     }
     if (theme?.marker !== this.#marker) {
@@ -66,12 +74,18 @@ export class PortalMount {
   dispose(): void {
     if (this.#disposed) return;
     this.#disposed = true;
+    const focused = activeElement(this.element.ownerDocument);
     if (this.#marker && this.#addedMarker) this.element.classList.remove(this.#marker);
     if (this.#originalDir === null && this.element.getAttribute('dir') === this.#appliedDir)
       this.element.removeAttribute('dir');
-    if (this.element.isConnected && this.#placeholder.isConnected)
-      this.#placeholder.replaceWith(this.element);
-    else this.element.remove();
+    if (this.element.isConnected && this.#placeholder.isConnected) {
+      const parent = this.#placeholder.parentNode!;
+      if ('moveBefore' in parent && typeof parent.moveBefore === 'function')
+        parent.moveBefore(this.element, this.#placeholder);
+      else this.#placeholder.replaceWith(this.element);
+      if (focused && composedContains(this.element, focused) && 'focus' in focused)
+        (focused as HTMLElement).focus({ preventScroll: true });
+    } else this.element.remove();
     this.#placeholder.remove();
     this.#target = undefined;
   }

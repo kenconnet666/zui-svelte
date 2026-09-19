@@ -34,6 +34,23 @@ afterAll(async () => {
 });
 
 describe('compiled SSR', () => {
+  it('renders an initially open public dialog with collected CSS and no DOM access', async () => {
+    const { default: Page } = await server.ssrLoadModule(
+      '/tests/kit/src/routes/overlays/+page.svelte',
+    );
+    const { renderStyled } = await server.ssrLoadModule('/src/server.ts');
+    const [opened, closed] = await Promise.all([
+      renderStyled(Page, { props: { data: { initial: true } }, runtime: { nonce: 'overlay-ssr' } }),
+      renderStyled(Page, {
+        props: { data: { initial: false } },
+        runtime: { nonce: 'overlay-ssr' },
+      }),
+    ]);
+    expect(opened.body).toContain('data-testid="server-dialog"');
+    expect(closed.body).not.toContain('data-testid="server-dialog"');
+    expect(opened.head).toContain('nonce="overlay-ssr"');
+    expect(opened.head).toContain('position:fixed');
+  });
   it('isolates configuration across concurrent server renders', async () => {
     const { default: Probe } = await server.ssrLoadModule('/tests/fixtures/ConfigProbe.svelte');
     const { renderStyled } = await server.ssrLoadModule('/src/server.ts');

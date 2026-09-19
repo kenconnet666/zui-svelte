@@ -15,6 +15,7 @@ export interface CloseRequest {
 }
 export interface LayerOptions {
   element: HTMLElement;
+  positioner?: HTMLElement;
   parent?: LayerHandle;
   trigger?: HTMLElement;
   backdrop?: HTMLElement;
@@ -24,6 +25,7 @@ export interface LayerOptions {
   closeOnEscape?: boolean;
   closeOnOutside?: boolean;
   closeOnFocusOutside?: boolean;
+  handlesTab?: boolean;
   initialFocus?: HTMLElement | false | (() => HTMLElement | false);
   returnFocus?: false | (() => HTMLElement | undefined);
   getShadowRoot?: (element: Element) => ShadowRoot | null;
@@ -194,7 +196,7 @@ class LayerManager {
     const handle = new LayerHandle(this, this.#token + '-' + ++this.#sequence, options);
     this.#entries.push(handle);
     try {
-      this.#attribute(handle, options.element, 'data-zui-layer', handle.id);
+      this.#attribute(handle, options.positioner ?? options.element, 'data-zui-layer', handle.id);
       if (!options.element.hasAttribute('tabindex'))
         this.#attribute(handle, options.element, 'tabindex', '-1');
       if (options.backdrop)
@@ -337,7 +339,7 @@ class LayerManager {
       for (const [index, entry] of this.#entries.entries()) {
         entry.indexValue = this.base + index * 2 + 1;
         const next = [
-          this.#sheet(styleRoot(entry.options.element)).global(
+          this.#sheet(styleRoot(entry.options.positioner ?? entry.options.element)).global(
             '[data-zui-layer="' + entry.id + '"]',
             (s) => {
               s.zIndex(entry.indexValue);
@@ -395,6 +397,10 @@ class LayerManager {
         else {
           const initial = opening ? modal.options.initialFocus : false;
           this.#trap = createFocusTrap(containers, {
+            isKeyForward: (event) =>
+              event.key === 'Tab' && !event.shiftKey && !this.#childHandlesTab(event),
+            isKeyBackward: (event) =>
+              event.key === 'Tab' && event.shiftKey && !this.#childHandlesTab(event),
             document: this.document,
             trapStack: this.#trapStack,
             escapeDeactivates: false,
@@ -469,6 +475,16 @@ class LayerManager {
     if (top.options.closeOnEscape !== false && top.requestClose('escape', event))
       event.preventDefault();
   };
+  #childHandlesTab(event: KeyboardEvent): boolean {
+    // Tooltip 可以位于非模态面板之上，但它不应夺走面板自己的 Tab 边界。
+    return this.#entries.some(
+      (entry) =>
+        entry.options.handlesTab &&
+        !entry.options.modal &&
+        entry.stateValue === 'open' &&
+        composedContains(entry.options.element, event.composedPath()[0] as Node),
+    );
+  }
   #down = (event: PointerEvent) => {
     const top = this.#top();
     if (!top || event.defaultPrevented || event.button !== 0) return;

@@ -5,6 +5,12 @@ import { createStyleModule } from '../definitions.js';
 import { baseTheme } from '../../theme/base.js';
 
 describe('explicit CSS layers', () => {
+  it('exposes the configured nonce for framework-owned overlay resources', () => {
+    const runtime = createRuntime({ nonce: 'request-nonce', layers: ['app'] });
+    expect(runtime.nonce).toBe('request-nonce');
+    expect(runtime.styleTags()).toContain('nonce="request-nonce"');
+    runtime.dispose();
+  });
   it('declares layer order once and keeps safe promotion inside the selected layer', () => {
     const runtime = createRuntime({ layers: ['base', 'app'], layer: 'app' });
     const styles = createCss(baseTheme, { layer: 'base' });

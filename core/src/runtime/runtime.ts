@@ -38,6 +38,7 @@ export interface StyleRuntime<T extends TokenSchema = Record<never, never>> {
   readonly registry: StyleRegistry;
   readonly defaultTheme: Theme<T>;
   readonly layer?: string;
+  readonly nonce?: string;
   readonly stats: RuntimeStats;
   global(selector: string, factory: StyleFactory<T>): StyleResource;
   themeStyle(selector: string, theme?: Theme<T>): StyleResource;
@@ -134,6 +135,7 @@ export function createRuntime<T extends TokenSchema = Record<never, never>>(
     registry,
     defaultTheme: theme,
     layer: options.layer,
+    nonce: options.nonce,
     global: resources.global,
     themeStyle: resources.theme,
     keyframes: resources.keyframes,

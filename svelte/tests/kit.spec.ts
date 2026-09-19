@@ -247,3 +247,43 @@ test('layout components retain SSR content and hydrate configuration and scrolli
   await expect(page.locator('[data-scrollbar="y"]')).toHaveCount(1);
   expect(errors).toEqual([]);
 });
+
+test('initially open overlays hydrate with strict CSP and isolate server requests', async ({
+  page,
+  request,
+}) => {
+  const [opened, closed] = await Promise.all([
+    request.get('/overlays?open'),
+    request.get('/overlays'),
+  ]);
+  expect(opened.status()).toBe(200);
+  expect(closed.status()).toBe(200);
+  expect(await opened.text()).toContain('data-testid="server-dialog"');
+  expect(await closed.text()).not.toContain('data-testid="server-dialog"');
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.addInitScript(() => {
+    (window as typeof window & { violations: string[] }).violations = [];
+    document.addEventListener('securitypolicyviolation', (event) => {
+      (window as typeof window & { violations: string[] }).violations.push(
+        event.effectiveDirective,
+      );
+    });
+  });
+  await page.goto('/overlays?open');
+  await expect(page.getByTestId('server-dialog')).toBeVisible();
+  await page.getByRole('button', { name: 'Open server popup' }).click();
+  await expect(page.getByLabel('server search')).toBeFocused();
+  await expect(page.locator('[data-scrollbar="y"]')).toHaveCount(1);
+  expect(await page.locator('[data-zui-layer][style]').count()).toBe(0);
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog', { name: '服务端子面板', includeHidden: true })).toHaveCount(
+    0,
+  );
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('server-dialog')).toHaveCount(0);
+  expect(
+    await page.evaluate(() => (window as typeof window & { violations: string[] }).violations),
+  ).toEqual([]);
+  expect(errors).toEqual([]);
+});
