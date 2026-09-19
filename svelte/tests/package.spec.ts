@@ -2,6 +2,26 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { expect, test } from '@playwright/test';
 
+test('consumes precompiled component configuration from node_modules', async ({
+  page,
+  request,
+}) => {
+  const html = await (await request.get('/config')).text();
+  expect(html).toContain('data-size="md"');
+  expect(html).toContain('from package');
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto('/config');
+  const control = page.getByTestId('config-control');
+  await expect(control).toHaveCSS('width', '120px');
+  await expect(control).toHaveClass(/package-default package-instance/u);
+  await expect(control.locator('span')).toHaveClass(/package-content control-content/u);
+  await page.getByRole('button', { name: 'Change configured size' }).click();
+  await expect(control).toHaveCSS('width', '180px');
+  await expect(control).toHaveAttribute('data-size', 'lg');
+  expect(errors).toEqual([]);
+});
+
 test.describe('prerender without client scripts', () => {
   test.use({ javaScriptEnabled: false });
   test('packed core styles remain usable in prerendered HTML without JavaScript', async ({

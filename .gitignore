@@ -12,6 +12,7 @@ dist
 dist-ssr
 test-results
 .zui-hmr-*
+.zui-build-*
 playwright-report
 coverage
 .svelte-kit

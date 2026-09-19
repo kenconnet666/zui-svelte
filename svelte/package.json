@@ -18,9 +18,9 @@
       "default": "./dist/compiler/preprocess.js"
     },
     "./internal": {
-      "zui-source": "./src/runtime/scope.ts",
-      "types": "./dist/runtime/scope.d.ts",
-      "default": "./dist/runtime/scope.js"
+      "zui-source": "./src/runtime/internal.ts",
+      "types": "./dist/runtime/internal.d.ts",
+      "default": "./dist/runtime/internal.js"
     },
     "./server": {
       "zui-source": "./src/server.ts",
@@ -35,7 +35,7 @@
     }
   },
   "scripts": {
-    "build": "svelte-package --input src",
+    "build": "node build.mjs",
     "check": "svelte-check --tsconfig ./tsconfig.check.json",
     "test": "vitest run",
     "test:dev": "playwright test --config playwright.dev.config.ts",

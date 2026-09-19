@@ -59,7 +59,8 @@ export function transformStyleModule(
     if (!cssModules.includes(statement.moduleSpecifier.text)) continue;
     const bindings = statement.importClause?.namedBindings;
     if (bindings && ts.isNamespaceImport(bindings)) {
-      names.add(bindings.name.text + '.css');
+      for (const key of ['css', 'componentCss', 'defaultsCss'])
+        names.add(bindings.name.text + '.' + key);
       factories.add(bindings.name.text + '.createCss');
     }
     const customModule = !['@zui/core', '@zui/svelte'].includes(statement.moduleSpecifier.text);
@@ -67,7 +68,10 @@ export function transformStyleModule(
     if (!bindings || !ts.isNamedImports(bindings)) continue;
     for (const binding of bindings.elements) {
       const imported = binding.propertyName?.text ?? binding.name.text;
-      if (imported === 'css' || (customModule && imported !== 'createCss'))
+      if (
+        ['css', 'componentCss', 'defaultsCss'].includes(imported) ||
+        (customModule && imported !== 'createCss')
+      )
         names.add(binding.name.text);
       if (imported === 'createCss') factories.add(binding.name.text);
     }

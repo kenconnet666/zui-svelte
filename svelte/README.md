@@ -42,6 +42,12 @@ Form/Field/DecimalInput 尚未实现，当前只是依赖和统一导出接入�
 
 ## 最小接入
 
+配置基础已提供 ConfigProvider、zhCN/enUS 与 Size/Radius 等类型。Provider 不产生额外 DOM，使用 getter 作用域继承 size/radius/locale/dir；实例显式值优先，undefined 继续继承，false 不会被吞掉。组件私有样式和 slotProps 合并只对明确登记的组件启用，事件不会被自动串联。
+
+公开视觉组件尚未发布，因此默认组件配置清单暂为空。库内清单由 components.mjs 维护实际文件与允许配置的字段，组件默认值仍只写在原生 $props() 中；build.mjs 从当前编译器源码 bootstrap 后预编译发布组件，不依赖旧 dist。生成类型是 ComponentProps/Pick，不抄写另一份属性类型。业务自定义组件可用 ConfigProvider 的原生 TS 泛型明确其配置类型，再在 zui 插件 components 选项中登记，未登记的组件不会被改写。
+
+mergeProps/mergeSlotProps 保留 class、CSS 声明字符串和 attachment Symbol，只递归 slotProps；普通数据保持引用，函数按普通覆盖处理。可取消事件由组件显式调用外部回调后判断 defaultPrevented，不能重复组合一次。
+
 普通 Svelte + Vite 项目的 vite.config.ts 中，ZUI 插件放在 Svelte 插件之前。以下写法消费构建后的包，不需要工作区专用的 zui-source 条件：
 
 ```ts

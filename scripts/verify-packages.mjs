@@ -15,6 +15,8 @@ import {
 import { tmpdir } from 'node:os';
 import { basename, dirname, join, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { pathToFileURL } from 'node:url';
+import { preprocess } from 'svelte/compiler';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const pnpm = process.env.npm_execpath;
@@ -61,6 +63,7 @@ try {
     '@zui/core': archive('core'),
     '@zui/svelte': archive('svelte'),
     'zui-fixture-plain': 'file:./plain',
+    'zui-fixture-config': 'file:./configured',
   };
   for (const name of [
     '@sveltejs/kit',
@@ -99,6 +102,20 @@ try {
   );
   await cp(join(root, 'svelte/tests/kit/src'), join(directory, 'src'), { recursive: true });
   await cp(join(root, 'svelte/tests/package'), directory, { recursive: true });
+  // 像发布库一样预编译原型；消费者插件会跳过 node_modules，不能替发布遗漏补课。
+  const compiler = await import(
+    pathToFileURL(join(root, 'svelte/dist/compiler/preprocess.js')).href
+  );
+  const fixtureFile = join(root, 'svelte/tests/fixtures/ConfigControl.svelte');
+  const settings = {
+    components: [{ file: fixtureFile, name: 'Control', defaults: ['size', 'block'] }],
+  };
+  const configured = await preprocess(
+    await readFile(fixtureFile, 'utf8'),
+    [compiler.componentPreprocess(settings), compiler.classPreprocess(settings)],
+    { filename: fixtureFile },
+  );
+  await writeFile(join(directory, 'configured/Control.svelte'), configured.code);
   await rename(join(directory, 'consumer-tsconfig.json'), join(directory, 'tsconfig.json'));
   const types = (await readFile(join(root, 'core/tests/types.ts'), 'utf8')).replace(
     "'../src/index.js'",
@@ -110,6 +127,11 @@ try {
     "'@zui/svelte'",
   );
   await writeFile(join(directory, 'src/ui-theme-types.ts'), themeTypes);
+  const configTypes = (await readFile(join(root, 'svelte/tests/config-types.ts'), 'utf8')).replace(
+    "'../src/index.js'",
+    "'@zui/svelte'",
+  );
+  await writeFile(join(directory, 'src/config-types.ts'), configTypes);
   run(['install', '--no-frozen-lockfile', '--ignore-scripts'], directory);
   assert(
     (await realpath(join(directory, 'node_modules/zui-fixture-plain'))).includes(

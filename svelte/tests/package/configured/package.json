@@ -1,0 +1,15 @@
+{
+  "name": "zui-fixture-config",
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "svelte": "./Control.svelte",
+      "default": "./Control.svelte"
+    }
+  },
+  "peerDependencies": {
+    "svelte": "^5.57.0",
+    "@zui/svelte": "*"
+  }
+}

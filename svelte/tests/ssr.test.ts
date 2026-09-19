@@ -5,6 +5,7 @@ import type { Component } from 'svelte';
 import { fileURLToPath } from 'node:url';
 import { zui } from '../src/compiler/preprocess.js';
 import type { RequestEvent } from '@sveltejs/kit';
+import { componentManifest } from './component-manifest.js';
 
 let server: ViteDevServer;
 beforeAll(async () => {
@@ -13,7 +14,11 @@ beforeAll(async () => {
     root,
     configFile: false,
     plugins: [
-      zui({ root, cssModules: ['@zui/core', '@zui/svelte', './styling.js'] }),
+      zui({
+        root,
+        cssModules: ['@zui/core', '@zui/svelte', './styling.js'],
+        components: componentManifest,
+      }),
       svelte({ configFile: false }),
     ],
     resolve: { conditions: ['zui-source', 'node'] },
@@ -29,6 +34,16 @@ afterAll(async () => {
 });
 
 describe('compiled SSR', () => {
+  it('renders compiled configuration and preserves nested slot defaults during SSR', async () => {
+    const { default: Probe } = await server.ssrLoadModule('/tests/fixtures/ConfigProbe.svelte');
+    const { renderStyled } = await server.ssrLoadModule('/src/server.ts');
+    const result = await renderStyled(Probe, { props: {} });
+    expect(result.body).toContain('data-size="md"');
+    expect(result.body).toContain('data-block="false"');
+    expect(result.body).toContain('outer inner instance');
+    expect(result.body).toContain('outer-content instance-content control-content');
+    expect(result.head).toContain('width:120px');
+  });
   it('rejects raw HTML output that loses the only rule of a CSS-only request', async () => {
     const { default: Probe } = await server.ssrLoadModule('/tests/fixtures/ModuleOnlyProbe.svelte');
     const { createStyleHandle } = await server.ssrLoadModule('/src/server.ts');

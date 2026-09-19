@@ -1,10 +1,22 @@
 import { createHash } from 'node:crypto';
 import { relative } from 'node:path';
 import MagicString from 'magic-string';
-import { parse, type PreprocessorGroup } from 'svelte/compiler';
+import { parse, preprocess, type PreprocessorGroup } from 'svelte/compiler';
 import type { Plugin } from 'vite';
 import { transformStyleModule } from './module.js';
 import { styleProtocol } from '@zui/core';
+import {
+  componentDefinition,
+  componentPreprocess,
+  type ComponentCompilerOptions,
+} from './components.js';
+export {
+  componentDefinition,
+  componentPreprocess,
+  transformComponent,
+  generateComponentTypes,
+} from './components.js';
+export type { ComponentDefinition, ComponentCompilerOptions } from './components.js';
 
 interface Node {
   type: string;
@@ -12,9 +24,7 @@ interface Node {
   end: number;
   [key: string]: unknown;
 }
-export interface ClassCompilerOptions {
-  root?: string;
-  runtimeModule?: string;
+export interface ClassCompilerOptions extends ComponentCompilerOptions {
   cssModules?: readonly string[];
 }
 const marker = 'zui-class-compiled';
@@ -106,6 +116,8 @@ export function transformClasses(
     });
   const reserved = new Set<string>();
   const allocate = (prefix: string) => unique(content, prefix, reserved);
+  const mergeAttributes = Boolean(componentDefinition(filename, options));
+  const merge = allocate('__zuiMergeProps');
   const scope = allocate('__zuiScope');
   const create = allocate('__zuiCreate');
   let owner = allocate('__zuiOwner');
@@ -115,7 +127,8 @@ export function transformClasses(
     .digest('hex')
     .slice(0, 16);
   const modules = new Set(options.cssModules ?? ['@zui/core', '@zui/svelte']);
-  const imports: { node: Node; local: string; alias: string }[] = [];
+  const imports: { node: Node; local: string; alias: string; imported: string }[] = [];
+  const configurationReaders = new Set<string>();
   const loops = new Map<Node, string>();
   const targets: { node: Node; parents: readonly Node[] }[] = [];
   // module 脚本只注册只读定义，仍由每个消费请求收集；共用编辑器保留原文件映射。
@@ -149,14 +162,25 @@ export function transformClasses(
       for (const specifier of node.specifiers as Node[]) {
         const local = (specifier.local as Node).name as string;
         if (
+          source === (options.runtimeModule ?? '@zui/svelte/internal') &&
+          specifier.type === 'ImportSpecifier' &&
+          (specifier.imported as Node).name === 'readComponentConfig'
+        )
+          configurationReaders.add(local);
+        if (
           specifier.type === 'ImportSpecifier' &&
           modules.has(source) &&
-          ((specifier.imported as Node).name ?? (specifier.imported as Node).value) === 'css'
+          ['css', 'componentCss', 'defaultsCss'].includes(
+            String((specifier.imported as Node).name ?? (specifier.imported as Node).value),
+          )
         ) {
           imports.push({
             node: specifier,
             local,
             alias: allocate('__zuiOriginal' + imports.length),
+            imported: String(
+              (specifier.imported as Node).name ?? (specifier.imported as Node).value,
+            ),
           });
         }
       }
@@ -292,6 +316,8 @@ export function transformClasses(
         if (argument && ['$state', '$state.raw', '$derived', '$derived.by'].includes(name))
           wrapSnapshot(argument, name === '$derived.by');
       } else if (hasImmediate(init, 'CallExpression')) {
+        // 配置句柄只捕获上下文，不生产 CSS；保持其初始化调用可识别、可幂等。
+        if (callee?.type === 'Identifier' && configurationReaders.has(String(callee.name))) return;
         if (!hasImmediate(init, 'AwaitExpression')) wrapSnapshot(init);
         else if (callee?.type === 'Identifier') wrapSnapshot(callee, true);
       }
@@ -323,15 +349,20 @@ export function transformClasses(
       (component ? 'component' : 'attrs') +
       '(' +
       JSON.stringify(String(node.start)) +
-      ', () => ({';
-    const end = '}), [' + keys.join(',') + ']' + ', ' + transient + ')}';
+      (mergeAttributes ? ', () => ' + merge + '(' : ', () => ({');
+    const end =
+      (mergeAttributes ? '),' : '}),') + ' [' + keys.join(',') + ']' + ', ' + transient + ')}';
     const argumentsToMove: { expression: Node; parameter: string; produce: boolean }[] = [];
     for (let i = 0; i < attrs.length; i++) {
       const attr = attrs[i]!;
       const parts: Part[] =
         attr.type === 'SpreadAttribute'
-          ? ['...(', attr.expression as Node, ')']
-          : [JSON.stringify(attr.name) + ':(', ...value(attr), ')'];
+          ? [mergeAttributes ? '(' : '...(', attr.expression as Node, ')']
+          : [
+              (mergeAttributes ? '{' : '') + JSON.stringify(attr.name) + ':(',
+              ...value(attr),
+              ')' + (mergeAttributes ? '}' : ''),
+            ];
       rewrite(attr, [i === 0 ? start : ',', ...parts, i === attrs.length - 1 ? end : '']);
       for (const part of parts)
         if (typeof part !== 'string') {
@@ -373,10 +404,11 @@ export function transformClasses(
     }
   }
   for (const item of imports)
-    magic.overwrite(item.node.start, item.node.end, 'css as ' + item.alias);
+    magic.overwrite(item.node.start, item.node.end, item.imported + ' as ' + item.alias);
   const header =
     '\nimport { createStyleScope as ' +
     create +
+    (mergeAttributes ? ', mergeProps as ' + merge : '') +
     ' } from ' +
     JSON.stringify(options.runtimeModule ?? '@zui/svelte/internal') +
     '; /* ' +
@@ -424,9 +456,23 @@ export function zui(options: ClassCompilerOptions = {}): Plugin {
     configResolved(config) {
       root ??= config.root;
     },
-    transform(code, id) {
+    async transform(code, id) {
       if (id.replaceAll('\\', '/').includes('/node_modules/')) return;
-      if (id.endsWith('.svelte')) return transformClasses(code, id, { ...options, root });
+      if (id.endsWith('.svelte')) {
+        const settings = { ...options, root };
+        if (!componentDefinition(id, settings)) return transformClasses(code, id, settings);
+        const result = await preprocess(
+          code,
+          [componentPreprocess(settings), classPreprocess(settings)],
+          { filename: id },
+        );
+        return result.code === code
+          ? undefined
+          : {
+              code: result.code,
+              map: typeof result.map === 'object' ? JSON.stringify(result.map) : result.map,
+            };
+      }
       if (/\.[cm]?[jt]s$/u.test(id))
         return transformStyleModule(code, id, root ?? process.cwd(), options.cssModules);
     },

@@ -22,6 +22,9 @@ export const pages = [
 ];
 
 export const routes = {
+  '/__config-test': wrap({
+    asyncComponent: () => import('../../svelte/tests/fixtures/ConfigProbe.svelte'),
+  }),
   // 回归夹具只在对应路径加载；同样通过包公开入口消费，不复制库实现。
   '/__core-test': wrap({
     asyncComponent: () => import('../../svelte/tests/fixtures/CoreProbe.svelte'),

@@ -2,6 +2,7 @@ import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { defineConfig } from 'vite';
 import { fileURLToPath } from 'node:url';
 import { zui } from '@zui/svelte/compiler';
+import { componentManifest } from '../svelte/tests/component-manifest.ts';
 
 const sourceRoots = ['../core/src/', '../svelte/src/'].map((path) =>
   fileURLToPath(new URL(path, import.meta.url))
@@ -12,7 +13,7 @@ const sourceRoots = ['../core/src/', '../svelte/src/'].map((path) =>
 export default defineConfig({
   base: './',
   plugins: [
-    zui(),
+    zui({ components: componentManifest }),
     svelte(),
     {
       name: 'zui-docs-consumer-boundary',
