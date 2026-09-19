@@ -22,6 +22,7 @@
     "generate:check": "node scripts/generate-css.mjs --check",
     "contracts:check": "node scripts/verify-contracts.mjs",
     "contracts:update": "node scripts/verify-contracts.mjs --update",
+    "contracts:ui": "node scripts/verify-ui.mjs",
     "benchmark:browser": "node scripts/benchmark-browser.mjs",
     "test:core": "pnpm --filter @zui/core run test",
     "test:core:browser": "pnpm --filter @zui/core run test:browser",

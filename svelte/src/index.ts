@@ -23,7 +23,8 @@ export { default as Dialog } from './overlays/Dialog.svelte';
 export { default as Drawer } from './overlays/Drawer.svelte';
 export type { OverlayCloseEvent } from './overlays/session.js';
 export type { ComponentDefaults } from './component-types.js';
-export { default as StyleProvider, type StyleContainerTag } from './StyleProvider.svelte';
+export { default as StyleProvider } from './StyleProvider.svelte';
+export type { StyleContainerTag } from './types.js';
 export { z } from './validation.js';
 export { default as Decimal } from 'decimal.js';
 export {

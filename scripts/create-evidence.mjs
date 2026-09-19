@@ -13,6 +13,7 @@ const paths = [
   'core/test-results/benchmark.json',
   'core/test-results/browser-benchmark.json',
   'svelte/test-results/packages/verification.json',
+  'svelte/test-results/distribution.json',
 ];
 const reports = [];
 for (const path of paths) {

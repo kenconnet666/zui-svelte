@@ -1,6 +1,44 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
+test('long panels scroll within the viewport and repeated dialogs release their layer resources', async ({
+  page,
+}) => {
+  await page.goto('/#/overlays');
+  await page.getByLabel('启用动效').uncheck();
+  await page.getByRole('button', { name: '打开长内容面板' }).click();
+  const popup = page.getByRole('dialog', { name: '长内容面板', includeHidden: true });
+  await expect(popup).toBeVisible();
+  const viewport = popup.locator('[data-zui-scroll-viewport]');
+  await expect
+    .poll(() => viewport.evaluate((node) => node.scrollHeight > node.clientHeight))
+    .toBe(true);
+  const box = (await popup.boundingBox())!;
+  expect(box.y).toBeGreaterThanOrEqual(0);
+  expect(box.y + box.height).toBeLessThanOrEqual(page.viewportSize()!.height + 1);
+  await page.keyboard.press('Escape');
+  await expect(popup).toHaveCount(0);
+  const styles = () =>
+    page
+      .locator('style[data-zui]')
+      .evaluateAll((nodes) =>
+        nodes.reduce(
+          (sum, node) => sum + ((node as HTMLStyleElement).sheet?.cssRules.length ?? 0),
+          0,
+        ),
+      );
+  let baseline = 0;
+  for (let index = 0; index < 20; index++) {
+    await page.getByRole('button', { name: '打开设置弹窗' }).click();
+    await expect(page.getByRole('dialog', { name: '布局设置', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: '完成设置' }).click();
+    await expect(page.locator('html')).not.toHaveAttribute('data-zui-scroll-lock');
+    await expect(page.locator('style[data-zui^="zui-layer-"]')).toHaveCount(0);
+    if (index === 4) baseline = await styles();
+  }
+  expect(await styles()).toBe(baseline);
+});
+
 test('complete dialogs compose nested popovers and return focus in order', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));

@@ -53,6 +53,9 @@
   class={[
     css((s) => {
       s.position.relative;
+      s.display.flex;
+      s.flexDirection.column;
+      s.boxSizing.borderBox;
       s.minInlineSize.px(0);
       s.minBlockSize.px(0);
       s.overflow.hidden;
@@ -66,6 +69,7 @@
     {...slotProps.viewport}
     tabindex={slotProps.viewport?.tabindex ?? tabindex}
     role={slotProps.viewport?.role ?? (label || labelledBy ? 'region' : undefined)}
+    data-zui-scroll-viewport=""
     aria-label={label ?? slotProps.viewport?.['aria-label']}
     aria-labelledby={labelledBy ?? slotProps.viewport?.['aria-labelledby']}
     aria-describedby={describedBy ?? slotProps.viewport?.['aria-describedby']}
@@ -76,6 +80,9 @@
     class={css((s) => {
       s.inlineSize('100%');
       s.blockSize('100%');
+      s.flex('1 1 auto');
+      s.maxBlockSize.inherit;
+      s.maxInlineSize.inherit;
       s.minInlineSize.px(0);
       s.minBlockSize.px(0);
       s.boxSizing.borderBox;

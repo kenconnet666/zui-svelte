@@ -25,13 +25,14 @@
     ...rest
   }: Omit<
     ComponentProps<typeof Popup>,
-    'children' | 'anchor' | 'interactive' | 'matchAnchorWidth' | 'onpanel'
+    'children' | 'anchor' | 'interactive' | 'matchAnchorWidth' | 'onpanel' | 'slotProps'
   > & {
     content: string;
     trigger: Snippet<[HTMLAttributes<HTMLElement>]>;
     delay?: number;
     closeDelay?: number;
     disabled?: boolean;
+    slotProps?: Pick<NonNullable<ComponentProps<typeof Popup>['slotProps']>, 'arrow'>;
   } = $props();
   const key = createAttachmentKey();
   const panelId = $derived(id ?? generatedId);
@@ -155,11 +156,13 @@
   class={className}
   {style}
   role="tooltip"
-  onpointerenter={() => {
+  onpointerenter={(event) => {
+    rest.onpointerenter?.(event);
     panelHovered = true;
     clear();
   }}
-  onpointerleave={() => {
+  onpointerleave={(event) => {
+    rest.onpointerleave?.(event);
     panelHovered = false;
     hide();
   }}

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy, untrack } from 'svelte';
+  import { onDestroy, untrack, type ComponentProps } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import type { Placement, ReferenceElement, Boundary } from '@floating-ui/dom';
   import { tabbable } from 'tabbable';
@@ -10,6 +10,7 @@
   import { FloatingController } from './floating.js';
   import Portal from './Portal.svelte';
   import Panel from './Panel.svelte';
+  import ScrollArea from '../layout/ScrollArea.svelte';
 
   let {
     open = $bindable(false),
@@ -46,7 +47,10 @@
     interactive?: boolean;
     onclose?: (event: OverlayCloseEvent) => void;
     onpanel?: (element: HTMLElement | undefined) => void;
-    slotProps?: { arrow?: HTMLAttributes<HTMLDivElement> };
+    slotProps?: {
+      arrow?: HTMLAttributes<HTMLDivElement>;
+      body?: ComponentProps<typeof ScrollArea>;
+    };
   } = $props();
   const runtime = captureRuntime();
   const parent = captureOverlay();
@@ -59,6 +63,7 @@
   const floating = new FloatingController();
   let positioner = $state<HTMLElement>();
   let arrowNode = $state<HTMLElement>();
+  let hadAnchor = false;
   const position = $derived(floating.state);
   const side = $derived(position.placement.split('-')[0]);
   const visible = $derived(open || session.presence.mounted);
@@ -82,7 +87,12 @@
   $effect(() => {
     const node = positioner,
       reference = anchor;
+    if (reference) hadAnchor = true;
+    else if (node && hadAnchor && open) open = false;
     if (node && reference && visible && portal !== null) return floating.connect(reference, node);
+  });
+  $effect(() => {
+    if (position.hidden && open) open = false;
   });
   $effect(() => {
     const element = session.host;
@@ -105,8 +115,16 @@
       closeOnFocusOutside: interactive,
       handlesTab: interactive,
       initialFocus: interactive
-        ? () =>
-            tabbable(element).find((node): node is HTMLElement => 'offsetWidth' in node) ?? element
+        ? () => {
+            const candidates = tabbable(element).filter(
+              (node): node is HTMLElement => 'offsetWidth' in node,
+            );
+            return (
+              candidates.find((node) => !node.hasAttribute('data-zui-scroll-viewport')) ??
+              candidates[0] ??
+              element
+            );
+          }
         : (false as const),
       onclose,
     };
@@ -182,6 +200,9 @@
         class={[
           css((s) => {
             s.position.relative;
+            s.display.flex;
+            s.flexDirection.column;
+            s.overflowWrap.anywhere;
             s.boxSizing.borderBox;
             s.padding._md;
             s.borderRadius._md;
@@ -197,7 +218,25 @@
           className,
         ]}
       >
-        {@render children?.()}
+        {#if interactive}
+          <ScrollArea
+            {...slotProps.body}
+            overscroll="contain"
+            class={[
+              css((s) => {
+                s.flex('1 1 auto');
+                s.minBlockSize.px(0);
+                s.maxBlockSize.inherit;
+                s.maxInlineSize('100%');
+              }),
+              slotProps.body?.class,
+            ]}
+          >
+            {@render children?.()}
+          </ScrollArea>
+        {:else}
+          {@render children?.()}
+        {/if}
         {#if arrow}
           <div
             {...slotProps.arrow}

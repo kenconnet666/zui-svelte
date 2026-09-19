@@ -1,25 +1,7 @@
-<script module lang="ts">
-  type VoidTag =
-    | 'area'
-    | 'base'
-    | 'br'
-    | 'col'
-    | 'embed'
-    | 'hr'
-    | 'img'
-    | 'input'
-    | 'link'
-    | 'meta'
-    | 'param'
-    | 'source'
-    | 'track'
-    | 'wbr';
-  export type StyleContainerTag = Exclude<keyof HTMLElementTagNameMap, VoidTag>;
-</script>
-
 <script lang="ts" generics="T extends TokenSchema">
   import { onDestroy, untrack, type Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
+  import type { StyleContainerTag } from './types.js';
   import {
     hashText,
     assertThemeCompatible,

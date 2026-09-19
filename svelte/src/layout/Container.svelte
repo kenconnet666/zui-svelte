@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
-  import type { StyleContainerTag } from '../StyleProvider.svelte';
-  import type { Size, Spacing } from '../types.js';
+  import type { Size, Spacing, StyleContainerTag } from '../types.js';
   import { componentCss as css, lightTheme as theme } from '../theme.js';
 
   let {

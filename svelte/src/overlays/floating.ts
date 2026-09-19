@@ -121,6 +121,11 @@ export class FloatingController {
     const reference = this.#reference,
       element = this.#element,
       options = this.#options;
+    const context = 'ownerDocument' in reference ? reference : reference.contextElement;
+    if (context && !context.isConnected) {
+      this.#set({ ...this.#state, hidden: true, ready: false });
+      return;
+    }
     let availableWidth = 0,
       availableHeight = 0,
       referenceWidth = 0;
