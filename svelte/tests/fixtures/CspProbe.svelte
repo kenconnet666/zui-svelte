@@ -4,7 +4,12 @@
   import { css, lightTheme } from '@zui/svelte';
   import { provideStyleRuntime } from '@zui/svelte';
 
-  const runtime = createRuntime({ target: document, variables: 'stylesheet', nonce: 'zui-probe' });
+  const runtime = createRuntime({
+    target: document,
+    theme: lightTheme,
+    variables: 'stylesheet',
+    nonce: 'zui-probe',
+  });
   runtime.themeStyle(':root');
   provideStyleRuntime(runtime);
   onDestroy(() => runtime.dispose());

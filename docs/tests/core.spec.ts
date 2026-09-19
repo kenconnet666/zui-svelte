@@ -165,7 +165,10 @@ test('stylesheet variables update under a nonce policy that forbids style attrib
   page,
 }) => {
   // 开发服务器会自行注入无 nonce 的 CSS；严格策略验证使用 CI 构建产物。
-  test.skip(!process.env.CI, 'Strict CSP is verified against the production build.');
+  test.skip(
+    !process.env.CI && process.env.ZUI_DOCS_PREVIEW !== '1',
+    'Strict CSP is verified against the production build.',
+  );
   await page.addInitScript(() => {
     const violations: string[] = [];
     Reflect.set(window, 'cspViolations', violations);

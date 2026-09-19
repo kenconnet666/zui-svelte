@@ -1,6 +1,6 @@
 # Svelte 组件与主题合同讨论
 
-已确认：共享响应式模型可直接修改；Lucide 组件直传；一体 Input 包含 label/help/error；Dialog 为完整组件；五档使用 xs/sm/md/lg/xl；标准 CSS 与通用主题引擎留 core，UI 预设与默认主题 css 在 svelte。业务组件尚未实施，本文明确区分已经确认的边界与后续建议。
+已确认：共享响应式模型可直接修改；Lucide 组件直传；一体 Input 包含 label/help/error；Dialog 为完整组件；五档使用 xs/sm/md/lg/xl；标准 CSS 与通用主题引擎留 core，UI 预设与默认主题 css 在 svelte；Button 使用 color + variant + size，集中默认配置与统一浮层管理。业务组件尚未实施，本文明确区分已经确认的边界与后续建议。
 
 ## 1. 包与默认值边界
 
@@ -92,11 +92,11 @@ label/help 可用 string 或 snippet；error 的首个建议是文字消息，�
 
 icon 接收 LucideIcon，尺寸随 size，颜色继承 currentColor；特殊属性用 slotProps.icon。内部图标也使用 Lucide，不再提供字符串注册表。复杂金额单位、徽标等内容用 leading/trailing snippet，同位置 snippet 优先。纯图标按钮要有 aria-label，装饰图标不重复朗读。
 
-## 5. Button：参考成熟库后建议采用正交组合
+## 5. Button：已确认 color + variant + size
 
 核对的成熟接口：MUI 使用 color/variant/size；Ant Design 支持 color + variant，type 只是组合快捷方式且存在优先级；Chakra 使用 colorPalette 与 variant。吸收“语义颜色、表现方式、尺寸、行为状态分开”，不照搬 recipe 系统、React 状态或多个重复快捷入口。
 
-建议 ZUI 统一为以下形态，仍待确认字段名与取值：
+字段组合已确认；具体颜色/变体取值、默认值和行为细节仍按下表讨论：
 
 ```svelte
 <Button color="primary" variant="solid" size="md" icon={Save}>保存</Button>
@@ -122,9 +122,37 @@ color 相比前稿 tone 更接近成熟库，但不要同时保留 color/tone/ty
 
 参考：[MUI Button](https://mui.com/material-ui/react-button/)、[Ant Design Button](https://ant.design/components/button)、[Chakra Button](https://chakra-ui.com/docs/components/button)。这只是方案依据，ZUI API 尚未实现。
 
-## 6. Select：ID 与对象是业务值选择，不是响应式能力选择
+## 6. Select：选中以后，变量里装什么？
 
-### 默认 ID 模式的建议
+两种做法的下拉框看起来一样。假设 users 有两个人：
+
+```ts
+const users = [
+  { id: 1, name: '张三', email: 'zhang@example.com' },
+  { id: 2, name: '李四', email: 'li@example.com' },
+];
+```
+
+选中李四以后，区别只有业务变量中的内容：
+
+| 选择         | 变量内容                                                 | 适合                                 |
+| ------------ | -------------------------------------------------------- | ------------------------------------ |
+| 只保存编号   | owner = 2                                                | 提交负责人编号给接口，选项由列表提供 |
+| 保存整条数据 | owner = { id: 2, name: '李四', email: 'li@example.com' } | 选择后马上读/编辑邮箱等完整字段      |
+
+两种都可双向绑定，也都可以在普通函数中直接修改；不是一种能响应另一种不能响应。
+
+### 成熟库实际如何处理
+
+- Naive UI：value 主要是 string/number/null 或数组；on-update:value 同时提供 value 和 option。因此“绑定编号”不妨碍在一次操作中拿到整条选项。
+- Ant Design：默认返回选项 value。labelInValue 返回 { value, label }，只是多带显示文字，不等于完整的用户对象；其他字段不能据此假定都在绑定值里。
+- Element Plus：el-option 的 value 可以给 user.id，也可以给 user。绑定对象时用 value-key 指定唯一键，避免同名数据或重新加载对象造成身份问题。
+
+依据：[Naive UI Select](https://github.com/tusen-ai/naive-ui/blob/main/src/select/demos/enUS/index.demo-entry.md)、[Ant Design Select](https://ant.design/components/select)、[Element Plus Select](https://element-plus.org/en-US/component/select)。只借鉴选中值与身份的分离，不搬它们的受控状态规则或框架写法。
+
+### ZUI 的建议写法（尚未拍板）
+
+只保存编号：
 
 ```svelte
 <Select
@@ -134,19 +162,10 @@ color 相比前稿 tone 更接近成熟库，但不要同时保留 color/tone/ty
   getLabel={(user) => user.name}
   bind:value={form.ownerId}
 />
+<!-- 选中李四后：form.ownerId === 2 -->
 ```
 
-form.ownerId 只保存稳定 ID，form.ownerId = 2 立即改变选择。表单提交天然只含 ID；options 换成新的对象数组时仍按 ID 匹配，不需要原对象身份。删除、权限或远程查询使选项暂时不可见时，不能擅自清空 ID；显示占位/缓存标签的策略应明确。
-
-需要完整对象时可以派生，而非维护第二份可写选中状态：
-
-```ts
-const owner = $derived(users.find((user) => user.id === form.ownerId));
-```
-
-远程分页不能仅依赖当前页 find，应由业务提供已选项/查询缓存，组件后续可提供按 ID 解析标签的明确接口。不要把临时搜索结果缺项误判为模型失效。
-
-### 显式对象模式的建议
+保存整条数据：
 
 ```svelte
 <Select
@@ -157,26 +176,23 @@ const owner = $derived(users.find((user) => user.id === form.ownerId));
   getLabel={(user) => user.name}
   bind:value={form.owner}
 />
+<!-- 选中李四后：form.owner.email === 'li@example.com' -->
 ```
 
-form.owner 是对象，拿到同一响应式对象的地方可直接修改其字段；组件不主动深克隆。getKey 仍是必须明确的身份规则，不能用引用相等判断 API 重载后的选中状态。
+valueMode="item" 只是候选拼写；用户应先决定更常需要哪个结果，再决定是否以该参数明确选择。建议多数表单默认保存编号，需要完整对象时再明确启用；不自动根据初始值猜模式，因为初始值常常为空。
 
-对象模式建议把传入模型作为显示真相：options 重载时按 key 保持选中，但不偷偷换掉 form.owner；用户重新选择才写入当次项目。后台数据更新如何合并进已有实体，由业务数据层决定。ID 模式通常显示最新 options 中的标签；对象模式可显示正在编辑的对象字段，这个差异不能隐藏。
+只想保存编号、偶尔需要对象时，不必改为对象绑定：可以由 users 派生当前对象，或在可选变更通知中拿 option。不要因此再增加一份独立可写的 selectedItem，让 value 和 selectedItem 互相竞争。
 
-对象共享与“取消编辑”是不同语义。需要取消时，业务显式创建草稿，例如 structuredClone($state.snapshot(form.owner))；组件不默认克隆所有对象，也不替业务维护事务。
+### 仅有两件边界值得现在说明
 
-### 场景选择与空值
+1. 列表重新请求后，ID 相同仍是同一个人。对象模式也必须按 getKey 匹配，而不是依赖对象引用相同。ID 模式可使用新列表的名称；对象模式不应在后台刷新时偷偷覆盖正在编辑的 form.owner。
+2. 保存整条对象时，持有同一响应式对象的其他地方也会看到字段修改。需要“取消编辑”时，业务显式创建草稿；Select 不自动深克隆所有对象，也不负责实体缓存归并。
 
-| 场景                                           | 更合适的主值    |
-| ---------------------------------------------- | --------------- |
-| 后台表单提交外键、远程分页选人、URL/缓存持久化 | ID              |
-| 本地数据编辑器，选择后直接编辑完整记录         | 对象            |
-| 多选外键                                       | ID[]            |
-| 多选共享记录                                   | 对象[] + getKey |
+远程分页暂时缺少选中项时，两种模式都不擅自清空模型；显示已缓存标签或明确占位，标签解析接口到远程搜索设计时再定。多选分别是 ID[] 或对象[]。
 
-建议 ID 为默认，对象模式明确启用；两种模式都双向、都允许业务直接赋值。不要再加一个与 value 并列且可任意写入的 selectedItem，造成两份真相。
+### 清空值仍待确认
 
-清空建议：文本 Input 写空字符串，Checkbox 写 false，单选 Select 写 null，多选写 []；undefined 可作为初始未提供状态，不在挂载时自动改成 null。0 和空字符串若是合法 ID 不得按 falsy 清除。null 是否作为统一空值仍待用户确认；NumberInput/日期也需相同层面的约定。
+建议文本 Input 清空为 ''，Checkbox 为 false，单选 Select 为 null，多选为 []。undefined 可表示初始未提供，不在挂载时自动改写；0/空字符串若是合法 ID，不得用 falsy 判断清除。NumberInput、日期控件的空值也要统一说明。
 
 ## 7. 五档是尺度原则，不是所有参数都必须五个
 
@@ -203,13 +219,61 @@ Dialog 采用完整组件，提供 title/children/footer 与 slotProps；不要�
 
 共享 FieldFrame、Overlay 行为、Lucide 渲染是有意义的复用；core 不认识 label、error、option 或 Button variant。普通 TS 映射和组件组合优先，避免从五档需求推导出一套通用 recipe DSL。
 
-## 下一轮建议讨论
+## 9. 集中默认配置：已确认方向，入口暂名 ConfigProvider
 
-1. 是否采纳 Button 的 color + 五种 variant，而不保留 tone 或外观 type 别名？
-2. 是否采用 Select 默认 ID、显式对象模式，以及单选 null/多选 [] 的清空合同？
-3. 字段默认纵向 label + control + message，是否需要统一支持横向标签与固定消息空间？
-4. 是否由组件库提供一次性应用默认配置（size、radius、locale、disabled），主题仍独立用 ThemeScope？避免第二套主题 controller。
-5. 浮层在 Dialog 内的挂载/层级/焦点是否采用统一管理；仅写死五个 z-index 无法解决嵌套层叠上下文。
-6. 后续加入组件主题角色时，优先少量稳定语义还是颜色派生；不在 core 加回 UI Token。
+```svelte
+<ConfigProvider size="md" radius="sm" locale={zhCN}>
+  <Input label="名称" bind:value={form.name} />
+  <Button>继承默认尺寸</Button>
+  <Button size="lg">局部大按钮</Button>
+  <ConfigProvider size="sm">
+    <Input label="紧凑区域" bind:value={form.code} />
+  </ConfigProvider>
+</ConfigProvider>
+```
+
+优先级建议：组件显式 prop > 最近 Provider 对应字段 > 上级 Provider > 库默认值。内层只改 size 时，radius/locale 仍实时继承；undefined 表示继承，none 是实际圆角值，不能混淆。配置可来自 $state，业务直接修改它就能更新继承者。
+
+Provider 默认只提供逻辑上下文，不为配置新增布局 DOM；即使不写 Provider，组件也可使用库默认值。locale 负责清空/关闭/暂无数据等库内文字，业务 label/help 仍由应用提供；不另造完整 i18n 框架。dir、日期/数字格式及组件专属默认值的范围后续细化。
+
+主题仍由 ThemeScope 和已有 StyleProvider 输出 CSS 变量，ConfigProvider 不再增加 themeOverrides/colorMode 等平行状态。若以后提供一个更短的组合入口，也只组合已有能力，不产生第二个主题控制器。
+
+这套全局默认值不能改变业务模型，例如切换 locale 不重写 value，改 size 不清空选中项。SSR 每个应用/请求有自己的配置，不能使用共享可变模块单例。
+
+## 10. 统一浮层管理：已确认方向，规则建议
+
+统一处理 Dialog/Drawer/Popover/Select 等的父子归属、挂载、焦点、关闭与资源清理。它与 CSS @layer 是两回事，也不等于给每个组件分配一个固定 z-index。
+
+```text
+应用
+└─ Dialog
+   └─ Select 下拉框
+      └─ 子菜单或提示
+```
+
+| 操作/责任                      | 默认建议                                                                           |
+| ------------------------------ | ---------------------------------------------------------------------------------- |
+| Select 在 Dialog 中展开        | 注册为 Dialog 子层，挂到所属弹窗的浮层容器，不盲目丢到 body                        |
+| Escape                         | 先关最上面的可关闭层；关 Select 后再按一次才关 Dialog；IME 组合输入中不抢 Escape   |
+| 点击 Dialog 内容但在 Select 外 | 关闭 Select，Dialog 保持                                                           |
+| 点击 Select 的 Portal 内容     | 仍算 Dialog 内部交互，不能误触发父层 outside                                       |
+| 明确点击 Dialog 遮罩           | 只有允许遮罩关闭时才关 Dialog，同时释放其子层；同一事件不重复派发多次关闭          |
+| 焦点范围                       | 模态 Dialog 的焦点范围包含注册的子浮层，不把 Select 的焦点拉走                     |
+| 恢复焦点                       | 关 Select 回触发点；关 Dialog 回原入口；入口已移除或已打开新模态层时不能强行抢焦点 |
+| 滚动锁与背景不可交互           | 按实际模态层持有数量管理，关内层不能提前解锁外层                                   |
+| 退出动画                       | 关闭请求与物理移除分开处理，避免穿透点击、提前放开焦点或泄漏资源                   |
+| 主题/配置                      | Portal 保留逻辑配置，并显式继承/绑定同一 ThemeScope；不能因为 DOM 搬家丢主题变量   |
+| CSP/SSR                        | 定位和滚动补偿沿用已有样式通道；SSR 不碰 document，不产生跨请求可变层列表          |
+
+层管理是 svelte 内部的小型服务，先不做公开的万能 LayerManager 类。组件自己处理业务状态，管理器负责栈、归属与清理。多应用根在同一 Document 时要协调焦点和模态锁；ShadowRoot 的宿主与样式目标要明确。若使用原生顶层弹窗能力，挂载策略必须随之验证，不能假设调高 z-index 就够了。
+
+## 下一轮更值得确定的细节
+
+1. Select 选中后，业务最常想拿“编号”还是“整条数据”？是否保留第二种作为显式选项？
+2. 清空是否统一单值 null、多值 []；数字输入的空值和精度另定。
+3. FieldFrame 默认纵向标签是否合适；错误出现时是否预留消息空间，支持几条错误。
+4. loading 默认是否阻止重复提交，是否支持直接传 Promise；建议先显式 boolean，异步任务由业务持有。
+5. Dialog 默认点击遮罩能否关闭，关闭后是否保留表单状态；不让关闭行为隐式等于重置。
+6. Select 的本地搜索与远程搜索由谁发请求，如何处理取消/乱序和缺失标签；建议组件先发意图，业务或明确适配器管理数据请求。
 
 参考基础能力：[Svelte 双向绑定](https://svelte.dev/docs/svelte/$bindable)、[Snippets](https://svelte.dev/docs/svelte/snippet)、[LucideIcon](https://lucide.dev/guide/svelte/advanced/typescript)。

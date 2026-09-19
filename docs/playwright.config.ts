@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const ci = Boolean(process.env.CI);
+const production = ci || process.env.ZUI_DOCS_PREVIEW === '1';
 
 export default defineConfig({
   testDir: './tests',
@@ -21,7 +22,7 @@ export default defineConfig({
       ]
     : [{ name: 'chrome', use: { ...devices['Desktop Chrome'], channel: 'chrome' } }],
   webServer: {
-    command: ci
+    command: production
       ? 'pnpm run preview --port 4178 --strictPort'
       : 'pnpm run dev --port 4178 --strictPort',
     url: 'http://127.0.0.1:4178',

@@ -29,6 +29,8 @@ Docs 启用 zui-source 条件便于源码联调，根 dev 命令仍先构建 cor
 
 完整检查、三浏览器、真实开发态 HMR、生产 Kit、严格 CSP 和独立包消费由 [CI](ci.md) 执行。每批中文提交并推送；推送后不等待、不轮询，下次推送前检查上一批并修复具体失败。报告未执行、跳过或失败的边界，不将旧 SHA 的结果套给新实现。
 
+修改 CSP 接入时，可只构建 Docs 并设置 ZUI_DOCS_PREVIEW=1，使用本机 Chrome 聚焦运行对应 Playwright 用例。该入口使用生产 preview 与真实策略，不能用开发服务器的通过代替严格 CSP 验收；完整三浏览器仍交 CI。
+
 本地 Playwright 使用已安装 Chrome；CI 使用当前 Playwright 配套的 Chromium、Firefox、WebKit。core 的聚焦浏览器测试可设置 ZUI_BROWSER_CHANNEL=chrome。完整矩阵入口与证据见 [验收台账](core-acceptance.md)。
 
 ## 交付和清理
