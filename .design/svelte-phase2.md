@@ -1,8 +1,8 @@
 # 第二阶段：布局、定位、浮层与架构收敛
 
-状态：重新规划，待审阅后实施。用户已明确本阶段先做布局、定位、浮层基础组件，并包含现有架构的必要 API 补齐、优化、精简，以及命名、目录与文件拆分审计。本文替代旧的“Button → 表单 → Select”排期；具体组件名/API 仍是建议，不代表已批准实现。
+状态：用户已认可本阶段规划，并补充 ScrollArea 使用半透明、无布局占位的覆盖式滚动条。布局/定位/浮层、架构 API 补齐/优化/精简、命名与目录/文件审计按本文推进；实施中具体 API 仍以真实示例和验收收敛。本文替代旧的“Button → 表单 → Select”排期。
 
-第一阶段实现与验收见 [svelte-phase1.md](svelte-phase1.md)，既定状态绑定、主题、class、slotProps 合同见 [svelte-components.md](svelte-components.md)。本次只调整设计文档，不提前移动源码或创建组件。
+第一阶段实现与验收见 [svelte-phase1.md](svelte-phase1.md)，既定状态绑定、主题、class、slotProps 合同见 [svelte-components.md](svelte-components.md)。本次补充记录滚动条设计；尚未开始组件代码实施。
 
 ## 1. 目标与范围
 
@@ -67,7 +67,7 @@ overlays 不再套 components/primitives/utils 三层；当前职责相近的 TS
 | 一维布局 | Stack      | 横/纵排列、gap、换行、对齐；单根、原生 flex gap，不包装每个子项  |
 | 二维布局 | Grid       | 等分列或 CSS 模板列、gap；普通元素就是网格项，跨行跨列通过 css   |
 | 页面容器 | Container  | 内容最大宽度、水平居中、主题内边距；不接管导航和路由             |
-| 滚动区域 | ScrollArea | 原生滚动、边界、键盘可达性和滚动方法；默认原生滚动条             |
+| 滚动区域 | ScrollArea | 原生滚动机制 + 半透明覆盖滚动条；交互时显露，显隐不占布局空间    |
 | 挂载     | Portal     | 同渲染根目标、原位禁用、SSR 接管和主题方向；不负责关闭或模态语义 |
 | 锚点面板 | Popover    | 完整交互内容面板，触发、打开状态、定位、关闭和非模态焦点         |
 | 描述提示 | Tooltip    | hover/focus、延迟、Escape、描述关联；不可交互，不抢焦点          |
@@ -89,7 +89,7 @@ Box、Center、AspectRatio、Spacer、GridItem、Position、Absolute、Fixed、S
 | Stack      | direction、gap、align、justify、wrap | column、md、stretch、start、false                             |
 | Grid       | columns、gap、align                  | columns=1；整数生成 repeat(n,minmax(0,1fr))，字符串是原生模板 |
 | Container  | maxWidth、padding、as                | maxWidth=lg、padding=md                                       |
-| ScrollArea | axis、overscroll、as                 | axis=y；页面默认保留原生滚动传播，面板按场景使用 contain      |
+| ScrollArea | axis、overscroll、scrollbar、as      | axis=y；页面默认保留原生滚动传播，面板按场景使用 contain      |
 
 gap/padding 五档 + none，full 不适用。Container 的 maxWidth 五档 + full，与 breakpoint 分开定义，避免控件 size 的配置意外改变页面宽度。复杂单位/响应式仍用 css。
 
@@ -125,9 +125,38 @@ gap/padding 五档 + none，full 不适用。Container 的 maxWidth 五档 + ful
 </Grid>
 ```
 
-布局不引入 ResizeObserver 或 JS 断点状态。明确根节点 min-inline-size/min-block-size 的收缩行为，不通过通配选择器无条件修改子元素。长文本、图片、overflow、嵌套滚动和 RTL 都验收，视觉重排不伪装成 DOM/Tab 顺序变化。
+Stack/Grid/Container 的纯布局不引入 ResizeObserver 或 JS 断点状态；ScrollArea 为滚动条几何测量可使用观察器。明确根节点 min-inline-size/min-block-size 的收缩行为，不通过通配选择器无条件修改子元素。长文本、图片、overflow、嵌套滚动和 RTL 都验收，视觉重排不伪装成 DOM/Tab 顺序变化。
 
-ScrollArea 公共根优先就是实际 viewport，class/style/onscroll 作用到它；只有内容测量确有需求才增加 content 节点和 slotProps.content。提供 scrollTo/scrollBy 与获取视口的方法供虚拟化接入，不复制 scrollTop store；label、tabindex/region 按实际可访问需求设置，不给所有布局自动加焦点停靠点。
+### ScrollArea：原生滚动 + 覆盖式滚动条
+
+用户补充的默认方向：半透明滚动条浮在内容上方，鼠标进入区域才显露，有无溢出和滚动条显隐均不改变内容视口尺寸。保留原生 overflow:auto、scrollTop/scrollLeft、滚轮、触控板和触摸惯性，只自行绘制/拖动滚动条，不通过 transform 模拟整个内容滚动。
+
+原生滚动条是否覆盖由浏览器/系统决定，scrollbar-width/scrollbar-color 不能强制所有平台采用同一覆盖模式；overflow:overlay 是历史兼容别名，不能作为实现基础。scrollbar-gutter:stable 通过预留空间稳定布局，也不符合本次零占位目标。依据：[CSS Scrollbars](https://www.w3.org/TR/css-scrollbars-1/)、[scrollbar-gutter](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/scrollbar-gutter)、[overflow](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/overflow)。
+
+**推荐显隐规则：**
+
+| 状态                       | 行为                                                             |
+| -------------------------- | ---------------------------------------------------------------- |
+| 没有对应方向溢出           | 不显示、不接受拖动，任何情况下都不预留滚动条宽高                 |
+| 鼠标进入区域               | 有溢出的方向显示半透明滑块；鼠标停留时保持                       |
+| 键盘焦点进入区域/子元素    | 同样显示，保证非鼠标用户可发现滚动内容                           |
+| 正在滚动或拖动             | 保持可见；触摸设备滚动时显示位置提示，不依赖 hover               |
+| 指针和焦点均离开、停止滚动 | 短暂延迟后淡出；减少动态效果时直接切换可见性                     |
+| 明确要求常显/强制高对比    | 保持可辨识的覆盖式滑块；高对比采用系统色和轮廓，不靠低透明度表达 |
+
+建议只增加 scrollbar='auto' | 'always'，默认 auto；两者都覆盖显示，不扩展成多套滚动引擎。焦点/触摸规则是对鼠标显露机制的可访问性补充。隐藏原生条后仍需提供鼠标可拖动的替代和可聚焦的原生 viewport，不能只剩滚轮手势。
+
+**DOM 与定制边界调整：** 覆盖轨道需要留在滚动内容之外，使用 root → viewport → content，轨道与 viewport 同级且绝对定位。class/style 控制 root 的尺寸和外观；slotProps.viewport 控制滚动视口，slotProps.content 控制内容。onscroll 和滚动方法对应真实 viewport，标签/焦点属性明确转发到该语义节点；不要把原来“根就是 viewport”的假设继续带进类型/文档。as 限于允许该结构的容器标签。
+
+内部滚动条是同一组件的实现细节，不要求业务拼 Scrollbar/Thumb。确需定制时再暴露有稳定意义的位置；不为每个薄 DOM 节点建公共组件/类型文件。视觉滑块保持细窄，可拖动命中范围适当扩大；隐藏时不拦截内容点击，拖动使用现有 Pointer Capture，释放/取消/卸载都清理。
+
+**布局承诺与边界：** 不根据滚动条显隐修改 width/height/padding，滑块增粗也只改变覆盖绘制。验收无溢出→溢出、hover/focus、横纵同时溢出、内容增删、zoom/RTL 时 clientWidth/clientHeight 和内容几何不因滚动条变化。覆盖条可能短暂遮住最边缘内容，这是覆盖方案固有取舍；需要防遮挡的场景由内容提供始终固定的内边距，不在显示滚动条时临时挤布局。
+
+**测量与接入：** 读取真实 scrollWidth/scrollHeight/clientWidth/clientHeight，监听 viewport/content 尺寸与必要的内容变化，合并到帧内更新；不常驻逐帧轮询或全页 MutationObserver。滚动位置由 DOM 持有，仅保存绘制滑块所需派生数据。复用现有 ScrollArea 方法与 VirtualCollection，处理 RTL scrollLeft、最短滑块、无可滚动距离的除零、动态内容与虚拟列表总高度。几何仍通过现有 class/runtime 写入，严格 CSP 下不写内联 style。
+
+SSR 输出相同宿主结构和零占位 CSS，接管测量前只隐藏自绘滑块，不让有/无条引发二次收窄。无 JS 或不支持必要 CSS 时保留明确的原生可操作降级；该降级可能使用系统占位条，不能伪称仍保证覆盖几何。业务无需为默认效果多写参数。
+
+此能力在 P2-01 与 ScrollArea 一起验收，不留到上层 Dialog/Select 才补。
 
 ## 5. 挂载、定位与交互的分工
 
@@ -275,4 +304,4 @@ class/style 控制可见面板。slotProps 只公开 backdrop/header/body/footer
 2. Floating 是否公开：建议先内部，普通业务用完整 Popover/Tooltip；有大量自定义跟随面板再公开小定位入口。
 3. 页面 Layout/Sider/Header 是否加入：建议先用布局组件做完整页面壳示例；若要负责侧栏折叠、移动抽屉和持久化尺寸等行为，再设计 Layout，避免几个标签包装没有额外价值。
 
-以上具体 API 待审阅；已明确的“先布局/定位/浮层，同时审计并优化架构、命名、目录和文件拆分”不再回退。
+用户已认可整体规划；具体 API 在实施样例中继续收敛，ScrollArea 默认改为半透明覆盖条。已明确的“先布局/定位/浮层，同时审计并优化架构、命名、目录和文件拆分”不再回退。
