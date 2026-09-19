@@ -35,6 +35,30 @@ pnpm install --frozen-lockfile
 
 ## WebStorm 本机连接
 
+### 使用项目锁定的语言服务
+
+WebStorm 的 TypeScript/Svelte 服务与 Codex 的 zui_lsp 是不同宿主。根 package.json 已将 svelte-language-server 和 typescript-svelte-plugin 声明为开发依赖，复用 languageServices catalog；不进入 core/svelte/docs 的运行时依赖或发布产物。Codex 工具仍由既有用户工具目录管理，选择 IDE 软件包不需要改 MCP 配置。
+
+本次查询 npm 稳定版标签：svelte-language-server 最新为 0.18.4，typescript-svelte-plugin 最新为 0.3.52；TypeScript 最新为 7.0.2，但服务器的 peer 范围为 ^5.9.2 || ^6.0.2，因此使用最新 6.x 的 6.0.3，而不是跨大版本强行配对。实际版本以 catalog/锁文件为准，后续升级重新检查 peer 范围。
+
+在 WebStorm 设置中选择包根目录，不选择 .pnpm 内含版本的真实路径，也不选择 bin/server.js/tsserver.js：
+
+| 设置位置                                            | 软件包路径（相对项目根）              | 当前版本 |
+| --------------------------------------------------- | ------------------------------------- | -------- |
+| 语言和框架 → TypeScript → TypeScript 软件包         | node_modules/typescript               | 6.0.3    |
+| 语言和框架 → TypeScript → Svelte → 语言服务器软件包 | node_modules/svelte-language-server   | 0.18.4   |
+| 同页 → TypeScript 插件软件包                        | node_modules/typescript-svelte-plugin | 0.3.52   |
+
+TypeScript 页面保持语言服务开启，Node.js runtime 使用项目 Node 24；Svelte 页面选择“已启用”，保留 a11y 警告与服务驱动的类型引擎。TypeScript 的服务驱动类型引擎也推荐启用。若希望本地仅诊断打开的文件，可关闭 TypeScript 的“显示项目错误”，全量检查交 CI。
+
+WebStorm 直接使用 typescript 包的语言服务，不需要将 typescript-language-server 配到该下拉框；后者是通用 LSP 客户端使用的适配服务器。IDE 通过 Svelte 页面加载插件，本次不额外重复写 tsconfig.plugins。
+
+点击应用/确定后由 IDE 重新启动相应语言服务；若仍显示旧版本，使用 IDE 的 Language Services 重启入口，或关闭再打开项目。只有 Codex MCP 连接本身失效时才排查 Codex 重启，不能把 IDE 软件包选择当成已经修改了 Codex 的 LSP。
+
+换机只需先 pnpm install --frozen-lockfile，再选择上述稳定路径。依据：[JetBrains TypeScript 设置](https://www.jetbrains.com/help/webstorm/settings-languages-typescript.html)、[语言服务](https://www.jetbrains.com/help/webstorm/language-services.html)、[Svelte 支持](https://www.jetbrains.com/help/webstorm/svelte.html)。
+
+### IDE MCP 连接
+
 本机验证过的 HTTP 配置如下，其他机器从 IDE 设置读取自己的地址：
 
 ```toml

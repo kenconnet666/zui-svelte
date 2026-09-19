@@ -39,7 +39,9 @@
     "prettier": "catalog:",
     "prettier-plugin-svelte": "catalog:",
     "svelte": "catalog:",
+    "svelte-language-server": "catalog:languageServices",
     "typescript": "catalog:",
-    "typescript-eslint": "catalog:"
+    "typescript-eslint": "catalog:",
+    "typescript-svelte-plugin": "catalog:languageServices"
   }
 }

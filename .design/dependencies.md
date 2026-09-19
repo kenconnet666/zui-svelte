@@ -13,6 +13,8 @@
 
 外部依赖用 catalog:，内部用 workspace:^；严格 peer 检查，关闭自动补装 peer。Vitest/provider 与 Playwright/@playwright/test 保持配套版本。新增需运行安装脚本的依赖时单独检查 allowBuilds。
 
+WebStorm 使用的 svelte-language-server/typescript-svelte-plugin 已作为根开发依赖安装，复用 languageServices catalog；Codex 的 MCP/LSP 宿主依赖仍独立安装在用户工具目录。两者都不是产品运行时依赖。
+
 组件图标固定使用 @lucide/svelte，svelte 与 docs 均直接声明 catalog 依赖。库内只从公开 icons/x 等单图标路径导入需要的组件，避免源码 SSR 载入整份导出表；业务仍可直接传 Lucide 组件。
 
 表单校验已选择 Zod 4，产品依赖使用默认 catalog；languageServices 中的 Zod 3 属于现有 MCP/LSP 工具依赖，不因产品升级而顺带修改。业务优先从 @zui/svelte 导入 z，使用原生 Zod 规则与类型，不再增加 ZUI 校验 DSL 或通用 schema 适配器。FormController/FieldScope 已提供调度与关联，公共 Form/Field 下一阶段交付。
