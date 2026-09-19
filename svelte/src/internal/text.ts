@@ -15,8 +15,12 @@ export function numberDraftParser(locale: string): (text: string) => NumberDraft
   const parts = format.formatToParts(-1.1);
   const decimal = parts.find((part) => part.type === 'decimal')!.value;
   const minus = parts.find((part) => part.type === 'minusSign')!.value;
+  const group = new Intl.NumberFormat(locale)
+    .formatToParts(12345)
+    .find((part) => part.type === 'group')?.value;
   return (text) => {
     if (!text.trim()) return { state: 'empty' };
+    if (group && text.trim().includes(group)) return { state: 'invalid' };
     let canonical = text.trim().replace(/[\u061c\u200e\u200f]/gu, '');
     for (const [value, digit] of digits.entries())
       canonical = canonical.replaceAll(digit, String(value));

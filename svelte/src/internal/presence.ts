@@ -82,6 +82,8 @@ export async function animateElement(
   signal.addEventListener('abort', abort, { once: true });
   try {
     await animation.finished;
+  } catch (error) {
+    if (!signal.aborted) throw error;
   } finally {
     signal.removeEventListener('abort', abort);
     animation.cancel();

@@ -83,7 +83,9 @@ export class FieldScope {
       ...[...this.#controls.values()].map((control) => control.check?.()),
     ];
     const changed =
-      !this.#settings || settings.some((value, index) => value !== this.#settings![index]);
+      !this.#settings ||
+      settings.length !== this.#settings.length ||
+      settings.some((value, index) => value !== this.#settings![index]);
     this.#settings = settings;
     const named = name !== undefined;
     const registered = Boolean(this.#unregister);

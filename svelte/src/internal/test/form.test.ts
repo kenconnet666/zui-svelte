@@ -9,6 +9,42 @@ import { fieldPath, valueAt } from '../path.js';
 const settle = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
 describe('form coordinator', () => {
+  it('follows keyed field paths through array reorder and preserves unmounted business values', async () => {
+    let model = {
+      rows: [
+        { id: 1, text: '' },
+        { id: 2, text: 'ready' },
+      ],
+    };
+    const schema = z.object({
+      rows: z.array(z.object({ id: z.number(), text: z.string().min(1, 'required') })),
+    });
+    const form = new FormController({
+      value: () => model,
+      setValue: (next) => {
+        model = next;
+      },
+      schema: () => schema,
+    });
+    const remove = form.register({
+      id: 'stable-row-1',
+      name: () => ['rows', model.rows.findIndex((row) => row.id === 1), 'text'],
+      focus: () => false,
+    });
+    form.blur('stable-row-1');
+    await settle();
+    expect(form.errors('stable-row-1')[0]?.path).toEqual(['rows', 0, 'text']);
+    model.rows.reverse();
+    form.observe();
+    form.fieldChanged();
+    await settle();
+    expect(form.errors('stable-row-1')[0]?.path).toEqual(['rows', 1, 'text']);
+    remove();
+    expect(model.rows).toHaveLength(2);
+    expect(await form.submit()).toBe(false);
+    expect(form.state.issues[0]?.path).toEqual(['rows', 1, 'text']);
+    form.dispose();
+  });
   it('keeps one model and tracks programmatic changes, touch, reset and transformed submissions', async () => {
     let model = { name: '', rows: [{ id: 1 }] };
     const saved = vi.fn();

@@ -34,6 +34,20 @@ afterAll(async () => {
 });
 
 describe('compiled SSR', () => {
+  it('isolates configuration across concurrent server renders', async () => {
+    const { default: Probe } = await server.ssrLoadModule('/tests/fixtures/ConfigProbe.svelte');
+    const { renderStyled } = await server.ssrLoadModule('/src/server.ts');
+    const sizes = ['xs', 'lg', 'md', 'sm'] as const;
+    const results = await Promise.all(
+      sizes.map((size) => renderStyled(Probe, { props: { size } })),
+    );
+    for (const [index, result] of results.entries()) {
+      expect(result.body).toContain('data-size="' + sizes[index] + '"');
+      expect(result.head).toContain(
+        'width:' + (sizes[index] === 'lg' ? 180 : sizes[index] === 'md' ? 120 : 80) + 'px',
+      );
+    }
+  });
   it('renders compiled configuration and preserves nested slot defaults during SSR', async () => {
     const { default: Probe } = await server.ssrLoadModule('/tests/fixtures/ConfigProbe.svelte');
     const { renderStyled } = await server.ssrLoadModule('/src/server.ts');

@@ -15,6 +15,7 @@ describe('locale editing boundaries', () => {
       canonical: '12345678901234567890.001',
     });
     expect(parse('1.234,00')).toEqual({ state: 'invalid' });
+    expect(parse('1.234')).toEqual({ state: 'invalid' });
     expect(parse('Infinity')).toEqual({ state: 'invalid' });
     expect(parse('-0')).toEqual({ state: 'valid', canonical: '-0' });
     expect(numberDraftParser('ar-EG')('؜-١٢٣٫٤')).toEqual({ state: 'valid', canonical: '-123.4' });
