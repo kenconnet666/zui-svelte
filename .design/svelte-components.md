@@ -14,6 +14,8 @@
 
 core 不导入 svelte。core.createRuntime() 默认 baseTheme；Svelte 自动宿主和 renderStyled/createStyleHandle 默认 lightTheme。显式 core runtime 需要传 theme: lightTheme 或自定义主题；显式自定义配置不能静默补 UI 键。自定义主题继续用 core.createCss(theme)，无需全局 TS 模块扩展。
 
+用户已接受执行环境隔离：业务组件/类型/css/主题/z 统一从 @zui/svelte 导入；compiler、server、internal 保留为构建期、Node SSR、生成代码协议子入口。不能为减少 exports 数量而把 Node API 并入浏览器依赖图。解析条件与使用说明见 [Svelte 包入口](../svelte/README.md#导入与运行环境)。
+
 ```ts
 import { css, lightTheme, darkTheme } from '@zui/svelte';
 import { createCss, createRuntime, extendTheme, ThemeScope } from '@zui/core';
@@ -107,7 +109,7 @@ type Submission = z.output<typeof schema>;
 
 ZUI 直接使用 Zod 的解析、错误与类型能力；自定义业务规则用 refine 等原生能力，不再同时设计 rules/validator/Standard Schema 适配层。业务可以直接 import { z } from 'zod' 使用同一库；给不经过 Svelte 编译的独立 Node 后端共享 schema 时，不应强制依赖 UI 包主入口。
 
-候选表单形态保持 Form bind:value={model} schema={schema} onvalid={save}：同一份业务 $state，Field.name 关联错误路径/注册，Input 显式 bind:value。onvalid 接收校验输出，onsubmit 保留原生事件。Form/Field 调度与 API 仍待实现，安装 Zod 不等于完整校验系统已经完成。
+按用户要求采用推荐方案推进文档合同：Form bind:value={model} schema={schema} onvalid={save}；同一份业务 $state，Field.name 关联错误路径/注册，Input 显式 bind:value。onvalid 接收校验输出，onsubmit 保留原生事件。Form/Field 调度仍待实现，安装 Zod 不等于完整校验系统已经完成。
 
 深度集成的具体范围：
 
@@ -118,14 +120,58 @@ ZUI 直接使用 Zod 的解析、错误与类型能力；自定义业务规则�
 - 输入和输出分开，trim/coerce/default/transform 用于提交结果，不在每次校验后自动回填输入框或替换业务选项对象。reset/新值/卸载使旧校验结果失效；提交只能使用一致版本的数据。
 - Promise 没有通用取消能力；支持 signal 的业务请求才实际 Abort，其余至少忽略过期结果。校验函数异常/网络故障与正常字段不合法分别处理，不吞异常。
 - 本地化使用 schema 消息或按次解析的错误配置，禁止在并发 SSR 请求中切换全局 z.config。locale 的优先级和服务端错误清除规则在表单实现前固定。
-- 严格 CSP 要验证 Zod 的解释器/JIT 选择。已安装版本的对象 schema 会读取 allowsEval 探测，捕获 new Function 的异常仍可能产生 CSP violation；全局 jitless 的初始化必须在 schema 创建之前。A0 明确固定初始化位置与对共享 Zod 实例的影响，不能只在 parse 时传选项或修改按请求的全局开关就宣称解决；本次未偷偷改变 Zod 全局配置。
+- 严格 CSP 路径采用解释器模式：计划在 ZUI 的 z 导出初始化模块中、业务创建 schema 之前一次性设置 jitless=true，并将该初始化准确标记为不可裁剪的副作用。公开说明它影响同一 Zod 实例的解析优化，不按请求切换；不自动启用 compile/JIT。直接绕过 ZUI 导入 Zod 并更早创建 schema 的应用需自己保证初始化顺序；不能只在 parse 时传选项就宣称解决。本次只确定方案，尚未改变运行时代码；隔离进程阻断 Function 的探针通过，真实 CSP/SSR/打包仍须验收。
 - 可针对绑定版本封装小型 Zod 接入模块，但不遍历所有内部结构来自动生成 UI。required/原生 minlength/数字约束只在映射语义明确时使用；Unicode 长度、transform、union 和条件必填不能盲目映射成 HTML 约束。
 
 清空值已确认：文本为 ''，数字输入和单选 Select 为 undefined，多选为 []。undefined 只表示当前为空，不表示业务允许为空；必填用 z.number()/必需对象规则，选填才用 optional()。JSON 序列化会省略 undefined，后端若要求显式 null，由提交边界明确转换。
 
-当前完成的是依赖安装和主入口导出。Form/Field 的模型版本、reset、原生约束/错误呈现等实现仍须讨论并验收。没有引入第二个表单 store，也没有安装 Valibot 或通用验证插件系统。
+### Form/Field 的实施合同
+
+以下按推荐写入实施规划，后续用真实场景验证，不再保留平行规则引擎：
+
+| 范围         | 约定                                                                                                                                                                                             |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 模型与类型   | 业务 $state 是唯一编辑模型；校验入口允许未合法的编辑值，成功提交得到 z.output。临时文本草稿属于控件编辑态，不能伪装成另一份全表模型                                                              |
+| 初始/修改    | 初始不展示错误；首次 blur 后展示对应字段结果，之后修改重新验证，submit 全量验证。程序赋值使结果失效但不伪造 touched/用户事件；IME 组合期间延后验证                                               |
+| 执行与展示   | 统一通过 safeParseAsync 调度，包括同步 schema；验证完整快照，按 touched/提交状态决定展示路径。复杂跨字段规则先保证完整性，不通过自动抽子 schema 破坏语义                                         |
+| 原生约束     | Form 接管统一错误展示并抑制重复浏览器气泡；注册控件报告编辑态/原生约束错误，再合并 Zod 业务错误，同路径优先具体 Zod 消息。只要仍有控件编辑错误就不提交，不能以“模型保留上一次合法值”绕过输入错误 |
+| Field 接入   | 内置控件读取薄 context，显式 id 优先并登记主控件/聚焦目标，合并描述关系；单字段一个主控件，组用 fieldset/legend。第三方通过明确属性和焦点接入，不查询 DOM 猜测；Field 不执行另一份校验规则       |
+| 提交流程     | 原生 onsubmit 可取消 → 校验控件草稿与模型快照 → 检查模型版本 → 调用 onvalid → 等待其 Promise。正在提交时默认抑制重复提交；校验期间模型变更使本次提交失效，保存已开始后不假装能撤销服务端动作     |
+| 异步与异常   | 新值/reset/卸载使旧结果过期；能 Abort 的业务请求才真正取消。校验函数抛异常、网络故障和业务字段错误分开，不能转成“校验通过”或吞掉异常                                                             |
+| reset/基线   | 首次初始化保存 reset/dirty 基线；reset() 恢复基线，reset(nextValues) 显式替换模型并建立新基线，用于切换编辑记录。普通外部赋值不暗中重设基线；取消旧校验并清理提交展示/错误状态                   |
+| 错误生命周期 | 保留全部 issue/path/source，Field 默认首条；服务端错误与提交版本关联，相关值改变后失效，不清空其他字段。Field 显式 error 由调用方管理；表单级错误不随任意无关输入消失                            |
+| locale       | 控件文案、schema 消息和按次 error 配置有明确优先级；不在并发请求中切换 Zod 全局 locale。语言变化后更新展示，不能直接拼接旧消息猜翻译                                                             |
+| 值语义       | plain object/array 可递归处理，特殊值按类型保持语义；禁止用 JSON.stringify/parse 作为通用快照/比较。未知可变类不自动深代理，也不声称默认 reset 已支持其私有状态                                  |
+
+尚未完成的是上述合同的实现和验收。重点回归：同路径多错误、交叉字段、异步乱序、事件执行一次、非法编辑草稿、外部改值/换记录、数组删除重排、reset、服务端错误清除、Portal/SSR/i18n/CSP，以及 z.input/z.output 与实际编辑态的类型边界。
 
 依据：[Zod 基础与输入输出](https://zod.dev/basics)、[Zod API](https://zod.dev/api)、[错误定制](https://zod.dev/error-customization)。
+
+### Decimal 与其他领域值：有意义的后续适配，尚未安装
+
+用户提出评估 Decimal 等类型；当前只纳入规划，不视为已选择库或批准全部新组件。它适合金额、税率、价格、精确步长和超出 number 精度的十进制值，不应替代 CSS/像素/计数等所有普通 number。数据从一开始就用十进制字符串或 Decimal 构造，不能先经过 Number/parseFloat 再声称精度恢复。
+
+建议优先评估 decimal.js；它具备小数运算、比较、明确舍入、格式化和独立构造器配置。若目标仅是小型四则计算，可比较 big.js，但不同时引入两套实现。decimal.js 的运算 precision 是有效数字，不是小数位数；默认精度也不是无限，必须依据允许位数和业务运算设定。TC39 Decimal 仍为提案，不能当作已普及的原生类型依赖。
+
+| 层次        | 必须适配的行为                                                                                                                                                                                              |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 控件        | 建议 NumberInput 保持 number，新增 DecimalInput 绑定 Decimal 或 undefined，内部复用文本编辑/步进基础；不让单个 value 自动猜 number/string/Decimal。此组件形态待用户确认                                     |
+| 编辑态      | DOM 文本、领域值、显示格式分离；保留 '-', '1.', '1.00'、光标、IME、粘贴和 locale。可解析的编辑结果更新领域值；不完整/非法草稿必须报告字段状态并阻止提交旧合法值，失焦不静默抹掉用户输入                     |
+| 精度与舍入  | step/min/max 从字符串或 Decimal 读取；支持位数范围与计算精度明确。decimalPlaces/显示尾零与 precision 分开；默认超出业务小数位报错，不暗中舍入，舍入模式由业务明确                                           |
+| Zod         | 使用原生 custom/instanceof/refine 检查类型、finite、范围和小数位；仅 instanceof 不够，因为 Decimal 可表示 NaN/Infinity。不 monkey-patch z.decimal，不再创造链式规则引擎；重复的少量 schema 可用普通函数提取 |
+| 响应式      | Decimal 按不可变值使用，运算后赋回 $state 属性；Svelte 不深代理普通类实例，不能承诺直接改 Decimal 内部字段也触发响应                                                                                        |
+| dirty/reset | 使用数值 equals 比较 Decimal，'1.0' 与 '1.00' 数值等价；显示尾零另管。快照保留类型与构造器配置，不走通用 JSON 克隆；默认不篡改选项等普通业务对象身份                                                        |
+| 序列化      | 后端/JSON/FormData 使用明确十进制字符串，不能 toNumber。普通 toJSON/toString 会规范化尾零或采用指数形式，不等于固定小数位合同；按业务选择 toFixed/显式 codec                                                |
+| codec       | Zod codec 负责 API 字符串与 Decimal 的边界转换；Form 的 schema 验证领域模型本身。不要把期待字符串输入的 codec 当成验证已是 Decimal 的表单 schema；SSR/Kit loader 数据同样需要显式编码/还原                  |
+| 隔离        | 需要不同精度时使用独立构造器 clone 或显式运算配置，不按组件/SSR 请求改变全局 Decimal.set；对多个构造器/副本的类型识别和运算结果应验收                                                                       |
+
+核心取舍：支持有明确用途的领域值，不建立万能 ValueAdapter/类型插件系统。Decimal 的内部 parse/format/compare/step 仅服务精确数值控件；Form 的快照/比较只在确有特殊值消费者时增加明确处理。core 的 CSS 值仍保持 string/number，不给样式引擎强加 Decimal 依赖。
+
+其他类型按需求处理：bigint 用于大整数而非小数，传输需显式编码；Date 要区分时间点和无时区日期，留给日期域；File/Blob 由 Upload 管理引用与资源生命周期。不要为了“可扩展”现在就预装全部库或为每种类型建立公共基类。
+
+进入实现前需要位数/舍入/locale/非有限值/极长输入/科学计数法/清空/非法草稿/相等性/reset/codec/SSR/打包体积的专项用例。Decimal 依赖、导出名和控件形态尚未落地，源码示例只能标为拟议接口。
+
+依据：[decimal.js API](https://mikemcl.github.io/decimal.js/)、[不可变运算](https://github.com/MikeMcl/decimal.js)、[big.js](https://github.com/MikeMcl/big.js)、[Zod codecs](https://zod.dev/codecs)、[Svelte 类实例](https://svelte.dev/docs/svelte/$state#Classes)、[TC39 Decimal 提案](https://tc39.es/proposal-decimal/)。
 
 ## 4. Lucide 与内容
 
@@ -536,22 +582,22 @@ flowchart TD
 
 ### 基础设施清单、责任与生命周期
 
-| 领域             | 必须完整规划/验证的能力                                                                     | 复用与边界                                                                                                     |
-| ---------------- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| 宿主与样式       | UI 默认层序、主题桥、SSR 收集/hydration、nonce、模块样式、Portal/ShadowRoot、多根           | 复用 core；不把 UI 预设搬回 core，不修改已运行的层序掩盖配置错误                                               |
-| 作者编译与类型   | 原生解构默认值接入、可配置字段校验、slot 定向合并、声明输出、源码映射、HMR、发布预处理      | 保留普通 Svelte/TS 作者形态；运行时只读作用域，不能扩成通用组件 DSL 或改写任意业务 spread                      |
-| 配置与组件主题   | 动态继承、组件默认值、系统/组件 Token、整类与实例 CSS 覆盖、类型和合并规则                  | createContext + ThemeScope + class/slotProps；不重复造主题 controller                                          |
-| 字段语义         | ID/label/help/error/required/disabled/readonly、消息空间、原生表单关联、值/显示值区别       | 公开 Field + 内部字段协议；控件独立可用，需要标题/错误时组合 Field                                             |
-| 交互与元素接入   | 指针/键盘/IME、事件委托顺序、可取消动作、attachment/ref、禁用及读写边界                     | 原生 Svelte/DOM；副作用清理属于元素或组件，不用全局轮询                                                        |
-| 浮层归属         | 父子层、outside 判定、Escape、挂载目标、焦点恢复、滚动锁/inert、退出状态、多 Document       | 每个相关宿主统一管理；组件不再分别注册互相冲突的全局策略                                                       |
-| 定位与测量       | 滚动/resize、碰撞、翻转、尺寸约束、RTL、变换/裁剪容器、异步结果过期处理                     | 优先 @floating-ui/dom；输出通过 core 样式通道，不照抄内联 style 写法                                           |
-| 焦点可达性       | 可聚焦元素、Tab 顺序、动态内容、子 Portal、嵌套模态、触发器消失/新层打开                    | 优先成熟 focus-trap/tabbable 专项能力；层管理统一决定关闭和恢复，不用简化选择器假装完整焦点算法                |
-| 集合与选择       | 稳定 key、重复键、disabled 项、活动项与已选值分离、单多选、重载/缺项、类型搜索              | 普通 TS + Svelte 状态；Select/列表/表格复用，不能依赖对象引用或仅数组替换                                      |
-| 异步数据         | 搜索防抖、取消与请求序号、旧结果抑制、加载/空/错误/重试、分页/已选项缓存合同                | 不内置业务 HTTP 客户端；明确业务数据源与组件意图的接口，任何来源都遵循同一过期结果规则                         |
-| 表单与校验       | 字段注册/卸载、同步/异步校验、touched/dirty、submit/reset、首错聚焦、动态数组字段、FormData | 业务值仍是共享 $state；不复制第二模型。可接标准 schema 协议，不自造验证 DSL；name 不假装能自动继承父级 TS 泛型 |
-| 大集合与虚拟化   | 可见窗口、测量/滚动锚点、活动项 DOM 可用性、焦点、SSR 首屏与动态高度边界                    | 架构阶段用大数据探针选择专项工具；不默认一次渲染全部数据，也不让所有简单组件加载虚拟化依赖                     |
-| locale/方向/格式 | 词条缺省、局部覆盖、动态切换、RTL/逻辑属性、数字/日期格式                                   | Intl 与明确 locale 数据；业务文本不纳入库翻译引擎，日期领域使用专项工具时再锁定契约                            |
-| 诊断与资源       | 错误分层、回调异常、订阅/observer/锁/规则回收、开发诊断与 HMR                               | 沿用核心事务/所有权原则；不吞异常或用重试掩盖逻辑错误                                                          |
+| 领域             | 必须完整规划/验证的能力                                                                     | 复用与边界                                                                                             |
+| ---------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| 宿主与样式       | UI 默认层序、主题桥、SSR 收集/hydration、nonce、模块样式、Portal/ShadowRoot、多根           | 复用 core；不把 UI 预设搬回 core，不修改已运行的层序掩盖配置错误                                       |
+| 作者编译与类型   | 原生解构默认值接入、可配置字段校验、slot 定向合并、声明输出、源码映射、HMR、发布预处理      | 保留普通 Svelte/TS 作者形态；运行时只读作用域，不能扩成通用组件 DSL 或改写任意业务 spread              |
+| 配置与组件主题   | 动态继承、组件默认值、系统/组件 Token、整类与实例 CSS 覆盖、类型和合并规则                  | createContext + ThemeScope + class/slotProps；不重复造主题 controller                                  |
+| 字段语义         | ID/label/help/error/required/disabled/readonly、消息空间、原生表单关联、值/显示值区别       | 公开 Field + 内部字段协议；控件独立可用，需要标题/错误时组合 Field                                     |
+| 交互与元素接入   | 指针/键盘/IME、事件委托顺序、可取消动作、attachment/ref、禁用及读写边界                     | 原生 Svelte/DOM；副作用清理属于元素或组件，不用全局轮询                                                |
+| 浮层归属         | 父子层、outside 判定、Escape、挂载目标、焦点恢复、滚动锁/inert、退出状态、多 Document       | 每个相关宿主统一管理；组件不再分别注册互相冲突的全局策略                                               |
+| 定位与测量       | 滚动/resize、碰撞、翻转、尺寸约束、RTL、变换/裁剪容器、异步结果过期处理                     | 优先 @floating-ui/dom；输出通过 core 样式通道，不照抄内联 style 写法                                   |
+| 焦点可达性       | 可聚焦元素、Tab 顺序、动态内容、子 Portal、嵌套模态、触发器消失/新层打开                    | 优先成熟 focus-trap/tabbable 专项能力；层管理统一决定关闭和恢复，不用简化选择器假装完整焦点算法        |
+| 集合与选择       | 稳定 key、重复键、disabled 项、活动项与已选值分离、单多选、重载/缺项、类型搜索              | 普通 TS + Svelte 状态；Select/列表/表格复用，不能依赖对象引用或仅数组替换                              |
+| 异步数据         | 搜索防抖、取消与请求序号、旧结果抑制、加载/空/错误/重试、分页/已选项缓存合同                | 不内置业务 HTTP 客户端；明确业务数据源与组件意图的接口，任何来源都遵循同一过期结果规则                 |
+| 表单与校验       | 字段注册/卸载、同步/异步校验、touched/dirty、submit/reset、首错聚焦、动态数组字段、FormData | 业务值仍是共享 $state；不复制第二模型。直接绑定 Zod，不自造验证 DSL；name 不假装能自动继承父级 TS 泛型 |
+| 大集合与虚拟化   | 可见窗口、测量/滚动锚点、活动项 DOM 可用性、焦点、SSR 首屏与动态高度边界                    | 架构阶段用大数据探针选择专项工具；不默认一次渲染全部数据，也不让所有简单组件加载虚拟化依赖             |
+| locale/方向/格式 | 词条缺省、局部覆盖、动态切换、RTL/逻辑属性、数字/日期格式                                   | Intl 与明确 locale 数据；业务文本不纳入库翻译引擎，日期领域使用专项工具时再锁定契约                    |
+| 诊断与资源       | 错误分层、回调异常、订阅/observer/锁/规则回收、开发诊断与 HMR                               | 沿用核心事务/所有权原则；不吞异常或用重试掩盖逻辑错误                                                  |
 
 基础设施本身要用真实原生元素组合、故障注入和浏览器场景验收；探针是验证手段，不是交付一个削减功能的组件。当前目标组件共享的基础先做完整；后续日期、表格等新增领域基础，也必须先验证再实现其组件，但不预造与任何已规划消费者无关的框架。
 
@@ -685,6 +731,7 @@ Dialog 不默认强加“确认/取消”业务流程。ConfirmDialog、SearchIn
 | 组件                             | 先补齐/验证的领域基础                                                 | 组件责任                                                                                                |
 | -------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | NumberInput、Slider              | 数字/空值/非法中间输入、精度和步长、locale 解析；指针捕获与键盘、方向 | 格式化不打断编辑；Slider 的单值/范围须类型区分，不复用普通 Input 的文本状态机                           |
+| DecimalInput（候选）             | 精确十进制编辑、舍入/位数、Decimal 值比较/快照、Zod 和传输边界        | 与 NumberInput 共享编辑基础，领域值不退回 number；是否独立组件与选用 decimal.js 见第 3 节评估           |
 | Autocomplete（候选）             | 文本模型、建议项对象、IME/搜索、提交与选择事件                        | 允许自由文本；与 Select 的已选对象模型是否独立见待确认项                                                |
 | Upload                           | 文件筛选、任务状态、进度、取消/重试、并发与队列、资源释放             | 提供业务上传适配接口，不内置后端/存储协议；客户端限制不冒充服务端安全验证                               |
 | Calendar、DatePicker、TimePicker | 日期/时间/区间模型、locale/RTL、不可选日期、时区和序列化边界          | Calendar 提供可复用日历面板，DatePicker 组合字段/浮层，TimePicker 明确时间模型；不猜测地区日期字符串    |
@@ -706,14 +753,15 @@ Dialog 不默认强加“确认/取消”业务流程。ConfirmDialog、SearchIn
 
 Zod 已按当前 registry 稳定版本进入产品 catalog 并安装；其余专项依赖仍在对应基础阶段验证后加入。依据：[Floating UI autoUpdate](https://floating-ui.com/docs/autoUpdate)、[focus-trap](https://github.com/focus-trap/focus-trap)、[TanStack Virtual](https://tanstack.com/virtual/latest)、[Zod API](https://zod.dev/api)。
 
-### 本轮待确认的取舍
+### 已确认的实施方向与待确认项
 
 1. Field 已确认公开，且标题/帮助/错误移出 Input 等控件；现在讨论字段上下文、原生约束和第三方控件接入，不再讨论是否保留一体 Input。
-2. Zod、首次 blur 后校验/之后修改更新、数字/单选清空 undefined 已确认；待确定 reset 基线、schema 与原生约束的优先级、服务端错误清除及模型替换合同。Form/Field 尚未实现。
+2. Zod、触发/清空策略已确认；按用户授权采用推荐的 reset 基线、提交版本、错误生命周期、字段接入与 CSP 初始化规划，见第 3 节。接下来是实现与验收，不另建一套表单 store。
 3. Select 与 Autocomplete 是否分开；推荐 Select 绑定已有选项对象，Autocomplete 绑定自由文本并通知建议项选择，共享设施但不强塞联合值模型。
 4. 默认值编译登记使用集中清单还是组件内轻量标记；推荐集中清单，源码只保留普通类型/默认值。先做正负类型、动态配置、SSR 和独立包原型再冻结。
+5. Decimal 是否采用独立 DecimalInput 与 decimal.js；目前已列出领域值、编辑文本、序列化和类型适配合同，但未安装依赖或实现，不自动推广成所有数值/所有自定义类型的通用插件框架。
 
-这些是讨论项，未收到确认不得写成已接受。组件目录同时等待删改，不能因本表出现名称就擅自安装依赖或铺开实现。
+上面分别标明已确认合同、实施验证和待确认选择；不能把尚待讨论的 Decimal/组件目录等写成已接受，也不因出现名称就擅自安装依赖或铺开实现。
 
 ## 17. 研究依据与下一步讨论
 

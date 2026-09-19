@@ -42,3 +42,4 @@
 - slotProps 合并只递归已定义的 slotProps 结构，保留 class/style/attachment Symbol；普通数据对象不深合并。状态与关键语义归所属组件，业务事件顺序/defaultPrevented 明确写出，编译器不猜测或重复串联事件。原生 spread 不是自动合并能力。
 - 校验已确定直接集成 Zod 4 做深度定制；作为 svelte 包直接依赖，版本走 catalog，业务可从 @zui/svelte 导入原生 z。不再并行设计 Valibot/普通规则 DSL/通用校验插件层；Form/Field 仍需实现调度、错误关联与生命周期，安装依赖不代表功能已完成。
 - 表单默认初始不报错，首次离开字段后校验，之后修改时更新，提交完整校验。文本清空 ''、数字输入/单选 Select 清空 undefined、多选 []；空值表示不等于业务可选，不能为适配编辑空态自动把必填 Zod schema 改 optional。
+- 用户已接受入口隔离：业务从 @zui/svelte 统一导入，compiler/server/internal 保留构建期、Node SSR 和生成代码协议边界，不将 Node 专用实现静态并入浏览器入口。
