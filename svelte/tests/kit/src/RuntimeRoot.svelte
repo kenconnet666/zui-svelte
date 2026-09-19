@@ -1,12 +1,16 @@
 <script lang="ts">
   import { onDestroy, onMount, untrack, type Snippet } from 'svelte';
-  import { createRuntime } from '@zui/core';
-  import { provideStyleRuntime } from '@zui/svelte';
+  import { createStyleRuntime, provideStyleRuntime, lightTheme } from '@zui/svelte';
   import { runtimeOptions } from './themes';
 
   let { custom, children }: { custom: boolean; children: Snippet } = $props();
   if (typeof document !== 'undefined') {
-    const runtime = createRuntime({ ...runtimeOptions(untrack(() => custom)), target: document });
+    const options = runtimeOptions(untrack(() => custom));
+    const runtime = createStyleRuntime({
+      ...options,
+      theme: options.theme ?? lightTheme,
+      target: document,
+    });
     runtime.themeStyle(':where(:root)');
     provideStyleRuntime(runtime);
     onMount(() => {

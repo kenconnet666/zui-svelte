@@ -48,6 +48,10 @@ Form/Field/DecimalInput 尚未实现，当前只是依赖和统一导出接入�
 
 mergeProps/mergeSlotProps 保留 class、CSS 声明字符串和 attachment Symbol，只递归 slotProps；普通数据保持引用，函数按普通覆盖处理。可取消事件由组件显式调用外部回调后判断 defaultPrevented，不能重复组合一次。
 
+UI 样式层已固定为 zui.components → zui.defaults → zui.app，分别对应 componentCss/defaultsCss/css。自动宿主、SSR 与 createStyleRuntime 使用同一声明；显式 core runtime 若消费 UI 样式，须传 layers: uiLayers。仅使用 core CSS 的消费者仍可保留自己的 runtime。未分层 CSS、内联 style 和 !important 遵循浏览器规则，不由 class 字符串顺序决定。
+
+Zod 的统一导出在 schema 创建前设置 jitless=true，初始化模块被准确标为副作用；它影响同一 Zod 实例的解析优化，不改变全局语言。未使用校验的构建只需保留小型 core 配置初始化，不应带入全部 schema API；包体积由交付基线检查。绕过 ZUI 更早创建 schema 的应用须自行保证严格 CSP 初始化顺序。
+
 普通 Svelte + Vite 项目的 vite.config.ts 中，ZUI 插件放在 Svelte 插件之前。以下写法消费构建后的包，不需要工作区专用的 zui-source 条件：
 
 ```ts
@@ -95,12 +99,11 @@ export const handle = createStyleHandle();
 ```svelte
 <script lang="ts">
   import { onMount, onDestroy, type Snippet } from 'svelte';
-  import { createRuntime } from '@zui/core';
-  import { provideStyleRuntime, lightTheme } from '@zui/svelte';
+  import { createStyleRuntime, provideStyleRuntime, lightTheme } from '@zui/svelte';
   let { children }: { children: Snippet } = $props();
 
   if (typeof document !== 'undefined') {
-    const runtime = createRuntime({ target: document, theme: lightTheme });
+    const runtime = createStyleRuntime({ target: document, theme: lightTheme });
     runtime.themeStyle(':where(:root)');
     provideStyleRuntime(runtime);
     onMount(() => runtime.finishHydration());
@@ -287,13 +290,13 @@ SSR 必须通过 renderStyled 或 Kit style handle 收集，初始主题直接�
 
 ## 主题尺度与迁移
 
-内置预设已归属 svelte/src/theme.ts，从 @zui/svelte 导入 css、lightTheme、darkTheme、DefaultTokens；core 只提供标准 CSS、空 baseTheme 和通用主题引擎。Svelte 自动宿主与 SSR 默认亮色，显式 core.createRuntime 应传入 theme。旧的 @zui/core 预设导出不保留同义转发，避免反向依赖。
+内置预设已归属 svelte/src/theme.ts，从 @zui/svelte 导入 css、lightTheme、darkTheme、DefaultTokens；core 只提供标准 CSS、空 baseTheme 和通用主题引擎。Svelte 自动宿主与 SSR 默认亮色，Svelte 显式宿主使用 createStyleRuntime 自动声明 UI 层序；core-only runtime 继续由 core 创建。旧的 @zui/core 预设导出不保留同义转发，避免反向依赖。
 
 ```ts
 import { css, lightTheme, darkTheme } from '@zui/svelte';
-import { createCss, createRuntime, extendTheme, ThemeScope } from '@zui/core';
+import { createCss, extendTheme, ThemeScope } from '@zui/core';
 const custom = extendTheme(lightTheme, { color: { brand: '#0f766e' } });
-const runtime = createRuntime({ theme: custom, target: document });
+const runtime = createStyleRuntime({ theme: custom, target: document });
 const customCss = createCss(custom);
 ```
 

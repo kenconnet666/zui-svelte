@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte';
-  import { createRuntime, bindTheme, overrideTheme, ThemeScope } from '@zui/core';
-  import { css, lightTheme } from '@zui/svelte';
+  import { bindTheme, overrideTheme, ThemeScope } from '@zui/core';
+  import { css, createStyleRuntime, lightTheme } from '@zui/svelte';
   import { provideStyleRuntime } from '@zui/svelte';
 
-  const runtime = createRuntime({
+  const runtime = createStyleRuntime({
     target: document,
     theme: lightTheme,
     variables: 'stylesheet',

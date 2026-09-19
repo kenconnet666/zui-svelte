@@ -86,10 +86,17 @@ describe('component authoring compiler', () => {
     const result = transformComponent(source, filename, options)!;
     const generated = result.code.indexOf("'md'");
     const before = result.code.slice(0, generated).split('\n');
-    const map = new SourceMap(result.map);
+    const map = new SourceMap({
+      ...result.map,
+      file: filename,
+      sourceRoot: '',
+      sourcesContent: result.map.sourcesContent?.map((value) => value ?? '') ?? [],
+    });
     const original = map.findEntry(before.length - 1, before.at(-1)!.length);
-    expect(original.originalLine).toBe(4);
-    expect(original.originalColumn).toBe(source.split('\n')[4]!.indexOf("'md'"));
+    expect(original).toMatchObject({
+      originalLine: 4,
+      originalColumn: source.split('\n')[4]!.indexOf("'md'"),
+    });
   });
 
   it('generates normal ComponentProps and Pick declarations without copying fields', () => {

@@ -2,3 +2,12 @@
 export { createStyleScope } from './scope.js';
 export { readComponentConfig } from './config.js';
 export { mergeProps } from './props.js';
+export { FormController } from '../internal/form.js';
+export {
+  FieldScope,
+  captureField,
+  provideField,
+  captureForm,
+  provideForm,
+} from '../internal/field.js';
+export { snapshotValue, equalValue } from '../internal/values.js';

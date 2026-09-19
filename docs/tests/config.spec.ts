@@ -1,5 +1,12 @@
 import { expect, test } from '@playwright/test';
 
+test('UI layers override by role rather than class order', async ({ page }) => {
+  await page.goto('/#/__layers-test');
+  await expect(page.getByTestId('ui-layer-default')).toHaveCSS('color', 'rgb(0, 0, 255)');
+  await expect(page.getByTestId('ui-layer-app')).toHaveCSS('color', 'rgb(0, 128, 0)');
+  await expect(page.getByTestId('ui-layer-native')).toHaveCSS('color', 'rgb(128, 0, 128)');
+});
+
 test('compiled defaults stay reactive and slots retain classes, attributes and events', async ({
   page,
 }) => {

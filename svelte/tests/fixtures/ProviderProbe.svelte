@@ -1,7 +1,7 @@
 <script lang="ts">
   import { mount, unmount, onMount, onDestroy, tick } from 'svelte';
-  import { createRuntime, ThemeScope, type StyleRuntime } from '@zui/core';
-  import { css, lightTheme, type DefaultTokens } from '@zui/svelte';
+  import { ThemeScope, type StyleRuntime } from '@zui/core';
+  import { css, createStyleRuntime, lightTheme, type DefaultTokens } from '@zui/svelte';
   import { StyleProvider, provideStyleRuntime } from '@zui/svelte';
   import ProviderTarget from './ProviderTarget.svelte';
 
@@ -14,7 +14,7 @@
   let clicks = $state(0);
   let runtime: StyleRuntime<DefaultTokens> | undefined;
   if (typeof document !== 'undefined') {
-    runtime = createRuntime({
+    runtime = createStyleRuntime({
       theme: lightTheme,
       target: document,
       namespace: 'provider',
@@ -28,7 +28,7 @@
     const host = document.createElement('div');
     document.body.append(portal, host);
     const shadow = host.attachShadow({ mode: 'open' });
-    const shadowRuntime = createRuntime({
+    const shadowRuntime = createStyleRuntime({
       theme: lightTheme,
       target: shadow,
       namespace: 'provider-shadow',

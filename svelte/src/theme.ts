@@ -158,5 +158,13 @@ export const darkTheme = /* @__PURE__ */ extendTheme(
 );
 
 /** 内置 UI 主题的类型化入口；core 的 css 仅含标准 CSS 能力。 */
-export const css: (factory: StyleFactory<DefaultTokens>) => string =
-  /* @__PURE__ */ createCss(lightTheme);
+export const css: (factory: StyleFactory<DefaultTokens>) => string = /* @__PURE__ */ createCss(
+  lightTheme,
+  { layer: 'zui.app' },
+);
+
+/** 组件基础样式与整类默认覆盖使用固定层，避免依靠 class 字符串顺序。 */
+export const componentCss: (factory: StyleFactory<DefaultTokens>) => string =
+  /* @__PURE__ */ createCss(lightTheme, { layer: 'zui.components' });
+export const defaultsCss: (factory: StyleFactory<DefaultTokens>) => string =
+  /* @__PURE__ */ createCss(lightTheme, { layer: 'zui.defaults' });

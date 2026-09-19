@@ -1,6 +1,7 @@
 import { getAllContexts, onDestroy, setContext } from 'svelte';
-import { createRuntime, StyleError, type StyleRuntime, type TokenSchema } from '@zui/core';
+import { StyleError, type StyleRuntime, type TokenSchema } from '@zui/core';
 import { lightTheme } from '../theme.js';
+import { assertUILayers, createStyleRuntime } from './styles.js';
 
 export const STYLE_RUNTIME = Symbol.for('@zui/style-runtime');
 export type Runtime = StyleRuntime<TokenSchema>;
@@ -12,6 +13,9 @@ export function setServerRuntimeResolver(resolve: () => Runtime | undefined): vo
 }
 
 export function provideStyleRuntime<T extends TokenSchema>(runtime: StyleRuntime<T>): void {
+  // core-only 样式仍可使用自己的层；一旦声明 UI 层就必须遵守统一顺序。
+  if (runtime.registry.layers.some((layer) => layer === 'zui' || layer.startsWith('zui.')))
+    assertUILayers(runtime);
   setContext(STYLE_RUNTIME, runtime);
 }
 
@@ -41,7 +45,7 @@ export function captureRuntime(): (() => Runtime) & {
       defaultEntry = defaults.get(document);
       if (!defaultEntry) {
         defaultEntry = {
-          runtime: createRuntime<TokenSchema>({ target: document, theme: lightTheme }),
+          runtime: createStyleRuntime<TokenSchema>({ target: document, theme: lightTheme }),
           references: 0,
         };
         defaultEntry.runtime.themeStyle(':where(:root)');

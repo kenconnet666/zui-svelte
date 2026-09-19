@@ -9,7 +9,9 @@
     "README.md"
   ],
   "sideEffects": [
-    "**/*.css"
+    "**/*.css",
+    "./src/validation.ts",
+    "./dist/validation.js"
   ],
   "exports": {
     "./compiler": {
@@ -45,10 +47,14 @@
   },
   "dependencies": {
     "@internationalized/date": "catalog:",
+    "@floating-ui/dom": "catalog:",
+    "@tanstack/virtual-core": "catalog:",
     "typescript": "catalog:",
     "magic-string": "catalog:",
     "@zui/core": "workspace:^",
     "decimal.js": "catalog:",
+    "focus-trap": "catalog:",
+    "tabbable": "catalog:",
     "zod": "catalog:"
   },
   "peerDependencies": {

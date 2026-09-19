@@ -2,7 +2,8 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import { render, type Csp } from 'svelte/server';
 import type { Component } from 'svelte';
 import type { Handle, RequestEvent } from '@sveltejs/kit';
-import { createRuntime, type RuntimeOptions, type TokenSchema } from '@zui/core';
+import { type RuntimeOptions, type TokenSchema } from '@zui/core';
+import { createStyleRuntime } from './runtime/styles.js';
 import { STYLE_RUNTIME, setServerRuntimeResolver, type Runtime } from './runtime/context.js';
 import { lightTheme } from './theme.js';
 
@@ -22,7 +23,7 @@ export async function renderStyled<P extends Record<string, unknown>>(
 ) {
   if (options.runtime?.nonce && options.csp?.nonce && options.runtime.nonce !== options.csp.nonce)
     throw new Error('Style and render CSP nonces must match.');
-  const runtime = createRuntime<TokenSchema>({
+  const runtime = createStyleRuntime<TokenSchema>({
     ...options.runtime,
     theme: options.runtime?.theme ?? lightTheme,
     nonce: options.runtime?.nonce ?? options.csp?.nonce,
@@ -53,7 +54,7 @@ export function createStyleHandle(
 ): Handle {
   return async ({ event, resolve }) => {
     const settings = typeof options === 'function' ? await options(event) : options;
-    const runtime = createRuntime<TokenSchema>({
+    const runtime = createStyleRuntime<TokenSchema>({
       ...settings,
       theme: settings.theme ?? lightTheme,
     });
