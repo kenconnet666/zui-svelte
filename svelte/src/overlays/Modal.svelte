@@ -224,7 +224,7 @@
                 aria-label={slotProps.closeButton?.['aria-label'] ?? locale().messages.close}
                 onclick={(event) => {
                   slotProps.closeButton?.onclick?.(event);
-                  if (!event.defaultPrevented) session.close();
+                  if (!event.defaultPrevented) session.close(event);
                 }}
                 class={[
                   css((s) => {

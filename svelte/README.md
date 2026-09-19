@@ -27,7 +27,7 @@ const nextDay = parseDate('2026-09-19').add({ days: 1 });
 nextDay.toString(); // '2026-09-20'，没有隐式时区转换。
 ```
 
-Form/Field 的内部协调器和特殊值快照已实现，公共视觉 Form/Field/DecimalInput 在第二阶段交付。独立 Node 后端若不经过 Svelte 编译，可直接从 zod/decimal.js 导入共享规则和数值类型，不强制加载 UI 入口。Decimal 业务值从字符串构造，运算后赋回响应式属性，接口使用明确十进制字符串，不默认转回 number。
+Form/Field 的内部协调器和特殊值快照已实现；公共视觉 Form/Field/DecimalInput 已后移，不属于本次布局/浮层阶段。独立 Node 后端若不经过 Svelte 编译，可直接从 zod/decimal.js 导入共享规则和数值类型，不强制加载 UI 入口。Decimal 业务值从字符串构造，运算后赋回响应式属性，接口使用明确十进制字符串，不默认转回 number。
 
 日期公开入口包括 CalendarDate、CalendarDateTime、Time、ZonedDateTime、createCalendar 及 parseDate/parseDateTime/parseTime/parseZonedDateTime。独立后端可直接使用 @internationalized/date；纯日期与时区时间不是同一种业务值。Kit 自定义值传输范例见 tests/kit/src/hooks.ts，完整协议与限制见 [.design](../.design/svelte-components.md#日期类型已接入ssr-传输复用宿主协议)。
 
@@ -44,7 +44,7 @@ Form/Field 的内部协调器和特殊值快照已实现，公共视觉 Form/Fie
 
 配置基础已提供 ConfigProvider、zhCN/enUS 与 Size/Radius 等类型。Provider 不产生额外 DOM，使用 getter 作用域继承 size/radius/locale/dir；实例显式值优先，undefined 继续继承，false 不会被吞掉。组件私有样式和 slotProps 合并只对明确登记的组件启用，事件不会被自动串联。
 
-公开视觉组件尚未发布，因此默认组件配置清单暂为空。库内清单由 components.mjs 维护实际文件与允许配置的字段，组件默认值仍只写在原生 $props() 中；build.mjs 从当前编译器源码 bootstrap 后预编译发布组件，不依赖旧 dist。生成类型是 ComponentProps/Pick，不抄写另一份属性类型。业务自定义组件可用 ConfigProvider 的原生 TS 泛型明确其配置类型，再在 zui 插件 components 选项中登记，未登记的组件不会被改写。
+默认组件配置清单已经由九个实际组件生成，未知组件键和不合法尺度会被类型检查拒绝。库内清单由 components.mjs 维护实际文件与允许配置的字段，组件默认值仍只写在原生 $props() 中；build.mjs 从当前编译器源码 bootstrap 后预编译发布组件，不依赖旧 dist。生成类型是 ComponentProps/Pick，不抄写另一份属性类型。业务自定义组件可用 ConfigProvider 的原生 TS 泛型明确其配置类型，再在 zui 插件 components 选项中登记，未登记的组件不会被改写。
 
 mergeProps/mergeSlotProps 保留 class、CSS 声明字符串和 attachment Symbol，只递归 slotProps；普通数据保持引用，函数按普通覆盖处理。可取消事件由组件显式调用外部回调后判断 defaultPrevented，不能重复组合一次。
 
@@ -133,6 +133,126 @@ Kit 接入会将页面 HTML 的 transformPageChunk 缓存到 done 后插入完�
 组件内的 setup 常量、`$state` 初始值和 `$derived`/`$derived.by` 在编译阶段获得独立快照上下文，支持普通跨文件 helper，不需要为动态值增加标记。静态初始快照由组件持有，响应式快照随订阅释放；组件属性转发和这些脚本快照均优先使用完整规则。只有实际调用 css 时才选择 runtime，因此可以先创建和提供自定义 runtime，再生成样式。
 
 事件处理器等无响应式订阅上下文中创建的静态快照也保留到组件销毁，以支持保存后再次使用的普通 class 字符串。持续变化的值应保存在状态中，由模板或 derived 求值；这才具有同一绑定的自动提升与旧快照回收。任意字符串的外部保存期限无法由 runtime 自动推断。
+
+## 布局与浮层组件
+
+所有组件从 @zui/svelte 导入。组件专用样式仍写在模板 css 中；几何与生命周期由编译桥和内部设施持有，不向业务返回样式句柄。
+
+| 组件       | 主要参数与默认值                                                           | 根与定制                                                                 |
+| ---------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Stack      | direction=column、gap=md、align=stretch、justify=start、wrap=false         | 原生非 void 标签 as；class/style 控制单根                                |
+| Grid       | columns=1、gap=md、align=stretch                                           | columns 为正整数或 CSS 模板；无需 GridItem                               |
+| Container  | maxWidth=lg、padding=md                                                    | 最大宽度五档 + full，内边距五档 + none                                   |
+| ScrollArea | axis=y、overscroll=auto、scrollbar=auto                                    | 固定 div 根；slotProps.viewport/content 对应真实视口/内容                |
+| Portal     | target 省略时使用所属面板宿主或渲染根；disabled=false                      | 默认 display:contents，无额外布局盒；target=null 等待目标                |
+| Popover    | placement=bottom-start、offset=6、arrow=false、matchAnchorWidth=false      | class/style 控制可见面板；slotProps.body 为 ScrollArea Props，另有 arrow |
+| Tooltip    | content/trigger 必填，placement=top、delay=300、closeDelay=120、arrow=true | 描述型浮层；slotProps.arrow，不放交互控件                                |
+| Dialog     | size=md、closable=true、animated=true                                      | 完整模态面板，title 或 aria-label/aria-labelledby 必须提供               |
+| Drawer     | 与 Dialog 共用模态实现，side=end                                           | start/end/top/bottom，逻辑侧尊重 RTL                                     |
+
+Stack/Grid/Container 支持 as。ScrollArea 具有固定的外层、可聚焦 viewport 和内容结构，采用真实 div 属性类型；语义 section/nav 可在外层组合，避免多态根与内层滚动语义混淆。Grid 整数列使用 minmax(0,1fr)，复杂响应式仍用 _media/_container；不额外解析一套 responsive Props。
+
+### 覆盖式滚动条
+
+```svelte
+<script lang="ts">
+  import { ScrollArea, css } from '@zui/svelte';
+</script>
+
+<ScrollArea
+  aria-label="活动记录"
+  class={css((s) => {
+    s.height.px(320);
+  })}
+  slotProps={{
+    content: {
+      class: css((s) => {
+        s.padding._md;
+      }),
+    },
+  }}
+>
+  活动内容
+</ScrollArea>
+```
+
+滚动条半透明、覆盖内容，不预留 gutter，不因显示/隐藏更改视口宽高。鼠标进入、焦点进入或滚动/拖动时显示，离开后短延迟淡出；scrollbar="always" 常显。高对比使用系统色，减少动态效果时取消淡入淡出。内容边缘需要避让时用固定内容 padding，不在 hover 时挤布局。
+
+真实滚动仍由浏览器执行。viewport 使用 scrollbar-width:none，滑块仅反映并操作 scrollTop/scrollLeft；scrollend 可用时用于判断惯性/键盘滚动结束。无脚本 CSS 恢复原生条，此降级不承诺系统条零占位。
+
+onscroll 的 currentTarget 是实际 viewport；tabindex 和描述属性转发给 viewport。组件引用提供 getViewport()、scrollTo(options)、scrollBy(options)，未挂载时 getViewport() 返回 undefined。使用虚拟化时测量该视口，而不是根壳。
+
+### 定位面板与触发器
+
+```svelte
+<script lang="ts">
+  import { Popover, Tooltip } from '@zui/svelte';
+  let open = $state(false);
+</script>
+
+<Popover bind:open aria-label="筛选" arrow>
+  {#snippet trigger(props)}
+    <button type="button" {...props}>筛选</button>
+  {/snippet}
+  <label>关键字<input /></label>
+  <button type="button" onclick={() => (open = false)}>完成</button>
+</Popover>
+
+<Tooltip content="复制链接">
+  {#snippet trigger(props)}
+    <button type="button" {...props} aria-label="复制链接">复制</button>
+  {/snippet}
+</Tooltip>
+```
+
+trigger props 包含 ARIA 与 attachment Symbol，必须完整 spread 到真实触发元素或可正确转发 rest 的组件。使用者点击处理器的 preventDefault 可以取消默认触发行为；不扫描第一个子节点、不增加 trigger 包装盒。Popover 默认可以用触发按钮作为名称，也可显式提供 aria-label/aria-labelledby。
+
+外部 anchor 模式不同时提供 trigger；触发动作、名称与 aria-expanded/aria-controls 由业务明确维护。定位扩展包括 collisionPadding/boundary、matchAnchorWidth、箭头与实际 data-placement，portal=false 原位挂载，portal=HTMLElement/ShadowRoot 选择目标，portal=null 等待目标。只在同一渲染根内移动，跨根应显式挂载 runtime/主题子树。
+
+Popover 可滚动长内容，初始优先聚焦内部控件；非模态 Tab/Shift+Tab 按逻辑触发点进出，不使用模态陷阱锁住业务。Tooltip 不抢焦点，合并已有 aria-describedby，Escape 关闭后等新的触发再打开；触摸按下不创建黏住的 hover 提示。
+
+### 模态面板与嵌套定制
+
+```svelte
+<script lang="ts">
+  import { Dialog } from '@zui/svelte';
+  let editing = $state(false);
+  let unsaved = $state(false);
+</script>
+
+<button type="button" onclick={() => (editing = true)}>打开设置</button>
+<Dialog
+  bind:open={editing}
+  title="编辑设置"
+  keepMounted
+  onclose={(event) => {
+    if (unsaved) event.preventDefault();
+  }}
+  slotProps={{
+    body: { slotProps: { viewport: { 'aria-label': '设置内容' } } },
+    closeButton: { title: '关闭设置' },
+  }}
+>
+  设置内容
+  {#snippet footer()}
+    <button type="button" onclick={() => (editing = false)}>完成</button>
+  {/snippet}
+</Dialog>
+```
+
+onclose 是同步可取消的关闭请求，参数为 OverlayCloseEvent，包含 reason/originalEvent/cancelable/defaultPrevented/preventDefault。直接修改 open=false 属于业务赋值，不会被请求回调否决。父层销毁导致的关闭不可取消。closeOnEscape/closeOnOutside、initialFocus/returnFocus 可明确配置。
+
+Dialog/Drawer 的 slotProps 包括 backdrop/header/title/description/body/footer/closeButton/closeIcon；body 完整保留 ScrollArea 的嵌套 slotProps。关闭按钮使用原生 button，图标使用 Lucide 单图标入口，未假造未来 Button Props。无须拼装公共 ModalRoot/Overlay/Content。
+
+keepMounted 只保留关闭后的内容状态；隐藏阶段 inert，定位监听与层锁释放。退出动画期间逻辑隐藏先于物理卸载，重复 Escape 不穿透关闭父层。子 Popover 的默认 Portal 宿主位于所属面板内、滚动内容之外，保持语义关系和主题。
+
+层的初始基线取根 runtime 的 zIndex.popup，nonce 直接读取 runtime.nonce。同一 Document 的多个 UI 宿主须约定一致基线和 nonce；局部 ThemeScope 不单独重置整个文档的层栈。Portal 有 moveBefore 时保留移动状态，旧浏览器使用兼容移动并恢复已有内部焦点；不承诺旧路径保留 iframe 等所有嵌入状态。
+
+### 消费验收
+
+Docs 的 /layout 与 /overlays 是真实消费者；Kit 的 /layout 与 /overlays?open 覆盖源码消费、初始 SSR、接管和严格 CSP，独立 tarball 任务运行相同组件场景。源码类型、包外声明与运行时结果分别验证。
+
+pnpm contracts:ui 从根业务入口构建布局和浮层两组消费产物，检查无关依赖裁剪并执行 svelte-distribution-budget.json 的已测预算。输出包含 Svelte 与 ZUI runtime，不能当成单组件净大小或相加计算应用总量。CI 保存 distribution.json 并关联候选证据。
 
 ## 主题容器
 

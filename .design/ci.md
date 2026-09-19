@@ -28,3 +28,5 @@
 ## 本地工作约定
 
 本地只执行改动相关的重点检查，优先原生 WebStorm/LSP。浏览器局部验证使用已安装的 Chrome，完整矩阵交 CI。推送后不等待或轮询；继续有意义的工作，并在下次推送前检查上一轮结果。当前阶段状态维护在 [验收台账](core-acceptance.md)，不在多个文档复制易过期的 HEAD/测试数量。
+
+UI 分发验收从 @zui/svelte 主入口分别构建布局组与浮层组，检查无关专项依赖及 Node 模块不得进入产物。distribution.json 与现有报告一并进入 candidate-evidence.json；svelte-distribution-budget.json 是测量后保留审查余量的门槛，不在 CI 自动更新。

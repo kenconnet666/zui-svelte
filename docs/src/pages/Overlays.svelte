@@ -71,7 +71,7 @@
       description="测试嵌套面板与滚动内容"
       keepMounted
       onclose={(event) => {
-        lastClose = `${event.reason}:${blockClosing}`;
+        lastClose = `${event.reason}:${blockClosing}:${event.originalEvent?.type ?? 'none'}`;
         if (blockClosing) event.preventDefault();
       }}
       slotProps={{

@@ -51,3 +51,5 @@
 - 第二阶段方向已改为先布局、定位和浮层基础组件，同时纳入现有架构必要 API、优化/精简、命名、目录归属和文件拆分/合并审计；计划见 .design/svelte-phase2.md。用户已认可整体规划；具体 API 在实施示例中收敛，不沿用旧的 Button/表单优先排期，源码迁移按审计后的可构建批次进行。
 
 - 用户已认可第二阶段规划，并指定 ScrollArea 默认半透明覆盖式滚动条，交互显露且不占布局空间；保留原生滚动机制，显隐不改变内容尺寸。键盘焦点、触摸、拖动与高对比的补充行为及 root/viewport 边界见 .design/svelte-phase2.md，不沿用“默认原生占位条/根就是 viewport”的旧建议。
+
+- 第二阶段布局/浮层已实现：Stack/Grid/Container/ScrollArea、Portal/Popover/Tooltip/Dialog/Drawer。完整候选与边界见 .design/svelte-phase2.md，实际 API 见 svelte/README.md；Button/表单/选择仍未进入本阶段。共享标签类型在 types.ts，浮层专属实现位于 overlays，协议源码入口为 src/internal.ts，公共包路径不变。

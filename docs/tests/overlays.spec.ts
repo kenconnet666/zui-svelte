@@ -93,6 +93,8 @@ test('popover Tab order, cancelable closing and tooltip descriptions use native 
   await expect(tooltipTrigger).toHaveAttribute('aria-describedby', 'existing-description');
   await page.getByLabel('阻止弹窗关闭').check();
   await page.getByRole('button', { name: '打开设置弹窗' }).click();
+  await page.getByRole('button', { name: '关闭', exact: true }).click();
+  await expect(page.getByTestId('overlay-close')).toHaveText('programmatic:true:click');
   await page.keyboard.press('Escape');
   const dialog = page.getByRole('dialog', { name: '布局设置', exact: true });
   await expect(dialog).toBeVisible();

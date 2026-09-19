@@ -41,3 +41,5 @@ Docs 的运行、编译插件和类型均消费 dist，不再启用 zui-source�
 开发态测试仅清理自己创建的 .zui-hmr-* 目录；包外消费成功后只清理已校验路径的临时项目，并保留被测试的归档和报告。失败现场保留用于诊断。不清理共享缓存、已有依赖或用户数据。
 
 局部排查 Kit fixture 时可先执行 pnpm --filter @zui/svelte run test:kit:prepare，再在 PowerShell 中设置 $env:ZUI_KIT_DEV='1'，运行 pnpm --filter @zui/svelte exec playwright test --project chromium --grep '相关用例名称'。该模式仅使用本机 Chrome 与开发服务器；CI 禁止启用，仍验证生产构建。命令结束后删除当前 shell 的该环境变量再运行生产测试，避免混淆两种证据。
+
+浏览器局部迭代可用 pnpm --filter @zui/svelte build:code 更新代码并保留上次声明，随后构建 Docs；它不证明新声明有效，API 改动仍须完整 build 与逐文件/聚焦声明检查。CI 始终调用完整 build，不使用此快捷入口。pnpm contracts:ui 检查布局/浮层两组实际分发及依赖裁剪，初始预算只在人工复核后用 node scripts/verify-ui.mjs --update 更新。

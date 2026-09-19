@@ -65,8 +65,8 @@ export class OverlaySession implements OverlayContext {
     }
     if (event.cancelable && !event.defaultPrevented) this.write(false);
   };
-  close = () => {
-    this.#layer?.requestClose();
+  close = (event?: Event) => {
+    this.#layer?.requestClose('programmatic', event);
   };
   async sync(open: boolean, options: SessionOptions): Promise<void> {
     if (this.#disposed) return;

@@ -13,11 +13,11 @@
 
 外部依赖用 catalog:，内部用 workspace:^；严格 peer 检查，关闭自动补装 peer。Vitest/provider 与 Playwright/@playwright/test 保持配套版本。新增需运行安装脚本的依赖时单独检查 allowBuilds。
 
-组件图标已确定使用官方 @lucide/svelte；当前 Docs 已安装，开始实现组件时在 svelte 包中直接声明同一 catalog 依赖。普通图标倾向使用 LucideIcon 组件类型，具体入口见组件讨论稿。
+组件图标固定使用 @lucide/svelte，svelte 与 docs 均直接声明 catalog 依赖。库内只从公开 icons/x 等单图标路径导入需要的组件，避免源码 SSR 载入整份导出表；业务仍可直接传 Lucide 组件。
 
 表单校验已选择 Zod 4，产品依赖使用默认 catalog；languageServices 中的 Zod 3 属于现有 MCP/LSP 工具依赖，不因产品升级而顺带修改。业务优先从 @zui/svelte 导入 z，使用原生 Zod 规则与类型，不再增加 ZUI 校验 DSL 或通用 schema 适配器。FormController/FieldScope 已提供调度与关联，公共 Form/Field 下一阶段交付。
 
-精确十进制已安装 decimal.js，作为 svelte 直接依赖并从主入口导出原生 Decimal，版本走默认 catalog。职责是 Svelte 数值领域及 Zod/序列化适配，不进入 core 的 CSS 引擎，不替代所有普通 number。不再引入第二套 decimal 实现或包装类。精确快照/比较、locale 编辑文本边界与 Kit transport 已验收；DecimalInput 的完整编辑/步进/舍入由第二阶段实现。
+精确十进制已安装 decimal.js，作为 svelte 直接依赖并从主入口导出原生 Decimal，版本走默认 catalog。职责是 Svelte 数值领域及 Zod/序列化适配，不进入 core 的 CSS 引擎，不替代所有普通 number。不再引入第二套 decimal 实现或包装类。精确快照/比较、locale 编辑文本边界与 Kit transport 已验收；DecimalInput 的完整编辑/步进/舍入已后移，本阶段只交付布局和浮层。
 
 专项运行时已确定为 @floating-ui/dom、focus-trap/tabbable、@tanstack/virtual-core，直接依赖及精确版本均已锁定。ZUI 只适配几何/焦点/窗口化能力，自己持有层归属和生命周期；不引入 Floating UI React、React Aria/Bits 等组件运行时，不同时维持自研与依赖的两套焦点/虚拟化算法。指针、播报、字符分段和媒体偏好使用原生 API。
 

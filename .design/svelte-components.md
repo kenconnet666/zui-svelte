@@ -1,6 +1,6 @@
 # Svelte 生产架构、基础设施与组件规划
 
-已确认：共享响应式模型可直接修改；Lucide 组件直传；Field 独立负责 label/help/error，Input/Select 等专注控件本身；Dialog 为完整组件；五档使用 xs/sm/md/lg/xl；标准 CSS 与通用主题引擎留 core，UI 预设与默认主题 css 在 svelte；Button 使用 color + variant + size，Select 默认返回整条选项数据，集中默认配置与统一浮层管理。业务组件尚未实施，本文明确区分已经确认的边界与后续建议。
+已确认：共享响应式模型可直接修改；Lucide 组件直传；Field 独立负责 label/help/error，Input/Select 等专注控件本身；Dialog 为完整组件；五档使用 xs/sm/md/lg/xl；标准 CSS 与通用主题引擎留 core，UI 预设与默认主题 css 在 svelte；Button 使用 color + variant + size，Select 默认返回整条选项数据，集中默认配置与统一浮层管理。布局/浮层九个公共组件已经实现，用法以 svelte/README.md 为准；其他组件仍按本文区分已确认方向与后续建议。
 
 作者侧偏好已更新：专用样式直接写在模板，类型按需内联/复用，默认值只写在 $props() 解构；配置接入可由编译器生成。上层复用底层 Props 和嵌套 slotProps，不强制 ControlAppearance 或另一套组件定义语法。第 8 节记录作者约定；其编译/合并基础已经过第一阶段验证。第 16 节是长期组件目录，第二阶段的建议实施范围单独见 svelte-phase2.md，不把全部目录视为已批准发布。
 
@@ -181,7 +181,7 @@ total.toFixed(2); // '59.70'；接口边界保留字符串。
 
 其他类型按需求处理：bigint 用于大整数而非小数，传输需显式编码；Date 要区分时间点和无时区日期，留给日期域；File/Blob 由 Upload 管理引用与资源生命周期。不要为了“可扩展”现在就预装全部库或为每种类型建立公共基类。
 
-已完成依赖安装/主入口导出，并通过小范围精确步进、Zod finite/保留实例、字符串 codec 与 clone 构造器探针；独立安装包的实例/命名空间类型用例交 CI。Form 特殊值快照/比较、locale 数值草稿边界和 Kit transport 已实现。DecimalInput 仍需在第二阶段完成位数/舍入/极长输入/科学计数法策略、编辑清空、步进及组件体积验收，不能把领域值支持等同于完整控件。
+已完成依赖安装/主入口导出，并通过小范围精确步进、Zod finite/保留实例、字符串 codec 与 clone 构造器探针；独立安装包的实例/命名空间类型用例交 CI。Form 特殊值快照/比较、locale 数值草稿边界和 Kit transport 已实现。DecimalInput 仍需在后续数值组件阶段完成位数/舍入/极长输入/科学计数法策略、编辑清空、步进及组件体积验收，不能把领域值支持等同于完整控件。
 
 依据：[decimal.js API](https://mikemcl.github.io/decimal.js/)、[不可变运算](https://github.com/MikeMcl/decimal.js)、[big.js](https://github.com/MikeMcl/big.js)、[Zod codecs](https://zod.dev/codecs)、[Svelte 类实例](https://svelte.dev/docs/svelte/$state#Classes)、[TC39 Decimal 提案](https://tc39.es/proposal-decimal/)。
 
@@ -351,7 +351,7 @@ __config 是在初始化时捕获上下文的读取视图，不是配置快照�
 - $bindable 的 value/open/checked 不自动走视觉默认配置；保留原生双向绑定和请求内业务状态。
 - 开发、SSR、发布使用同一转换。当前 Vite class 插件会跳过 node_modules，因此库发布前必须完成所需预处理；独立安装包验证不能依赖工作区恰好扫描到源码。配置转换与现有 CSS 编译桥分别明确顺序、幂等和协议兼容。
 
-当前证据：锁定 Svelte 5.57.0 下，内联类型与上述转换前/后的小样本均通过 client/server 编译；原生 lazy fallback 的探针验证了配置变化、显式覆盖、恢复 undefined 和 false。不是完整 ConfigProvider、DOM 响应、声明生成或发布验收；配置转换尚未落地。
+当前证据：ConfigProvider、默认值转换、Symbol/slotProps、声明生成与独立包消费已经过第一阶段及九个布局/浮层组件的验证，详见阶段台账；作者仍只维护原生 Props 默认值和集中键清单。
 
 ### slotProps：继承类型、原样转发、有限合并
 
