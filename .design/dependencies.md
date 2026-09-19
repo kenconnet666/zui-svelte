@@ -20,3 +20,22 @@
 精确十进制已安装 decimal.js，作为 svelte 直接依赖并从主入口导出原生 Decimal，版本走默认 catalog。职责是 Svelte 数值领域及 Zod/序列化适配，不进入 core 的 CSS 引擎，不替代所有普通 number。不再引入第二套 decimal 实现或包装类；DecimalInput、编辑中间态、表单快照与 SSR 传输仍待实现，详见组件规划第 3 节。
 
 其余工具按定位、焦点、日期与无障碍等具体职责评估。普通 TS/CSS/浏览器能力足够时不加依赖；不预装未来组件的全部工具，不引入无样式组件库。
+
+## 完整性复核：新增缺项与依赖候选
+
+用户本轮要求查依赖/基础能力的遗漏，不是继续重复已接受的业务交互选择。定位、焦点、虚拟化、locale/RTL、层管理已在主规划中；以下是尚未落成具体合同、需要补齐的能力。推荐不等于已安装或已批准扩大范围。
+
+| 补充项             | 实际消费者/缺口                                                                                            | 依赖与实现取舍                                                                                                                                                                  |
+| ------------------ | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 日期/时间领域值    | 日期、纯时间、本地日期时间与时区时间不能都塞进 Date；Calendar/DatePicker/TimePicker 需要一致的算术和序列化 | 优先评估 @internationalized/date；只是日期工具，不安装 React Aria 组件。原计划只有“日期域待选”的占位，现补具体候选                                                              |
+| 特殊值 SSR 传输    | 已有 Decimal 后，Kit load/actions 到浏览器需要保留类型；将来日期类型同样需要                               | 优先 Kit 原生 universal transport 与明确 encode/decode；普通 Vite/API 边界用 Zod codec，不另造通用 serializer。transport 两端都执行，不能从 Node-only server 子入口给浏览器导入 |
+| 自动无障碍审计     | 当前已有 Playwright，但没有具名的 a11y 扫描集成                                                            | 建议开发依赖 @axe-core/playwright；静态扫描与真实键盘/读屏检查分开，不能用零扫描错误替代完整可达性                                                                              |
+| 动态播报           | 搜索结果数量、加载失败、上传完成、排序结果需要适量通知读屏用户                                             | 小型内部 live-region 服务，明确作用域、排队/去重、语言和卸载；不把所有状态都挂 role=alert，不引入整套 UI 依赖                                                                   |
+| 快捷键作用域       | 表格、菜单、对话框、业务快捷键要避免抢占输入/IME 与互相重复处理                                            | 原生键盘事件 + 小型作用域约定，复用既有层/集合所有权；Escape 不再建立另一套处理栈，原生按钮不重复模拟键盘点击                                                                   |
+| 指针/拖动/调整尺寸 | Slider、列宽、分隔条需共享 pointer capture、取消、越界、触摸滚动边界                                       | Pointer Events 为基础；复杂树/列表重排再评估专项拖放工具，不把原生文件 drop、滑动与排序全部揉成一个框架                                                                         |
+| 文本计数与编辑格式 | emoji/组合字符长度、maxlength、Zod 长度语义及搜索比较要一致，Decimal 的 locale 输入不能转回 number         | Intl.Segmenter/Collator/NumberFormat 等原生能力优先，明确 code unit/code point/grapheme 差别；不自动安装模糊搜索/拼音/输入掩码库                                                |
+| 移动视口与输入设备 | 软键盘、VisualViewport、触摸下浮层避让与滚动锁不能只靠桌面 resize                                          | 纳入现有定位/层管理/指针基础的实际设备验证；不新增平行 viewport manager。Playwright 的浏览器覆盖不冒充真实软键盘/读屏验收                                                       |
+
+当前新增包候选优先是 @internationalized/date（日期运行时）和 @axe-core/playwright（仅开发/CI）。其余优先复用原生平台或小型内部能力。表格计算引擎、图片裁剪、富文本/代码编辑器等在明确组件范围后专项选型，不以“可能用到”为理由预装。
+
+依据：[Internationalized Date](https://react-aria.adobe.com/internationalized/date/)、[Kit transport](https://svelte.dev/docs/kit/hooks#Universal-hooks-transport)、[Playwright 无障碍检查](https://playwright.dev/docs/accessibility-testing)、[Pointer Events](https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events)、[WAI 键盘交互](https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/)。
