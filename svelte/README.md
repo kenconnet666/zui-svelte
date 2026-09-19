@@ -186,6 +186,11 @@ SSR 必须通过 renderStyled 或 Kit style handle 收集，初始主题直接�
 | `size.iconSm`           | `14px`                          | `14px`                          | 控件/图标尺寸档；control/icon 为默认角色引用，full 为 100% |
 | `size.iconMd`           | `16px`                          | `16px`                          | 控件/图标尺寸档；control/icon 为默认角色引用，full 为 100% |
 | `size.iconLg`           | `20px`                          | `20px`                          | 控件/图标尺寸档；control/icon 为默认角色引用，full 为 100% |
+| `size.containerXs`      | `32rem`                         | `32rem`                         | 页面最大宽度五档，与控件尺寸和媒体断点分开                 |
+| `size.containerSm`      | `48rem`                         | `48rem`                         | 页面最大宽度五档，与控件尺寸和媒体断点分开                 |
+| `size.containerMd`      | `64rem`                         | `64rem`                         | 页面最大宽度五档，与控件尺寸和媒体断点分开                 |
+| `size.containerLg`      | `80rem`                         | `80rem`                         | 页面最大宽度五档，与控件尺寸和媒体断点分开                 |
+| `size.containerXl`      | `96rem`                         | `96rem`                         | 页面最大宽度五档，与控件尺寸和媒体断点分开                 |
 | `size.iconXl`           | `24px`                          | `24px`                          | 控件/图标尺寸档；control/icon 为默认角色引用，full 为 100% |
 | `size.full`             | `100%`                          | `100%`                          | 控件/图标尺寸档；control/icon 为默认角色引用，full 为 100% |
 | `size.control`          | `36px`                          | `36px`                          | 控件/图标尺寸档；control/icon 为默认角色引用，full 为 100% |

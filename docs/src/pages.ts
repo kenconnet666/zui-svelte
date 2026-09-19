@@ -3,6 +3,11 @@ import NotFound from './pages/NotFound.svelte';
 import { wrap } from 'svelte-spa-router/wrap';
 
 export const pages = [
+  {
+    path: '/layout',
+    title: '布局与滚动',
+    component: wrap({ asyncComponent: () => import('./pages/Layout.svelte') }),
+  },
   { path: '/', title: '概览', component: Home },
   {
     path: '/core',

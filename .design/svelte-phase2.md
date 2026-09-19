@@ -2,7 +2,7 @@
 
 状态：用户已认可本阶段规划，并补充 ScrollArea 使用半透明、无布局占位的覆盖式滚动条。布局/定位/浮层、架构 API 补齐/优化/精简、命名与目录/文件审计按本文推进；实施中具体 API 仍以真实示例和验收收敛。本文替代旧的“Button → 表单 → Select”排期。
 
-第一阶段实现与验收见 [svelte-phase1.md](svelte-phase1.md)，既定状态绑定、主题、class、slotProps 合同见 [svelte-components.md](svelte-components.md)。本次补充记录滚动条设计；尚未开始组件代码实施。
+第一阶段实现与验收见 [svelte-phase1.md](svelte-phase1.md)，既定状态绑定、主题、class、slotProps 合同见 [svelte-components.md](svelte-components.md)。用户已授权实施，当前按批次推进，实际进度见文末。
 
 ## 1. 目标与范围
 
@@ -305,3 +305,18 @@ class/style 控制可见面板。slotProps 只公开 backdrop/header/body/footer
 3. 页面 Layout/Sider/Header 是否加入：建议先用布局组件做完整页面壳示例；若要负责侧栏折叠、移动抽屉和持久化尺寸等行为，再设计 Layout，避免几个标签包装没有额外价值。
 
 用户已认可整体规划；具体 API 在实施样例中继续收敛，ScrollArea 默认改为半透明覆盖条。已明确的“先布局/定位/浮层，同时审计并优化架构、命名、目录和文件拆分”不再回退。
+
+## 实施记录
+
+P2-00/P2-01 首批：浮层专属的 layers/floating/portal/presence 与对应测试迁到 overlays，生成协议薄入口迁到 src/internal.ts，公开 @zui/svelte/internal 路径保持不变。保留 Layer 单一资源所有者，不按行数拆出多个 manager；短小的跨领域工具继续留 internal。
+
+已实现 Stack/Grid/Container/ScrollArea，源码默认值经清单编译，类型自动生成并格式化。新增 Container 五档语义宽度。Docs 使用构建后的公共组件；Chrome 验证配置与实例覆盖、覆盖滚动条零占位、滑块拖动和键盘滚动。主题/几何/退出相关 10 个聚焦用例通过，SSR 与独立包布局用例加入 CI。P2-02 起仍在实施，不能把当前批次当作第二阶段完成。
+
+### 近期浏览器能力取舍
+
+- 采用 scrollbar-width（Baseline 2024）隐藏系统条但保留原生滚动；不使用历史 overflow:overlay 或预留 gutter 破坏零占位。
+- 采用 Element.scrollend（Baseline 2025）识别真实滚动结束，缺失时保留小型延迟退路；不依赖猜测惯性结束的永久轮询。
+- 研究 @starting-style/离散过渡与 CSS anchor positioning；当前浮层需要虚拟锚点、碰撞测量、跨宿主和统一退出资源，暂不增加并行定位/动效后端。单个能力的支持不等于全部组合合同已验证。
+- 继续使用逻辑尺寸/边缘、原生 CSS Grid/Flex gap、媒体与容器查询；不为响应式布局再建 JS 状态系统。
+
+依据：[滚动条属性](https://web.dev/blog/baseline-scrollbar-props?hl=en)、[Baseline 2025](https://web.dev/baseline/2025)、[starting-style](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@starting-style)、[锚点定位](https://web.dev/learn/css/anchor-positioning)。

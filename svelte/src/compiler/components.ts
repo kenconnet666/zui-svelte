@@ -234,13 +234,13 @@ export function generateComponentTypes(
     definitions
       .map((item, index) => `type P${index} = ComponentProps<typeof C${index}>;`)
       .join('\n') +
-    '\nexport interface ComponentDefaults {\n' +
+    '\nexport type ComponentDefaults = {\n' +
     definitions
       .map(
         (item, index) =>
           `  ${JSON.stringify(item.name)}: Partial<Pick<P${index}, ${item.defaults.map((key) => JSON.stringify(key)).join(' | ') || 'never'} | Extract<'class' | 'style' | 'slotProps', keyof P${index}>>>;`,
       )
       .join('\n') +
-    '\n}\n'
+    '\n};\n'
   );
 }

@@ -15,6 +15,11 @@ const scales = {
     iconMd: '16px',
     iconLg: '20px',
     iconXl: '24px',
+    containerXs: '32rem',
+    containerSm: '48rem',
+    containerMd: '64rem',
+    containerLg: '80rem',
+    containerXl: '96rem',
     full: '100%',
     // 角色引用尺度，改 controlMd 时默认控件一起更新；密度覆盖仍可直接改 control。
     control: /* @__PURE__ */ tokenRef('size', 'controlMd'),

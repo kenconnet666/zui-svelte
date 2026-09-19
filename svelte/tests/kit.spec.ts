@@ -228,3 +228,22 @@ test('SvelteKit streams deferred data after styled shell and hydrates dynamic cl
   expect(await page.evaluate(() => Reflect.get(window, 'cspViolations'))).toEqual([]);
   expect(errors).toEqual([]);
 });
+
+test('layout components retain SSR content and hydrate configuration and scrolling', async ({
+  page,
+  request,
+}) => {
+  const response = await request.get('/layout');
+  expect(response.status()).toBe(200);
+  const html = await response.text();
+  expect(html).toContain('server content');
+  expect(html).toContain('data-testid="ssr-stack"');
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto('/layout');
+  await expect(page.getByTestId('ssr-stack')).toHaveCSS('gap', '8px');
+  await page.getByRole('button', { name: 'Change layout spacing' }).click();
+  await expect(page.getByTestId('ssr-stack')).toHaveCSS('gap', '24px');
+  await expect(page.locator('[data-scrollbar="y"]')).toHaveCount(1);
+  expect(errors).toEqual([]);
+});

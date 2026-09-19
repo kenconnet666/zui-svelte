@@ -6,13 +6,16 @@ import components from './components.mjs';
 const compiler = process.env.ZUI_COMPONENT_COMPILER
   ? await import(process.env.ZUI_COMPONENT_COMPILER)
   : undefined;
-const options = { root: fileURLToPath(new URL('./src', import.meta.url)), components };
+const options = {
+  root: fileURLToPath(new URL('./src', import.meta.url)),
+  components,
+  cssModules: ['@zui/core', '@zui/svelte', '../theme.js'],
+};
 
 export default {
   preprocess: compiler && {
     name: 'zui-package',
     async markup({ content, filename }) {
-      if (!compiler.componentDefinition(filename, options)) return;
       return preprocess(
         content,
         [compiler.componentPreprocess(options), compiler.classPreprocess(options)],

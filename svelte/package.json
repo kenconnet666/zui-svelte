@@ -20,9 +20,9 @@
       "default": "./dist/compiler/preprocess.js"
     },
     "./internal": {
-      "zui-source": "./src/runtime/internal.ts",
-      "types": "./dist/runtime/internal.d.ts",
-      "default": "./dist/runtime/internal.js"
+      "zui-source": "./src/internal.ts",
+      "types": "./dist/internal.d.ts",
+      "default": "./dist/internal.js"
     },
     "./server": {
       "zui-source": "./src/server.ts",

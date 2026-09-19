@@ -5,7 +5,7 @@ import type { Component } from 'svelte';
 import { fileURLToPath } from 'node:url';
 import { zui } from '../src/compiler/preprocess.js';
 import type { RequestEvent } from '@sveltejs/kit';
-import { componentManifest } from './component-manifest.js';
+import { componentManifest, libraryManifest } from './component-manifest.js';
 
 let server: ViteDevServer;
 beforeAll(async () => {
@@ -16,8 +16,8 @@ beforeAll(async () => {
     plugins: [
       zui({
         root,
-        cssModules: ['@zui/core', '@zui/svelte', './styling.js'],
-        components: componentManifest,
+        cssModules: ['@zui/core', '@zui/svelte', './styling.js', '../theme.js'],
+        components: [...componentManifest, ...libraryManifest],
       }),
       svelte({ configFile: false }),
     ],

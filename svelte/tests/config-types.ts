@@ -8,8 +8,13 @@ function checkConfigurationTypes() {
   ConfigProvider<Example>(null as never, { components: { Control: { size: 'huge' } } });
   // @ts-expect-error 不允许未登记组件键。
   ConfigProvider<Example>(null as never, { components: { Unknown: {} } });
-  // @ts-expect-error 默认清单暂未发布视觉组件，不能通过泛型推导绕过清单。
+  // @ts-expect-error 未显式指定泛型时只接受生成清单，不能从配置对象推导未知组件。
   ConfigProvider(null as never, { components: { Control: {} } });
+  ConfigProvider(null as never, {
+    components: { Stack: { gap: 'lg', wrap: true }, Container: { maxWidth: 'full' } },
+  });
+  // @ts-expect-error 布局间距没有 full，不能混用其他尺度。
+  ConfigProvider(null as never, { components: { Stack: { gap: 'full' } } });
 }
 
 void checkConfigurationTypes;

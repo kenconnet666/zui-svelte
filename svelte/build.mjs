@@ -4,6 +4,7 @@ import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'nod
 import { pathToFileURL } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import ts from 'typescript';
+import { format, resolveConfig } from 'prettier';
 import components from './components.mjs';
 
 const root = process.cwd();
@@ -27,8 +28,11 @@ try {
     await writeFile(join(temporary, 'compiler', file.replace(/\.ts$/u, '.js')), result.outputText);
   }
   const compiler = await import(pathToFileURL(join(temporary, 'compiler/preprocess.js')).href);
-  const generated = compiler.generateComponentTypes(components, source);
   const typesFile = join(source, 'component-types.ts');
+  const generated = await format(compiler.generateComponentTypes(components, source), {
+    ...(await resolveConfig(typesFile)),
+    filepath: typesFile,
+  });
   if ((await readFile(typesFile, 'utf8').catch(() => '')) !== generated)
     await writeFile(typesFile, generated);
   const pnpm = process.env.npm_execpath;

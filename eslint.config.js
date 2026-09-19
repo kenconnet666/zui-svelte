@@ -30,6 +30,8 @@ export default defineConfig(
   {
     files: ['**/*.svelte'],
     languageOptions: { parserOptions: { parser: ts.parser } },
+    // Svelte/TypeScript 语言服务检查未声明标识符；核心规则不认识 ScrollToOptions 等纯 DOM 类型。
+    rules: { 'no-undef': 'off' },
   },
   prettier,
   svelte.configs.prettier,

@@ -14,7 +14,6 @@
     | 'source'
     | 'track'
     | 'wbr';
-  // eslint-disable-next-line no-undef -- lib.dom 的纯类型由 TypeScript 检查，不是运行时全局变量。
   export type StyleContainerTag = Exclude<keyof HTMLElementTagNameMap, VoidTag>;
 </script>
 

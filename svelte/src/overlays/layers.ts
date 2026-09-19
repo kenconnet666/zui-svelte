@@ -2,7 +2,7 @@ import { createRuntime, type StyleResource, type StyleRuntime } from '@zui/core'
 import { createFocusTrap, type FocusTrap } from 'focus-trap';
 import { isFocusable, tabbable } from 'tabbable';
 import { createSubscriber } from 'svelte/reactivity';
-import { activeElement, cleanAll, composedContains, styleRoot } from './dom.js';
+import { activeElement, cleanAll, composedContains, styleRoot } from '../internal/dom.js';
 
 export type CloseReason =
   'escape' | 'outside' | 'focus-outside' | 'programmatic' | 'parent' | 'removed';
