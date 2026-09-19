@@ -105,8 +105,14 @@
   "StyleHelpers": [
     "export interface StyleHelpers<T extends TokenSchema, M extends PropertyTokenMap<T> = object> {\n    _selector(selector: string, factory: StyleFactory<T, M>): void;\n    _media(query: string, factory: StyleFactory<T, M>): void;\n    _supports(query: string, factory: StyleFactory<T, M>): void;\n    _container(query: string, factory: StyleFactory<T, M>): void;\n    _hover(factory: StyleFactory<T, M>): void;\n    _focusVisible(factory: StyleFactory<T, M>): void;\n    _before(factory: StyleFactory<T, M>): void;\n    _after(factory: StyleFactory<T, M>): void;\n    _important(factory: StyleFactory<T, M>): void;\n    custom(name: `--${string}`, value: string | number | null | undefined): void;\n    raw(property: string, value: string | number | null | undefined): void;\n    set<P extends keyof CSS.Properties>(property: P, value: CSS.Properties[P] | null): void;\n}"
   ],
+  "TokenNames": [
+    "type TokenNames<T extends TokenSchema, C> = [\n    C\n] extends [\n    keyof T\n] ? keyof T[C & keyof T] & string : never;"
+  ],
+  "TokenAccess": [
+    "type TokenAccess<T extends TokenSchema, C> = {\n    readonly [Token in TokenNames<T, C> as `_${Token}`]: void;\n} & ([\n    TokenNames<T, C>\n] extends [\n    never\n] ? object : {\n    token(key: TokenNames<T, C>): void;\n});"
+  ],
   "Carrier": [
-    "export type Carrier<P extends keyof CSS.Properties, K extends string, U extends keyof typeof units | never, N extends 1 | 2 | 4, C extends string, T extends TokenSchema, M extends PropertyTokenMap<T> = object> = ((value: NonNullable<CSS.Properties[P]> | null | undefined) => void) & {\n    readonly [Keyword in K]: void;\n} & {\n    readonly [Unit in (typeof units)[U][number]]: (...values: UnitArguments<N>) => void;\n} & {\n    readonly [Token in TokenCategory<P, C, M> extends keyof T ? keyof T[TokenCategory<P, C, M>] & string : never as `_${Token}`]: void;\n};"
+    "export type Carrier<P extends keyof CSS.Properties, K extends string, U extends keyof typeof units | never, N extends 1 | 2 | 4, C extends string, T extends TokenSchema, M extends PropertyTokenMap<T> = object> = ((value: NonNullable<CSS.Properties[P]> | null | undefined) => void) & {\n    readonly [Keyword in K]: void;\n} & {\n    readonly [Unit in (typeof units)[U][number]]: (...values: UnitArguments<N>) => void;\n} & TokenAccess<T, TokenCategory<P, C, M>>;"
   ],
   "ResolvedTokens": [
     "export type ResolvedTokens<T extends ThemeDefinition> = ResolveDefinition<NormalizeKeys<T>>;"

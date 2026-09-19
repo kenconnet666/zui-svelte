@@ -826,6 +826,10 @@ Svelte 官方：[state](https://svelte.dev/docs/svelte/$state)、[bindable](http
 
 本节为下一轮候选规划，不改变已实现合同；先确认公共 API 和主题命名，再以 Container/Modal 试点，不直接批量迁移。保留组件局部 class 回调、原生 TS 类型组合与 $props 默认值。
 
+用户随后批准先做补全试点：已增加 `.token(key)`、六个 `size['panel.*']` 别名，并在 Modal 中使用动态模板键、移除 widths 映射。旧 camelCase 键暂时作为别名来源保留，尚未进行整体主题迁移。此前下文的 token 方法候选已进入最小试点，其余类型文档/目录重构仍待确认。
+
+实际试用位置是 svelte/src/overlays/Modal.svelte 的 `s.inlineSize.token`。原生 Svelte LSP 在普通字符串参数 `'panel.md'` 内返回六项 panel.* 补全，方法悬停显示合法键和中文说明；完整模板表达式的静态 `panel.` 片段未返回候选，但表达式类型检查通过。可先试 `token('')` 的键补全，再试动态模板与 size 变量；不把模板片段的补全能力当成已实现，WebStorm 的实际弹窗效果仍由用户试用反馈。
+
 ### 实测问题
 
 - 原生 zui_lsp 验证现有 `_full`、`_panelMd`、`pct(100)` 和动态 ``s.gap[`_${gap}`]`` 可通过类型检查。`inlineSize` 提供 24 个尺寸 Token 补全，主题 Token 并非缺失；Container/Modal 的尺度映射仍手写重复。

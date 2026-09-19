@@ -2,8 +2,35 @@ import { describe, expect, it } from 'vitest';
 import { buildStyle } from '../builder.js';
 import { propertyMetadata } from '../metadata.generated.js';
 import { serializeProgram } from '../serialize.js';
+import { defineTheme } from '../../theme/theme.js';
+import { assertTokenUses, tokenUses } from '../../theme/requirements.js';
 
 describe('CSS statements', () => {
+  it('tracks dynamic token keys like static tokens, including mapped categories', () => {
+    const theme = defineTheme({ size: { 'panel.md': '36rem' }, layout: { compact: '8px' } });
+    const program = buildStyle(
+      (s) => {
+        s.inlineSize.token('panel.md');
+        s._hover((s) => {
+          s.inlineSize['_panel.md'];
+        });
+        s.gap.token('compact');
+      },
+      theme,
+      undefined,
+      { gap: 'layout' },
+    );
+    expect(serializeProgram(program, '.x', false)).toContain('var(--z-size-panel_2e_md)');
+    expect(tokenUses(program)).toHaveLength(2);
+    expect(() => assertTokenUses(tokenUses(program), defineTheme({ size: {} }))).toThrow(
+      'Missing theme token',
+    );
+    expect(() =>
+      buildStyle((s) => {
+        s.inlineSize.token('missing' as never);
+      }, theme),
+    ).toThrow('Unknown theme token');
+  });
   it('covers standard, vendor and SVG properties from csstype', () => {
     expect(Object.keys(propertyMetadata).length).toBeGreaterThan(800);
     expect(propertyMetadata.gridTemplateColumns.name).toBe('grid-template-columns');

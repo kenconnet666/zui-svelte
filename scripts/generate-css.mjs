@@ -66,6 +66,8 @@ for (const property of properties.sort((a, b) => a.name.localeCompare(b.name, 'e
     .filter((value) => /^-?[a-z][a-z0-9-]*$/iu.test(value))
     .sort();
   const keywords = Object.fromEntries(values.map((value) => [keywordName(value), value]));
+  if (Object.hasOwn(keywords, 'token'))
+    throw new Error('Reserved CSS member collision: ' + name + '.token');
   if (Object.keys(keywords).length !== values.length)
     throw new Error('Keyword alias collision: ' + name);
   const signature = JSON.stringify(keywords);

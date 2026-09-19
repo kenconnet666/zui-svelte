@@ -11,6 +11,13 @@ import {
 } from '@zui/core';
 
 describe('theme presets', () => {
+  it('keeps panel completion aliases linked to existing size overrides', () => {
+    for (const theme of [lightTheme, darkTheme]) {
+      const changed = overrideTheme(theme, { size: { panelMd: '42rem' } });
+      expect(changed.resolved.size['panel.md']).toBe('42rem');
+      expect(changed.resolved.size['panel.full']).toBe('100%');
+    }
+  });
   it('uses five ordered grades and only meaningful none/full endpoints', () => {
     const grades = ['xs', 'sm', 'md', 'lg', 'xl'] as const;
     for (const theme of [lightTheme, darkTheme]) {
@@ -63,7 +70,7 @@ describe('theme presets', () => {
   });
   it('keeps the documented semantic inventory complete and consistent with both presets', () => {
     const readme = readFileSync(new URL('../README.md', import.meta.url), 'utf8');
-    const rows = readme.split('\n').filter((line) => /^\|\s*`\w+\.\w+`\s*\|/u.test(line));
+    const rows = readme.split('\n').filter((line) => /^\|\s*`\w+(?:\.\w+)+`\s*\|/u.test(line));
     const entries = rows.map((line) =>
       line
         .split('|')

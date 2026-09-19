@@ -73,14 +73,6 @@
   );
   let backdrop = $state<HTMLElement>();
   const visible = $derived(open || session.presence.mounted);
-  const widths = {
-    xs: 'panelXs',
-    sm: 'panelSm',
-    md: 'panelMd',
-    lg: 'panelLg',
-    xl: 'panelXl',
-    full: 'full',
-  } as const;
   function attach(element: HTMLElement) {
     return session.attach(element);
   }
@@ -172,17 +164,17 @@
             s.transitionDuration._md;
             s.transitionProperty.none;
             if (!side) {
-              s.inlineSize(theme.ref('size', widths[size]));
+              s.inlineSize.token(`panel.${size}`);
               s.maxInlineSize('100%');
               s.maxBlockSize('calc(100dvh - 32px)');
               s.borderRadius._lg;
             } else if (side === 'start' || side === 'end') {
-              s.inlineSize(theme.ref('size', widths[size]));
+              s.inlineSize.token(`panel.${size}`);
               s.maxInlineSize('100%');
               s.blockSize('100dvh');
             } else {
               s.inlineSize('100%');
-              s.blockSize(theme.ref('size', widths[size]));
+              s.blockSize.token(`panel.${size}`);
               s.maxBlockSize('100dvh');
             }
           }),

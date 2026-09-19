@@ -153,6 +153,9 @@ const mappedTheme = extendTheme(theme, { layoutSpace: { card: '18px' } });
 const mappedCss = createCss(mappedTheme, { tokenMap: { gap: 'layoutSpace' } });
 mappedCss((s) => {
   s.gap._card;
+  s.gap.token('card');
+  // @ts-expect-error 动态 Token 与静态 Token 使用同一类别映射
+  s.gap.token('roomy');
   s.gap.px(8, 12);
   s.gap('normal');
   s._hover((s) => {
@@ -182,4 +185,18 @@ optionalCss((s) => {
   s.gap.px(8);
   // @ts-expect-error 可选映射不能保证自定义类别一定启用
   s.gap._card;
+  // @ts-expect-error 可选映射不保证 card 存在于最终类别
+  s.gap.token('card');
 });
+
+const panels = createCss(defineTheme({ size: { 'panel.sm': '20rem', 'panel.md': '36rem' } }));
+function panelSize(size: 'sm' | 'md') {
+  panels((s) => {
+    s.inlineSize.token(`panel.${size}`);
+    // @ts-expect-error 无此 Token
+    s.inlineSize.token('panel.missing');
+    // @ts-expect-error display 没有尺寸 Token 类别
+    s.display.token('panel.md');
+  });
+}
+void panelSize;
