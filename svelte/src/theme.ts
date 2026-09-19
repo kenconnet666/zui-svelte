@@ -26,13 +26,6 @@ const scales = {
     panelLg: '48rem',
     panelXl: '64rem',
     full: '100%',
-    // 补全试点：保留旧键作为值来源，先验证 panel.${size} 的编写体验。
-    'panel.xs': /* @__PURE__ */ tokenRef('size', 'panelXs'),
-    'panel.sm': /* @__PURE__ */ tokenRef('size', 'panelSm'),
-    'panel.md': /* @__PURE__ */ tokenRef('size', 'panelMd'),
-    'panel.lg': /* @__PURE__ */ tokenRef('size', 'panelLg'),
-    'panel.xl': /* @__PURE__ */ tokenRef('size', 'panelXl'),
-    'panel.full': /* @__PURE__ */ tokenRef('size', 'full'),
     // 角色引用尺度，改 controlMd 时默认控件一起更新；密度覆盖仍可直接改 control。
     control: /* @__PURE__ */ tokenRef('size', 'controlMd'),
     icon: /* @__PURE__ */ tokenRef('size', 'iconMd'),

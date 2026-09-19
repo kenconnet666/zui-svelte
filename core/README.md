@@ -10,8 +10,6 @@
 
 ## 统一入口与主题
 
-属性的 `.token(key)` 按该属性的 Token 类别补全并校验键，例如 `s.gap.token(gap)`；与静态 `s.gap._md` 使用相同主题变量和依赖校验。普通 `s.gap('12px')` 仍表示 CSS 值，不猜测 Token 名称。没有可用 Token 的属性不提供此方法。
-
 标准 CSS、通用主题引擎和 runtime 从 `@zui/core` 导入，默认主题为空 baseTheme。内置视觉预设与默认主题 css 已移到 `@zui/svelte`；core 不反向依赖组件包。下面演示使用 UI 预设扩展自定义主题；`css()` 的组件/模块调用仍需接入 ZUI 编译插件。
 
 ```ts

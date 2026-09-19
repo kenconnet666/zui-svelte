@@ -311,12 +311,6 @@ SSR 必须通过 renderStyled 或 Kit style handle 收集，初始主题直接�
 | `size.containerMd`      | `64rem`                         | `64rem`                         | 页面最大宽度五档，与控件尺寸和媒体断点分开                 |
 | `size.containerLg`      | `80rem`                         | `80rem`                         | 页面最大宽度五档，与控件尺寸和媒体断点分开                 |
 | `size.containerXl`      | `96rem`                         | `96rem`                         | 页面最大宽度五档，与控件尺寸和媒体断点分开                 |
-| `size.panel.xs`         | `20rem`                         | `20rem`                         | 补全试点：size 类别的 panel.xs 键，引用 panelXs            |
-| `size.panel.sm`         | `28rem`                         | `28rem`                         | 补全试点：size 类别的 panel.sm 键，引用 panelSm            |
-| `size.panel.md`         | `36rem`                         | `36rem`                         | 补全试点：size 类别的 panel.md 键，引用 panelMd            |
-| `size.panel.lg`         | `48rem`                         | `48rem`                         | 补全试点：size 类别的 panel.lg 键，引用 panelLg            |
-| `size.panel.xl`         | `64rem`                         | `64rem`                         | 补全试点：size 类别的 panel.xl 键，引用 panelXl            |
-| `size.panel.full`       | `100%`                          | `100%`                          | 补全试点：size 类别的 panel.full 键，引用 full             |
 | `size.panelXs`          | `20rem`                         | `20rem`                         | 浮层面板五档尺寸，受可用视口约束                           |
 | `size.panelSm`          | `28rem`                         | `28rem`                         | 浮层面板五档尺寸，受可用视口约束                           |
 | `size.panelMd`          | `36rem`                         | `36rem`                         | 浮层面板五档尺寸，受可用视口约束                           |

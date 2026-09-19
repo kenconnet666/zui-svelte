@@ -167,35 +167,31 @@ export function buildStyle(
         if (carriers.has(key)) return carriers.get(key);
         const entry = Object.hasOwn(metadata, key) ? metadata[key] : undefined;
         if (!entry) throw new StyleError('css.value', 'Unknown CSS property: ' + key);
-        // 静态访问与动态方法走同一条路径，保留宿主的 Token 依赖校验。
-        const writeToken = (token: string) => {
-          const category = tokenMap?.[key] ?? entry.tokens;
-          if (!category)
-            throw new StyleError('css.value', 'CSS property has no token category: ' + key);
-          if (typeof token !== 'string' || !token)
-            throw new StyleError('theme.token', 'Token key must be a non-empty string.');
-          append(entry.name, 'var(' + theme.variable(category, token) + ')');
-          tokens.set(
-            JSON.stringify([category, token]),
-            Object.freeze({
-              namespace: theme.namespace,
-              category,
-              token,
-              kind: typeof theme.resolved[category]![token] === 'number' ? 'number' : 'string',
-            }),
-          );
-        };
         const carrier = new Proxy((value: unknown) => append(entry.name, value), {
           get(_object, member) {
             if (typeof member !== 'string' || member === 'then') return undefined;
-            if (member === 'token') return writeToken;
             const keywords: Readonly<Record<string, string>> = keywordGroups[entry.group]!;
             if (Object.hasOwn(keywords, member)) {
               append(entry.name, keywords[member]);
               return undefined;
             }
             if (member.startsWith('_')) {
-              writeToken(member.slice(1));
+              const category = tokenMap?.[key] ?? entry.tokens;
+              if (!category)
+                throw new StyleError('css.value', 'CSS property has no token category: ' + key);
+              append(entry.name, 'var(' + theme.variable(category, member.slice(1)) + ')');
+              tokens.set(
+                JSON.stringify([category, member]),
+                Object.freeze({
+                  namespace: theme.namespace,
+                  category,
+                  token: member.slice(1),
+                  kind:
+                    typeof theme.resolved[category]![member.slice(1)] === 'number'
+                      ? 'number'
+                      : 'string',
+                }),
+              );
               return undefined;
             }
             const supported: readonly string[] = entry.units ? units[entry.units] : [];

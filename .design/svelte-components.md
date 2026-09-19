@@ -826,10 +826,6 @@ Svelte 官方：[state](https://svelte.dev/docs/svelte/$state)、[bindable](http
 
 本节为下一轮候选规划，不改变已实现合同；先确认公共 API 和主题命名，再以 Container/Modal 试点，不直接批量迁移。保留组件局部 class 回调、原生 TS 类型组合与 $props 默认值。
 
-用户随后批准先做补全试点：已增加 `.token(key)`、六个 `size['panel.*']` 别名，并在 Modal 中使用动态模板键、移除 widths 映射。旧 camelCase 键暂时作为别名来源保留，尚未进行整体主题迁移。此前下文的 token 方法候选已进入最小试点，其余类型文档/目录重构仍待确认。
-
-实际试用位置是 svelte/src/overlays/Modal.svelte 的 `s.inlineSize.token`。原生 Svelte LSP 在普通字符串参数 `'panel.md'` 内返回六项 panel.* 补全，方法悬停显示合法键和中文说明；完整模板表达式的静态 `panel.` 片段未返回候选，但表达式类型检查通过。可先试 `token('')` 的键补全，再试动态模板与 size 变量；不把模板片段的补全能力当成已实现，WebStorm 的实际弹窗效果仍由用户试用反馈。
-
 ### 实测问题
 
 - 原生 zui_lsp 验证现有 `_full`、`_panelMd`、`pct(100)` 和动态 ``s.gap[`_${gap}`]`` 可通过类型检查。`inlineSize` 提供 24 个尺寸 Token 补全，主题 Token 并非缺失；Container/Modal 的尺度映射仍手写重复。
@@ -838,33 +834,26 @@ Svelte 官方：[state](https://svelte.dev/docs/svelte/$state)、[bindable](http
 - MCP completions 仅返回 label/kind/detail，丢弃 documentation、textEdit、sortText、isIncomplete 等信息，且没有按需 resolve。它影响 Codex 能看到的补全信息；WebStorm 编辑器体验仍需从声明和 IDE 实测改善，不能靠修改 MCP 返回值宣称 IDE 变好了。
 - 源码 `_full` 生成 `var(--z-size-full)`；`pct(100)` 和 `'100%'` 都生成固定 `100%`。内部几何约束优先固定百分比，允许主题改变的尺度使用 Token，不能机械替换。
 
-### 推荐的 API 收敛
+### 补全试点结论与声明方向
 
-保留标准关键字、单位、静态 Token 和原始 CSS 四条明确通路，补充动态 Token 方法（尚未实现）：
+用户实测后否决 ``.token(`panel.${size}`)`` 的编写体验，已要求回滚。该试点的运行时方法、panel.* 别名、组件改写、测试及 API 快照一并恢复；不继续把模板字符串拼接键作为推荐方案。类型正确不等于编辑器补全好用。
+
+下一步优先讨论显式声明：需要字符串字面量补全时，让调用位置直接获得明确的联合类型，不依赖模板片段推导。现有映射也可先通过普通 TS 约束改善，例如（仅为候选，尚未修改组件）：
 
 ```ts
-s.display.flex;
-s.inlineSize.pct(100); // 固定比例，不随主题改变
-s.inlineSize._full; // 已支持，主题中的 size.full
-s.inlineSize._panelMd; // 已支持的现有命名
-s.gap.token(gap); // 候选：按属性所属类别检查动态键
-s.inlineSize.token(`panel.${size}`); // 候选：配合下述 B 方案
-s.inlineSize('calc(100% - 2rem)'); // 保留普通 CSS 表达式
+type SizeToken = keyof DefaultTokens['size'];
+const widths = {
+  xs: 'panelXs',
+  sm: 'panelSm',
+  md: 'panelMd',
+  lg: 'panelLg',
+  xl: 'panelXl',
+  full: 'full',
+} as const satisfies Record<Size | 'full', SizeToken>;
+s.inlineSize(theme.ref('size', widths[size]));
 ```
 
-`token(key)` 与 `_key` 共用类别映射、TokenUse 记录和宿主兼容性验证；不把普通字符串调用改成“猜是 Token 还是 CSS”。继续保留 theme.ref 用于复合值，ref 返回字符串与声明写入要区分。方法名称需对全量关键字/单位做碰撞检查，不能悄悄遮蔽原有成员。
-
-尺度命名有三个方向，B 为推荐讨论项：
-
-| 方向                   | 示例（均为候选）                            | 收益与代价                                                                                    |
-| ---------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| A 保留 camelCase Token | `s.inlineSize.token(panelSizes[size])`      | 尺度映射集中到公共主题文件；改动最小，但映射本身仍存在                                        |
-| B 平铺键按家族命名     | ``s.inlineSize.token(`panel.${size}`)``     | size 类别保留，将 panelMd 改为字符串键 panel.md；普通 TS 模板字符串即可推导，无需递归主题模型 |
-| C 嵌套主题与引用树     | `s.inlineSize(theme.vars.size.panel[size])` | 分层补全直观，但需重做主题定义、覆盖/别名/引用类型和路径协议，属于较大重构                    |
-
-B 下 size 类别包含 panel.xs/sm/md/lg/xl/full、container._、control._、icon.*；只给适用家族 full/none。panel.full/container.full 显式引用同类别 full，不增加“缺失键自动回退”。现有自定义 Token 不强制改名。迁移内置键会影响覆盖对象与变量名，须同步亮暗主题、测试、Docs 与合同；私有包阶段不长期维持两套同义键。
-
-临时消费方探针已验证：使用现有 extendTheme/tokenRef 建立平铺点号键后，``s.inlineSize[`_panel.${size}`]`` 和 ``theme.ref('size', `panel.${size}`)`` 均通过，非法 `_missingSize`/`panel.missing` 分别检出 2339/2345。该探针仅证明现有类型/键编码可承载 B；没有实现 token 方法，也未宣称新主题迁移已完成。探针源码已清理。类型原理参考 [TypeScript 模板字面量类型](https://www.typescriptlang.org/docs/handbook/2/template-literal-types.html)。
+该方向保留简单映射，通过上下文类型提供键名候选；是否符合 WebStorm 的实际体验仍需独立试用。若继续设计分组引用，可考虑明确的对象成员和具名参数，但主题结构/API 变更先讨论。生成式字面量联合和 JSDoc 应从同一主题数据生成，不手写重复的全量 Token 表，也不直接暴露复杂中间泛型。
 
 ### 类型与工具验收
 
@@ -886,6 +875,6 @@ Panel.svelte 当前核心职责是发布浮层上下文，可候选 OverlayHost.
 
 ### 实施顺序与待确认项
 
-第一批做生成文档、具名参数、公共声明与 MCP 信息保真，行为保持；第二批在确认 A/B/C 后实现动态 Token API，试点 Container/Modal 并验证主题切换；第三批按消费者关系迁移目录和生成文件命名。每批可独立构建、中文提交推送，下次推送前处理上一轮 CI，推送后不等待。
+第一批做生成文档、具名参数、公共声明与 MCP 信息保真，行为保持；第二批先确认并验证显式声明的补全体验，再决定是否调整引用 API；第三批按消费者关系迁移目录和生成文件命名。每批可独立构建、中文提交推送，下次推送前处理上一轮 CI，推送后不等待。
 
-本轮不建议引入整套 sx/recipe DSL、不识别 $state 来源、不把全量主题 Token 注入每个属性补全、不取消原始 CSS 能力、不为改善提示强升 TypeScript 大版本。C 或 core 新增内部包子入口等公共边界调整需另行讨论。
+本轮不建议引入整套 sx/recipe DSL、不识别 $state 来源、不把全量主题 Token 注入每个属性补全、不取消原始 CSS 能力、不为改善提示强升 TypeScript 大版本。嵌套主题树或 core 新增内部包子入口等公共边界调整需另行讨论。
