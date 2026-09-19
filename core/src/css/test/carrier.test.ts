@@ -23,6 +23,7 @@ value('');`;
   };
   const service = ts.createLanguageService({
     ...ts.sys,
+    useCaseSensitiveFileNames: () => ts.sys.useCaseSensitiveFileNames,
     getScriptFileNames: () => [file],
     getScriptVersion: () => '1',
     getScriptSnapshot(path) {
